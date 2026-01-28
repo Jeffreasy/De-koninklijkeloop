@@ -1,0 +1,136 @@
+---
+import { Instagram } from "lucide-react";
+
+// TODO: Voeg je Behold.so feed URL toe aan .env als: PUBLIC_INSTAGRAM_FEED_URL
+const FEED_URL = import.meta.env.PUBLIC_INSTAGRAM_FEED_URL || "";
+
+interface InstagramPost {
+    id: string;
+    mediaUrl: string;
+    permalink: string;
+    caption?: string;
+    mediaType: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
+    timestamp?: string;
+}
+
+// Fetch posts during build/render
+let posts: InstagramPost[] = [];
+let error = false;
+
+if (FEED_URL) {
+    try {
+        const res = await fetch(FEED_URL);
+        if (res.ok) {
+            const data = await res.json();
+            // Behold.so returns either { media: [...] } or directly [...]
+            posts = Array.isArray(data) ? data : data.media || [];
+            posts = posts.slice(0, 8); // Laatste 8 posts
+        } else {
+            error = true;
+            console.error("Instagram feed fetch failed:", res.status);
+        }
+    } catch (e) {
+        error = true;
+        console.error("Instagram fetch error:", e);
+    }
+}
+---
+
+<section class="py-24 relative overflow-hidden bg-body">
+    <!-- Background Decor -->
+    <div
+        class="absolute top-1/4 -right-64 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none -z-10"
+    >
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="text-center mb-16 space-y-4">
+            <h2
+                class="text-4xl md:text-5xl font-display font-bold text-primary tracking-tight"
+            >
+                Volg ons op <span
+                    class="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-400"
+                    >Instagram</span
+                >
+            </h2>
+            <p class="text-muted text-lg max-w-2xl mx-auto">
+                Blijf op de hoogte van de laatste updates, foto's en behind the
+                scenes.
+            </p>
+            <a
+                href="https://instagram.com/dekoninklijkeloop"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 text-accent-primary hover:text-brand-orange transition-colors font-medium"
+            >
+                <Instagram className="w-5 h-5" />
+                @dekoninklijkeloop
+            </a>
+        </div>
+
+        {
+            error || !FEED_URL ? (
+                <div class="text-center py-12">
+                    <p class="text-muted">
+                        {!FEED_URL
+                            ? "Instagram feed URL niet geconfigureerd. Voeg PUBLIC_INSTAGRAM_FEED_URL toe aan .env"
+                            : "Kon Instagram feed niet laden. Probeer het later opnieuw."}
+                    </p>
+                </div>
+            ) : posts.length === 0 ? (
+                <div class="text-center py-12">
+                    <p class="text-muted">Geen posts gevonden.</p>
+                </div>
+            ) : (
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {posts.map((post) => (
+                        <a
+                            href={post.permalink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="group relative aspect-square overflow-hidden rounded-2xl bg-surface border border-border hover:border-brand-blue-light/30 transition-all duration-300 shadow-md"
+                        >
+                            {/* Image */}
+                            <img
+                                src={post.mediaUrl}
+                                alt={
+                                    post.caption?.slice(0, 100) ||
+                                    "Instagram post"
+                                }
+                                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                loading="lazy"
+                            />
+
+                            {/* Hover Overlay - Maritime Style */}
+                            <div class="absolute inset-0 bg-brand-blue/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
+                                <p class="text-white text-xs line-clamp-4 text-center font-medium mb-3">
+                                    {post.caption || "Bekijk op Instagram"}
+                                </p>
+
+                                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-brand-orange text-white">
+                                    <Instagram className="w-5 h-5" />
+                                </div>
+                            </div>
+
+                            {/* Video indicator */}
+                            {post.mediaType === "VIDEO" && (
+                                <div class="absolute top-3 right-3 p-2 bg-black/60 backdrop-blur-sm rounded-lg">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="white"
+                                        class="text-white"
+                                    >
+                                        <polygon points="5 3 19 12 5 21 5 3" />
+                                    </svg>
+                                </div>
+                            )}
+                        </a>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</section>

@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+@theme {
+  /* --- 1. Definieer je Core Palette --- */
+  --color-brand-orange: #ff9328;
+  --color-brand-blue: #0f172a;
+  /* Zeer donker Slate/Navy */
+  --color-brand-blue-light: #334155;
+  /* Lichtere variant voor borders */
+  --color-action-blue: #2563eb;
+  /* Helderder blauw voor links/info in light mode */
+
+  /* --- 2. Semantische Mapping (Default: Dark Mode) --- */
+  /* Doel: "Deep Tech" - Bioluminescentie sfeer */
+
+  --color-body: var(--bg-body);
+  /* bg-body */
+  --color-surface: var(--bg-surface);
+  /* bg-surface */
+
+  --color-primary: var(--text-primary);
+  /* text-primary */
+  --color-secondary: var(--text-secondary);
+  /* text-secondary */
+  --color-muted: var(--text-muted);
+  /* text-muted */
+
+  --color-accent-primary: var(--accent-primary);
+  /* accent-primary */
+  --color-border: var(--border-subtle);
+  /* border-border */
+
+  /* Typography */
+  --font-display: "Satoshi", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Border Radius */
+  --radius-action: 0.75rem;
+
+  /* Glass Variables (Mapped) */
+  --glass-bg: var(--glass-bg);
+  --glass-border: var(--glass-border);
+}
+
+/* --- 3. Variabele Definities (Values) --- */
+
+/* Default (Dark Mode / Deep Sea) */
+:root {
+  --bg-body: #020617;
+  /* Slate-950 */
+  --bg-surface: #0f172a;
+  /* Slate-900 */
+
+  --text-primary: #f8fafc;
+  /* Slate-50 */
+  --text-secondary: #94a3b8;
+  /* Slate-400 */
+  --text-muted: #64748b;
+  /* Slate-500 */
+
+  --accent-primary: #ff9328;
+  /* --color-brand-orange */
+  --border-subtle: rgba(30, 41, 59, 0.5);
+
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Light Mode Overrides (Clear Sky) */
+[data-theme="light"] {
+  --bg-body: #ffffff;
+  --bg-surface: #f0f9ff;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --accent-primary: #f97316;
+  --border-subtle: #e2e8f0;
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(15, 23, 42, 0.1);
+}
+
+
+/* --- 4. Utilities --- */
+
+@utility glass {
+  @apply backdrop-blur-2xl;
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+}
+
+@utility glass-card {
+  @apply backdrop-blur-xl;
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+@utility premium-glass {
+  @apply backdrop-blur-3xl shadow-2xl;
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+}
+
+@layer base {
+
+  html,
+  body {
+    @apply h-full w-full antialiased transition-colors duration-300;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    position: relative;
+
+    background-color: var(--bg-body);
+    /* Default Gradient (Dark) */
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(255, 147, 40, 0.06) 0%, transparent 40%);
+    background-attachment: fixed;
+  }
+
+  /* Light Mode Gradient Override */
+  :root[data-theme="light"] body {
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(2, 132, 199, 0.05) 0%, transparent 50%),
+      linear-gradient(to bottom, #ffffff, #f0f9ff);
+  }
+
+  /* Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+}

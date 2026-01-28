@@ -1,0 +1,122 @@
+---
+// src/components/blocks/HeroSection.astro
+import { Button } from "../ui/button";
+import { siteConfig } from "../../config/site.config";
+
+const eventDate = siteConfig.event?.date || "28 Januari 2026";
+const eventLocation = siteConfig.event?.location || "Koninklijkeloop";
+const videoId = siteConfig.event?.heroVideo || "standaard_id";
+---
+
+<section
+    class="relative h-screen min-h-[600px] flex flex-col items-center justify-center overflow-hidden bg-brand-blue"
+>
+    <div class="absolute inset-0 w-full h-full overflow-hidden">
+        <iframe
+            src={`https://streamable.com/e/${videoId}?autoplay=1&nocontrols=1&muted=1&loop=1`}
+            frameborder="0"
+            allow="autoplay"
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full w-auto h-auto object-cover hero-video opacity-90"
+            style="aspect-ratio: 16/9; width: 177.77vh; height: 56.25vw;"
+        ></iframe>
+    </div>
+
+    <div
+        class="absolute inset-0 bg-linear-to-b from-brand-blue/70 via-brand-blue/50 to-brand-blue/80 pointer-events-none"
+    >
+    </div>
+
+    <div
+        class="absolute inset-0 bg-body pointer-events-none motion-reduce-fallback hidden"
+    >
+        <div
+            class="absolute top-[-10%] left-[-20%] w-[70%] h-[70%] bg-brand-orange/20 blur-[120px] rounded-full animate-pulse"
+        >
+        </div>
+        <div
+            class="absolute bottom-[-10%] right-[-20%] w-[60%] h-[60%] bg-brand-blue-light/20 blur-[120px] rounded-full"
+        >
+        </div>
+    </div>
+
+    <div
+        class="relative z-10 w-full h-full max-w-5xl mx-auto px-6 pt-32 pb-20 flex flex-col justify-between items-center text-center"
+    >
+        <div class="space-y-8 animate-fade-in-up">
+            <div
+                class="inline-flex items-center gap-3 px-5 py-2.5 rounded-full glass border border-white/10 text-sm text-white/90 font-medium shadow-lg backdrop-blur-md"
+            >
+                <span class="relative flex h-2.5 w-2.5">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75"
+                    ></span>
+                    <span
+                        class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-orange"
+                    ></span>
+                </span>
+                <span class="tracking-wide">
+                    {eventDate} • {eventLocation}
+                </span>
+            </div>
+
+            <h1
+                class="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white tracking-tight leading-[1.1] drop-shadow-2xl max-w-4xl mx-auto"
+            >
+                De Sponsorloop van mensen met een beperking voor een goed doel!
+                <span
+                    class="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-400 block mt-4 pb-2"
+                >
+                    Samen maken we het verschil
+                </span>
+            </h1>
+        </div>
+
+        <div
+            class="flex flex-col sm:flex-row gap-5 justify-center items-center w-full sm:w-auto"
+        >
+            <a href="/register" class="w-full sm:w-auto">
+                <Button
+                    variant="default"
+                    size="lg"
+                    className="w-full sm:w-auto rounded-full px-10 text-lg h-14 shadow-[0_0_20px_rgba(255,147,40,0.4)] hover:shadow-[0_0_30px_rgba(255,147,40,0.6)] transition-all hover:scale-105 bg-brand-orange text-white border-none"
+                >
+                    Schrijf je nu in
+                </Button>
+            </a>
+            <a href="/routes" class="w-full sm:w-auto">
+                <Button
+                    variant="glass"
+                    size="lg"
+                    className="w-full sm:w-auto rounded-full px-10 text-lg h-14 transition-transform hover:scale-105 text-white hover:text-white border-white/20 hover:bg-white/10"
+                >
+                    Bekijk Routes
+                </Button>
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    @keyframes fade-in-up {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .animate-fade-in-up {
+        animation: fade-in-up 0.8s ease-out forwards;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .hero-video {
+            display: none !important;
+        }
+        .motion-reduce-fallback {
+            display: block !important;
+        }
+    }
+</style>

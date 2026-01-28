@@ -1,0 +1,30 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/blocks/Navbar.astro";
+import Footer from "../../components/blocks/Footer.astro";
+import AdminDashboardWrapper from "../../components/islands/AdminDashboardWrapper";
+---
+
+<BaseLayout title="Admin Dashboard | De Koninklijke Loop">
+    <Navbar />
+    <main class="pt-32 pb-20 px-6 min-h-screen">
+        <div class="max-w-7xl mx-auto space-y-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-5xl font-display font-bold">
+                        Admin Dashboard
+                    </h1>
+                    <p class="text-text-muted">
+                        Beheer inschrijvingen en statistieken.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Dashboard Content (React Island) -->
+            <div class="glass-card rounded-2xl p-8 min-h-[500px]">
+                <AdminDashboardWrapper client:only="react" />
+            </div>
+        </div>
+    </main>
+    <Footer />
+</BaseLayout>

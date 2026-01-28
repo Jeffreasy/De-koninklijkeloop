@@ -1,0 +1,30 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import { ConvexClientProvider } from "../../components/islands/ConvexClientProvider";
+import SystemStatus from "../../components/islands/SystemStatus";
+
+// Force server-side rendering is okay, but this is a client-heavy check
+export const prerender = false;
+---
+
+<Layout title="System Diagnostics | De Koninklijke Loop">
+    <div class="fixed inset-0 bg-slate-950 -z-10">
+        <div
+            class="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(120,119,198,0.1),transparent_50%)]"
+        >
+        </div>
+    </div>
+
+    <Navbar />
+
+    <main class="container mx-auto px-4 pt-32 pb-20">
+        <div class="max-w-4xl mx-auto">
+            <div class="glass rounded-3xl p-8 border border-glass-border">
+                <ConvexClientProvider client:load>
+                    <SystemStatus client:load />
+                </ConvexClientProvider>
+            </div>
+        </div>
+    </main>
+</Layout>

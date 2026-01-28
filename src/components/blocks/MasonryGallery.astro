@@ -1,0 +1,39 @@
+---
+// src/components/blocks/MasonryGallery.astro
+import { CldImage } from "astro-cloudinary";
+
+interface Props {
+    images: {
+        src: string;
+        alt: string;
+        aspect?: "vertical" | "horizontal" | string;
+    }[];
+}
+
+const { images } = Astro.props;
+---
+
+<div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+    {
+        images.map((img) => (
+            <div class="break-inside-avoid rounded-2xl overflow-hidden shadow-lg border border-white/10 group relative bg-surface">
+                <div class="absolute inset-0 bg-linear-to-t from-brand-blue/90 via-brand-blue/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-end p-6">
+                    <p class="text-white font-display font-bold text-lg translate-y-4 group-hover:translate-y-0 transition-transform duration-300 drop-shadow-md">
+                        {img.alt}
+                    </p>
+                </div>
+
+                <CldImage
+                    src={img.src}
+                    alt={img.alt}
+                    width={800}
+                    height={img.aspect === "vertical" ? 1200 : 800}
+                    crop="fill"
+                    format="auto"
+                    quality="auto"
+                    class="w-full h-auto transform transition-transform duration-700 group-hover:scale-110"
+                />
+            </div>
+        ))
+    }
+</div>

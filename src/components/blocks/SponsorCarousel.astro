@@ -1,0 +1,97 @@
+---
+// src/components/blocks/SponsorCarousel.astro
+import { CldImage } from "astro-cloudinary";
+import { siteConfig } from "../../config/site.config";
+
+// Zorg voor genoeg items voor een soepele loop
+const rawSponsors = siteConfig.sponsors || [];
+const sponsors =
+    rawSponsors.length < 10
+        ? [...rawSponsors, ...rawSponsors, ...rawSponsors]
+        : rawSponsors;
+
+// Render de lijst 2x voor de infinite loop
+const carouselItems = [...sponsors, ...sponsors];
+---
+
+<section
+    class="relative py-16 overflow-hidden bg-body border-y border-border/40"
+>
+    <div
+        class="pointer-events-none absolute inset-y-0 left-0 w-24 bg-linear-to-r from-body to-transparent z-10"
+    >
+    </div>
+
+    <div
+        class="pointer-events-none absolute inset-y-0 right-0 w-24 bg-linear-to-l from-body to-transparent z-10"
+    >
+    </div>
+
+    <div class="flex overflow-hidden relative z-0">
+        <div
+            class="flex gap-16 animate-infinite-scroll items-center hover:pause-animation"
+        >
+            {
+                carouselItems.map((sponsor, index) => (
+                    <div class="shrink-0 w-[160px] h-[80px] flex items-center justify-center group">
+                        <CldImage
+                            src={sponsor.src}
+                            alt={sponsor.name}
+                            width={160}
+                            height={80}
+                            crop="lpad"
+                            format="auto"
+                            quality="auto"
+                            class="sponsor-logo transition-all duration-300"
+                        />
+                    </div>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    /* ANIMATION */
+    @keyframes infinite-scroll {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-50%);
+        }
+    }
+
+    .animate-infinite-scroll {
+        animation: infinite-scroll 40s linear infinite;
+        width: fit-content;
+    }
+
+    /* Pause on hover */
+    .hover\:pause-animation:hover {
+        animation-play-state: paused;
+    }
+
+    /* LOGO STYLING - MARITIME THEME */
+    .sponsor-logo {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+
+        /* Default State (Rustig) */
+        opacity: 0.6;
+        filter: grayscale(100%);
+    }
+
+    /* Dark Mode Specifiek: Maak logo's wit/zilver (Tech look) */
+    :global(.dark) .sponsor-logo {
+        filter: grayscale(100%) brightness(0) invert(0.8);
+    }
+
+    /* Hover State (Kleur terugbrengen) */
+    .group:hover .sponsor-logo {
+        opacity: 1;
+        transform: scale(1.1);
+        filter: grayscale(0%) brightness(100%) invert(0);
+    }
+</style>

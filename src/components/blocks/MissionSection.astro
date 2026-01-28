@@ -1,0 +1,150 @@
+---
+import { Button } from "../ui/button";
+// We importeren strakke SVG icons voor de "Tech" uitstraling
+import { Users, Trees, HeartHandshake, Crown } from "lucide-react";
+
+const features = [
+    {
+        title: "Inclusiviteit",
+        description:
+            "Een evenement waar iedereen meedoet, ongeacht beperking of achtergrond. Samen breken we barrières.",
+        icon: Users, // Referentie naar het component, niet een string
+    },
+    {
+        title: "Gezondheid",
+        description:
+            "Bewegen is leven. We stimuleren een actieve levensstijl in de prachtige natuur van de Veluwe.",
+        icon: Trees,
+    },
+    {
+        title: "Verbinding",
+        description:
+            "Ontmoet nieuwe mensen, deel verhalen en wandel samen naar de finish. Niemand loopt alleen.",
+        icon: HeartHandshake,
+    },
+];
+---
+
+<section
+    class="relative py-24 overflow-hidden bg-surface border-y border-border"
+>
+    <div
+        class="absolute top-0 left-1/4 w-96 h-96 bg-brand-blue-light/10 rounded-full blur-[128px] pointer-events-none"
+    >
+    </div>
+    <div
+        class="absolute bottom-0 right-1/4 w-96 h-96 bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none"
+    >
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+            <div class="space-y-8">
+                <div>
+                    <h2
+                        class="text-4xl md:text-5xl font-display font-bold text-primary leading-tight"
+                    >
+                        Wandelen voor een
+                        <span
+                            class="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-400"
+                        >
+                            Inclusieve Wereld
+                        </span>
+                    </h2>
+                    <p class="mt-6 text-lg text-muted leading-relaxed">
+                        De Koninklijke Loop is meer dan een wandeltocht; het is
+                        een beweging. Een initiatief <strong
+                            class="text-primary font-semibold"
+                            >voor en door</strong
+                        > mensen met een beperking, waarbij we laten zien dat beperkingen
+                        wegvallen als we samen optrekken.
+                    </p>
+                    <p class="mt-4 text-lg text-muted leading-relaxed">
+                        Op 17 Mei 2026 kleuren we Kootwijk oranje en blauw. Van
+                        de 2.5KM "Roll & Stroll" tot de uitdagende 15KM
+                        bosroute: er is plek voor iedereen.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-4">
+                    <a href="/register">
+                        <Button
+                            size="lg"
+                            className="rounded-full px-8 bg-accent-primary hover:bg-orange-600 shadow-lg shadow-brand-orange/20 text-white font-medium border-none"
+                        >
+                            Schrijf je in
+                        </Button>
+                    </a>
+                    <a href="/about">
+                        <Button
+                            variant="ghost"
+                            size="lg"
+                            className="rounded-full px-8 text-primary hover:bg-primary/5 border border-border"
+                        >
+                            Lees ons verhaal
+                        </Button>
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid gap-6">
+                <div
+                    class="glass-card p-8 rounded-3xl relative overflow-hidden group hover:shadow-2xl transition-all duration-500"
+                >
+                    <div
+                        class="absolute inset-0 bg-linear-to-br from-brand-blue/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    >
+                    </div>
+
+                    <div class="relative z-10">
+                        <div
+                            class="w-14 h-14 bg-accent-primary/10 rounded-xl flex items-center justify-center mb-6 text-brand-orange"
+                        >
+                            <Crown className="w-7 h-7" />
+                        </div>
+                        <h3 class="text-xl font-bold text-primary mb-3">
+                            Koninklijke Allure
+                        </h3>
+                        <p class="text-muted leading-relaxed">
+                            Start en finish in een vorstelijke ambiance.
+                            Begeleid door muziek, sfeer en applaus voelt elke
+                            deelnemer zich een winnaar.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-6">
+                    {
+                        features.slice(0, 2).map((feature) => (
+                            <div class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300">
+                                <div class="mb-4 text-brand-sky">
+                                    <feature.icon className="w-8 h-8" />
+                                </div>
+                                <h4 class="font-bold text-primary mb-2">
+                                    {feature.title}
+                                </h4>
+                                <p class="text-sm text-muted">
+                                    {feature.description}
+                                </p>
+                            </div>
+                        ))
+                    }
+                </div>
+
+                <div
+                    class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 sm:col-span-2 lg:col-span-1 lg:hidden"
+                >
+                    <div class="mb-4 text-brand-orange">
+                        <HeartHandshake className="w-8 h-8" />
+                    </div>
+                    <h4 class="font-bold text-primary mb-2">
+                        {features[2].title}
+                    </h4>
+                    <p class="text-sm text-muted">
+                        {features[2].description}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

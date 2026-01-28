@@ -1,0 +1,156 @@
+---
+// src/components/blocks/Navbar.astro
+import ThemeToggle from "../islands/ThemeToggle";
+import { siteConfig } from "../../config/site.config";
+
+const navItems = siteConfig.navigation;
+---
+
+<nav
+    id="main-nav"
+    class="fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b border-transparent"
+>
+    <div
+        class="mx-auto max-w-7xl px-6 h-20 flex items-center justify-between relative"
+    >
+        <a href="/" class="shrink-0 group z-10 flex items-center gap-2">
+            <span
+                class="text-3xl font-display font-bold text-primary group-hover:text-accent-primary transition-colors"
+            >
+                K
+            </span>
+            <span
+                class="hidden md:block font-display font-bold text-lg text-primary/90 tracking-tight group-hover:text-primary transition-colors"
+            >
+                De Koninklijkeloop
+            </span>
+        </a>
+
+        <div class="hidden md:flex items-center gap-1">
+            <div
+                class="flex items-center gap-1 p-1 bg-surface/50 backdrop-blur-md border border-border rounded-full px-4 py-1.5 shadow-sm"
+            >
+                {
+                    navItems.map((item) => (
+                        <a
+                            href={item.href}
+                            class:list={[
+                                "px-3 py-1.5 rounded-full text-sm font-medium transition-all relative",
+                                item.highlight
+                                    ? "bg-accent-primary text-white shadow-md shadow-brand-orange/20" // Oranje knop blijft altijd wit/oranje
+                                    : "text-muted hover:text-primary hover:bg-primary/5", // Hover effect past zich aan
+                            ]}
+                        >
+                            {item.name}
+                        </a>
+                    ))
+                }
+            </div>
+
+            <div class="pl-4 ml-4 border-l border-border h-8 flex items-center">
+                <ThemeToggle client:load />
+            </div>
+        </div>
+
+        <div class="md:hidden flex items-center gap-4">
+            <ThemeToggle client:load />
+            <button
+                class="p-2 text-primary hover:bg-surface rounded-lg transition-colors"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-menu"
+                >
+                    <line x1="4" x2="20" y1="12" y2="12"></line>
+                    <line x1="4" x2="20" y1="6" y2="6"></line>
+                    <line x1="4" x2="20" y1="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<script>
+    const nav = document.getElementById("main-nav");
+
+    function updateNav() {
+        if (!nav) return;
+
+        // 1. Check Theme & Scroll State
+        const isLight =
+            document.documentElement.getAttribute("data-theme") === "light";
+        const isScrolled = window.scrollY > 20;
+
+        // 2. Clean Slate: Verwijder alle scroll-specifieke classes
+        nav.classList.remove(
+            "bg-white/90",
+            "bg-body/90",
+            "backdrop-blur-md",
+            "shadow-sm",
+            "border-b-4",
+            "border-t-4",
+            "border-brand-orange", // Light mode borders
+            "border-b",
+            "border-white/10", // Dark mode borders
+        );
+
+        // 3. Apply Logic
+        if (isScrolled) {
+            nav.classList.remove("bg-transparent", "border-transparent");
+
+            if (isLight) {
+                // LIGHT MODE SCROLLED:
+                // Wit met Oranje rand.
+                // Let op de switch: Border-Bottom op mobile, Border-Top op desktop.
+                nav.classList.add(
+                    "bg-white/90",
+                    "backdrop-blur-md",
+                    "shadow-sm",
+                    "border-brand-orange",
+                    "border-b-4", // Mobile: Rand onder
+                    "md:border-b-0",
+                    "md:border-t-4", // Desktop: Rand boven
+                );
+            } else {
+                // DARK MODE SCROLLED:
+                // Deep Navy Glass met subtiele witte rand onder
+                nav.classList.add(
+                    "bg-body/90", // Gebruikt semantische var, maar met opacity utility
+                    "backdrop-blur-md",
+                    "border-b",
+                    "border-white/10",
+                );
+            }
+        } else {
+            // TOP STATE (Niet gescrolled)
+            nav.classList.add("bg-transparent", "border-transparent");
+        }
+    }
+
+    // Event Listeners
+    window.addEventListener("scroll", updateNav);
+
+    // Observer voor theme switch (zodat de navbar direct update als je togglet)
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (
+                mutation.type === "attributes" &&
+                mutation.attributeName === "data-theme"
+            ) {
+                updateNav();
+            }
+        });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+
+    // Init
+    updateNav();
+</script>

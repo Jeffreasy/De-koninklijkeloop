@@ -1,0 +1,113 @@
+---
+// src/components/blocks/MediaMosaic.astro
+import StreamableVideo from "./StreamableVideo.astro";
+import LiveImageGrid from "../islands/LiveImageGrid";
+import { siteConfig } from "../../config/site.config";
+import { Button } from "../ui/button";
+import { Play, ArrowRight } from "lucide-react";
+
+// Featured content config
+const { video } = siteConfig.featuredMedia;
+
+// Use the full gallery for more variety (6 images vs 3)
+const galleryImages = siteConfig.gallery.map((img) => ({
+    src: `https://res.cloudinary.com/dgfuv7wif/image/upload/${img.src}`,
+    alt: img.alt,
+    class: "h-full w-full object-cover",
+}));
+
+const displayImages = galleryImages;
+---
+
+<section class="py-24 relative overflow-hidden bg-body">
+    <div
+        class="absolute top-1/4 -left-64 w-[500px] h-[500px] bg-brand-blue-light/10 rounded-full blur-[128px] pointer-events-none -z-10"
+    >
+    </div>
+    <div
+        class="absolute bottom-1/4 -right-64 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none -z-10"
+    >
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="text-center mb-16 space-y-4">
+            <h2
+                class="text-4xl md:text-5xl font-display font-bold text-primary tracking-tight"
+            >
+                Beleef de <span
+                    class="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-400"
+                    >Sfeer</span
+                >
+            </h2>
+            <p class="text-muted text-lg max-w-2xl mx-auto">
+                Van de energieke start tot de feestelijke finish. Bekijk de
+                hoogtepunten van de laatste editie.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div
+                class="group relative rounded-3xl p-2 bg-surface border border-border hover:border-brand-blue-light/30 transition-colors duration-500 shadow-xl h-full flex flex-col"
+            >
+                <div
+                    class="absolute inset-0 bg-brand-blue/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                >
+                </div>
+
+                <div class="relative z-10 flex flex-col gap-4 h-full">
+                    <div
+                        class="rounded-2xl overflow-hidden w-full shadow-inner bg-black aspect-video"
+                    >
+                        <StreamableVideo
+                            shortcode={video.shortcode}
+                            title={video.title}
+                            bare={true}
+                        />
+                    </div>
+
+                    <div
+                        class="px-4 pb-2 flex justify-between items-center mt-auto"
+                    >
+                        <div>
+                            <h3
+                                class="text-xl font-display font-bold text-primary group-hover:text-brand-sky transition-colors"
+                            >
+                                {video.title}
+                            </h3>
+                            <p
+                                class="text-muted text-sm flex items-center gap-2 mt-1"
+                            >
+                                <Play className="w-3 h-3 text-brand-orange" />
+                                Officiële Aftermovie 2025
+                            </p>
+                        </div>
+                        <div
+                            class="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-all duration-300 shadow-sm"
+                        >
+                            <Play className="w-5 h-5 ml-0.5" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-full min-h-[400px]">
+                <LiveImageGrid images={displayImages} client:visible />
+            </div>
+        </div>
+
+        <div class="mt-12 text-center">
+            <a href="/media">
+                <Button
+                    variant="ghost"
+                    size="lg"
+                    className="rounded-full px-8 border border-border text-primary hover:bg-surface hover:text-brand-orange transition-all group"
+                >
+                    Bekijk alle foto's
+                    <ArrowRight
+                        className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1"
+                    />
+                </Button>
+            </a>
+        </div>
+    </div>
+</section>
