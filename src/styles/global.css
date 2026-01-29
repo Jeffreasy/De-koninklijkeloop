@@ -53,34 +53,43 @@
 
   --text-primary: #f8fafc;
   /* Slate-50 */
-  --text-secondary: #94a3b8;
+  --text-secondary: #cbd5e1;
+  /* Slate-300 - Higher contrast for readability */
+  --text-muted: #94a3b8;
   /* Slate-400 */
-  --text-muted: #64748b;
-  /* Slate-500 */
 
   --accent-primary: #ff9328;
   /* --color-brand-orange */
-  --border-subtle: rgba(30, 41, 59, 0.5);
+  --border-subtle: rgba(148, 163, 184, 0.15);
+  /* Subtle Slate border */
 
-  /* glass-bg with subtle warm tint (Deep Sea + Orange hint) */
-  --glass-bg: rgba(20, 25, 45, 0.7);
-  --glass-border: rgba(255, 147, 40, 0.08); /* Orange border hint */
+  /* Deep Tech Glass */
+  --glass-bg: rgba(15, 23, 42, 0.75);
+  /* More opaque for legibility */
+  --glass-border: rgba(255, 255, 255, 0.08);
+  /* Clean white hint */
 }
 
 /* Light Mode Overrides (Clear Sky) */
-[data-theme="light"] {
+[data-theme="light"],
+:root[data-theme="light"] {
   --bg-body: #ffffff;
-  --bg-surface: #f0f9ff;
+  --bg-surface: #f8fafc;
+  /* Slate-50 */
 
   --text-primary: #0f172a;
+  /* Slate-900 */
   --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  /* Slate-600 */
+  --text-muted: #64748b;
+  /* Slate-500 */
 
   --accent-primary: #f97316;
   --border-subtle: #e2e8f0;
 
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(15, 23, 42, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  /* Frosty */
+  --glass-border: rgba(15, 23, 42, 0.08);
 }
 
 

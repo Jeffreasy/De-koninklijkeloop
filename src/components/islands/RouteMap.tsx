@@ -44,8 +44,8 @@ export default function RouteMap() {
                         className={cn(
                             "px-6 py-3 rounded-xl font-medium transition-all duration-300 backdrop-blur-md border",
                             selectedRouteId === route.id
-                                ? "bg-brand-primary text-slate-950 border-brand-primary shadow-lg scale-105"
-                                : "bg-glass-bg border-glass-border text-text-muted hover:bg-glass-bg/80 hover:text-text-body"
+                                ? "bg-accent-primary text-slate-950 border-accent-primary shadow-lg scale-105 font-bold"
+                                : "bg-glass-bg border-glass-border text-secondary hover:bg-glass-bg/80 hover:text-primary hover:border-white/20"
                         )}
                     >
                         {route.distance}
@@ -54,9 +54,21 @@ export default function RouteMap() {
             </div>
 
             {/* Info Card */}
-            <div className="text-center max-w-2xl mx-auto mb-4">
-                <h2 className="text-2xl font-display font-medium text-text-body mb-2">{selectedRoute.name}</h2>
-                <p className="text-text-muted">{selectedRoute.description}</p>
+            <div className="text-center max-w-2xl mx-auto mb-8">
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-primary mb-3">
+                    {selectedRoute.name}
+                </h2>
+                <p className="text-lg text-secondary leading-relaxed max-w-xl mx-auto">
+                    {selectedRoute.description}
+                </p>
+
+                {/* Visual indicator of metric */}
+                <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface/50 border border-white/10 backdrop-blur-md">
+                    <div className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: selectedRoute.color }}></div>
+                    <span className="text-sm font-medium text-primary">
+                        {selectedRoute.distance}
+                    </span>
+                </div>
             </div>
 
             {/* Map */}

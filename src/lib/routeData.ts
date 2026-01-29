@@ -18,23 +18,37 @@ const START_POINT = { lat: 52.234120, lng: 5.945890 };
 
 export const routes: Route[] = [
     {
-        id: "5km",
-        name: "5KM Koninklijke Mijl",
-        distance: "5 KM",
-        color: "#3b82f6", // Blue
-        description: "Een prachtige route door de tuinen van Het Loo. Geschikt voor jong en oud.",
+        id: "2.5km",
+        name: "2.5 KM Roll & Stroll",
+        distance: "2.5 KM",
+        color: "#10b981", // Emerald
+        description: "Een volledig verharde, toegankelijke route. Perfect voor rolstoelgebruikers en gezinnen.",
         points: [
             START_POINT,
-            { lat: 52.238, lng: 5.950 },
-            { lat: 52.240, lng: 5.948 },
-            { lat: 52.242, lng: 5.942 },
-            { lat: 52.239, lng: 5.938 },
+            { lat: 52.236, lng: 5.948 },
+            { lat: 52.238, lng: 5.945 },
+            { lat: 52.235, lng: 5.940 },
+            START_POINT
+        ]
+    },
+    {
+        id: "6km",
+        name: "6 KM Gezinsroute",
+        distance: "6 KM",
+        color: "#3b82f6", // Blue
+        description: "Een mooie wandeling door de directe natuur, ideaal voor een sportieve middag met het gezin.",
+        points: [
+            START_POINT,
+            { lat: 52.238, lng: 5.952 },
+            { lat: 52.242, lng: 5.948 },
+            { lat: 52.240, lng: 5.935 },
+            { lat: 52.232, lng: 5.938 },
             START_POINT
         ]
     },
     {
         id: "10km",
-        name: "10KM Vorstelijke Verkenning",
+        name: "10 KM Vorstelijke Verkenning",
         distance: "10 KM",
         color: "#eab308", // Yellow/Gold
         description: "Verken de bossen rondom het paleis en de prachtige lanen van Apeldoorn.",
@@ -50,10 +64,10 @@ export const routes: Route[] = [
     },
     {
         id: "15km",
-        name: "15KM Paleistuinen & Parken",
+        name: "15 KM Paleistuinen & Parken",
         distance: "15 KM",
         color: "#EF4444", // Red
-        description: "Onze langste route voor de echte wandelaars. Zie alles wat Apeldoorn te bieden heeft.",
+        description: "Onze langste route van Kootwijk naar Apeldoorn voor de echte doorzetters.",
         points: [
             START_POINT,
             { lat: 52.230, lng: 5.960 },

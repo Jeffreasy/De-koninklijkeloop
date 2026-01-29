@@ -23,6 +23,38 @@ const {
         <meta name="generator" content={Astro.generator} />
         <title>{title}</title>
         <ClientRouter />
+        <script is:inline>
+            // Anti-Flicker & Theme Initialization Script
+            const getTheme = () => {
+                const stored = localStorage.getItem("theme");
+                if (stored) return stored;
+                return window.matchMedia("(prefers-color-scheme: light)").matches
+                    ? "light"
+                    : "dark";
+            };
+
+            const setTheme = (theme) => {
+                const root = document.documentElement;
+                if (theme === "light") {
+                    root.setAttribute("data-theme", "light");
+                    root.classList.add("light");
+                    root.classList.remove("dark");
+                } else {
+                    root.setAttribute("data-theme", "dark");
+                    root.classList.add("dark");
+                    root.classList.remove("light");
+                }
+                localStorage.setItem("theme", theme);
+            };
+
+            // Initial Run
+            setTheme(getTheme());
+
+            // View Transitions Hook
+            document.addEventListener("astro:after-swap", () => {
+                setTheme(getTheme());
+            });
+        </script>
         <link
             href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap"
             rel="stylesheet"

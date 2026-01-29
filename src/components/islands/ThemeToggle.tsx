@@ -6,20 +6,28 @@ export default function ThemeToggle() {
     const [theme, setTheme] = useState<"light" | "dark">("dark");
 
     useEffect(() => {
-        // Check local storage or preference
-        const saved = localStorage.getItem("theme") as "light" | "dark";
-        if (saved) {
-            setTheme(saved);
-            document.documentElement.setAttribute("data-theme", saved);
+        // Sync with the theme set by the head script
+        const currentTheme = document.documentElement.getAttribute("data-theme") as "light" | "dark";
+        if (currentTheme) {
+            setTheme(currentTheme);
         } else {
-            document.documentElement.setAttribute("data-theme", "dark");
+            // Fallback (should ideally not happen due to head script)
+            const saved = localStorage.getItem("theme") as "light" | "dark";
+            const system = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+            setTheme(saved || system);
         }
     }, []);
 
     const toggleTheme = () => {
         const newTheme = theme === "dark" ? "light" : "dark";
         setTheme(newTheme);
-        document.documentElement.setAttribute("data-theme", newTheme);
+
+        // Update DOM
+        const root = document.documentElement;
+        root.setAttribute("data-theme", newTheme);
+        root.className = newTheme; // Update class for Tailwind dark: selector
+
+        // Persist
         localStorage.setItem("theme", newTheme);
     };
 

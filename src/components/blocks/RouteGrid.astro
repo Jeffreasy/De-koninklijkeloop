@@ -1,0 +1,59 @@
+---
+import { routes } from "../../lib/routeData";
+import { Baby, Users, TreePine, Trophy, Footprints } from "lucide-react";
+
+// Mapping icons to route IDs
+const iconMap: Record<string, any> = {
+    "2.5km": Baby, // Accessible/Family
+    "6km": Users, // Family/Group
+    "10km": TreePine, // Nature
+    "15km": Trophy, // Challenge
+};
+
+// Fallback icon
+const DefaultIcon = Footprints;
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+    {
+        routes.map((route) => {
+            const Icon = iconMap[route.id] || DefaultIcon;
+            return (
+                <div class="glass-card p-6 rounded-2xl relative group hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                    {/* Hover Gradient Effect */}
+                    <div
+                        class="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"
+                        style={`background: linear-gradient(135deg, ${route.color}, transparent);`}
+                    />
+
+                    <div class="relative z-10 flex flex-col h-full">
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="p-3 rounded-xl bg-surface/50 text-primary border border-white/5"
+                                style={`color: ${route.color}`}
+                            >
+                                <Icon className="w-6 h-6" />
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-surface/80 border border-white/5 text-primary">
+                                {route.distance}
+                            </span>
+                        </div>
+
+                        <h3 class="text-2xl font-display font-bold text-primary mb-3">
+                            {route.name}
+                        </h3>
+
+                        <p class="text-secondary text-base leading-relaxed mb-6 flex-grow">
+                            {route.description}
+                        </p>
+
+                        <div class="flex items-center text-xs font-medium text-muted gap-2">
+                             <div class="h-1.5 w-1.5 rounded-full" style={`background-color: ${route.color}`}></div>
+                             <span>Gemarkeerde route</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        })
+    }
+</div>

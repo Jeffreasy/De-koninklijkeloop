@@ -17,12 +17,16 @@ const icons = {
         <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             {/* Brand Column */}
             <div class="space-y-4 md:col-span-1">
-                <a href="/" class="block">
-                     <img
-                        src={siteConfig.brand.logo}
-                        alt={`${siteConfig.brand.name} Logo`}
-                        class="h-10 w-auto mb-2 object-contain"
-                    />
+                <a href="/" class="block group w-fit">
+                    <div
+                        class="p-1.5 bg-white/30 backdrop-blur-md rounded-xl group-hover:bg-white/50 transition-all duration-300"
+                    >
+                        <img
+                            src={siteConfig.brand.logo}
+                            alt={`${siteConfig.brand.name} Logo`}
+                            class="h-10 w-auto object-contain"
+                        />
+                    </div>
                 </a>
                 <p class="text-muted leading-relaxed max-w-xs">
                     {siteConfig.brand.description}
