@@ -2,7 +2,7 @@ import { $accessToken } from "./auth";
 
 // Use local proxy to avoid CORS
 const API_URL = "/api";
-const TENANT_ID = import.meta.env.PUBLIC_TENANT_ID || "c3888c7e-44cf-4827-9a7d-adaae2a1a095";
+const TENANT_ID = import.meta.env.PUBLIC_TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
 
 export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     const token = $accessToken.get();
@@ -18,6 +18,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     const res = await fetch(`${API_URL}${endpoint}`, {
         ...options,
         headers,
+        credentials: "include", // Ensure cookies are sent/received
     });
 
     if (!res.ok) {

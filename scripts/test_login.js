@@ -3,7 +3,7 @@ dotenv.config();
 
 // Use the explicit UUID we found
 const API_URL = "https://laventecareauthsystems.onrender.com/api/v1";
-const TENANT_ID = "c3888c7e-44cf-4827-9a7d-adaae2a1a095";
+const TENANT_ID = "b2727666-7230-4689-b58b-ceab8c2898d5";
 
 async function testLogin() {
     console.log(`Testing login on ${API_URL} for tenant ${TENANT_ID}...`);

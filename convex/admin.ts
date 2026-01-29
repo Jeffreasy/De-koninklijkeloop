@@ -5,7 +5,7 @@ import { api } from "./_generated/api";
 export const getRegistrations = action({
     args: { token: v.string() },
     handler: async (ctx, args): Promise<any> => {
-        const tenantId = process.env.TENANT_ID || "c3888c7e-44cf-4827-9a7d-adaae2a1a095";
+        const tenantId = process.env.TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
 
         // 1. Verify Token via Auth API
         const res = await fetch("https://laventecareauthsystems.onrender.com/api/v1/me", {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ConvexClientProvider } from "./ConvexClientProvider";
 import { $accessToken, logout } from "../../lib/auth";
 import { useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -8,18 +9,43 @@ export default function ParticipantDashboardWrapper() {
     const [token, setToken] = useState<string | null>(null);
 
     useEffect(() => {
-        // Wait for client-side hydration
-        const t = $accessToken.get();
-        if (!t) {
-            window.location.href = "/login";
-        } else {
-            setToken(t);
-        }
+        const initAuth = async () => {
+            let t = $accessToken.get();
+
+            if (!t) {
+                try {
+                    // Cookie-based Auth: Fetch the token specifically for Convex integration
+                    // This uses the HttpOnly cookie to authenticate this request
+                    const { apiRequest } = await import("../../lib/api");
+                    const res = await apiRequest("/auth/token");
+                    if (res.token) {
+                        t = res.token;
+                        // Optional: update store, or just use local state? 
+                        // Updating store might help other components
+                        $accessToken.set(t);
+                    }
+                } catch (e) {
+                    console.error("Failed to recover session:", e);
+                }
+            }
+
+            if (!t) {
+                window.location.href = "/login";
+            } else {
+                setToken(t);
+            }
+        };
+
+        initAuth();
     }, []);
 
     if (!token) return null;
 
-    return <DashboardContent token={token} />;
+    return (
+        <ConvexClientProvider>
+            <DashboardContent token={token} />
+        </ConvexClientProvider>
+    );
 }
 
 function DashboardContent({ token }: { token: string }) {

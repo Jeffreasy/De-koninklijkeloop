@@ -2,10 +2,15 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
+import { Doc } from "./_generated/dataModel";
+
 export const getDashboardData = action({
     args: { token: v.string() },
-    handler: async (ctx, args) => {
-        const tenantId = process.env.TENANT_ID || "c3888c7e-44cf-4827-9a7d-adaae2a1a095";
+    handler: async (ctx, args): Promise<{
+        user: { email: string; id: string };
+        registration: Doc<"registrations"> | null;
+    }> => {
+        const tenantId = process.env.TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
 
         // 1. Verify Token via Auth API
         const res = await fetch("https://laventecareauthsystems.onrender.com/api/v1/me", {

@@ -10,10 +10,15 @@ export const registerParticipant = action({
         role: v.union(v.literal("deelnemer"), v.literal("begeleider"), v.literal("vrijwilliger")),
         distance: v.union(v.literal("2.5"), v.literal("6"), v.literal("10"), v.literal("15")),
         supportNeeded: v.union(v.literal("ja"), v.literal("nee"), v.literal("anders")),
+        supportDescription: v.optional(v.string()),
+        iceName: v.string(),
+        icePhone: v.string(),
         agreedToTerms: v.boolean(),
+        agreedToMedia: v.boolean(),
     },
     handler: async (ctx, args): Promise<string> => {
-        const tenantId = process.env.TENANT_ID || "c3888c7e-44cf-4827-9a7d-adaae2a1a095";
+        // Force the correct Tenant ID to avoid stale Environment Variables in Convex Cloud
+        const tenantId = "b2727666-7230-4689-b58b-ceab8c2898d5";
 
         // 1. Create User in Auth System
         const authRes = await fetch("https://laventecareauthsystems.onrender.com/api/v1/auth/register", {
@@ -32,9 +37,13 @@ export const registerParticipant = action({
             const errorText = await authRes.text();
             console.error(`[Register] Auth API Failed: ${authRes.status} - ${errorText}`);
 
-            // Map common errors or return generic
+            // Map common errors
             if (authRes.status === 409) {
                 throw new Error("Dit e-mailadres is al in gebruik (Auth).");
+            }
+            // WORKAROUND: Auth System returns 500 for duplicates currently
+            if (authRes.status === 500 && errorText.includes("Registration failed")) {
+                throw new Error("Dit e-mailadres is al bekend. Log in of gebruik een ander adres.");
             }
             throw new Error(`Registratie mislukt: ${errorText}`);
         }

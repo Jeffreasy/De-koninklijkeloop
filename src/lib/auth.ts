@@ -30,9 +30,14 @@ try {
 export const $accessToken = atom<string | null>(initialToken);
 export const $user = atom<User | null>(initialUser);
 
-export function setAuth(token: string, user: User) {
+export function setAuth(token: string | null, user: User) {
     if (typeof window !== 'undefined') {
-        localStorage.setItem('dkl_access_token', token);
+        if (token) {
+            localStorage.setItem('dkl_access_token', token);
+        } else {
+            // Cookie-based auth: Token might be in cookie, but we clear LS to avoid confusion
+            localStorage.removeItem('dkl_access_token');
+        }
         localStorage.setItem('dkl_user', JSON.stringify(user));
     }
     $accessToken.set(token);

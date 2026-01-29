@@ -14,16 +14,15 @@ const navItems = siteConfig.navigation;
         class="mx-auto max-w-7xl px-6 h-20 flex items-center justify-between relative"
     >
         <a href="/" class="shrink-0 group z-10 flex items-center gap-2">
-            <span
-                class="text-3xl font-display font-bold text-primary group-hover:text-accent-primary transition-colors"
+            <div
+                class="p-1.5 bg-surface/50 backdrop-blur-sm border border-border/40 rounded-xl shadow-sm group-hover:bg-surface/80 transition-all duration-300"
             >
-                K
-            </span>
-            <span
-                class="hidden md:block font-display font-bold text-lg text-primary/90 tracking-tight group-hover:text-primary transition-colors"
-            >
-                De Koninklijkeloop
-            </span>
+                <img
+                    src={siteConfig.brand.logo}
+                    alt={siteConfig.brand.name}
+                    class="h-8 w-auto object-contain"
+                />
+            </div>
         </a>
 
         <div class="hidden md:flex items-center gap-1">
@@ -83,74 +82,24 @@ const navItems = siteConfig.navigation;
 
     function updateNav() {
         if (!nav) return;
-
-        // 1. Check Theme & Scroll State
-        const isLight =
-            document.documentElement.getAttribute("data-theme") === "light";
         const isScrolled = window.scrollY > 20;
-
-        // 2. Clean Slate: Verwijder alle scroll-specifieke classes
-        nav.classList.remove(
-            "bg-white/90",
-            "bg-body/90",
-            "backdrop-blur-md",
-            "shadow-sm",
-            "border-b-4",
-            "border-t-4",
-            "border-brand-orange", // Light mode borders
-            "border-b",
-            "border-white/10", // Dark mode borders
-        );
-
-        // 3. Apply Logic
-        if (isScrolled) {
-            nav.classList.remove("bg-transparent", "border-transparent");
-
-            if (isLight) {
-                // LIGHT MODE SCROLLED:
-                // Wit met Oranje rand.
-                // Let op de switch: Border-Bottom op mobile, Border-Top op desktop.
-                nav.classList.add(
-                    "bg-white/90",
-                    "backdrop-blur-md",
-                    "shadow-sm",
-                    "border-brand-orange",
-                    "border-b-4", // Mobile: Rand onder
-                    "md:border-b-0",
-                    "md:border-t-4", // Desktop: Rand boven
-                );
-            } else {
-                // DARK MODE SCROLLED:
-                // Deep Navy Glass met subtiele witte rand onder
-                nav.classList.add(
-                    "bg-body/90", // Gebruikt semantische var, maar met opacity utility
-                    "backdrop-blur-md",
-                    "border-b",
-                    "border-white/10",
-                );
-            }
-        } else {
-            // TOP STATE (Niet gescrolled)
-            nav.classList.add("bg-transparent", "border-transparent");
-        }
+        nav.setAttribute("data-scrolled", isScrolled ? "true" : "false");
     }
 
-    // Event Listeners
     window.addEventListener("scroll", updateNav);
-
-    // Observer voor theme switch (zodat de navbar direct update als je togglet)
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (
-                mutation.type === "attributes" &&
-                mutation.attributeName === "data-theme"
-            ) {
-                updateNav();
-            }
-        });
-    });
-    observer.observe(document.documentElement, { attributes: true });
-
-    // Init
     updateNav();
 </script>
+
+<style>
+    @reference "../../styles/global.css";
+
+    /* Default (Dark Mode) Scrolled State */
+    nav[data-scrolled="true"] {
+        @apply bg-body/90 backdrop-blur-md shadow-sm border-b border-white/10;
+    }
+
+    /* Light Mode Scrolled Overrides */
+    :global([data-theme="light"]) nav[data-scrolled="true"] {
+        @apply border-brand-orange border-b-4 md:border-b-0 md:border-t-4;
+    }
+</style>

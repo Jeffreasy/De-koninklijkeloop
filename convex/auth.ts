@@ -8,7 +8,7 @@ export const validateToken = action({
         const res = await fetch("https://laventecareauthsystems.onrender.com/api/v1/me", {
             headers: {
                 "Authorization": `Bearer ${args.token}`,
-                "X-Tenant-ID": "c3888c7e-44cf-4827-9a7d-adaae2a1a095" // UUID for de-koninklijkeloop
+                "X-Tenant-ID": "b2727666-7230-4689-b58b-ceab8c2898d5" // UUID for de-koninklijkeloop
             }
         });
 

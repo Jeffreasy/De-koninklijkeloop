@@ -24,11 +24,12 @@ export default function LoginForm() {
             });
 
             // API returns PascalCase (Go structs), Frontend expects normalized keys
-            const accessToken = data.AccessToken || data.access_token;
+            // API returns PascalCase (Go structs), Frontend expects normalized keys
+            // Cookie-based Auth: Token is in HttpOnly cookie, not in body.
             const rawUser = data.User || data.user;
 
-            if (!accessToken || !rawUser) {
-                throw new Error("Ongeldige server reactie (Geen token/user)");
+            if (!rawUser) {
+                throw new Error("Ongeldige server reactie (Geen user data)");
             }
 
             // Normalize User object (API likely returns PascalCase fields)
@@ -38,8 +39,8 @@ export default function LoginForm() {
                 role: (rawUser.Role || rawUser.role || "viewer").toLowerCase()
             };
 
-            // 2. Store tokens (Client-side)
-            setAuth(accessToken, user);
+            // 2. Store user state (Token is in Cookie)
+            setAuth(null, user);
 
             // 3. Redirect based on Role
             if (user.role === "admin") {

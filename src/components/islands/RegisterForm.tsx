@@ -6,8 +6,10 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { cn } from "../../lib/utils";
+import { User, Mail, Lock, MapPin, Users, HeartHandshake, CheckCircle2, ChevronRight, Phone, Contact, Camera, Eye, EyeOff } from "lucide-react";
 
 // Zod Schema (unchanged)
 const schema = z.object({
@@ -26,10 +28,20 @@ const schema = z.object({
         errorMap: () => ({ message: "Je moet akkoord gaan met de voorwaarden" }),
     }),
     password: z.string().min(12, "Wachtwoord moet minimaal 12 tekens zijn"),
-    confirmPassword: z.string()
+    confirmPassword: z.string(),
+    supportDescription: z.string().optional(),
+    iceName: z.string().min(2, "Naam contactpersoon is verplicht"),
+    icePhone: z.string().min(10, "Geldig telefoonnummer is verplicht"),
+    agreedToMedia: z.boolean().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Wachtwoorden komen niet overeen",
     path: ["confirmPassword"],
+}).refine((data) => {
+    if (data.supportNeeded === "anders") return !!data.supportDescription && data.supportDescription.length > 0;
+    return true;
+}, {
+    message: "Licht je keuze toe",
+    path: ["supportDescription"]
 });
 
 type FormData = z.infer<typeof schema>;
@@ -37,6 +49,7 @@ type FormData = z.infer<typeof schema>;
 export default function RegisterForm() {
     const registerParticipant = useAction(api.register.registerParticipant);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const {
@@ -49,7 +62,8 @@ export default function RegisterForm() {
         resolver: zodResolver(schema),
         defaultValues: {
             supportNeeded: "nee",
-            role: "deelnemer"
+            role: "deelnemer",
+            agreedToMedia: false,
         }
     });
 
@@ -68,7 +82,11 @@ export default function RegisterForm() {
                 role: data.role,
                 distance: data.distance,
                 supportNeeded: data.supportNeeded,
+                supportDescription: data.supportDescription,
+                iceName: data.iceName,
+                icePhone: data.icePhone,
                 agreedToTerms: data.agreedToTerms,
+                agreedToMedia: !!data.agreedToMedia,
                 password: data.password,
             });
 
@@ -76,8 +94,15 @@ export default function RegisterForm() {
             window.location.href = "/login?registered=true";
         } catch (err: any) {
             console.error(err);
-            // Check if it's a known backend message or generic
-            const errorMessage = err.message || "Er is iets misgegaan bij het registreren.";
+            let errorMessage = err.message || "Er is iets misgegaan bij het registreren.";
+
+            // Strip Convex wrapper text to show only our custom message
+            if (errorMessage.includes("Dit e-mailadres is al bekend")) {
+                errorMessage = "Dit e-mailadres is al bekend. Log in of gebruik een ander adres.";
+            } else if (errorMessage.includes("Dit e-mailadres is al in gebruik")) {
+                errorMessage = "Dit e-mailadres is al in gebruik.";
+            }
+
             setError(errorMessage);
         } finally {
             setIsSubmitting(false);
@@ -85,101 +110,197 @@ export default function RegisterForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto">
             {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm text-center animate-fade-in">
-                    ⚠️ {error}
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm text-center animate-fade-in flex items-center justify-center gap-2">
+                    <span className="text-lg">⚠️</span> {error}
                 </div>
             )}
 
             {/* 1. Contactgegevens */}
-            <div className="space-y-4">
-                <h3 className="text-xl font-bold font-display text-text-body">Je contactgegevens</h3>
-                <div className="space-y-2">
-                    <Label htmlFor="name">Naam</Label>
-                    <Input id="name" {...register("name")} placeholder="Vul je naam in" />
-                    {errors.name && <p className="text-red-400 text-xs">{errors.name.message}</p>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="email">E-mailadres</Label>
-                    <Input id="email" type="email" {...register("email")} placeholder="Vul je e-mailadres in" />
-                    {errors.email && <p className="text-red-400 text-xs">{errors.email.message}</p>}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Wachtwoord</Label>
-                        <Input id="password" type="password" {...register("password")} placeholder="Minimaal 12 tekens" />
-                        {errors.password && <p className="text-red-400 text-xs">{errors.password.message}</p>}
+            <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
+                        <User className="w-6 h-6" />
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">Bevestig Wachtwoord</Label>
-                        <Input id="confirmPassword" type="password" {...register("confirmPassword")} placeholder="Herhaal wachtwoord" />
-                        {errors.confirmPassword && <p className="text-red-400 text-xs">{errors.confirmPassword.message}</p>}
+                    <div>
+                        <h3 className="text-xl font-bold font-display text-text-body">Je contactgegevens</h3>
+                        <p className="text-sm text-text-muted">Vul je gegevens in om je aan te melden.</p>
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="space-y-2 group/field">
+                        <Label htmlFor="name" className="transition-colors group-hover/field:text-brand-orange">Naam</Label>
+                        <div className="relative transition-all duration-300">
+                            <User className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted/50 transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
+                            <Input id="name" {...register("name")} placeholder="Vul je volledige naam in" className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-slate-50 dark:hover:bg-white/5" />
+                        </div>
+                        {errors.name && <p className="text-red-400 text-xs pl-1">{errors.name?.message}</p>}
+                    </div>
+
+                    <div className="space-y-2 group/field">
+                        <Label htmlFor="email" className="transition-colors group-hover/field:text-brand-orange">E-mailadres</Label>
+                        <div className="relative transition-all duration-300">
+                            <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted/50 transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
+                            <Input id="email" type="email" {...register("email")} placeholder="jouw.email@example.com" className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-slate-50 dark:hover:bg-white/5" />
+                        </div>
+                        {errors.email && <p className="text-red-400 text-xs pl-1">{errors.email?.message}</p>}
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="space-y-2 group/field">
+                            <Label htmlFor="password" className="transition-colors group-hover/field:text-brand-orange">Wachtwoord</Label>
+                            <div className="relative transition-all duration-300">
+                                <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
+                                <Input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    {...register("password")}
+                                    placeholder="••••••••••••"
+                                    className="pl-11 pr-10 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-slate-50 dark:hover:bg-white/5 placeholder:text-text-muted/70"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-3 text-text-muted hover:text-brand-orange transition-colors focus:outline-none"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="h-5 w-5" />
+                                    ) : (
+                                        <Eye className="h-5 w-5" />
+                                    )}
+                                </button>
+                            </div>
+                            {errors.password && <p className="text-red-400 text-xs pl-1">{errors.password?.message}</p>}
+                        </div>
+                        <div className="space-y-2 group/field">
+                            <Label htmlFor="confirmPassword" className="transition-colors group-hover/field:text-brand-orange">Bevestig Wachtwoord</Label>
+                            <div className="relative transition-all duration-300">
+                                <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
+                                <Input
+                                    id="confirmPassword"
+                                    type={showPassword ? "text" : "password"}
+                                    {...register("confirmPassword")}
+                                    placeholder="••••••••••••"
+                                    className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-slate-50 dark:hover:bg-white/5 placeholder:text-text-muted/70"
+                                />
+                            </div>
+                            {errors.confirmPassword && <p className="text-red-400 text-xs pl-1">{errors.confirmPassword?.message}</p>}
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* 2. Kies je rol */}
-            <div className="space-y-4">
-                <h3 className="text-xl font-bold font-display text-text-body">Kies je rol</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
+                        <Users className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold font-display text-text-body">Kies je rol</h3>
+                        <p className="text-sm text-text-muted">Hoe wil je meedoen aan het evenement?</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
-                        { id: "deelnemer", label: "Deelnemer", icon: "👥" },
-                        { id: "begeleider", label: "Begeleider", icon: "🤝" },
-                        { id: "vrijwilliger", label: "Vrijwilliger", icon: "💪" }
+                        { id: "deelnemer", label: "Deelnemer", icon: "🏃", desc: "Ik loop mee" },
+                        { id: "begeleider", label: "Begeleider", icon: "🤝", desc: "Ik begeleid iemand" },
+                        { id: "vrijwilliger", label: "Vrijwilliger", icon: "💪", desc: "Ik help mee" }
                     ].map((role) => (
                         <div
                             key={role.id}
                             onClick={() => setValue("role", role.id as any)}
                             className={cn(
-                                "cursor-pointer rounded-xl border p-4 text-center transition-all hover:bg-glass-bg",
+                                "cursor-pointer rounded-2xl border-2 p-4 text-center transition-all duration-300 relative group overflow-hidden",
                                 selectedRole === role.id
-                                    ? "bg-brand-primary/20 border-brand-primary ring-1 ring-brand-primary"
-                                    : "bg-glass-bg border-glass-border"
+                                    ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
+                                    : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-transparent dark:bg-white/5 dark:hover:bg-white/10"
                             )}
                         >
-                            <div className="text-2xl mb-2">{role.icon}</div>
-                            <div className="font-medium text-text-body">{role.label}</div>
+                            {selectedRole === role.id && (
+                                <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />
+                            )}
+                            {selectedRole === role.id && (
+                                <div className="absolute top-2 right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
+                                    <CheckCircle2 className="w-4 h-4 fill-brand-orange/20" />
+                                </div>
+                            )}
+                            <div className="text-3xl mb-3 transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 filter drop-shadow-md">{role.icon}</div>
+                            <div className={cn("font-bold text-lg transition-colors duration-300", selectedRole === role.id ? "text-brand-orange" : "text-text-body")}>
+                                {role.label}
+                            </div>
+                            <div className="text-xs text-text-muted mt-1 group-hover:text-text-body transition-colors">{role.desc}</div>
                         </div>
                     ))}
                 </div>
-                {errors.role && <p className="text-red-400 text-xs">{errors.role.message}</p>}
+                {errors.role && <p className="text-red-400 text-xs pl-1">{errors.role?.message}</p>}
             </div>
 
             {/* 3. Kies je afstand */}
-            <div className="space-y-4">
-                <h3 className="text-xl font-bold font-display text-text-body">Kies je afstand</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-500">
+                        <MapPin className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold font-display text-text-body">Kies je afstand</h3>
+                        <p className="text-sm text-text-muted">Welke route ga je lopen?</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
-                        { id: "2.5", label: "2.5 KM", icon: "🚶" },
-                        { id: "6", label: "6 KM", icon: "🏃" },
-                        { id: "10", label: "10 KM", icon: "🏃‍♂️" },
-                        { id: "15", label: "15 KM", icon: "🏃‍♀️" }
+                        { id: "2.5", label: "2.5 KM", icon: "🚶", color: "text-green-500" },
+                        { id: "6", label: "6 KM", icon: "🏃", color: "text-blue-500" },
+                        { id: "10", label: "10 KM", icon: "🏃‍♂️", color: "text-purple-500" },
+                        { id: "15", label: "15 KM", icon: "🏃‍♀️", color: "text-orange-500" }
                     ].map((dist) => (
                         <div
                             key={dist.id}
                             onClick={() => setValue("distance", dist.id as any)}
                             className={cn(
-                                "cursor-pointer rounded-xl border p-4 text-center transition-all hover:bg-glass-bg",
+                                "cursor-pointer rounded-2xl border-2 p-4 text-center transition-all duration-300 relative group overflow-hidden",
                                 selectedDistance === dist.id
-                                    ? "bg-brand-primary/20 border-brand-primary ring-1 ring-brand-primary"
-                                    : "bg-glass-bg border-glass-border"
+                                    ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
+                                    : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-transparent dark:bg-white/5 dark:hover:bg-white/10"
                             )}
                         >
-                            <div className="text-2xl mb-2">{dist.icon}</div>
-                            <div className="font-medium text-text-body">{dist.label}</div>
+                            {selectedDistance === dist.id && (
+                                <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />
+                            )}
+                            {selectedDistance === dist.id && (
+                                <div className="absolute top-2 right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
+                                    <CheckCircle2 className="w-4 h-4 fill-brand-orange/20" />
+                                </div>
+                            )}
+                            <div className="text-2xl mb-2 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 filter drop-shadow-md">{dist.icon}</div>
+                            <div className={cn("font-bold text-lg transition-colors duration-300", selectedDistance === dist.id ? "text-brand-orange" : "text-text-body")}>
+                                {dist.label}
+                            </div>
                         </div>
                     ))}
                 </div>
-                {errors.distance && <p className="text-red-400 text-xs">{errors.distance.message}</p>}
+                {errors.distance && <p className="text-red-400 text-xs pl-1">{errors.distance?.message}</p>}
             </div>
 
             {/* 4. Ondersteuning */}
-            <div className="space-y-4">
-                <h3 className="text-xl font-bold font-display text-text-body">Heb je ondersteuning nodig?</h3>
-                <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
+                        <HeartHandshake className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold font-display text-text-body">Ondersteuning</h3>
+                        <p className="text-sm text-text-muted">Heb je extra hulp nodig tijdens het evenement?</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
                     {[
-                        { id: "ja", label: "Ja", icon: "✅" },
+                        { id: "ja", label: "Ja, graag", icon: "✅" },
                         { id: "nee", label: "Nee", icon: "❌" },
                         { id: "anders", label: "Anders", icon: "❓" }
                     ].map((opt) => (
@@ -187,48 +308,138 @@ export default function RegisterForm() {
                             key={opt.id}
                             onClick={() => setValue("supportNeeded", opt.id as any)}
                             className={cn(
-                                "cursor-pointer rounded-xl border p-4 text-center transition-all hover:bg-glass-bg",
+                                "cursor-pointer rounded-2xl border-2 p-4 text-center transition-all duration-300 relative group overflow-hidden",
                                 selectedSupport === opt.id
-                                    ? "bg-brand-primary/20 border-brand-primary ring-1 ring-brand-primary"
-                                    : "bg-glass-bg border-glass-border"
+                                    ? "border-brand-primary bg-brand-primary/5 shadow-lg scale-[1.05]"
+                                    : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-transparent dark:bg-white/5 dark:hover:bg-white/10"
                             )}
                         >
-                            <div className="text-2xl mb-2">{opt.icon}</div>
-                            <div className="font-medium text-text-body">{opt.label}</div>
+                            {selectedSupport === opt.id && (
+                                <div className="absolute inset-0 bg-linear-to-tr from-brand-primary/10 to-transparent pointer-events-none" />
+                            )}
+                            {selectedSupport === opt.id && (
+                                <div className="absolute top-2 right-2 text-brand-primary animate-in fade-in zoom-in duration-300">
+                                    <CheckCircle2 className="w-4 h-4 fill-brand-orange/20" />
+                                </div>
+                            )}
+                            <div className="text-2xl mb-2 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 filter drop-shadow-md">{opt.icon}</div>
+                            <div className={cn("font-bold text-lg transition-colors duration-300", selectedSupport === opt.id ? "text-brand-orange" : "text-text-body")}>
+                                {opt.label}
+                            </div>
                         </div>
                     ))}
                 </div>
+
+                {selectedSupport === "anders" && (
+                    <div className="animate-fade-in origin-top group transition-all duration-300">
+                        <Label htmlFor="supportDescription" className="mb-2 block cursor-pointer">Toelichting</Label>
+                        <Textarea
+                            id="supportDescription"
+                            {...register("supportDescription")}
+                            placeholder="Waar kunnen we je mee helpen?"
+                            className="min-h-[100px] bg-glass-bg focus-visible:ring-brand-orange/50 focus-visible:border-brand-orange shadow-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-all"
+                        />
+                        {errors.supportDescription && <p className="text-red-400 text-xs pl-1 mt-1">{errors.supportDescription?.message}</p>}
+                    </div>
+                )}
             </div>
 
-            {/* 5. Voorwaarden */}
-            <div className="space-y-4 border-t border-glass-border pt-6">
-                <h3 className="text-xl font-bold font-display text-text-body">Algemene voorwaarden</h3>
-                <p className="text-sm text-text-muted">
-                    Je moet eerst de algemene voorwaarden lezen voordat je je kunt inschrijven. <a href="#" className="text-brand-primary hover:underline">Lees de Algemene Voorwaarden</a>
-                </p>
-
-                <div className="flex items-start gap-3">
-                    <input
-                        type="checkbox"
-                        id="terms"
-                        {...register("agreedToTerms")}
-                        className="mt-1 h-5 w-5 rounded border-glass-border bg-glass-bg text-brand-primary focus:ring-brand-primary focus:ring-offset-0"
-                    />
-                    <Label htmlFor="terms" className="text-text-body font-normal">
-                        Ik heb de algemene voorwaarden gelezen en ga hiermee akkoord
-                    </Label>
+            {/* 5. Noodcontact (ICE) */}
+            <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
+                        <Phone className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold font-display text-text-body">Noodcontact (ICE)</h3>
+                        <p className="text-sm text-text-muted">Wie kunnen we bellen in geval van nood?</p>
+                    </div>
                 </div>
-                {errors.agreedToTerms && <p className="text-red-400 text-xs">{errors.agreedToTerms.message}</p>}
+
+                <div className="space-y-4">
+                    <div className="space-y-2 group/field">
+                        <Label htmlFor="iceName" className="transition-colors group-hover/field:text-brand-orange">Naam contactpersoon</Label>
+                        <div className="relative transition-all duration-300">
+                            <Contact className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70 group-hover/field:scale-110 transform" />
+                            <Input id="iceName" {...register("iceName")} placeholder="Naam van partner, ouder, vriend..." className="pl-11 transition-all duration-300 group-focus-within/field:bg-transparent group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-slate-50 dark:hover:bg-white/5" />
+                        </div>
+                        {errors.iceName && <p className="text-red-400 text-xs pl-1">{errors.iceName?.message}</p>}
+                    </div>
+
+                    <div className="space-y-2 group/field">
+                        <Label htmlFor="icePhone" className="transition-colors group-hover/field:text-brand-orange">Telefoonnummer</Label>
+                        <div className="relative transition-all duration-300">
+                            <Phone className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70 group-hover/field:scale-110 transform" />
+                            <Input id="icePhone" type="tel" {...register("icePhone")} placeholder="06 12345678" className="pl-11 transition-all duration-300 group-focus-within/field:bg-transparent group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-slate-50 dark:hover:bg-white/5" />
+                        </div>
+                        {errors.icePhone && <p className="text-red-400 text-xs pl-1">{errors.icePhone?.message}</p>}
+                    </div>
+                </div>
             </div>
 
-            <Button
-                type="submit"
-                variant="default"
-                className="w-full shadow-lg shadow-brand-primary/20 h-12 text-lg"
-                disabled={isSubmitting}
-            >
-                {isSubmitting ? "Bezig met verwerken..." : "Inschrijven"}
-            </Button>
+            {/* 6. Voorwaarden & Submit */}
+            <div className="space-y-6 pt-6 border-t border-glass-border">
+                <h3 className="text-lg font-bold font-display text-text-body">Afronden</h3>
+
+                <div className="bg-surface/50 p-4 rounded-xl border border-glass-border space-y-4">
+                    {/* Terms */}
+                    <div className="flex items-start gap-4">
+                        <div className="pt-1">
+                            <input
+                                type="checkbox"
+                                id="terms"
+                                {...register("agreedToTerms")}
+                                className="h-5 w-5 rounded border-glass-border bg-glass-bg text-brand-primary focus:ring-brand-primary cursor-pointer"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="terms" className="text-text-body font-bold cursor-pointer">
+                                Akkoord met de voorwaarden
+                            </Label>
+                            <p className="text-sm text-text-muted">
+                                Ik heb de <a href="#" className="text-brand-primary hover:underline font-medium">Algemene Voorwaarden</a> gelezen en ga hiermee akkoord.
+                            </p>
+                        </div>
+                    </div>
+                    {errors.agreedToTerms && <p className="text-red-400 text-xs mt-2 pl-9">{errors.agreedToTerms?.message}</p>}
+
+                    {/* Media Consent */}
+                    <div className="flex items-start gap-4 pt-4 border-t border-glass-border/50">
+                        <div className="pt-1">
+                            <input
+                                type="checkbox"
+                                id="media"
+                                {...register("agreedToMedia")}
+                                className="h-5 w-5 rounded border-glass-border bg-glass-bg text-brand-primary focus:ring-brand-primary cursor-pointer"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="media" className="text-text-body font-bold cursor-pointer flex items-center gap-2">
+                                <Camera className="w-4 h-4 text-text-muted" /> Foto's & Video
+                            </Label>
+                            <p className="text-sm text-text-muted">
+                                Ik vind het goed dat er tijdens het evenement beelden worden gemaakt voor promotie.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <Button
+                    type="submit"
+                    variant="default"
+                    className="w-full bg-brand-orange text-white shadow-2xl shadow-brand-orange/30 h-14 text-lg rounded-2xl group transition-all duration-500 hover:scale-[1.02] hover:shadow-brand-orange/50 hover:bg-brand-orange/90 relative overflow-hidden"
+                    disabled={isSubmitting}
+                >
+                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                    {isSubmitting ? (
+                        "Bezig met verwerken..."
+                    ) : (
+                        <span className="flex items-center gap-2 relative z-10">
+                            Nu Inschrijven <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </span>
+                    )}
+                </Button>
+            </div>
         </form>
     );
 }

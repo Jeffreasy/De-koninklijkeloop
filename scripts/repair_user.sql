@@ -2,7 +2,7 @@
 
 -- 1. Link Jeffrey to the Tenant (Fixes the login crash)
 UPDATE users 
-SET default_tenant_id = 'c3888c7e-44cf-4827-9a7d-adaae2a1a095',
+SET default_tenant_id = 'b2727666-7230-4689-b58b-ceab8c2898d5',
     is_email_verified = true
 WHERE email = 'jeffrey@dekoninklijkeloop.nl';
 
@@ -10,7 +10,7 @@ WHERE email = 'jeffrey@dekoninklijkeloop.nl';
 INSERT INTO memberships (user_id, tenant_id, role, created_at, updated_at)
 VALUES (
     (SELECT id FROM users WHERE email = 'jeffrey@dekoninklijkeloop.nl'),
-    'c3888c7e-44cf-4827-9a7d-adaae2a1a095',
+    'b2727666-7230-4689-b58b-ceab8c2898d5',
     'admin',
     NOW(),
     NOW()
