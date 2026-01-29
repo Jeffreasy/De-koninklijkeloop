@@ -62,8 +62,9 @@
   /* --color-brand-orange */
   --border-subtle: rgba(30, 41, 59, 0.5);
 
-  --glass-bg: rgba(15, 23, 42, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  /* glass-bg with subtle warm tint (Deep Sea + Orange hint) */
+  --glass-bg: rgba(20, 25, 45, 0.7);
+  --glass-border: rgba(255, 147, 40, 0.08); /* Orange border hint */
 }
 
 /* Light Mode Overrides (Clear Sky) */

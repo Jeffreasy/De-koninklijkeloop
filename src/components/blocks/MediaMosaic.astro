@@ -2,15 +2,16 @@
 // src/components/blocks/MediaMosaic.astro
 import StreamableVideo from "./StreamableVideo.astro";
 import LiveImageGrid from "../islands/LiveImageGrid";
-import { siteConfig } from "../../config/site.config";
+import { gallery } from "../../data/gallery";
+import { videos } from "../../data/videos";
 import { Button } from "../ui/button";
 import { Play, ArrowRight } from "lucide-react";
 
 // Featured content config
-const { video } = siteConfig.featuredMedia;
+const featuredVideo = videos.find((v) => v.featured) || videos[0];
 
 // Use the full gallery for more variety (6 images vs 3)
-const galleryImages = siteConfig.gallery.map((img) => ({
+const galleryImages = gallery.slice(0, 6).map((img) => ({
     src: `https://res.cloudinary.com/dgfuv7wif/image/upload/${img.src}`,
     alt: img.alt,
     class: "h-full w-full object-cover",
@@ -59,8 +60,8 @@ const displayImages = galleryImages;
                         class="rounded-2xl overflow-hidden w-full shadow-inner bg-black aspect-video"
                     >
                         <StreamableVideo
-                            shortcode={video.shortcode}
-                            title={video.title}
+                            shortcode={featuredVideo.shortcode}
+                            title={featuredVideo.title}
                             bare={true}
                         />
                     </div>
@@ -72,7 +73,7 @@ const displayImages = galleryImages;
                             <h3
                                 class="text-xl font-display font-bold text-primary group-hover:text-brand-sky transition-colors"
                             >
-                                {video.title}
+                                {featuredVideo.title}
                             </h3>
                             <p
                                 class="text-muted text-sm flex items-center gap-2 mt-1"

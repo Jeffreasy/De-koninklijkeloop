@@ -34,7 +34,16 @@ const {
             rel="stylesheet"
         />
     </head>
-    <body>
+    <body class="bg-background text-text-body antialiased selection:bg-brand-primary/20">
         <slot />
+        <script is:inline define:vars={{ user: Astro.locals.user }}>
+            window.DKL_INITIAL_USER = user;
+        </script>
+        <script>
+            import { setAuth } from "../lib/auth";
+            const user = window.DKL_INITIAL_USER;
+            // Hydrate store on page load (without token, as it is HttpOnly)
+            setAuth(null, user);
+        </script>
     </body>
 </html>

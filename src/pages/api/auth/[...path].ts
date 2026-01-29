@@ -4,22 +4,72 @@ export const prerender = false;
 
 const API_URL = import.meta.env.PUBLIC_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
 
-export const ALL: APIRoute = async ({ request, params }) => {
+export const ALL: APIRoute = async ({ request, params, cookies }) => {
     const path = params.path;
     const targetUrl = `${API_URL}/auth/${path}`;
 
-    // Forward the request to the backend
+    // INTERCEPT LOGIN
+    if (path === 'login' && request.method === 'POST') {
+        try {
+            const body = await request.json();
+
+            const response = await fetch(targetUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+
+            if (!response.ok) {
+                return new Response(await response.text(), { status: response.status });
+            }
+
+            const data = await response.json();
+            const token = data.access_token || data.token;
+
+            if (token) {
+                // HARDENING: Set HttpOnly Cookie
+                cookies.set('dkl_auth_token', token, {
+                    path: '/',
+                    httpOnly: true,
+                    secure: import.meta.env.PROD || import.meta.env.VERCEL_ENV === 'production',
+                    sameSite: 'strict',
+                    maxAge: 60 * 60 * 24 * 7 // 1 week
+                });
+            }
+
+            // Return sanitized user data (NO TOKEN LEAK)
+            // If backend returns { access_token: "...", user: {...} }
+            const { access_token, token: _, ...safeData } = data;
+
+            return new Response(JSON.stringify(safeData), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+        } catch (error) {
+            console.error("Login Proxy Error:", error);
+            return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
+        }
+    }
+
+    // INTERCEPT LOGOUT
+    if (path === 'logout') {
+        cookies.delete('dkl_auth_token', { path: '/' });
+        return new Response(JSON.stringify({ success: true }), { status: 200 });
+    }
+
+    // FALLBACK: Generic Proxy for other auth routes (e.g. register, forgot-password)
+    // We pass through but ensure we don't leak anything unexpected
     try {
+        // We cannot read body if we want to stream it, but for auth endpoints usually JSON.
+        // If we consumed body above (we didn't for this branch), we are fine.
         const response = await fetch(targetUrl, {
             method: request.method,
             headers: request.headers,
-            body: request.body,
-            // duping formatting
+            body: request.clone().body as any,
             duplex: 'half'
         } as any);
 
-        // Forward the response back to the client
-        // STRIP HEADERS that cause issues if body is already decompressed by node-fetch
         const newHeaders = new Headers(response.headers);
         newHeaders.delete('content-encoding');
         newHeaders.delete('content-length');
@@ -30,7 +80,6 @@ export const ALL: APIRoute = async ({ request, params }) => {
             headers: newHeaders
         });
     } catch (error) {
-        console.error("Proxy Error:", error);
         return new Response(JSON.stringify({ error: "Proxy Failed" }), { status: 500 });
     }
 };

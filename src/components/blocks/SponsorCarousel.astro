@@ -33,7 +33,7 @@ const carouselItems = [...sponsors, ...sponsors];
         >
             {
                 carouselItems.map((sponsor, index) => (
-                    <div class="shrink-0 w-[160px] h-[80px] flex items-center justify-center group">
+                    <div class="shrink-0 w-[180px] h-[100px] flex items-center justify-center group bg-white/60 backdrop-blur-md rounded-xl p-4 hover:bg-white/90 hover:scale-105 transition-all duration-500 shadow-sm hover:shadow-xl ring-1 ring-white/20">
                         <CldImage
                             src={sponsor.src}
                             alt={sponsor.name}
@@ -42,7 +42,7 @@ const carouselItems = [...sponsors, ...sponsors];
                             crop="lpad"
                             format="auto"
                             quality="auto"
-                            class="sponsor-logo transition-all duration-300"
+                            class="sponsor-logo transition-transform duration-300"
                         />
                     </div>
                 ))
@@ -72,26 +72,15 @@ const carouselItems = [...sponsors, ...sponsors];
         animation-play-state: paused;
     }
 
-    /* LOGO STYLING - MARITIME THEME */
+    /* LOGO STYLING */
     .sponsor-logo {
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
-
-        /* Default State (Rustig) */
-        opacity: 0.6;
-        filter: grayscale(100%);
     }
 
-    /* Dark Mode Specifiek: Maak logo's wit/zilver (Tech look) */
-    :global(.dark) .sponsor-logo {
-        filter: grayscale(100%) brightness(0) invert(0.8);
-    }
-
-    /* Hover State (Kleur terugbrengen) */
+    /* Hover State (Scale only) */
     .group:hover .sponsor-logo {
-        opacity: 1;
         transform: scale(1.1);
-        filter: grayscale(0%) brightness(100%) invert(0);
     }
 </style>

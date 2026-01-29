@@ -67,10 +67,7 @@ export const siteConfig = {
 
     // Featured Media
     featuredMedia: {
-        video: {
-            shortcode: "xabadh",
-            title: "DKL Sfeerimpressie",
-        },
+
         images: [
             {
                 src: "WhatsApp_Image_2025-05-17_at_19.21.14_3f7fd59e_gme3eo",
@@ -100,39 +97,7 @@ export const siteConfig = {
     // Moved to src/data/charityConfig.ts for annual rotation
     // charity: { ... },
 
-    // Media Gallery (complete gallery images)
-    gallery: [
-        {
-            src: "WhatsApp_Image_2025-05-17_at_19.12.14_8ab77c07_gs2zsy",
-            alt: "Sfeerimpressie DKL 2025",
-            aspect: "vertical",
-        },
-        {
-            src: "WhatsApp_Image_2025-05-17_at_19.21.14_3f7fd59e_gme3eo",
-            alt: "Sfeerimpressie DKL 2025",
-            aspect: "horizontal",
-        },
-        {
-            src: "WhatsApp_Image_2025-05-17_at_19.21.14_acb21990_pnlxto",
-            alt: "Sfeerimpressie DKL 2025",
-            aspect: "vertical",
-        },
-        {
-            src: "WhatsApp_Image_2025-05-17_at_19.21.15_5468f944_go97uz",
-            alt: "Sfeerimpressie DKL 2025",
-            aspect: "horizontal",
-        },
-        {
-            src: "WhatsApp_Image_2025-05-17_at_19.21.15_acf57c9c_hrdiqk",
-            alt: "Sfeerimpressie DKL 2025",
-            aspect: "horizontal",
-        },
-        {
-            src: "WhatsApp_Image_2025-05-17_at_19.21.15_d34fe483_feytla",
-            alt: "Sfeerimpressie DKL 2025",
-            aspect: "horizontal",
-        },
-    ],
+
 
     // Page Metadata Templates
     meta: {

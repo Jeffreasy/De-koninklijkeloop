@@ -3,7 +3,14 @@
 import ThemeToggle from "../islands/ThemeToggle";
 import { siteConfig } from "../../config/site.config";
 
+const pathname = Astro.url.pathname;
 const navItems = siteConfig.navigation;
+
+// Helper to check if link is active
+const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+};
 ---
 
 <nav
@@ -15,7 +22,7 @@ const navItems = siteConfig.navigation;
     >
         <a href="/" class="shrink-0 group z-10 flex items-center gap-2">
             <div
-                class="p-1.5 bg-surface/50 backdrop-blur-sm border border-border/40 rounded-xl shadow-sm group-hover:bg-surface/80 transition-all duration-300"
+                class="p-1.5 bg-white/30 backdrop-blur-md rounded-xl group-hover:bg-white/50 transition-all duration-300"
             >
                 <img
                     src={siteConfig.brand.logo}
@@ -30,19 +37,24 @@ const navItems = siteConfig.navigation;
                 class="flex items-center gap-1 p-1 bg-surface/50 backdrop-blur-md border border-border rounded-full px-4 py-1.5 shadow-sm"
             >
                 {
-                    navItems.map((item) => (
-                        <a
-                            href={item.href}
-                            class:list={[
-                                "px-3 py-1.5 rounded-full text-sm font-medium transition-all relative",
-                                item.highlight
-                                    ? "bg-accent-primary text-white shadow-md shadow-brand-orange/20" // Oranje knop blijft altijd wit/oranje
-                                    : "text-muted hover:text-primary hover:bg-primary/5", // Hover effect past zich aan
-                            ]}
-                        >
-                            {item.name}
-                        </a>
-                    ))
+                    navItems.map((item) => {
+                        const active = isActive(item.href);
+                        return (
+                            <a
+                                href={item.href}
+                                class:list={[
+                                    "px-3 py-1.5 rounded-full text-sm font-medium transition-all relative",
+                                    item.highlight
+                                        ? "bg-accent-primary text-white shadow-md shadow-brand-orange/20"
+                                        : active
+                                          ? "text-accent-primary bg-accent-primary/10 font-bold" // Active State
+                                          : "text-primary hover:text-accent-primary hover:bg-primary/5", // Default
+                                ]}
+                            >
+                                {item.name}
+                            </a>
+                        );
+                    })
                 }
             </div>
 
