@@ -22,7 +22,7 @@ const isActive = (href: string) => {
     >
         <a href="/" class="shrink-0 group z-10 flex items-center gap-2">
             <div
-                class="p-1.5 bg-white/30 backdrop-blur-md rounded-xl group-hover:bg-white/50 transition-all duration-300"
+                class="p-2 bg-white/5 border border-white/10 backdrop-blur-md rounded-xl group-hover:bg-white/10 transition-all duration-300"
             >
                 <img
                     src={siteConfig.brand.logo}
@@ -34,7 +34,7 @@ const isActive = (href: string) => {
 
         <div class="hidden md:flex items-center gap-1">
             <div
-                class="flex items-center gap-1 p-1 bg-surface/50 backdrop-blur-md border border-border rounded-full px-4 py-1.5 shadow-sm"
+                class="flex items-center gap-1 p-1.5 bg-[#0f172a]/60 backdrop-blur-2xl border border-white/10 rounded-full px-4 shadow-xl"
             >
                 {
                     navItems.map((item) => {
@@ -43,12 +43,12 @@ const isActive = (href: string) => {
                             <a
                                 href={item.href}
                                 class:list={[
-                                    "px-3 py-1.5 rounded-full text-sm font-medium transition-all relative",
+                                    "px-4 py-2 rounded-full text-sm font-medium transition-all relative font-display tracking-wide",
                                     item.highlight
-                                        ? "bg-accent-primary text-white shadow-md shadow-brand-orange/20"
+                                        ? "bg-accent-primary text-white shadow-lg shadow-brand-orange/20 hover:bg-orange-600 hover:scale-105"
                                         : active
-                                          ? "text-accent-primary bg-accent-primary/10 font-bold" // Active State
-                                          : "text-primary hover:text-accent-primary hover:bg-primary/5", // Default
+                                          ? "text-white bg-white/10 font-bold shadow-inner" // Active State
+                                          : "text-secondary hover:text-white hover:bg-white/5", // Default
                                 ]}
                             >
                                 {item.name}
@@ -58,7 +58,7 @@ const isActive = (href: string) => {
                 }
             </div>
 
-            <div class="pl-4 ml-4 border-l border-border h-8 flex items-center">
+            <div class="pl-4 ml-4 border-l border-white/10 h-8 flex items-center opacity-70 hover:opacity-100 transition-opacity">
                 <ThemeToggle client:load />
             </div>
         </div>
@@ -67,7 +67,7 @@ const isActive = (href: string) => {
             <ThemeToggle client:load />
             <button
                 id="mobile-menu-btn"
-                class="p-2 text-primary hover:bg-surface rounded-lg transition-colors z-50 relative"
+                class="p-2 text-white hover:bg-white/10 rounded-xl transition-colors z-50 relative border border-transparent hover:border-white/10"
                 aria-label="Toggle Menu"
             >
                 <svg
@@ -89,28 +89,34 @@ const isActive = (href: string) => {
             </button>
         </div>
     </div>
-
-    </div>
 </nav>
 
 <!-- Mobile Menu Overlay (Moved outside Nav to avoid backdrop-filter clipping) -->
 <div
     id="mobile-menu"
-    class="fixed inset-0 bg-background/95 backdrop-blur-3xl z-[100] translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] md:hidden flex flex-col"
+    class="fixed inset-0 bg-[#020617]/98 backdrop-blur-3xl z-[100] translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] md:hidden flex flex-col"
     aria-hidden="true"
 >
+    
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-0 right-0 w-2/3 h-1/3 bg-brand-orange/10 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-0 left-0 w-2/3 h-1/3 bg-brand-blue/10 blur-[120px] rounded-full"></div>
+    </div>
+
     <!-- Mobile Header (Close Button) -->
-    <div class="flex items-center justify-between px-6 h-20 border-b border-border/10">
+    <div class="flex items-center justify-between px-6 h-24 border-b border-white/5 relative z-10">
             <div class="flex items-center gap-2">
-            <img
-                src={siteConfig.brand.logo}
-                alt={siteConfig.brand.name}
-                class="h-8 w-auto opacity-90"
-            />
+                 <div class="p-2 bg-white/5 rounded-xl border border-white/5">
+                    <img
+                        src={siteConfig.brand.logo}
+                        alt={siteConfig.brand.name}
+                        class="h-8 w-auto opacity-100"
+                    />
+                </div>
             </div>
             <button
                 id="mobile-menu-close"
-                class="p-2 text-primary hover:text-brand-orange transition-colors rounded-lg hover:bg-surface/50"
+                class="p-2 text-white hover:text-brand-orange transition-colors rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10"
                 aria-label="Close Menu"
             >
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -121,30 +127,27 @@ const isActive = (href: string) => {
     </div>
 
     <!-- Mobile Links -->
-    <div class="flex-1 flex flex-col justify-center items-center gap-6 p-8 w-full max-w-md mx-auto">
+    <div class="flex-1 flex flex-col justify-center items-center gap-6 p-8 w-full max-w-md mx-auto relative z-10">
         {
             navItems.filter(item => item.name !== "Inschrijven").map((item, index) => (
                 <a
                     href={item.href}
-                    class="mobile-nav-link text-3xl font-display font-bold text-primary hover:text-brand-orange transition-all transform translate-y-4 opacity-0 tracking-tight"
-                    style={`transition-delay: ${index * 40}ms`}
+                    class="mobile-nav-link text-4xl font-display font-bold text-white hover:text-brand-orange transition-all transform translate-y-4 opacity-0 tracking-tight"
+                    style={`transition-delay: ${index * 50}ms`}
                 >
                     {item.name}
                 </a>
             ))
         }
         
-        <div class="w-16 h-1 bg-border/20 rounded-full my-6"></div>
+        <div class="w-24 h-1 bg-white/10 rounded-full my-8"></div>
 
-        <a href="/register" class="w-full max-w-xs mobile-nav-link transform translate-y-4 opacity-0" style={`transition-delay: ${navItems.length * 40}ms`}>
-            <button class="w-full py-3.5 rounded-xl bg-brand-orange text-white font-bold text-lg shadow-lg shadow-brand-orange/20 active:scale-95 transition-all hover:bg-orange-500 hover:shadow-orange-500/30">
+        <a href="/register" class="w-full max-w-xs mobile-nav-link transform translate-y-4 opacity-0" style={`transition-delay: ${navItems.length * 50}ms`}>
+            <button class="w-full py-4 rounded-xl bg-gradient-to-r from-brand-orange to-orange-600 text-white font-bold text-xl shadow-xl shadow-brand-orange/20 active:scale-95 transition-all hover:scale-[1.02]">
                 Inschrijven
             </button>
         </a>
     </div>
-    
-    <!-- Decoration -->
-    <div class="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-brand-orange/5 to-transparent pointer-events-none"></div>
 </div>
 
 <script is:inline>
@@ -231,15 +234,14 @@ const isActive = (href: string) => {
 
     /* Default (Dark Mode) Scrolled State */
     nav[data-scrolled="true"] {
-        @apply bg-body/90 backdrop-blur-md shadow-sm border-b border-white/10;
+        @apply bg-[#020617]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl;
     }
 
     /* Light Mode Scrolled Overrides */
     :global([data-theme="light"]) nav[data-scrolled="true"] {
-        @apply border-brand-orange border-b-4 md:border-b-0 md:border-t-4;
+        @apply bg-white/90 border-brand-orange border-b-2;
     }
 </style>
-
 <style>
     @reference "../../styles/global.css";
 

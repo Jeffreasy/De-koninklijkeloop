@@ -70,7 +70,7 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
             <div className="md:col-span-8 min-h-[500px]">
                 <div
                     key={activeCategoryIndex}
-                    className="bg-glass-bg border border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-2xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-2xl"
+                    className="premium-glass rounded-3xl p-6 md:p-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500"
                 >
 
                     {/* Active Category Title (Mobile Only context) */}
