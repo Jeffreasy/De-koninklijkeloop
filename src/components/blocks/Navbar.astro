@@ -90,70 +90,155 @@ const isActive = (href: string) => {
         </div>
     </div>
 
-    <!-- Mobile Menu Overlay -->
-    <div
-        id="mobile-menu"
-        class="fixed inset-0 bg-background/95 backdrop-blur-xl z-40 transform translate-x-full transition-transform duration-300 md:hidden flex flex-col justify-center items-center gap-8"
-        aria-hidden="true"
-    >
+    </div>
+</nav>
+
+<!-- Mobile Menu Overlay (Moved outside Nav to avoid backdrop-filter clipping) -->
+<div
+    id="mobile-menu"
+    class="fixed inset-0 bg-background/95 backdrop-blur-3xl z-[100] translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] md:hidden flex flex-col"
+    aria-hidden="true"
+>
+    <!-- Mobile Header (Close Button) -->
+    <div class="flex items-center justify-between px-6 h-20 border-b border-border/10">
+            <div class="flex items-center gap-2">
+            <img
+                src={siteConfig.brand.logo}
+                alt={siteConfig.brand.name}
+                class="h-8 w-auto opacity-90"
+            />
+            </div>
+            <button
+                id="mobile-menu-close"
+                class="p-2 text-primary hover:text-brand-orange transition-colors rounded-lg hover:bg-surface/50"
+                aria-label="Close Menu"
+            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            </button>
+    </div>
+
+    <!-- Mobile Links -->
+    <div class="flex-1 flex flex-col justify-center items-center gap-6 p-8 w-full max-w-md mx-auto">
         {
-            navItems.map((item) => (
+            navItems.filter(item => item.name !== "Inschrijven").map((item, index) => (
                 <a
                     href={item.href}
-                    class="text-2xl font-display font-medium text-primary hover:text-brand-orange transition-colors"
+                    class="mobile-nav-link text-3xl font-display font-bold text-primary hover:text-brand-orange transition-all transform translate-y-4 opacity-0 tracking-tight"
+                    style={`transition-delay: ${index * 40}ms`}
                 >
                     {item.name}
                 </a>
             ))
         }
+        
+        <div class="w-16 h-1 bg-border/20 rounded-full my-6"></div>
+
+        <a href="/register" class="w-full max-w-xs mobile-nav-link transform translate-y-4 opacity-0" style={`transition-delay: ${navItems.length * 40}ms`}>
+            <button class="w-full py-3.5 rounded-xl bg-brand-orange text-white font-bold text-lg shadow-lg shadow-brand-orange/20 active:scale-95 transition-all hover:bg-orange-500 hover:shadow-orange-500/30">
+                Inschrijven
+            </button>
+        </a>
     </div>
-</nav>
+    
+    <!-- Decoration -->
+    <div class="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-brand-orange/5 to-transparent pointer-events-none"></div>
+</div>
 
-<script>
-    document.addEventListener("astro:page-load", () => {
-        const nav = document.getElementById("main-nav");
-        const btn = document.getElementById("mobile-menu-btn");
-        const menu = document.getElementById("mobile-menu");
-        const links = menu?.querySelectorAll("a");
+<script is:inline>
+    // Inline script to ensure immediate execution and no bundling issues
+    (() => {
+        function initMobileMenu() {
+            const nav = document.getElementById("main-nav");
+            const btn = document.getElementById("mobile-menu-btn");
+            const closeBtn = document.getElementById("mobile-menu-close");
+            const menu = document.getElementById("mobile-menu");
+            const links = menu?.querySelectorAll("a");
+            const navItems = menu?.querySelectorAll(".mobile-nav-link");
 
-        // Scroll Logic
-        function updateNav() {
-            if (!nav) return;
-            const isScrolled = window.scrollY > 20;
-            nav.setAttribute("data-scrolled", isScrolled ? "true" : "false");
-        }
-        window.addEventListener("scroll", updateNav);
-        updateNav();
+            // Scroll Logic
+            function updateNav() {
+                if (!nav) return;
+                const isScrolled = window.scrollY > 20;
+                nav.setAttribute("data-scrolled", isScrolled ? "true" : "false");
+            }
+            window.addEventListener("scroll", updateNav);
+            updateNav();
 
-        // Mobile Menu Logic
-        if (btn && menu) {
-            btn.addEventListener("click", () => {
-                const isOpen = menu.classList.contains("translate-x-0");
+            function toggleMenu(show) {
+                if (!menu) return;
                 
-                if (isOpen) {
-                    menu.classList.remove("translate-x-0");
-                    menu.classList.add("translate-x-full");
-                    menu.setAttribute("aria-hidden", "true");
-                    document.body.style.overflow = ""; // Enable scroll
-                } else {
+                if (show) {
                     menu.classList.remove("translate-x-full");
                     menu.classList.add("translate-x-0");
                     menu.setAttribute("aria-hidden", "false");
-                    document.body.style.overflow = "hidden"; // Disable scroll
-                }
-            });
+                    document.body.style.overflow = "hidden"; // Lock scroll
+                    
+                    // Animate Items In
+                    setTimeout(() => {
+                        navItems?.forEach(item => {
+                            item.classList.remove("translate-y-4", "opacity-0");
+                        });
+                    }, 50);
 
-            // Close on link click
-            links?.forEach(link => {
-                link.addEventListener("click", () => {
+                } else {
                     menu.classList.remove("translate-x-0");
                     menu.classList.add("translate-x-full");
-                    document.body.style.overflow = "";
+                    menu.setAttribute("aria-hidden", "true");
+                    document.body.style.overflow = ""; // Unlock scroll
+
+                        // Reset specific animations
+                        setTimeout(() => {
+                            navItems?.forEach(item => {
+                                item.classList.add("translate-y-4", "opacity-0");
+                            });
+                        }, 300); // Wait for transition
+                }
+            }
+
+            // Mobile Menu Logic
+            if (btn && menu) {
+                // Remove old listeners to prevent duplicates (if any)
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                newBtn.addEventListener("click", () => toggleMenu(true));
+
+                if (closeBtn) {
+                     const newCloseBtn = closeBtn.cloneNode(true);
+                     closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+                     newCloseBtn.addEventListener("click", () => toggleMenu(false));
+                }
+
+                // Close on link click
+                links?.forEach(link => {
+                    link.addEventListener("click", () => toggleMenu(false));
                 });
-            });
+            }
         }
-    });
+
+        // Run on initial load
+        initMobileMenu();
+
+        // Run on View Transitions navigation
+        document.addEventListener("astro:page-load", initMobileMenu);
+    })();
 </script>
+
+<style>
+    @reference "../../styles/global.css";
+
+    /* Default (Dark Mode) Scrolled State */
+    nav[data-scrolled="true"] {
+        @apply bg-body/90 backdrop-blur-md shadow-sm border-b border-white/10;
+    }
+
+    /* Light Mode Scrolled Overrides */
+    :global([data-theme="light"]) nav[data-scrolled="true"] {
+        @apply border-brand-orange border-b-4 md:border-b-0 md:border-t-4;
+    }
+</style>
 
 <style>
     @reference "../../styles/global.css";
