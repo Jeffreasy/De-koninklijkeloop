@@ -1,156 +1,97 @@
 ---
 // src/components/blocks/Footer.astro
 import { siteConfig } from "../../config/site.config";
+import { Heart } from "lucide-react";
 
 const currentYear = new Date().getFullYear();
 
-// Icon paden (Lucide style) voor performance zonder hydration
 const icons = {
-    facebook:
-        "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z",
-    instagram:
-        "M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z M17.5 6.5h.01 M2 12a10 10 0 1 0 20 0 10 10 0 0 0-20 0", // Verkorte path voor demo
-    linkedin:
-        "M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z M2 9h4v12H2z M4 4a2 2 0 1 1-2 2 2 2 0 0 1 2-2z",
+    facebook: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z",
+    instagram: "M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z M17.5 6.5h.01 M2 12a10 10 0 1 0 20 0 10 10 0 0 0-20 0",
+    linkedin: "M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z M2 9h4v12H2z M4 4a2 2 0 1 1-2 2 2 2 0 0 1 2-2z"
 };
 ---
 
-<footer class="bg-surface border-t border-border pt-16 pb-8 text-sm">
+<footer class="bg-surface border-t border-border pt-16 pb-8 text-sm relative z-10">
     <div class="max-w-7xl mx-auto px-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div class="space-y-4">
-                <img
-                    src={siteConfig.brand.logo}
-                    alt={`${siteConfig.brand.name} Logo`}
-                    class="h-12 w-auto mb-2 object-contain"
-                />
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            {/* Brand Column */}
+            <div class="space-y-4 md:col-span-1">
+                <a href="/" class="block">
+                     <img
+                        src={siteConfig.brand.logo}
+                        alt={`${siteConfig.brand.name} Logo`}
+                        class="h-10 w-auto mb-2 object-contain"
+                    />
+                </a>
                 <p class="text-muted leading-relaxed max-w-xs">
                     {siteConfig.brand.description}
                 </p>
             </div>
 
+            {/* Navigation Columns */}
             <div>
-                <h4 class="text-primary font-bold mb-4 font-display text-base">
-                    Evenement
-                </h4>
-                <ul class="space-y-2.5">
-                    {
-                        siteConfig.footerLinks.evenement.map((link) => (
-                            <li>
-                                <a
-                                    href={link.href}
-                                    class="text-muted hover:text-accent-primary transition-colors duration-200"
-                                >
-                                    {link.name}
-                                </a>
-                            </li>
-                        ))
-                    }
-                </ul>
+                 <h4 class="text-primary font-bold mb-4 font-display text-base">Evenement</h4>
+                 <ul class="space-y-2.5">
+                     {siteConfig.footerLinks.evenement.map((link) => (
+                         <li>
+                             <a href={link.href} class="text-muted hover:text-accent-primary transition-colors duration-200">
+                                 {link.name}
+                             </a>
+                         </li>
+                     ))}
+                 </ul>
             </div>
 
             <div>
-                <h4 class="text-primary font-bold mb-4 font-display text-base">
-                    Organisatie
-                </h4>
-                <ul class="space-y-2.5">
-                    {
-                        siteConfig.footerLinks.organisatie.map((link) => (
-                            <li>
-                                <a
-                                    href={link.href}
-                                    class="text-muted hover:text-accent-primary transition-colors duration-200"
-                                >
-                                    {link.name}
-                                </a>
-                            </li>
-                        ))
-                    }
-                </ul>
+                 <h4 class="text-primary font-bold mb-4 font-display text-base">Organisatie</h4>
+                 <ul class="space-y-2.5">
+                     {siteConfig.footerLinks.organisatie.map((link) => (
+                         <li>
+                             <a href={link.href} class="text-muted hover:text-accent-primary transition-colors duration-200">
+                                 {link.name}
+                             </a>
+                         </li>
+                     ))}
+                 </ul>
             </div>
 
+            {/* Project Team / Credits */}
             <div>
-                <h4 class="text-primary font-bold mb-4 font-display text-base">
-                    Volg Ons
-                </h4>
-                <div class="flex gap-4">
-                    <a
-                        href="#"
-                        class="text-muted hover:text-brand-blue-light dark:hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full -ml-2"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <path d={icons.facebook}></path>
-                        </svg>
-                        <span class="sr-only">Facebook</span>
-                    </a>
-
-                    <a
-                        href="#"
-                        class="text-muted hover:text-brand-orange transition-colors p-2 hover:bg-white/5 rounded-full"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <rect
-                                width="20"
-                                height="20"
-                                x="2"
-                                y="2"
-                                rx="5"
-                                ry="5"></rect>
-                            <path
-                                d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
-                            ></path>
-                            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
-                        </svg>
-                        <span class="sr-only">Instagram</span>
-                    </a>
-
-                    <a
-                        href="#"
-                        class="text-muted hover:text-brand-sky transition-colors p-2 hover:bg-white/5 rounded-full"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <path d={icons.linkedin}></path>
-                        </svg>
-                        <span class="sr-only">LinkedIn</span>
-                    </a>
+                <h4 class="text-primary font-bold mb-4 font-display text-base">Project Team</h4>
+                <div class="p-4 rounded-xl bg-body/50 border border-border/50">
+                    <p class="text-xs text-muted mb-2">
+                        Lead Engineering
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <span class="font-semibold text-primary">Jeffrey Lavente</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="border-t border-border pt-8 text-center text-xs text-muted">
-            <p>
-                &copy; {currentYear} De Koninklijke Loop. Alle rechten voorbehouden.
+        {/* Bottom Bar */}
+        <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted">
+             <p>
+                &copy; {currentYear} {siteConfig.brand.name}. Alle rechten voorbehouden.
+            </p>
+
+            <p class="flex items-center gap-1">
+                Powered by 
+                <span class="font-semibold bg-gradient-to-r from-brand-orange via-yellow-200 to-brand-orange bg-[length:200%_auto] animate-shimmer bg-clip-text text-transparent">
+                    LaventeCare AuthSystem
+                </span>
             </p>
         </div>
     </div>
 </footer>
+
+<style>
+    @keyframes shimmer {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+    }
+    .animate-shimmer {
+        animation: shimmer 3s linear infinite;
+    }
+</style>
