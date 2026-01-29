@@ -66,7 +66,9 @@ const isActive = (href: string) => {
         <div class="md:hidden flex items-center gap-4">
             <ThemeToggle client:load />
             <button
-                class="p-2 text-primary hover:bg-surface rounded-lg transition-colors"
+                id="mobile-menu-btn"
+                class="p-2 text-primary hover:bg-surface rounded-lg transition-colors z-50 relative"
+                aria-label="Toggle Menu"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -87,19 +89,70 @@ const isActive = (href: string) => {
             </button>
         </div>
     </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div
+        id="mobile-menu"
+        class="fixed inset-0 bg-background/95 backdrop-blur-xl z-40 transform translate-x-full transition-transform duration-300 md:hidden flex flex-col justify-center items-center gap-8"
+        aria-hidden="true"
+    >
+        {
+            navItems.map((item) => (
+                <a
+                    href={item.href}
+                    class="text-2xl font-display font-medium text-primary hover:text-brand-orange transition-colors"
+                >
+                    {item.name}
+                </a>
+            ))
+        }
+    </div>
 </nav>
 
 <script>
-    const nav = document.getElementById("main-nav");
+    document.addEventListener("astro:page-load", () => {
+        const nav = document.getElementById("main-nav");
+        const btn = document.getElementById("mobile-menu-btn");
+        const menu = document.getElementById("mobile-menu");
+        const links = menu?.querySelectorAll("a");
 
-    function updateNav() {
-        if (!nav) return;
-        const isScrolled = window.scrollY > 20;
-        nav.setAttribute("data-scrolled", isScrolled ? "true" : "false");
-    }
+        // Scroll Logic
+        function updateNav() {
+            if (!nav) return;
+            const isScrolled = window.scrollY > 20;
+            nav.setAttribute("data-scrolled", isScrolled ? "true" : "false");
+        }
+        window.addEventListener("scroll", updateNav);
+        updateNav();
 
-    window.addEventListener("scroll", updateNav);
-    updateNav();
+        // Mobile Menu Logic
+        if (btn && menu) {
+            btn.addEventListener("click", () => {
+                const isOpen = menu.classList.contains("translate-x-0");
+                
+                if (isOpen) {
+                    menu.classList.remove("translate-x-0");
+                    menu.classList.add("translate-x-full");
+                    menu.setAttribute("aria-hidden", "true");
+                    document.body.style.overflow = ""; // Enable scroll
+                } else {
+                    menu.classList.remove("translate-x-full");
+                    menu.classList.add("translate-x-0");
+                    menu.setAttribute("aria-hidden", "false");
+                    document.body.style.overflow = "hidden"; // Disable scroll
+                }
+            });
+
+            // Close on link click
+            links?.forEach(link => {
+                link.addEventListener("click", () => {
+                    menu.classList.remove("translate-x-0");
+                    menu.classList.add("translate-x-full");
+                    document.body.style.overflow = "";
+                });
+            });
+        }
+    });
 </script>
 
 <style>
