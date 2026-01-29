@@ -2,38 +2,31 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/blocks/Navbar.astro";
 import Footer from "../components/blocks/Footer.astro";
-import ContactForm from "../components/islands/ContactForm";
-import { siteConfig } from "../config/site.config";
+import ContactSection from "../components/blocks/ContactSection.astro";
 ---
 
-<BaseLayout title="Contact | De Koninklijke Loop">
+<BaseLayout title="Contact | De Koninklijke Loop 2026">
     <Navbar />
-    <main class="pt-32 pb-20 px-6 min-h-screen">
-        <div class="max-w-xl mx-auto space-y-8">
-            <div class="text-center space-y-4">
-                <h1 class="text-4xl md:text-5xl font-display font-bold">
-                    Neem Contact Op
+    
+    <main class="pt-32 pb-20 relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-brand-blue-light/10 rounded-full blur-[128px] pointer-events-none"></div>
+        <div class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            {/* Header */}
+            <div class="text-center max-w-4xl mx-auto mb-12">
+                 <h1 class="text-5xl md:text-6xl font-display font-bold text-primary mb-6">
+                    Neem <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-orange-400">Contact</span> Op
                 </h1>
-                <p class="text-text-muted">
-                    Heb je vragen over de inschrijving of het evenement? Wij
-                    helpen je graag.
+                <p class="text-xl text-secondary leading-relaxed max-w-2xl mx-auto">
+                    Klaar om mee te lopen? Of wil je iets anders weten?
                 </p>
             </div>
 
-            <div class="glass-card rounded-2xl p-8">
-                <ContactForm client:load />
-            </div>
-
-            <div class="text-center text-sm text-text-muted">
-                <p>
-                    Of stuur direct een mail naar <a
-                        href={`mailto:${siteConfig.contact.email}`}
-                        class="text-text-body hover:underline"
-                        >{siteConfig.contact.email}</a
-                    >
-                </p>
-            </div>
+            <ContactSection />
         </div>
     </main>
     <Footer />
 </BaseLayout>
+
