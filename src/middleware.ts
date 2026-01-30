@@ -22,6 +22,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
                 context.locals.user = {
                     id: payload.sub || payload.id || payload.ID,
                     email: payload.email || payload.Email,
+                    name: payload.name || payload.Name || payload.email || "Gebruiker",
                     role: (payload.role || payload.Role || "viewer").toLowerCase()
                 } as any;
             }
