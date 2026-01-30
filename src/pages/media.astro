@@ -1,4 +1,5 @@
 ---
+import { v2 as cloudinary } from "cloudinary";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/blocks/Navbar.astro";
 import Footer from "../components/blocks/Footer.astro";
@@ -6,9 +7,48 @@ import MasonryGallery from "../components/blocks/MasonryGallery.astro";
 import StreamableVideo from "../components/blocks/StreamableVideo.astro";
 import AudioPlayer from "../components/blocks/AudioPlayer.astro";
 import { siteConfig } from "../config/site.config";
-import { gallery } from "../data/gallery";
 import { videos, type VideoItem } from "../data/videos";
 import PhotoUploadWidget from "../components/islands/PhotoUploadWidget";
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
+    api_key: import.meta.env.PUBLIC_CLOUDINARY_API_KEY,
+    api_secret: import.meta.env.CLOUDINARY_API_SECRET,
+});
+
+// Fetch Images from Cloudinary folders
+async function getImages(folderName: string, year: string) {
+    try {
+        const result = await cloudinary.api.resources_by_asset_folder(folderName, {
+            max_results: 500,
+        });
+        
+        if (!result.resources || result.resources.length < 1) {
+            return [];
+        }
+        
+        return result.resources.map((res: any) => ({
+            src: res.public_id,
+            alt: res.context?.custom?.alt || `Foto uit ${year}`,
+            aspect: (res.width && res.height && res.width > res.height) ? 'horizontal' : 'vertical',
+            year: year
+        }));
+    } catch (e: unknown) {
+        const error = e as { error?: { message?: string } };
+        console.error(`[Cloudinary] Error fetching images for "${folderName}":`, error.error?.message || String(e));
+        return [];
+    }
+}
+
+// Fetch images from all year folders in parallel
+const [images2026, images2025, images2024] = await Promise.all([
+    getImages("De Koninklijkeloop/DKLFoto's 2026", "2026"),
+    getImages("De Koninklijkeloop/DKLFoto's 2025", "2025"),
+    getImages("De Koninklijkeloop/DKLFoto's 2024", "2024"),
+]);
+
+const gallery = [...images2026, ...images2025, ...images2024];
 
 const featuredVideo = videos.find((v) => v.featured) || videos[0];
 const otherVideos = videos.filter((v) => v !== featuredVideo);
@@ -23,6 +63,7 @@ type Spotlight = {
 // We use a type predicate in .filter to ensure TS knows 'video' is defined
 const spotlights = [
     { id: "spotlight-default", video: videos.find(v => v.year === "2025" && v.featured) || videos[0], label: "Nieuwste Editie" },
+    { id: "spotlight-2026", video: videos.find(v => v.year === "2026") || featuredVideo, label: "Editie 2026" },
     { id: "spotlight-2025", video: videos.find(v => v.year === "2025" && v.featured), label: "Editie 2025" },
     { id: "spotlight-2024", video: videos.find(v => v.year === "2024" && v.featured), label: "Editie 2024" },
     { id: "spotlight-archief", video: videos.find(v => parseInt(v.year) <= 2023), label: "Uit het Archief" }
@@ -58,6 +99,12 @@ const spotlights = [
                         class="filter-btn active px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-accent-primary/50 transition-all font-medium"
                     >
                         Alle
+                    </button>
+                    <button
+                        data-filter="2026"
+                        class="filter-btn px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-accent-primary/50 transition-all font-medium"
+                    >
+                        2026
                     </button>
                     <button
                         data-filter="2025"
@@ -313,6 +360,7 @@ const spotlights = [
         const buttons = document.querySelectorAll(".filter-btn");
         const items = document.querySelectorAll(".media-item");
         const spotlights = document.querySelectorAll(".spotlight-card");
+        const loadMoreContainer = document.getElementById('load-more-container');
 
         buttons.forEach((btn) => {
             btn.addEventListener("click", () => {
@@ -331,6 +379,7 @@ const spotlights = [
 
                 // Find the correct spotlight to show
                 let targetSpotlightId = "spotlight-default"; // Default/All falls back to latest (2025)
+                if (filter === "2026") targetSpotlightId = "spotlight-2026";
                 if (filter === "2025") targetSpotlightId = "spotlight-2025";
                 if (filter === "2024") targetSpotlightId = "spotlight-2024";
                 if (filter === "Archief") targetSpotlightId = "spotlight-archief";
@@ -345,7 +394,7 @@ const spotlights = [
                     }, 50);
                 }
 
-                // 3. Grid Filter Logic (Smooth Transitions)
+                // 3. Grid Filter Logic (Smooth Transitions) - respects Load More state
                 items.forEach((item) => {
                     const itemYear = item.getAttribute("data-year");
                     const htmlItem = item as HTMLElement;
@@ -358,12 +407,12 @@ const spotlights = [
                         const yearNum = parseInt(itemYear || "9999");
                         if (yearNum <= 2023) shouldShow = true;
                     } else {
-                         // Exact match (2025, 2024)
+                         // Exact match (2026, 2025, 2024)
                         if (itemYear === filter) shouldShow = true;
                     }
 
                     if (shouldShow) {
-                        htmlItem.classList.remove("hidden");
+                        htmlItem.classList.remove("filter-hidden");
                         requestAnimationFrame(() => {
                             htmlItem.style.opacity = "1";
                             htmlItem.style.transform = "scale(1)";
@@ -374,11 +423,29 @@ const spotlights = [
                         // Wait for transition to finish before hiding display
                         setTimeout(() => {
                             if (htmlItem.style.opacity === "0") {
-                                htmlItem.classList.add("hidden");
+                                htmlItem.classList.add("filter-hidden");
                             }
                         }, 300);
                     }
                 });
+
+                // Update Load More button visibility
+                setTimeout(() => {
+                    const visibleItems = Array.from(items).filter(item => 
+                        !item.classList.contains('filter-hidden')
+                    );
+                    const hiddenByPagination = visibleItems.filter(item => 
+                        item.classList.contains('hidden')
+                    );
+                    
+                    if (loadMoreContainer) {
+                        if (hiddenByPagination.length > 0) {
+                            loadMoreContainer.classList.remove('hidden');
+                        } else {
+                            loadMoreContainer.classList.add('hidden');
+                        }
+                    }
+                }, 350);
             });
         });
     }
@@ -397,6 +464,10 @@ const spotlights = [
 
         .media-item {
             @apply transition-all duration-300 ease-in-out;
+        }
+
+        .filter-hidden {
+            display: none !important;
         }
     </style>
 </BaseLayout>
