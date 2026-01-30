@@ -15,24 +15,28 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
     }
 
     const targetUrl = `${API_URL}/${path}`;
-    const token = cookies.get("dkl_auth_token")?.value;
-
-    const headers = new Headers(request.headers);
-    headers.set("Host", new URL(API_URL).host); // Good practice for some proxies
-
-    // ATTACH TOKEN FROM COOKIE
-    if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-    }
-
-    // Strip Origin/Referer if needed, or keep for CORS checks on backend
-    // Usually backend expects them. 
 
     try {
+        // Inject Authorization header from cookie if valid
+        // Check both 'access_token' (Backend standard) and 'dkl_auth_token' (Old middleware standard)
+        const token = cookies.get("access_token")?.value || cookies.get("dkl_auth_token")?.value;
+        const headers = new Headers(request.headers);
+
+        // Good practice for some proxies
+        headers.set("Host", new URL(API_URL).host);
+
+        if (token) {
+            headers.set("Authorization", `Bearer ${token}`);
+        }
+
+        // Debug Proxy Request
+        console.log(`[Proxy] Forwarding ${request.method} to ${targetUrl}`);
+        console.log(`[Proxy] X-Tenant-ID: ${headers.get("X-Tenant-ID")}`);
+
         const response = await fetch(targetUrl, {
             method: request.method,
             headers: headers,
-            body: request.body as any,
+            body: request.method !== 'GET' ? request.clone().body as any : undefined,
             duplex: 'half' // Required for Node, harmless on Vercel
         } as any);
 

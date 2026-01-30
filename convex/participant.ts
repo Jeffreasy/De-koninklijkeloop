@@ -13,9 +13,12 @@ export const getDashboardData = action({
         const tenantId = process.env.TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
 
         // 1. Verify Token via Auth API
+        // Backend expects Cookies, but might accepts Bearer as fallback. 
+        // We'll send BOTH to be safe.
         const res = await fetch("https://laventecareauthsystems.onrender.com/api/v1/me", {
             headers: {
                 "Authorization": `Bearer ${args.token}`,
+                "Cookie": `access_token=${args.token}; dkl_auth_token=${args.token}`,
                 "X-Tenant-ID": tenantId
             }
         });

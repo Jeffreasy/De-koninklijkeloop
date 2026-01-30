@@ -60,9 +60,12 @@ function DashboardContent({ token }: { token: string }) {
                 const result = await getDashboardData({ token });
                 setData(result);
             } catch (err: any) {
-                console.error(err);
+                console.error("Dashboard Data Load Error:", err);
                 if (err.message.includes("Unauthorized")) {
-                    logout(); // Token expired/invalid
+                    // STOP AUTO-LOGOUT FOR DEBUGGING
+                    console.error("Would satisfy logout() condition (Unauthorized), but pausing for debug.");
+                    // logout(); 
+                    setError("Unauthorized access. Please check console.");
                 } else {
                     setError("Kon gegevens niet ophalen.");
                 }

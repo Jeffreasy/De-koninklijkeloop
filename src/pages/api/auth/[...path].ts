@@ -6,6 +6,9 @@ const API_URL = import.meta.env.PUBLIC_API_URL || "https://laventecareauthsystem
 
 export const ALL: APIRoute = async ({ request, params, cookies }) => {
     const path = params.path;
+    // DEBUG: Log Route Hit
+    console.log(`[AuthProxy] Hit: ${path}, Method: ${request.method}`);
+
     const targetUrl = `${API_URL}/auth/${path}`;
 
     // INTERCEPT LOGIN
@@ -26,27 +29,83 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
                 return new Response(await response.text(), { status: response.status });
             }
 
-            const data = await response.json();
-            const token = data.access_token || data.token;
+            // DEBUG: Log Backend Response Headers
+            console.log("Backend Response Headers:");
+            response.headers.forEach((val, key) => console.log(`  ${key}: ${val}`));
 
-            if (token) {
-                // HARDENING: Set HttpOnly Cookie
-                cookies.set('dkl_auth_token', token, {
-                    path: '/',
-                    httpOnly: true,
-                    secure: import.meta.env.PROD || import.meta.env.VERCEL_ENV === 'production',
-                    sameSite: 'strict',
-                    maxAge: 60 * 60 * 24 * 7 // 1 week
+            const data = await response.json();
+
+            // DOCS: Tokens are in Set-Cookie headers, NOT in body.
+            // We must forward these cookies to the client, but adjust them for localhost.
+
+            const responseHeaders = new Headers();
+            responseHeaders.set('Content-Type', 'application/json');
+
+            const setCookieHeader = response.headers.get("set-cookie");
+            if (setCookieHeader) {
+                console.log("👉 Forwarding Set-Cookie from Backend:", setCookieHeader);
+
+                // Parse and adjust the cookie
+                // Backend sends: access_token=...; HttpOnly; Secure; SameSite=Strict
+                // We need: access_token=...; HttpOnly; SameSite=Lax; (Secure=false in dev)
+
+                // Note: fetch() might merge multiple Set-Cookie headers into one comma-separated string
+                // or we might need to use getSetCookie() if available in this Node environment.
+
+                let cookiesToSet: string[] = [];
+                if (typeof response.headers.getSetCookie === 'function') {
+                    cookiesToSet = response.headers.getSetCookie();
+                } else {
+                    // Fallback for older Node/Fetch environments
+                    cookiesToSet = [setCookieHeader];
+                }
+
+                cookiesToSet.forEach(cookie => {
+                    let adjustedCookie = cookie;
+
+                    // 1. Force SameSite=Lax (Override None/Strict/Lax)
+                    // SameSite=None REQUIRES Secure, so we must change it if we strip Secure.
+                    adjustedCookie = adjustedCookie.replace(/SameSite=[a-zA-Z]+/gi, 'SameSite=Lax');
+
+                    // 2. Remove 'Partitioned' (often used with SameSite=None)
+                    adjustedCookie = adjustedCookie.replace(/; Partitioned/gi, '');
+
+                    // 3. Handle Secure flag
+                    if (!import.meta.env.PROD) {
+                        // In DEV: Strip 'Secure'
+                        adjustedCookie = adjustedCookie.replace(/; Secure/gi, '');
+                    }
+
+                    // 3. Rename cookie if needed? NO.
+                    // Backend expects 'access_token'. Middleware now supports it too.
+                    // if (adjustedCookie.includes("access_token=")) {
+                    //      adjustedCookie = adjustedCookie.replace("access_token=", "dkl_auth_token=");
+                    // }
+
+                    console.log("   🔄 Adjusted Cookie:", adjustedCookie);
+                    responseHeaders.append('Set-Cookie', adjustedCookie);
                 });
+            } else {
+                console.warn("⚠️ No Set-Cookie header found in backend response!");
             }
 
             // Return sanitized user data (NO TOKEN LEAK)
             // If backend returns { access_token: "...", user: {...} }
-            const { access_token, token: _, ...safeData } = data;
+            const { access_token, token: _, ...restData } = data;
 
-            return new Response(JSON.stringify(safeData), {
+            // SECURITY: Strip sensitive fields that might be leaked by backend
+            if (restData.user || restData.User) {
+                const u = restData.user || restData.User;
+                delete u.PasswordHash;
+                delete u.MfaSecret;
+            } else {
+                delete restData.PasswordHash;
+                delete restData.MfaSecret;
+            }
+
+            return new Response(JSON.stringify(restData), {
                 status: 200,
-                headers: { 'Content-Type': 'application/json' }
+                headers: responseHeaders
             });
 
         } catch (error) {
@@ -55,20 +114,40 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
         }
     }
 
+    // INTERCEPT TOKEN RETRIEVAL (For Client-Side Islands)
+    if (path === 'token' && request.method === 'GET') {
+        const token = cookies.get("access_token")?.value || cookies.get("dkl_auth_token")?.value;
+        if (token) {
+            return new Response(JSON.stringify({ token }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        return new Response(JSON.stringify({ error: "No session" }), { status: 401 });
+    }
+
     // INTERCEPT LOGOUT
     if (path === 'logout') {
         cookies.delete('dkl_auth_token', { path: '/' });
         return new Response(JSON.stringify({ success: true }), { status: 200 });
     }
 
-    // FALLBACK: Generic Proxy for other auth routes (e.g. register, forgot-password)
+    // FALLBACK: Generic Proxy for other auth routes (e.g. register, forgot-password, token checks)
     // We pass through but ensure we don't leak anything unexpected
     try {
+        const token = cookies.get("dkl_auth_token")?.value;
+        const headers = new Headers(request.headers);
+
+        // FIX: Inject Bearer token for /auth/token checks
+        if (token) {
+            headers.set("Authorization", `Bearer ${token}`);
+        }
+
         // We cannot read body if we want to stream it, but for auth endpoints usually JSON.
         // If we consumed body above (we didn't for this branch), we are fine.
         const response = await fetch(targetUrl, {
             method: request.method,
-            headers: request.headers,
+            headers: headers,
             body: request.clone().body as any,
             duplex: 'half'
         } as any);

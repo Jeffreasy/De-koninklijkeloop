@@ -23,26 +23,46 @@ export default function LoginForm() {
                 body: JSON.stringify({ email, password }),
             });
 
-            // API returns PascalCase (Go structs), Frontend expects normalized keys
+            console.log("[LoginForm] Received Data:", data);
+
             // API returns PascalCase (Go structs), Frontend expects normalized keys
             // Cookie-based Auth: Token is in HttpOnly cookie, not in body.
             const rawUser = data.User || data.user;
 
             if (!rawUser) {
+                console.error("[LoginForm] 'User' or 'user' key missing in data:", Object.keys(data));
                 throw new Error("Ongeldige server reactie (Geen user data)");
             }
 
-            // Normalize User object (API likely returns PascalCase fields)
+            // Normalize User object
             const user = {
                 id: rawUser.ID || rawUser.id,
                 email: rawUser.Email || rawUser.email,
-                role: (rawUser.Role || rawUser.role || "viewer").toLowerCase()
+                role: (rawUser.Role || rawUser.role || "").toLowerCase()
             };
 
-            // 2. Store user state (Token is in Cookie)
+            // 2. If Role is missing (Backend issue), fetch profile
+            // This implicitly tests if the HttpOnly cookie was set correctly
+            if (!user.role) {
+                try {
+                    console.log("[LoginForm] Role missing, fetching /me...");
+                    const meData = await apiRequest("/me");
+                    if (meData.user && meData.user.role) {
+                        user.role = meData.user.role.toLowerCase();
+                        console.log("[LoginForm] Role fetched:", user.role);
+                    }
+                } catch (e) {
+                    console.error("[LoginForm] Could not fetch profile (Cookie missing?):", e);
+                }
+            }
+
+            // Fallback
+            if (!user.role) user.role = "viewer";
+
+            // 3. Store user state (Token is in Cookie)
             setAuth(null, user);
 
-            // 3. Redirect based on Role
+            // 4. Redirect based on Role
             if (user.role === "admin") {
                 window.location.href = "/admin/dashboard";
             } else {
@@ -50,8 +70,9 @@ export default function LoginForm() {
             }
 
         } catch (err: any) {
-            console.error(err);
-            setError("Ongeldige inloggegevens. Probeer het opnieuw.");
+            console.error("[LoginForm] Error:", err);
+            // Show real error for debugging if possible, else generic
+            setError(err.message || "Ongeldige inloggegevens. Probeer het opnieuw.");
         } finally {
             setIsSubmitting(false);
         }
