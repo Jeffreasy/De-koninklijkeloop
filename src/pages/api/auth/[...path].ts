@@ -6,8 +6,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || "https://laventecareauthsystem
 
 export const ALL: APIRoute = async ({ request, params, cookies }) => {
     const path = params.path;
-    // DEBUG: Log Route Hit
-    console.log(`[AuthProxy] Hit: ${path}, Method: ${request.method}`);
+
 
     const targetUrl = `${API_URL}/auth/${path}`;
 
@@ -29,9 +28,7 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
                 return new Response(await response.text(), { status: response.status });
             }
 
-            // DEBUG: Log Backend Response Headers
-            console.log("Backend Response Headers:");
-            response.headers.forEach((val, key) => console.log(`  ${key}: ${val}`));
+
 
             const data = await response.json();
 
@@ -43,7 +40,7 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
 
             const setCookieHeader = response.headers.get("set-cookie");
             if (setCookieHeader) {
-                console.log("👉 Forwarding Set-Cookie from Backend:", setCookieHeader);
+
 
                 // Parse and adjust the cookie
                 // Backend sends: access_token=...; HttpOnly; Secure; SameSite=Strict
@@ -82,7 +79,7 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
                     //      adjustedCookie = adjustedCookie.replace("access_token=", "dkl_auth_token=");
                     // }
 
-                    console.log("   🔄 Adjusted Cookie:", adjustedCookie);
+
                     responseHeaders.append('Set-Cookie', adjustedCookie);
                 });
             } else {

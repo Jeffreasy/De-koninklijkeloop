@@ -10,34 +10,46 @@ export const getDashboardData = action({
         user: { email: string; id: string };
         registration: Doc<"registrations"> | null;
     }> => {
-        const tenantId = process.env.TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
+        const tenantId = "b2727666-7230-4689-b58b-ceab8c2898d5";
 
-        // 1. Verify Token via Auth API
-        // Backend expects Cookies, but might accepts Bearer as fallback. 
-        // We'll send BOTH to be safe.
-        const res = await fetch("https://laventecareauthsystems.onrender.com/api/v1/me", {
-            headers: {
-                "Authorization": `Bearer ${args.token}`,
-                "Cookie": `access_token=${args.token}; dkl_auth_token=${args.token}`,
-                "X-Tenant-ID": tenantId
+        console.log("[Convex] Step 1: Starting Fetch to Auth API...");
+        try {
+            const res = await fetch("https://laventecareauthsystems.onrender.com/api/v1/auth/me", {
+                headers: {
+                    "Authorization": `Bearer ${args.token}`,
+                    "Cookie": `access_token=${args.token}; dkl_auth_token=${args.token}`,
+                    "X-Tenant-ID": tenantId
+                }
+            });
+
+            console.log(`[Convex] Step 2: Fetch Complete. Status: ${res.status}`);
+
+            if (!res.ok) {
+                console.error(`[Convex] Auth Verification Failed: ${res.status} ${res.statusText}`);
+                throw new Error("Unauthorized");
             }
-        });
 
-        if (!res.ok) {
-            throw new Error("Unauthorized");
+            console.log("[Convex] Step 3: Parsing JSON...");
+            const userData = await res.json();
+            console.log("[Convex] Step 4: JSON Parsed. Extracting User...");
+
+            const user = userData.User || userData.user;
+            if (!user) throw new Error("User data missing in Auth response");
+
+            const email = user.Email || user.email;
+            console.log(`[Convex] Step 5: User Identified (${email}). Fetching Registration...`);
+
+            // 2. Fetch Registration by Email
+            const registration = await ctx.runQuery(api.internal.getRegistrationByEmail, { email });
+            console.log(`[Convex] Step 6: Registration Fetched:`, registration ? "FOUND" : "NULL");
+
+            return {
+                user: { email, id: user.ID || user.id },
+                registration
+            };
+        } catch (e: any) {
+            console.error("[Convex] CRITICAL ACTION ERROR:", e);
+            throw e; // Ensure the client receives the error
         }
-
-        const userData = await res.json();
-        const user = userData.User || userData.user;
-        const email = user.Email || user.email;
-
-        // 2. Fetch Registration by Email
-        // We use the internal query similar to admin fetch
-        const registration = await ctx.runQuery(api.internal.getRegistrationByEmail, { email });
-
-        return {
-            user: { email, id: user.ID || user.id },
-            registration
-        };
     },
 });

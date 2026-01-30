@@ -11,6 +11,7 @@ export default function ParticipantDashboardWrapper() {
     useEffect(() => {
         const initAuth = async () => {
             let t = $accessToken.get();
+            console.log("[Wrapper] Initial Token:", t ? "FOUND" : "NULL");
 
             if (!t) {
                 try {
@@ -55,16 +56,18 @@ function DashboardContent({ token }: { token: string }) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        console.log("[Wrapper] Load Effect Triggered. Token:", token ? "YES" : "NO");
         const load = async () => {
+            console.log("[Wrapper] Starting getDashboardData...");
             try {
                 const result = await getDashboardData({ token });
+                console.log("[Wrapper] getDashboardData SUCCESS:", result);
                 setData(result);
             } catch (err: any) {
+                console.error("[Wrapper] getDashboardData ERROR:", err);
                 console.error("Dashboard Data Load Error:", err);
                 if (err.message.includes("Unauthorized")) {
-                    // STOP AUTO-LOGOUT FOR DEBUGGING
-                    console.error("Would satisfy logout() condition (Unauthorized), but pausing for debug.");
-                    // logout(); 
+                    logout();
                     setError("Unauthorized access. Please check console.");
                 } else {
                     setError("Kon gegevens niet ophalen.");

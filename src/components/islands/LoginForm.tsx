@@ -23,7 +23,7 @@ export default function LoginForm() {
                 body: JSON.stringify({ email, password }),
             });
 
-            console.log("[LoginForm] Received Data:", data);
+
 
             // API returns PascalCase (Go structs), Frontend expects normalized keys
             // Cookie-based Auth: Token is in HttpOnly cookie, not in body.
@@ -45,11 +45,11 @@ export default function LoginForm() {
             // This implicitly tests if the HttpOnly cookie was set correctly
             if (!user.role) {
                 try {
-                    console.log("[LoginForm] Role missing, fetching /me...");
-                    const meData = await apiRequest("/me");
+
+                    const meData = await apiRequest("/auth/me");
                     if (meData.user && meData.user.role) {
                         user.role = meData.user.role.toLowerCase();
-                        console.log("[LoginForm] Role fetched:", user.role);
+
                     }
                 } catch (e) {
                     console.error("[LoginForm] Could not fetch profile (Cookie missing?):", e);
