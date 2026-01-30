@@ -84,7 +84,7 @@ import { audioTracks } from "../../data/audio";
                 // Stop current if playing same
                 if (currentTrack === track && !player.paused) {
                     player.pause();
-                    updateUI(track, false);
+                    updateUI(track as HTMLElement, false);
                     return;
                 }
                 

@@ -18,14 +18,14 @@ export const charityHistory = [
         year: 2025,
         name: "Liliane Fonds",
         description: "Steun voor kinderen met een handicap in de armste delen van de wereld.",
-        amountRaised: "€14.500", // Voorbeeld
+        amountRaised: "€2285", // Voorbeeld
         link: "/archive/2025"
     },
     {
         year: 2024,
         name: "Liliane Fonds",
         description: "Onze eerste editie. Samen openden we de wereld voor tientallen kinderen.",
-        amountRaised: "€11.200", // Voorbeeld
+        amountRaised: "€2000", // Voorbeeld
         link: "/archive/2024"
     }
 ];
