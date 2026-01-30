@@ -7,10 +7,25 @@ import StreamableVideo from "../components/blocks/StreamableVideo.astro";
 import AudioPlayer from "../components/blocks/AudioPlayer.astro";
 import { siteConfig } from "../config/site.config";
 import { gallery } from "../data/gallery";
-import { videos } from "../data/videos";
+import { videos, type VideoItem } from "../data/videos";
 
 const featuredVideo = videos.find((v) => v.featured) || videos[0];
 const otherVideos = videos.filter((v) => v !== featuredVideo);
+
+type Spotlight = {
+    id: string;
+    video: VideoItem;
+    label: string;
+};
+
+// Define Spotlights for the "Time Travel" feature
+// We use a type predicate in .filter to ensure TS knows 'video' is defined
+const spotlights = [
+    { id: "spotlight-default", video: videos.find(v => v.year === "2025" && v.featured) || videos[0], label: "Nieuwste Editie" },
+    { id: "spotlight-2025", video: videos.find(v => v.year === "2025" && v.featured), label: "Editie 2025" },
+    { id: "spotlight-2024", video: videos.find(v => v.year === "2024" && v.featured), label: "Editie 2024" },
+    { id: "spotlight-archief", video: videos.find(v => parseInt(v.year) <= 2023), label: "Uit het Archief" }
+].filter((s): s is Spotlight => s.video !== undefined);
 ---
 
 <BaseLayout
@@ -73,56 +88,73 @@ const otherVideos = videos.filter((v) => v !== featuredVideo);
                     <div class="h-px bg-border flex-1"></div>
                 </div>
 
-                <!-- Featured Video (Spotlight Card) -->
-                <div class="relative bg-surface border border-border rounded-3xl overflow-hidden shadow-2xl group">
-                    <div class="absolute inset-0 bg-brand-blue/5 group-hover:bg-brand-blue/10 transition-colors duration-500"></div>
-                    <div class="grid lg:grid-cols-5 gap-0 relative z-10">
-                         <!-- Video Container (Dominant) -->
-                        <div class="lg:col-span-3 bg-black video-spotlight">
-                            <StreamableVideo
-                                shortcode={featuredVideo.shortcode}
-                                title={featuredVideo.title}
-                                bare={true}
-                            />
-                        </div>
+                <!-- Dynamic Spotlights Container -->
+                <div class="min-h-[500px] relative">
+                    {/* 
+                      Logic: We render a spotlight card for EACH major filter state.
+                      CSS/JS handles the toggling.
+                    */}
+                    {spotlights.map((spotlight) => {
+                        // Default is visible, others hidden
+                        const isHidden = spotlight.id !== "spotlight-default"; 
+                        
+                        return (
+                            <div 
+                                id={spotlight.id} 
+                                class={`absolute inset-0 spotlight-card transition-all duration-500 ease-out origin-center ${isHidden ? "hidden opacity-0 scale-95" : "opacity-100 scale-100"}`}
+                            >
+                                <div class="relative h-full bg-surface border border-border rounded-3xl overflow-hidden shadow-2xl group flex flex-col lg:flex-row">
+                                    <div class="absolute inset-0 bg-brand-blue/5 group-hover:bg-brand-blue/10 transition-colors duration-500"></div>
+                                    
+                                    {/* Video Container */}
+                                    <div class="w-full lg:w-3/5 bg-black video-spotlight relative z-10">
+                                        <StreamableVideo
+                                            shortcode={spotlight.video.shortcode}
+                                            title={spotlight.video.title}
+                                            bare={true}
+                                        />
+                                    </div>
 
-                        <!-- Content Container -->
-                        <div class="lg:col-span-2 p-8 md:p-10 flex flex-col justify-center space-y-6 border-t lg:border-t-0 lg:border-l border-border bg-surface/50 backdrop-blur-sm">
-                            <div class="inline-flex items-center gap-2 text-accent-primary font-bold text-xs tracking-widest uppercase">
-                                <span class="relative flex h-2.5 w-2.5">
-                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-primary opacity-75"></span>
-                                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-primary"></span>
-                                </span>
-                                Nu Uitgelicht
-                            </div>
-                            
-                            <div>
-                                <h3 class="text-3xl font-bold font-display text-primary leading-tight mb-2">
-                                    {featuredVideo.title}
-                                </h3>
-                                <div class="flex items-center gap-3 text-muted text-sm">
-                                    <span class="flex items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                                        Editie {featuredVideo.year}
-                                    </span>
-                                    <span>•</span>
-                                    <span class="flex items-center gap-1">
-                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                         Officiële Aftermovie
-                                    </span>
+                                    {/* Content Container */}
+                                    <div class="w-full lg:w-2/5 p-8 md:p-10 flex flex-col justify-center space-y-6 border-t lg:border-t-0 lg:border-l border-border bg-surface/50 backdrop-blur-sm relative z-10">
+                                        <div class="inline-flex items-center gap-2 text-accent-primary font-bold text-xs tracking-widest uppercase">
+                                            <span class="relative flex h-2.5 w-2.5">
+                                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-primary opacity-75"></span>
+                                              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-primary"></span>
+                                            </span>
+                                            {spotlight.label}
+                                        </div>
+                                        
+                                        <div>
+                                            <h3 class="text-3xl font-bold font-display text-primary leading-tight mb-2">
+                                                {spotlight.video.title}
+                                            </h3>
+                                            <div class="flex items-center gap-3 text-muted text-sm">
+                                                <span class="flex items-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                                                    {spotlight.video.year}
+                                                </span>
+                                                <span>•</span>
+                                                <span class="flex items-center gap-1">
+                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                                     Highlight
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <p class="text-secondary leading-relaxed">
+                                            Beleef de magie van De Koninklijke Loop {spotlight.video.year}. 
+                                            Een terugblik op onvergetelijke momenten, vastgelegd voor de eeuwigheid.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <p class="text-secondary leading-relaxed">
-                                Beleef de sfeer van de laatste editie opnieuw. 
-                                Een terugblik op de strijd, de gezelligheid en de koninklijke finish door de bossen van Apeldoorn.
-                            </p>
-                        </div>
-                    </div>
+                        );
+                    })}
                 </div>
 
                 <!-- Video Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
                     {otherVideos.map((video) => (
                         <div class="media-item" data-year={video.year || "all"}>
                             <StreamableVideo
@@ -264,43 +296,85 @@ const otherVideos = videos.filter((v) => v !== featuredVideo);
 
     <Footer />
 
-    <script>
-        function initFilters() {
-            const buttons = document.querySelectorAll(".filter-btn");
-            const items = document.querySelectorAll(".media-item");
+<script>
+    function initFilters() {
+        const buttons = document.querySelectorAll(".filter-btn");
+        const items = document.querySelectorAll(".media-item");
+        const spotlights = document.querySelectorAll(".spotlight-card");
 
-            buttons.forEach((btn) => {
-                btn.addEventListener("click", () => {
-                    // Update Active State
-                    buttons.forEach((b) => b.classList.remove("active"));
-                    btn.classList.add("active");
+        buttons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                // 1. Update Active Button State
+                buttons.forEach((b) => b.classList.remove("active"));
+                btn.classList.add("active");
 
-                    const filter = btn.getAttribute("data-filter");
+                const filter = btn.getAttribute("data-filter") || "all";
 
-                    // Filter Items
-                    items.forEach((item) => {
-                        const itemYear = item.getAttribute("data-year");
-                        const htmlItem = item as HTMLElement;
+                // 2. Spotlight Logic (The "Time Travel" Effect)
+                // Hide all spotlights first
+                spotlights.forEach((s) => {
+                    s.classList.add("hidden", "opacity-0", "scale-95");
+                    s.classList.remove("opacity-100", "scale-100");
+                });
 
-                        if (filter === "all" || itemYear === filter) {
-                            htmlItem.style.display = ""; // Reset to default (block/flex)
-                            // Optional: Add fade-in animation
+                // Find the correct spotlight to show
+                let targetSpotlightId = "spotlight-default"; // Default/All falls back to latest (2025)
+                if (filter === "2025") targetSpotlightId = "spotlight-2025";
+                if (filter === "2024") targetSpotlightId = "spotlight-2024";
+                if (filter === "Archief") targetSpotlightId = "spotlight-archief";
+
+                const targetSpotlight = document.getElementById(targetSpotlightId);
+                if (targetSpotlight) {
+                    targetSpotlight.classList.remove("hidden");
+                    // Small delay to allow display:block to apply before animating opacity
+                    setTimeout(() => {
+                        targetSpotlight.classList.remove("opacity-0", "scale-95");
+                        targetSpotlight.classList.add("opacity-100", "scale-100");
+                    }, 50);
+                }
+
+                // 3. Grid Filter Logic (Smooth Transitions)
+                items.forEach((item) => {
+                    const itemYear = item.getAttribute("data-year");
+                    const htmlItem = item as HTMLElement;
+                    
+                    // Logic: Show if filter is 'all', matches exact year, or is Archive (<= 2023)
+                    let shouldShow = false;
+                    if (filter === "all") shouldShow = true;
+                    else if (filter === "Archief") {
+                        // Check if year is numeric and <= 2023
+                        const yearNum = parseInt(itemYear || "9999");
+                        if (yearNum <= 2023) shouldShow = true;
+                    } else {
+                         // Exact match (2025, 2024)
+                        if (itemYear === filter) shouldShow = true;
+                    }
+
+                    if (shouldShow) {
+                        htmlItem.classList.remove("hidden");
+                        requestAnimationFrame(() => {
                             htmlItem.style.opacity = "1";
                             htmlItem.style.transform = "scale(1)";
-                        } else {
-                            htmlItem.style.display = "none";
-                            htmlItem.style.opacity = "0"; 
-                            htmlItem.style.transform = "scale(0.95)";
-                        }
-                    });
+                        });
+                    } else {
+                        htmlItem.style.opacity = "0";
+                        htmlItem.style.transform = "scale(0.95)";
+                        // Wait for transition to finish before hiding display
+                        setTimeout(() => {
+                            if (htmlItem.style.opacity === "0") {
+                                htmlItem.classList.add("hidden");
+                            }
+                        }, 300);
+                    }
                 });
             });
-        }
+        });
+    }
 
-        // Run on load and View Transitions navigation
-        document.addEventListener("DOMContentLoaded", initFilters);
-        document.addEventListener("astro:page-load", initFilters);
-    </script>
+    // Run on load and View Transitions navigation
+    document.addEventListener("DOMContentLoaded", initFilters);
+    document.addEventListener("astro:page-load", initFilters);
+</script>
 
     <style>
         @reference "../styles/global.css";

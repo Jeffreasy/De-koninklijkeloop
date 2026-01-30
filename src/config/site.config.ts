@@ -29,6 +29,7 @@ export const siteConfig = {
     navigation: [
         { name: "Home", href: "/" },
         { name: "Routes", href: "/routes" },
+        { name: "Programma", href: "/programma" },
         { name: "Media", href: "/media" },
         { name: "DKL", href: "/dkl" },
         { name: "Inschrijven", href: "/register", highlight: true },
@@ -41,12 +42,14 @@ export const siteConfig = {
         evenement: [
             { name: "Routes & Kaart", href: "/routes" },
             { name: "Programma", href: "/programma" },
+            { name: "Media", href: "/media" },
             { name: "Veelgestelde Vragen", href: "/faq" },
         ],
         organisatie: [
             { name: "Over Ons", href: "/about" },
             { name: "Het Goede Doel", href: "/charity" },
             { name: "Contact", href: "/contact" },
+            { name: "Inloggen", href: "/login" },
         ],
     },
 

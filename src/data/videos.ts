@@ -18,9 +18,10 @@ export const videos: VideoItem[] = [
         year: "2025",
     },
     {
-        shortcode: "x8zj4k",
-        title: "DKL Highlights", // Placeholder
+        shortcode: "tt6k80",
+        title: "Aftermovie 2024",
         year: "2024",
+        featured: true,
     },
     {
         shortcode: "opjpma",
