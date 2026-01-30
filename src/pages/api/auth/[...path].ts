@@ -15,7 +15,10 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
 
             const response = await fetch(targetUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Tenant-ID': import.meta.env.PUBLIC_TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5"
+                },
                 body: JSON.stringify(body),
             });
 
