@@ -35,10 +35,6 @@
                     "value": "public, no-cache, no-store, max-age=0, must-revalidate, proxy-revalidate"
                 },
                 {
-                    "key": "Clear-Site-Data",
-                    "value": "\"cache\", \"storage\""
-                },
-                {
                     "key": "Pragma",
                     "value": "no-cache"
                 },
