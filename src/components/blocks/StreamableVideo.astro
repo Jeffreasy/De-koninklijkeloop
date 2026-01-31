@@ -15,7 +15,8 @@ const { shortcode, title, bare = false } = Astro.props;
         /* Bare Mode: Facade for direct video embed */
          <div class="streamable-facade relative w-full aspect-video rounded-xl overflow-hidden shadow-lg bg-black/10 group cursor-pointer" data-shortcode={shortcode}>
             <img 
-                src={`https://cdn-s3.streamable.com/image/${shortcode}.jpg`} 
+                src={`https://thumbs-east.streamable.com/image/${shortcode}.jpg`} 
+                onError="this.src='https://placehold.co/1920x1080/000000/FFF?text=Video+Laden'; this.onerror=null;"
                 alt="Video Thumbnail" 
                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
@@ -36,7 +37,8 @@ const { shortcode, title, bare = false } = Astro.props;
         <div class="rounded-2xl overflow-hidden shadow-xl border border-border bg-surface group transition-all duration-300 hover:shadow-2xl hover:border-brand-blue-light/50">
             <div class="streamable-facade relative w-full aspect-video bg-black/50 cursor-pointer" data-shortcode={shortcode}>
                 <img 
-                    src={`https://cdn-s3.streamable.com/image/${shortcode}.jpg`} 
+                    src={`https://thumbs-east.streamable.com/image/${shortcode}.jpg`} 
+                    onError="this.src='https://placehold.co/1920x1080/000000/FFF?text=Video+Laden'; this.onerror=null;"
                     alt={title || "Video"} 
                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"

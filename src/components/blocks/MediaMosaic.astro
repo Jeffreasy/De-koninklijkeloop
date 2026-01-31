@@ -1,11 +1,12 @@
 ---
 // src/components/blocks/MediaMosaic.astro
-import StreamableVideo from "./StreamableVideo.astro";
+import VideoShowcase from "../islands/VideoShowcase";
 import LiveImageGrid from "../islands/LiveImageGrid";
-import { gallery } from "../../data/gallery";
 import { videos } from "../../data/videos";
 import { Button } from "../ui/button";
 import { Play, ArrowRight } from "lucide-react";
+import { gallery } from "../../data/gallery";
+import { getImagesFromFolder } from "../../lib/cloudinary";
 
 // Featured content config
 const featuredVideo = videos.find((v) => v.featured) || videos[0];
@@ -20,17 +21,52 @@ function shuffleArray<T>(array: T[]): T[] {
     return shuffled;
 }
 
-// Prepare the base images
-const baseImages = gallery.slice(0, 6).map((img) => ({
-    src: `https://res.cloudinary.com/dgfuv7wif/image/upload/${img.src}`,
-    alt: img.alt,
+// Fetch 2024 & 2025 images usage cached function
+const [images2024, images2025] = await Promise.all([
+    getImagesFromFolder("De Koninklijkeloop/DKLFoto's 2024", "2024"),
+    getImagesFromFolder("De Koninklijkeloop/DKLFoto's 2025", "2025")
+]);
+
+const cloudImages = [...images2025, ...images2024];
+
+// Prepare the base images from Cloudinary
+let mappedImages = cloudImages.map((img) => ({
+    src: `https://res.cloudinary.com/${import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${img.src}`,
+    alt: img.alt || `Sfeerimpressie DKL ${img.year}`,
     class: "h-full w-full object-cover",
 }));
 
-// Shuffle and expand to ensure we have enough diversity for the grid (min 16 items)
-let displayImages = shuffleArray([...baseImages]);
-while (displayImages.length < 16) {
-    displayImages = [...displayImages, ...shuffleArray([...baseImages])];
+// Fallback/Augmentation: If we have fewer than 16 images, mix in the curated local gallery
+// This prevents the "3x same photo" issue if the Cloudinary folder is nearly empty.
+if (mappedImages.length < 16) {
+    console.log(`[MediaMosaic] Only found ${mappedImages.length} images. Augmenting with local gallery.`);
+    const localFallback = gallery.map(img => ({
+        src: `https://res.cloudinary.com/dgfuv7wif/image/upload/${img.src}`,
+        alt: img.alt,
+        class: "h-full w-full object-cover"
+    }));
+    
+    // Merge and Deduplicate by src
+    const combined = [...mappedImages, ...localFallback];
+    const uniqueMap = new Map();
+    combined.forEach(img => uniqueMap.set(img.src, img));
+    mappedImages = Array.from(uniqueMap.values());
+}
+
+// Shuffle the mixed pool
+let displayImages = shuffleArray([...mappedImages]);
+
+// Ensure grid is filled (min 16 items)
+// Now we are safely duplicating from a potentially larger mixed pool
+if (displayImages.length > 0) {
+    while (displayImages.length < 16) {
+        displayImages = [...displayImages, ...shuffleArray([...mappedImages])];
+    }
+}
+
+// Limit to 32 max to keep DOM light
+if (displayImages.length > 32) {
+    displayImages = displayImages.slice(0, 32);
 }
 ---
 
@@ -69,40 +105,10 @@ while (displayImages.length < 16) {
                 >
                 </div>
 
-                <div class="relative z-10 flex flex-col gap-4 h-full">
-                    <div
-                        class="rounded-2xl overflow-hidden w-full shadow-inner bg-black aspect-video"
-                    >
-                        <StreamableVideo
-                            shortcode={featuredVideo.shortcode}
-                            title={featuredVideo.title}
-                            bare={true}
-                        />
-                    </div>
-
-                    <div
-                        class="px-4 pb-2 flex justify-between items-center mt-auto"
-                    >
-                        <div>
-                            <h3
-                                class="text-xl font-display font-bold text-primary group-hover:text-brand-sky transition-colors"
-                            >
-                                {featuredVideo.title}
-                            </h3>
-                            <p
-                                class="text-muted text-sm flex items-center gap-2 mt-1"
-                            >
-                                <Play className="w-3 h-3 text-brand-orange" />
-                                Officiële Aftermovie 2025
-                            </p>
-                        </div>
-                        <div
-                            class="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-all duration-300 shadow-sm"
-                        >
-                            <Play className="w-5 h-5 ml-0.5" />
-                        </div>
-                    </div>
-                </div>
+                <VideoShowcase videos={[
+                    videos.find(v => v.year === "2025" && v.featured)!,
+                    videos.find(v => v.year === "2024" && v.featured)!
+                ].filter(Boolean)} client:visible />
             </div>
 
             <div class="h-full min-h-[400px]">

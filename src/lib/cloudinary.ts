@@ -42,10 +42,10 @@ export async function getImagesFromFolder(folderName: string, year: string): Pro
             return [];
         }
 
-        const processedImages = result.resources.map((res: any) => ({
+        const processedImages: CloudinaryImage[] = result.resources.map((res: any) => ({
             src: res.public_id,
             alt: res.context?.custom?.alt || `Foto uit ${year}`,
-            aspect: (res.width && res.height && res.width > res.height) ? 'horizontal' : 'vertical',
+            aspect: (res.width && res.height && res.width > res.height) ? 'horizontal' as const : 'vertical' as const,
             year: year
         }));
 
