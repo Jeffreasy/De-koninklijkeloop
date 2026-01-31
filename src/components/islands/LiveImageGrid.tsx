@@ -11,35 +11,16 @@ interface Props {
     images: readonly Image[] | Image[];
 }
 
-// Fisher-Yates shuffle algoritme voor echte randomness
-function shuffleArray<T>(array: T[]): T[] {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-}
-
 export default function LiveImageGrid({ images }: Props) {
-    // 1. Shuffle de originele array zodat elke pageload anders is
-    const shuffledImages = shuffleArray([...images]);
+    // We receive a pre-shuffled, expanded array from Astro (Server Side).
+    // DIRECTLY slicing it ensures the hydration matches the server HTML exactly.
 
-    // 2. Zorg dat we genoeg images hebben (minstens 12 voor 4 slots van 3+ fotos)
-    let pool = [...shuffledImages];
-    while (pool.length < 16) {
-        // Shuffle again bij elke duplicatie om meer variatie te creëren
-        pool = [...pool, ...shuffleArray([...images])];
-    }
-
-    // 3. Verdeel over 4 slots, maar elk slot begint op een andere offset
-    // Zo zie je nooit dezelfde foto in meerdere vakjes tegelijk
-    const slotSize = Math.floor(pool.length / 4);
+    const slotSize = Math.floor(images.length / 4);
     const gridSlots: Image[][] = [
-        pool.slice(0, slotSize),                  // Slot 0: foto's 0-7
-        pool.slice(slotSize, slotSize * 2),       // Slot 1: foto's 8-15
-        pool.slice(slotSize * 2, slotSize * 3),   // Slot 2: foto's 16-23
-        pool.slice(slotSize * 3),                 // Slot 3: rest
+        images.slice(0, slotSize),                  // Slot 0
+        images.slice(slotSize, slotSize * 2),       // Slot 1
+        images.slice(slotSize * 2, slotSize * 3),   // Slot 2
+        images.slice(slotSize * 3),                 // Slot 3
     ];
 
     return (

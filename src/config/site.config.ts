@@ -20,7 +20,7 @@ export const siteConfig = {
 
     // Event Information
     event: {
-        date: "17 Mei 2026",
+        date: "16 Mei 2026",
         location: "Kootwijk - Apeldoorn",
         heroVideo: "tt6k80", // Streamable shortcode
     },

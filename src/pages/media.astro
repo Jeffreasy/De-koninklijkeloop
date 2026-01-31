@@ -1,5 +1,4 @@
 ---
-import { v2 as cloudinary } from "cloudinary";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/blocks/Navbar.astro";
 import Footer from "../components/blocks/Footer.astro";
@@ -9,43 +8,13 @@ import AudioPlayer from "../components/blocks/AudioPlayer.astro";
 import { siteConfig } from "../config/site.config";
 import { videos, type VideoItem } from "../data/videos";
 import PhotoUploadWidget from "../components/islands/PhotoUploadWidget";
+import { getImagesFromFolder } from "../lib/cloudinary";
 
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
-    api_key: import.meta.env.PUBLIC_CLOUDINARY_API_KEY,
-    api_secret: import.meta.env.CLOUDINARY_API_SECRET,
-});
-
-// Fetch Images from Cloudinary folders
-async function getImages(folderName: string, year: string) {
-    try {
-        const result = await cloudinary.api.resources_by_asset_folder(folderName, {
-            max_results: 500,
-        });
-        
-        if (!result.resources || result.resources.length < 1) {
-            return [];
-        }
-        
-        return result.resources.map((res: any) => ({
-            src: res.public_id,
-            alt: res.context?.custom?.alt || `Foto uit ${year}`,
-            aspect: (res.width && res.height && res.width > res.height) ? 'horizontal' : 'vertical',
-            year: year
-        }));
-    } catch (e: unknown) {
-        const error = e as { error?: { message?: string } };
-        console.error(`[Cloudinary] Error fetching images for "${folderName}":`, error.error?.message || String(e));
-        return [];
-    }
-}
-
-// Fetch images from all year folders in parallel
+// Fetch images from all year folders in parallel using cached function
 const [images2026, images2025, images2024] = await Promise.all([
-    getImages("De Koninklijkeloop/DKLFoto's 2026", "2026"),
-    getImages("De Koninklijkeloop/DKLFoto's 2025", "2025"),
-    getImages("De Koninklijkeloop/DKLFoto's 2024", "2024"),
+    getImagesFromFolder("De Koninklijke Loop/DKLFoto's 2026", "2026"),
+    getImagesFromFolder("De Koninklijke Loop/DKLFoto's 2025", "2025"),
+    getImagesFromFolder("De Koninklijke Loop/DKLFoto's 2024", "2024"),
 ]);
 
 const gallery = [...images2026, ...images2025, ...images2024];

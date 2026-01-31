@@ -10,14 +10,28 @@ import { Play, ArrowRight } from "lucide-react";
 // Featured content config
 const featuredVideo = videos.find((v) => v.featured) || videos[0];
 
-// Use the full gallery for more variety (6 images vs 3)
-const galleryImages = gallery.slice(0, 6).map((img) => ({
+// Helper function for shuffling (Server-side only)
+function shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+// Prepare the base images
+const baseImages = gallery.slice(0, 6).map((img) => ({
     src: `https://res.cloudinary.com/dgfuv7wif/image/upload/${img.src}`,
     alt: img.alt,
     class: "h-full w-full object-cover",
 }));
 
-const displayImages = galleryImages;
+// Shuffle and expand to ensure we have enough diversity for the grid (min 16 items)
+let displayImages = shuffleArray([...baseImages]);
+while (displayImages.length < 16) {
+    displayImages = [...displayImages, ...shuffleArray([...baseImages])];
+}
 ---
 
 <section class="py-24 relative overflow-hidden bg-body">
