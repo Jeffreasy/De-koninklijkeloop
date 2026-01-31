@@ -23,7 +23,7 @@
             "headers": [
                 {
                     "key": "Cache-Control",
-                    "value": "public, max-age=0, must-revalidate"
+                    "value": "public, no-cache, no-store, max-age=0, must-revalidate, proxy-revalidate"
                 },
                 {
                     "key": "X-Frame-Options",

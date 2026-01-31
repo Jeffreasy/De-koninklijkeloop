@@ -18,6 +18,7 @@ const {
     <head>
         <meta charset="UTF-8" />
         <meta name="description" content={description} />
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta name="viewport" content="width=device-width" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="generator" content={Astro.generator} />
@@ -25,6 +26,16 @@ const {
         <ClientRouter />
         <script is:inline>
             // Anti-Flicker & Theme Initialization Script
+            // NUCLEAR OPTION: Unregister all Service Workers to prevent stale site loading
+            if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+                navigator.serviceWorker.getRegistrations().then((registrations) => {
+                    for (const registration of registrations) {
+                        console.log("Unregistering legacy SW:", registration);
+                        registration.unregister();
+                    }
+                });
+            }
+            
             const getTheme = () => {
                 const stored = localStorage.getItem("theme");
                 if (stored) return stored;
