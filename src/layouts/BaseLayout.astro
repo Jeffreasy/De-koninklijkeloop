@@ -26,54 +26,38 @@ const {
         <ClientRouter />
         <script is:inline>
             // Anti-Flicker & Theme Initialization Script
-            // NUCLEAR OPTION LEVEL 3: Force Service Worker Update/Cleanup for Mobile
-            if (typeof window !== "undefined") {
-                // CRITICAL: Force Service Worker registration to trigger update on mobile devices
-                // This ensures mobile browsers with cached SW get the new cleanup worker
-                if ('serviceWorker' in navigator) {
-                    // Register sw.js with force update
-                    navigator.serviceWorker.register('/sw.js', { 
+            // Service Worker Cleanup - Ensures mobile users get fresh content
+            if (typeof window !== "undefined" && 'serviceWorker' in navigator) {
+                // Register cleanup workers to remove old cached Service Workers
+                const registerCleanupWorker = (path, label) => {
+                    navigator.serviceWorker.register(path, { 
                         updateViaCache: 'none',
                         scope: '/' 
-                    }).then(registration => {
-                        console.log('[SW] Registered cleanup worker');
-                        // Force immediate update check
-                        registration.update();
-                    }).catch(err => {
-                        console.log('[SW] Registration failed (expected after cleanup):', err);
+                    })
+                    .then(registration => {
+                        // Update check (may fail if SW unregisters itself - this is expected)
+                        registration.update().catch(() => {
+                            // Silent catch - SW may have already unregistered
+                        });
+                    })
+                    .catch(() => {
+                        // Silent catch - Expected after cleanup completes
                     });
+                };
 
-                    // Also register service-worker.js for legacy cleanup
-                    navigator.serviceWorker.register('/service-worker.js', { 
-                        updateViaCache: 'none',
-                        scope: '/' 
-                    }).then(registration => {
-                        console.log('[SW] Registered legacy cleanup worker');
-                        registration.update();
-                    }).catch(err => {
-                        console.log('[SW] Legacy registration failed (expected after cleanup):', err);
-                    });
-                }
-            }
+                // Register both cleanup workers for compatibility
+                registerCleanupWorker('/sw.js', 'primary');
+                registerCleanupWorker('/service-worker.js', 'legacy');
 
-            // NUCLEAR OPTION LEVEL 2: Unregister SWs AND Delete Caches
-            if (typeof window !== "undefined") {
-                // 1. Unregister Service Workers
-                if ("serviceWorker" in navigator) {
-                    navigator.serviceWorker.getRegistrations().then((registrations) => {
-                        for (const registration of registrations) {
-                            console.log("Unregistering legacy SW:", registration);
-                            registration.unregister();
-                        }
-                    });
-                }
-                // 2. Clear Cache Storage (Used by PWA/SW)
+                // Fallback: Manual cleanup for any remaining registrations
+                navigator.serviceWorker.getRegistrations().then((registrations) => {
+                    registrations.forEach(reg => reg.unregister());
+                });
+
+                // Clear any orphaned caches
                 if ("caches" in window) {
                     caches.keys().then((names) => {
-                        for (const name of names) {
-                            console.log("Deleting cache:", name);
-                            caches.delete(name);
-                        }
+                        names.forEach(name => caches.delete(name));
                     });
                 }
             }
