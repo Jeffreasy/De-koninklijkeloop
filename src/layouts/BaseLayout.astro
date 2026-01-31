@@ -26,6 +26,36 @@ const {
         <ClientRouter />
         <script is:inline>
             // Anti-Flicker & Theme Initialization Script
+            // NUCLEAR OPTION LEVEL 3: Force Service Worker Update/Cleanup for Mobile
+            if (typeof window !== "undefined") {
+                // CRITICAL: Force Service Worker registration to trigger update on mobile devices
+                // This ensures mobile browsers with cached SW get the new cleanup worker
+                if ('serviceWorker' in navigator) {
+                    // Register sw.js with force update
+                    navigator.serviceWorker.register('/sw.js', { 
+                        updateViaCache: 'none',
+                        scope: '/' 
+                    }).then(registration => {
+                        console.log('[SW] Registered cleanup worker');
+                        // Force immediate update check
+                        registration.update();
+                    }).catch(err => {
+                        console.log('[SW] Registration failed (expected after cleanup):', err);
+                    });
+
+                    // Also register service-worker.js for legacy cleanup
+                    navigator.serviceWorker.register('/service-worker.js', { 
+                        updateViaCache: 'none',
+                        scope: '/' 
+                    }).then(registration => {
+                        console.log('[SW] Registered legacy cleanup worker');
+                        registration.update();
+                    }).catch(err => {
+                        console.log('[SW] Legacy registration failed (expected after cleanup):', err);
+                    });
+                }
+            }
+
             // NUCLEAR OPTION LEVEL 2: Unregister SWs AND Delete Caches
             if (typeof window !== "undefined") {
                 // 1. Unregister Service Workers
