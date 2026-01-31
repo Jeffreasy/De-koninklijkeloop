@@ -26,14 +26,26 @@ const {
         <ClientRouter />
         <script is:inline>
             // Anti-Flicker & Theme Initialization Script
-            // NUCLEAR OPTION: Unregister all Service Workers to prevent stale site loading
-            if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
-                navigator.serviceWorker.getRegistrations().then((registrations) => {
-                    for (const registration of registrations) {
-                        console.log("Unregistering legacy SW:", registration);
-                        registration.unregister();
-                    }
-                });
+            // NUCLEAR OPTION LEVEL 2: Unregister SWs AND Delete Caches
+            if (typeof window !== "undefined") {
+                // 1. Unregister Service Workers
+                if ("serviceWorker" in navigator) {
+                    navigator.serviceWorker.getRegistrations().then((registrations) => {
+                        for (const registration of registrations) {
+                            console.log("Unregistering legacy SW:", registration);
+                            registration.unregister();
+                        }
+                    });
+                }
+                // 2. Clear Cache Storage (Used by PWA/SW)
+                if ("caches" in window) {
+                    caches.keys().then((names) => {
+                        for (const name of names) {
+                            console.log("Deleting cache:", name);
+                            caches.delete(name);
+                        }
+                    });
+                }
             }
             
             const getTheme = () => {

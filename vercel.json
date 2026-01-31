@@ -19,11 +19,24 @@
             ]
         },
         {
+            "source": "/(sw.js|service-worker.js)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, no-cache, no-store, max-age=0, must-revalidate"
+                }
+            ]
+        },
+        {
             "source": "/(.*)",
             "headers": [
                 {
                     "key": "Cache-Control",
                     "value": "public, no-cache, no-store, max-age=0, must-revalidate, proxy-revalidate"
+                },
+                {
+                    "key": "Clear-Site-Data",
+                    "value": "\"cache\", \"storage\""
                 },
                 {
                     "key": "X-Frame-Options",
