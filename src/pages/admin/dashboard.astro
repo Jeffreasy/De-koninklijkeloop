@@ -1,30 +1,28 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import Navbar from "../../components/blocks/Navbar.astro";
-import Footer from "../../components/blocks/Footer.astro";
-import AdminDashboardWrapper from "../../components/islands/AdminDashboardWrapper";
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import DashboardWrapper from "../../components/admin/DashboardWrapper";
 ---
 
-<BaseLayout title="Admin Dashboard | De Koninklijke Loop">
-    <Navbar />
-    <main class="pt-32 pb-20 px-6 min-h-screen">
-        <div class="max-w-7xl mx-auto space-y-8">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-3xl md:text-5xl font-display font-bold">
-                        Admin Dashboard
-                    </h1>
-                    <p class="text-text-muted">
-                        Beheer inschrijvingen en statistieken.
-                    </p>
-                </div>
+<AdminLayout title="Dashboard | De Koninklijke Loop Admin">
+    <div class="space-y-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-display font-bold text-text-primary">
+                    Dashboard
+                </h1>
+                <p class="text-text-muted mt-1">
+                    Welkom terug! Hier is een overzicht van de laatste activiteiten.
+                </p>
             </div>
-
-            <!-- Dashboard Content (React Island) -->
-            <div class="glass-card rounded-2xl p-8 min-h-[500px]">
-                <AdminDashboardWrapper client:only="react" />
-            </div>
+            <!-- Action Button Placeholder -->
+            <button class="bg-accent-primary hover:bg-accent-primary/90 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-lg shadow-accent-primary/20">
+                + Nieuwe deelnemer
+            </button>
         </div>
-    </main>
-    <Footer />
-</BaseLayout>
+
+        <!-- Dashboard Content (React Island) -->
+        <div class="glass-card rounded-2xl p-6 min-h-[500px] border border-glass-border/50">
+            <DashboardWrapper client:only="react" />
+        </div>
+    </div>
+</AdminLayout>

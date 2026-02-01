@@ -8,9 +8,12 @@ export const getRegistrations = action({
         const tenantId = process.env.TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
 
         // 1. Verify Token via Auth API
-        const res = await fetch("https://laventecareauthsystems.onrender.com/api/v1/me", {
+        // 1. Verify Token via Auth API
+        const res = await fetch("https://laventecareauthsystems.onrender.com/api/v1/auth/me", {
+            method: "GET",
             headers: {
-                "Authorization": `Bearer ${args.token}`,
+                "Content-Type": "application/json",
+                "Cookie": `access_token=${args.token}`,
                 "X-Tenant-ID": tenantId
             }
         });

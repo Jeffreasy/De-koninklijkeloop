@@ -1,0 +1,74 @@
+---
+import { Icon } from "astro-icon/components";
+
+// Sidebar Navigation Links
+const navItems = [
+  { name: "Dashboard", href: "/admin/dashboard", icon: "lucide:layout-dashboard" },
+  { name: "Inschrijvingen", href: "/admin/deelnemers", icon: "lucide:users" },
+  { name: "Donaties", href: "/admin/donaties", icon: "lucide:coins" }, // Placeholder
+  { name: "Media", href: "/admin/media", icon: "lucide:image" },
+  { name: "Instellingen", href: "/admin/settings", icon: "lucide:settings" },
+];
+
+const currentPath = Astro.url.pathname;
+
+// Helper to determine active state
+const isActive = (path: string) => {
+  if (path === "/admin/dashboard" && currentPath === "/admin/dashboard") return true;
+  return currentPath.startsWith(path) && path !== "/admin/dashboard";
+};
+---
+
+<aside class="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-glass-border bg-glass-bg backdrop-blur-3xl z-40">
+  <!-- Logo Area -->
+  <div class="h-20 flex items-center px-6 border-b border-glass-border">
+    <a href="/" class="flex items-center gap-3 group">
+      <div class="relative w-8 h-8 flex items-center justify-center bg-accent-primary/10 rounded-lg border border-accent-primary/20 group-hover:bg-accent-primary/20 transition-all duration-300">
+         <span class="text-accent-primary font-bold">DKL</span>
+      </div>
+      <span class="font-display font-bold text-lg text-text-primary tracking-tight">Admin<span class="text-accent-primary">.</span></span>
+    </a>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+    <div class="text-xs font-medium text-text-muted uppercase tracking-wider px-2 mb-2">Overzicht</div>
+    
+    {navItems.map((item) => (
+      <a
+        href={item.href}
+        class:list={[
+          "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
+          isActive(item.href)
+            ? "bg-accent-primary/10 text-accent-primary font-medium border border-accent-primary/10"
+            : "text-text-secondary hover:text-text-primary hover:bg-glass-border/50"
+        ]}
+      >
+        {/* Active Indicator Line */}
+        {isActive(item.href) && (
+            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-accent-primary rounded-r-full shadow-[0_0_12px_rgba(var(--accent-primary),0.6)]" />
+        )}
+
+        <iconify-icon icon={item.icon} width="20" height="20" class:list={[
+            "transition-colors duration-200",
+            isActive(item.href) ? "text-accent-primary" : "text-text-muted group-hover:text-text-primary"
+        ]}></iconify-icon>
+        
+        <span>{item.name}</span>
+      </a>
+    ))}
+  </nav>
+
+  <!-- User / Footer -->
+  <div class="p-4 border-t border-glass-border">
+    <div class="flex items-center gap-3 p-3 rounded-xl bg-glass-border/30 border border-glass-border">
+        <div class="w-8 h-8 rounded-full bg-accent-primary/20 flex items-center justify-center text-accent-primary text-xs font-bold">
+            AD
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium text-text-primary truncate">Admin User</div>
+            <div class="text-xs text-text-muted truncate">Beheerder</div>
+        </div>
+    </div>
+  </div>
+</aside>
