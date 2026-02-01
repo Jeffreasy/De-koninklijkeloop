@@ -2,7 +2,7 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
-import { Doc } from "./_generated/dataModel";
+import type { Doc } from "./_generated/dataModel";
 
 export const getDashboardData = action({
     args: { token: v.string() },
@@ -53,3 +53,4 @@ export const getDashboardData = action({
         }
     },
 });
+
