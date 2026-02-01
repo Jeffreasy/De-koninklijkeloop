@@ -1,6 +1,5 @@
 ---
-import Layout from "../../layouts/BaseLayout.astro";
-import Navbar from "../../components/blocks/Navbar.astro";
+import AdminLayout from "../../layouts/AdminLayout.astro";
 import { ConvexClientProvider } from "../../components/islands/ConvexClientProvider";
 import SystemStatus from "../../components/islands/SystemStatus";
 
@@ -8,23 +7,17 @@ import SystemStatus from "../../components/islands/SystemStatus";
 export const prerender = false;
 ---
 
-<Layout title="System Diagnostics | De Koninklijke Loop">
-    <div class="fixed inset-0 bg-slate-950 -z-10">
-        <div
-            class="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(120,119,198,0.1),transparent_50%)]"
-        >
+<AdminLayout title="System Diagnostics | De Koninklijke Loop">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <div>
+            <h1 class="text-3xl font-display font-bold text-text-primary">Systeem Status</h1>
+            <p class="text-text-muted mt-1">Real-time status van database, API en services.</p>
+        </div>
+
+        <div class="glass-card rounded-3xl p-8 border border-glass-border">
+            <ConvexClientProvider client:load>
+                <SystemStatus client:load />
+            </ConvexClientProvider>
         </div>
     </div>
-
-    <Navbar />
-
-    <main class="container mx-auto px-4 pt-32 pb-20">
-        <div class="max-w-4xl mx-auto">
-            <div class="glass rounded-3xl p-8 border border-glass-border">
-                <ConvexClientProvider client:load>
-                    <SystemStatus client:load />
-                </ConvexClientProvider>
-            </div>
-        </div>
-    </main>
-</Layout>
+</AdminLayout>

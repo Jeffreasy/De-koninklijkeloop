@@ -4,25 +4,6 @@ import DashboardWrapper from "../../components/admin/DashboardWrapper";
 ---
 
 <AdminLayout title="Dashboard | De Koninklijke Loop Admin">
-    <div class="space-y-8">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-display font-bold text-text-primary">
-                    Dashboard
-                </h1>
-                <p class="text-text-muted mt-1">
-                    Welkom terug! Hier is een overzicht van de laatste activiteiten.
-                </p>
-            </div>
-            <!-- Action Button Placeholder -->
-            <button class="bg-accent-primary hover:bg-accent-primary/90 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-lg shadow-accent-primary/20">
-                + Nieuwe deelnemer
-            </button>
-        </div>
-
-        <!-- Dashboard Content (React Island) -->
-        <div class="glass-card rounded-2xl p-6 min-h-[500px] border border-glass-border/50">
-            <DashboardWrapper client:only="react" />
-        </div>
-    </div>
+    <!-- Dashboard Content (React Island) -->
+    <DashboardWrapper client:load />
 </AdminLayout>

@@ -1,0 +1,228 @@
+---
+import { Icon } from "astro-icon/components";
+
+// Sidebar Navigation Links
+const navItems = [
+  { name: "Dashboard", href: "/admin/dashboard", icon: "lucide:layout-dashboard" },
+  { name: "Inschrijvingen", href: "/admin/deelnemers", icon: "lucide:users" },
+  { name: "Donaties", href: "/admin/donaties", icon: "lucide:coins" },
+  { name: "Media", href: "/admin/media", icon: "lucide:image" },
+  { name: "Instellingen", href: "/admin/settings", icon: "lucide:settings" },
+];
+
+const currentPath = Astro.url.pathname;
+
+// Helper to determine active state
+const isActive = (path: string) => {
+  if (path === "/admin/dashboard" && currentPath === "/admin/dashboard") return true;
+  return currentPath.startsWith(path) && path !== "/admin/dashboard";
+};
+
+// Get user data from auth context
+const user = Astro.locals.user;
+const userName = user?.name || "Admin User";
+const userRole = user?.role || "Beheerder";
+
+// Calculate initials from name
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'AD';
+};
+const initials = getInitials(userName);
+---
+
+<!-- Mobile Backdrop Overlay -->
+<div 
+  id="admin-mobile-backdrop"
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm z-45 lg:hidden translate-x-full transition-transform duration-300"
+></div>
+
+<!-- Desktop Sidebar (Fixed, always visible on lg+) -->
+<aside class="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-glass-border bg-glass-bg/80 backdrop-blur-2xl z-40">
+  <!-- Logo Area -->
+  <div class="h-20 flex items-center px-6 border-b border-glass-border">
+    <a href="/" class="flex items-center gap-3 group">
+      <div class="relative w-8 h-8 flex items-center justify-center bg-accent-primary/10 rounded-xl border border-accent-primary/20 group-hover:bg-accent-primary/20 transition-all duration-300">
+         <span class="text-accent-primary font-bold">DKL</span>
+      </div>
+      <span class="font-display font-bold text-lg text-text-primary tracking-tight">Admin<span class="text-accent-primary">.</span></span>
+    </a>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+    <div class="text-xs font-medium text-text-muted uppercase tracking-wider px-2 mb-2">Overzicht</div>
+    
+    {navItems.map((item) => (
+      <a
+        href={item.href}
+        class:list={[
+          "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
+          isActive(item.href)
+            ? "bg-accent-primary/10 text-accent-primary font-medium border border-accent-primary/10"
+            : "text-text-secondary hover:text-text-primary hover:bg-glass-border/50"
+        ]}
+      >
+        {/* Active Indicator Line */}
+        {isActive(item.href) && (
+            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-accent-primary rounded-r-full shadow-[0_0_12px_rgba(var(--accent-primary),0.6)]" />
+        )}
+
+        <iconify-icon icon={item.icon} width="20" height="20" class:list={[
+            "transition-colors duration-200",
+            isActive(item.href) ? "text-accent-primary" : "text-text-muted group-hover:text-text-primary"
+        ]}></iconify-icon>
+        
+        <span>{item.name}</span>
+      </a>
+    ))}
+  </nav>
+
+  <!-- User / Footer -->
+  <div class="p-4 border-t border-glass-border">
+    <div class="flex items-center gap-3 p-3 rounded-xl bg-glass-border/30 border border-white/5">
+        <div class="w-8 h-8 rounded-full bg-accent-primary/20 flex items-center justify-center text-accent-primary text-xs font-bold">
+            {initials}
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium text-text-primary truncate">{userName}</div>
+            <div class="text-xs text-text-muted truncate capitalize">{userRole}</div>
+        </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Mobile Drawer (Slides in from left) -->
+<aside 
+  id="admin-mobile-drawer"
+  class="lg:hidden flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-glass-border bg-glass-bg/95 backdrop-blur-3xl z-50 -translate-x-full transition-transform duration-300 ease-out"
+>
+  <!-- Logo Area -->
+  <div class="h-20 flex items-center justify-between px-6 border-b border-glass-border">
+    <a href="/" class="flex items-center gap-3 group">
+      <div class="relative w-8 h-8 flex items-center justify-center bg-accent-primary/10 rounded-xl border border-accent-primary/20 group-hover:bg-accent-primary/20 transition-all duration-300">
+         <span class="text-accent-primary font-bold">DKL</span>
+      </div>
+      <span class="font-display font-bold text-lg text-text-primary tracking-tight">Admin<span class="text-accent-primary">.</span></span>
+    </a>
+    
+    <!-- Close Button -->
+    <button 
+      id="admin-mobile-close"
+      class="p-2 -mr-2 text-text-muted hover:text-text-primary transition-colors rounded-lg hover:bg-glass-border/30"
+      aria-label="Sluit menu"
+    >
+      <iconify-icon icon="lucide:x" width="20" height="20"></iconify-icon>
+    </button>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+    <div class="text-xs font-medium text-text-muted uppercase tracking-wider px-2 mb-2">Overzicht</div>
+    
+    {navItems.map((item) => (
+      <a
+        href={item.href}
+        class="admin-nav-link"
+        class:list={[
+          "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
+          isActive(item.href)
+            ? "bg-accent-primary/10 text-accent-primary font-medium border border-accent-primary/10"
+            : "text-text-secondary hover:text-text-primary hover:bg-glass-border/50"
+        ]}
+      >
+        {/* Active Indicator Line */}
+        {isActive(item.href) && (
+            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-accent-primary rounded-r-full shadow-[0_0_12px_rgba(var(--accent-primary),0.6)]" />
+        )}
+
+        <iconify-icon icon={item.icon} width="20" height="20" class:list={[
+            "transition-colors duration-200",
+            isActive(item.href) ? "text-accent-primary" : "text-text-muted group-hover:text-text-primary"
+        ]}></iconify-icon>
+        
+        <span>{item.name}</span>
+      </a>
+    ))}
+  </nav>
+
+  <!-- User / Footer -->
+  <div class="p-4 border-t border-glass-border">
+    <div class="flex items-center gap-3 p-3 rounded-xl bg-glass-border/30 border border-white/5">
+        <div class="w-8 h-8 rounded-full bg-accent-primary/20 flex items-center justify-center text-accent-primary text-xs font-bold">
+            {initials}
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium text-text-primary truncate">{userName}</div>
+            <div class="text-xs text-text-muted truncate capitalize">{userRole}</div>
+        </div>
+    </div>
+  </div>
+</aside>
+
+<script is:inline>
+  // Vanilla JS for mobile menu (no Alpine.js)
+  (() => {
+    function initAdminMobileMenu() {
+      const backdrop = document.getElementById('admin-mobile-backdrop');
+      const drawer = document.getElementById('admin-mobile-drawer');
+      const closeBtn = document.getElementById('admin-mobile-close');
+      const hamburger = document.getElementById('admin-mobile-toggle');
+      const navLinks = drawer?.querySelectorAll('.admin-nav-link');
+
+      function toggleMenu(show) {
+        if (!drawer || !backdrop) return;
+
+        if (show) {
+          // Open menu
+          drawer.classList.remove('-translate-x-full');
+          drawer.classList.add('translate-x-0');
+          backdrop.classList.remove('translate-x-full');
+          backdrop.classList.add('translate-x-0');
+          document.body.style.overflow = 'hidden'; // Lock scroll
+        } else {
+          // Close menu
+          drawer.classList.remove('translate-x-0');
+          drawer.classList.add('-translate-x-full');
+          backdrop.classList.remove('translate-x-0');
+          backdrop.classList.add('translate-x-full');
+          document.body.style.overflow = ''; // Unlock scroll
+        }
+      }
+
+      // Hamburger click (in AdminHeader)
+      if (hamburger) {
+        const newHamburger = hamburger.cloneNode(true);
+        hamburger.parentNode.replaceChild(newHamburger, hamburger);
+        newHamburger.addEventListener('click', () => toggleMenu(true));
+      }
+
+      // Close button click
+      if (closeBtn) {
+        const newCloseBtn = closeBtn.cloneNode(true);
+        closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+        newCloseBtn.addEventListener('click', () => toggleMenu(false));
+      }
+
+      // Backdrop click
+      if (backdrop) {
+        backdrop.addEventListener('click', () => toggleMenu(false));
+      }
+
+      // Nav links click (close menu on navigate)
+      navLinks?.forEach((link) => {
+        link.addEventListener('click', () => toggleMenu(false));
+      });
+    }
+
+    // Run on load
+    initAdminMobileMenu();
+
+    // Run on Astro View Transitions
+    document.addEventListener('astro:page-load', initAdminMobileMenu);
+  })();
+</script>

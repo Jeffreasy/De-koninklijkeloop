@@ -66,8 +66,8 @@
   /* Deep Tech Glass */
   --glass-bg: rgba(15, 23, 42, 0.75);
   /* More opaque for legibility */
-  --glass-border: rgba(255, 255, 255, 0.08);
-  /* Clean white hint */
+  --glass-border: rgba(255, 255, 255, 0.03);
+  /* Subtle glassmorphism - was 0.08, too harsh */
 }
 
 /* Light Mode Overrides (Clear Sky) */
