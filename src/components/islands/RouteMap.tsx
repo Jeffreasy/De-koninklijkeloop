@@ -5,14 +5,16 @@ import { routes } from '../../lib/routeData';
 import { cn } from '../../lib/utils';
 // Fix for missing default icon in Leaflet with webpack/vite
 import L from 'leaflet';
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
+// Use CDN URLs for markers to avoid Vite/Vercel asset resolution issues
 let DefaultIcon = L.icon({
-    iconUrl: (icon as any).src ?? (icon as unknown as string),
-    shadowUrl: (iconShadow as any).src ?? (iconShadow as unknown as string),
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
     iconSize: [25, 41],
-    iconAnchor: [12, 41]
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
 });
 
 L.Marker.prototype.options.icon = DefaultIcon;
