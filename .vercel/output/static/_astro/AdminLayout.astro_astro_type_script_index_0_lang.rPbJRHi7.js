@@ -1,1 +1,0 @@
-import{s as t}from"./auth.DMld1wv0.js";document.documentElement.setAttribute("data-theme","dark");const n=window.DKL_INITIAL_USER;fetch("/api/auth/token").then(e=>{if(e.ok)return e.json();throw new Error("No session")}).then(e=>{console.log("[Admin] Token hydrated successfully"),t(e.token,n)}).catch(()=>{console.warn("[Admin] Failed to hydrate token. Redirecting..."),t(null,n)});
