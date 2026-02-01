@@ -1,46 +1,82 @@
 import { defineMiddleware } from "astro:middleware";
 
 export const onRequest = defineMiddleware(async (context, next) => {
-    const tokenCookie = context.cookies.get("dkl_auth_token") || context.cookies.get("access_token");
-    const token = tokenCookie?.value;
+    const { request, cookies, redirect, locals } = context;
+    const url = new URL(request.url);
 
-    // DEBUG: Log middleware token check
-    console.log(`[Middleware] ${context.request.method} ${context.url.pathname}`);
-    console.log(`[Middleware] Cookies present:`, context.request.headers.get("cookie"));
-    console.log(`[Middleware] Token parsed: ${!!token}`);
+    // 1. Bypass Asset/API calls that don't need Tunneling
+    if (url.pathname.startsWith("/_astro") ||
+        url.pathname.startsWith("/api/auth") ||
+        url.pathname.includes(".")) {
+        return next();
+    }
 
-    context.locals.token = token || null;
-    context.locals.user = null;
+    // 2. Extract Token (Prioritize cookies)
+    const token = cookies.get("dkl_auth_token")?.value ||
+        cookies.get("access_token")?.value;
 
+    let user = null;
+
+    // 3. Auth Tunneling (Zero-Trust Validation)
     if (token) {
         try {
-            // Rudimentary JWT parse without verify (Verification happens at Backend)
-            // We just need the payload for UI state if needed
-            const parts = token.split('.');
-            if (parts.length === 3) {
-                const payload = JSON.parse(atob(parts[1]));
-                context.locals.user = {
-                    id: payload.sub || payload.id || payload.ID,
-                    email: payload.email || payload.Email,
-                    name: payload.name || payload.Name || payload.email || "Gebruiker",
-                    role: (payload.role || payload.Role || "viewer").toLowerCase()
-                } as any;
+            // BACKEND_URL from env or fallback
+            // We use the internal docker/network URL if possible, but for Vercel/Render -> Render, we use public
+            const API_URL = import.meta.env.PUBLIC_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
+            const TENANT_ID = import.meta.env.PUBLIC_TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
+
+            // Forward the cookie to the backend to validate
+            // ENDPOINT CONFIRMED: /auth/me (based on proxy maps)
+            const verifyReq = await fetch(`${API_URL}/auth/me`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Cookie": `access_token=${token}`, // Simulate browser
+                    "X-Tenant-ID": TENANT_ID
+                }
+            });
+
+            if (verifyReq.ok) {
+                user = await verifyReq.json();
+                // Normalize user object if needed
+                if (user.data) user = user.data;
+                // If backend returns { user: ... } wrapper
+                if (user.user) user = user.user;
+            } else {
+                console.warn(`[Middleware] Token validation failed: ${verifyReq.status}`);
             }
-        } catch (e) {
-            // Invalid token format
-            context.locals.token = null;
+        } catch (error) {
+            console.error(`[Middleware] Tunnel Error:`, error);
         }
     }
 
-    // Protect sensitive routes (Simple Guard)
-    const protectedRoutes = ["/dashboard", "/admin", "/profile"];
-    const url = new URL(context.request.url);
+    // 4. Set Locals
+    locals.token = token || null;
+    locals.user = user || null;
 
-    if (protectedRoutes.some(route => url.pathname.startsWith(route))) {
-        if (!context.locals.token) {
-            return context.redirect("/login");
+    // 5. Guard Protected Routes
+    const protectedRoutes = ["/admin", "/dashboard", "/profile"];
+    const isProtected = protectedRoutes.some(path => url.pathname.startsWith(path));
+
+    if (isProtected) {
+        if (!locals.user) {
+            console.log(`[Middleware] Unauthorized access to ${url.pathname}. Redirecting.`);
+            return redirect("/login");
+        }
+
+        // Role based access control (Example: Admin only)
+        if (url.pathname.startsWith("/admin") && locals.user.role !== "admin") {
+            console.log(`[Middleware] Forbidden access (Role mismatch) to ${url.pathname}.`);
+            return redirect("/dashboard"); // Or 403 page
         }
     }
 
-    return next();
+    // 6. Anti-Flicker & Headers
+    const response = await next();
+
+    // Add security headers to the response (Redundancy for Vercel)
+    response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set("X-Content-Type-Options", "nosniff");
+
+    return response;
 });
