@@ -1,0 +1,49 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/blocks/Navbar.astro";
+import Footer from "../components/blocks/Footer.astro";
+import ContactSection from "../components/blocks/ContactSection.astro";
+import FAQSection from "../components/blocks/FAQSection.astro";
+---
+
+<BaseLayout title="Contact | De Koninklijke Loop 2026">
+    <Navbar />
+
+    <main class="pt-32 pb-20 relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div
+            class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-brand-blue-light/10 rounded-full blur-[128px] pointer-events-none"
+        >
+        </div>
+        <div
+            class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none"
+        >
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            {/* Header */}
+            <div class="text-center max-w-4xl mx-auto mb-12">
+                <h1
+                    class="text-5xl md:text-6xl font-display font-bold text-primary mb-6"
+                >
+                    Neem <span
+                        class="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-400"
+                        >Contact</span
+                    > Op
+                </h1>
+                <p
+                    class="text-xl text-secondary leading-relaxed max-w-2xl mx-auto"
+                >
+                    Klaar om mee te lopen? Of wil je iets anders weten?
+                </p>
+            </div>
+
+            <ContactSection />
+
+            <div class="border-t border-white/5 mt-12">
+                <FAQSection />
+            </div>
+        </div>
+    </main>
+    <Footer />
+</BaseLayout>

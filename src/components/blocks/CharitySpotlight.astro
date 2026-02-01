@@ -3,6 +3,7 @@
 import { charityHistory } from "../../data/charityConfig"; // Zorg dat deze import klopt
 import { Button } from "../ui/button";
 import { ArrowRight, History, Heart } from "lucide-react";
+import CloudinaryImage from "../ui/CloudinaryImage.astro";
 
 // Logica: Haal de huidige (2026) en het archief (2025, 2024) uit elkaar
 const [latest, ...pastCampaigns] = charityHistory;
@@ -66,11 +67,12 @@ const currentCampaign = latest as ActiveCampaign;
                     
                     <div class="relative rounded-3xl overflow-hidden glass-card border border-white/10 shadow-2xl transform-gpu transition-transform duration-700 hover:scale-[1.02] hover:rotate-1">
                         <div class="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"></div>
-                        <img 
-                            src="https://res.cloudinary.com/dgfuv7wif/image/upload/v1769871952/OnlyFriendsBanner_wpltle.webp" 
+                        <CloudinaryImage 
+                            src="OnlyFriendsBanner_wpltle"
                             alt={`Banner ${currentCampaign.name}`}
+                            widths={[400, 640, 768, 1024, 1280, 1536]}
+                            sizes="(max-width: 768px) 100vw, 50vw"
                             class="w-full h-auto object-cover md:min-h-[400px]"
-                            loading="lazy"
                         />
                         
                         <!-- Overlay Tag -->

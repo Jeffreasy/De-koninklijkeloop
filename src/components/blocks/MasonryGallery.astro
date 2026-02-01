@@ -1,6 +1,6 @@
 ---
 // src/components/blocks/MasonryGallery.astro
-import { CldImage } from "astro-cloudinary";
+import CloudinaryImage from "../ui/CloudinaryImage.astro";
 
 interface Props {
     images: {
@@ -47,15 +47,13 @@ const initialLoadCount = 12; // Show 12 images initially
                         </div>
 
                         {/* Image with Zoom Effect */}
-                        <CldImage
+                        <CloudinaryImage
                             src={img.src}
                             alt={img.alt}
-                            width={800}
-                            height={img.aspect === "vertical" ? 1000 : 600}
+                            widths={[400, 600, 800, 1000]}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                             crop="fill"
-                            gravity="auto"
-                            format="auto"
-                            quality="auto:best"
+                            aspectRatio={img.aspect === "vertical" ? "3:4" : "4:3"}
                             loading={index < initialLoadCount ? "eager" : "lazy"}
                             class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                         />

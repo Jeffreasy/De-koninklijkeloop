@@ -1,6 +1,6 @@
 ---
 // src/components/blocks/SponsorCarousel.astro
-import { CldImage } from "astro-cloudinary";
+import CloudinaryImage from "../ui/CloudinaryImage.astro";
 import { siteConfig } from "../../config/site.config";
 
 // Zorg voor genoeg items voor een soepele loop
@@ -34,14 +34,12 @@ const carouselItems = [...sponsors, ...sponsors];
             {
                 carouselItems.map((sponsor, index) => (
                     <div class="shrink-0 w-[180px] h-[100px] flex items-center justify-center group bg-white/60 backdrop-blur-md rounded-xl p-4 hover:bg-white/90 hover:scale-105 transition-all duration-500 shadow-sm hover:shadow-xl ring-1 ring-white/20">
-                        <CldImage
+                        <CloudinaryImage
                             src={sponsor.src}
                             alt={sponsor.name}
-                            width={160}
-                            height={80}
-                            crop="lpad"
-                            format="auto"
-                            quality="auto"
+                            widths={[180, 360]}
+                            sizes="180px"
+                            crop="pad"
                             class="sponsor-logo transition-transform duration-300"
                         />
                     </div>

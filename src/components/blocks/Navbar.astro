@@ -2,6 +2,7 @@
 // src/components/blocks/Navbar.astro
 import ThemeToggle from "../islands/ThemeToggle";
 import { siteConfig } from "../../config/site.config";
+import CloudinaryImage from "../ui/CloudinaryImage.astro";
 
 const pathname = Astro.url.pathname;
 const navItems = siteConfig.navigation;
@@ -24,9 +25,13 @@ const isActive = (href: string) => {
             <div
                 class="p-2 bg-white/50 dark:bg-white/15 border border-white/40 dark:border-white/20 backdrop-blur-md rounded-xl group-hover:bg-white/60 dark:group-hover:bg-white/25 transition-all duration-300"
             >
-                <img
-                    src={siteConfig.brand.logo}
+                <CloudinaryImage
+                    src="DKLLogoV1_kx60i9"
                     alt={siteConfig.brand.name}
+                    widths={[228, 456]}
+                    sizes="228px"
+                    fetchpriority="high"
+                    loading="eager"
                     class="h-8 w-auto object-contain"
                 />
             </div>
@@ -116,9 +121,11 @@ const isActive = (href: string) => {
     >
         <div class="flex items-center gap-2">
             <div class="p-2 bg-white/5 rounded-xl border border-white/5">
-                <img
-                    src={siteConfig.brand.logo}
+                <CloudinaryImage
+                    src="DKLLogoV1_kx60i9"
                     alt={siteConfig.brand.name}
+                    widths={[228, 456]}
+                    sizes="228px"
                     class="h-8 w-auto opacity-100"
                 />
             </div>

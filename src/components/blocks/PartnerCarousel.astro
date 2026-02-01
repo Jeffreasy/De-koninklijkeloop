@@ -1,6 +1,6 @@
 ---
 // src/components/blocks/PartnerCarousel.astro
-import { CldImage } from "astro-cloudinary";
+import CloudinaryImage from "../ui/CloudinaryImage.astro";
 import { getPartners } from "../../lib/cloudinary-partners";
 
 // Get partners from DKLPartners folder
@@ -34,13 +34,12 @@ const carouselItems = [...partners, ...partners];
             {
                 carouselItems.map((partner, index) => (
                     <div class="shrink-0 w-[180px] h-[100px] flex items-center justify-center group bg-white rounded-xl p-4 hover:scale-105 transition-all duration-500 shadow-md hover:shadow-xl ring-1 ring-slate-200">
-                        <CldImage
+                        <CloudinaryImage
                             src={partner.src}
                             alt={partner.name}
-                            width={160}
-                            height={80}
-                            format="auto"
-                            quality="auto"
+                            widths={[180, 360]}
+                            sizes="180px"
+                            crop="pad"
                             class="partner-logo transition-transform duration-300"
                         />
                     </div>

@@ -1,0 +1,1 @@
+import{j as e}from"./jsx-runtime.D_zvdyIk.js";import{C as t,c as n}from"./use_queries.Bk7X6UqB.js";import"./index.Da02gyCa.js";const r=new t("https://frugal-goose-15.convex.cloud");function c({children:o}){return e.jsx(n,{client:r,children:o})}export{c as ConvexClientProvider};

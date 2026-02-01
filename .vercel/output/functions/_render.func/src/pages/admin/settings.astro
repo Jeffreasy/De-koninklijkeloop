@@ -1,0 +1,127 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="Instellingen | De Koninklijke Loop Admin">
+    <div class="space-y-6">
+        <!-- Page Header -->
+        <div>
+            <h1 class="text-3xl font-bold font-display text-text-primary">Instellingen</h1>
+            <p class="text-text-muted mt-1">Configureer je evenement en systeem</p>
+        </div>
+
+        <!-- Evenement Instellingen -->
+        <div class="glass-card p-6">
+            <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                <iconify-icon icon="lucide:calendar" width="20" height="20"></iconify-icon>
+                <span>Evenement Instellingen</span>
+            </h2>
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-text-muted text-sm mb-2">Evenement Naam</label>
+                        <input type="text" value="De Koninklijke Loop 2024" class="w-full px-4 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary focus:ring-2 focus:ring-accent-primary/50" />
+                    </div>
+                    <div>
+                        <label class="block text-text-muted text-sm mb-2">Evenement Datum</label>
+                        <input type="date" class="w-full px-4 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary focus:ring-2 focus:ring-accent-primary/50" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-text-muted text-sm mb-2">Locatie</label>
+                    <input type="text" placeholder="Amsterdam, Nederland" class="w-full px-4 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary focus:ring-2 focus:ring-accent-primary/50" />
+                </div>
+                <div>
+                    <label class="block text-text-muted text-sm mb-2">Beschrijving</label>
+                    <textarea rows="3" class="w-full px-4 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary focus:ring-2 focus:ring-accent-primary/50" placeholder="Korte beschrijving van het evenement..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registratie Instellingen -->
+        <div class="glass-card p-6">
+            <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                <iconify-icon icon="lucide:user-plus" width="20" height="20"></iconify-icon>
+                <span>Registratie Instellingen</span>
+            </h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 rounded-lg bg-glass-border/30 border border-glass-border">
+                    <div>
+                        <div class="text-text-primary font-medium">Registratie Open</div>
+                        <div class="text-text-muted text-sm">Sta nieuwe inschrijvingen toe</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-glass-border peer-focus:ring-2 peer-focus:ring-accent-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-primary"></div>
+                    </label>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-text-muted text-sm mb-2">Max Deelnemers</label>
+                        <input type="number" placeholder="500" class="w-full px-4 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary focus:ring-2 focus:ring-accent-primary/50" />
+                    </div>
+                    <div>
+                        <label class="block text-text-muted text-sm mb-2">Registratie Deadline</label>
+                        <input type="date" class="w-full px-4 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary focus:ring-2 focus:ring-accent-primary/50" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Instellingen -->
+        <div class="glass-card p-6">
+            <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                <iconify-icon icon="lucide:mail" width="20" height="20"></iconify-icon>
+                <span>Email Instellingen</span>
+            </h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 rounded-lg bg-glass-border/30 border border-glass-border">
+                    <div>
+                        <div class="text-text-primary font-medium">Automatische Bevestigingsmails</div>
+                        <div class="text-text-muted text-sm">Stuur email na registratie</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-glass-border peer-focus:ring-2 peer-focus:ring-accent-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-primary"></div>
+                    </label>
+                </div>
+                <div>
+                    <label class="block text-text-muted text-sm mb-2">E-mail Afzender</label>
+                    <input type="email" placeholder="info@dekoninklijkeloop.nl" class="w-full px-4 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary focus:ring-2 focus:ring-accent-primary/50" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Provider -->
+        <div class="glass-card p-6">
+            <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                <iconify-icon icon="lucide:credit-card" width="20" height="20"></iconify-icon>
+                <span>Betaal Instellingen</span>
+            </h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-text-muted text-sm mb-2">Payment Provider</label>
+                    <select class="w-full px-4 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary focus:ring-2 focus:ring-accent-primary/50">
+                        <option>Mollie</option>
+                        <option>Stripe</option>
+                        <option>PayPal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-text-muted text-sm mb-2">API Key</label>
+                    <input type="password" placeholder="••••••••••••••••" class="w-full px-4 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary focus:ring-2 focus:ring-accent-primary/50" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-3">
+            <button class="px-6 py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20">
+                Opslaan
+            </button>
+            <button class="px-6 py-3 rounded-xl bg-glass-border/30 border border-glass-border text-text-primary hover:bg-glass-border/50 transition-colors">
+                Annuleren
+            </button>
+        </div>
+    </div>
+</AdminLayout>
