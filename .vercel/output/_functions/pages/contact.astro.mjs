@@ -1,6 +1,6 @@
 import { e as createComponent, m as maybeRenderHead, g as addAttribute, k as renderComponent, r as renderTemplate } from '../chunks/astro/server_Dvn5AkW6.mjs';
 import 'piccolore';
-import { s as siteConfig, $ as $$BaseLayout, a as $$Navbar, b as $$Footer } from '../chunks/Footer_DIWfRp3j.mjs';
+import { s as siteConfig, $ as $$BaseLayout, a as $$Navbar, b as $$Footer } from '../chunks/Footer_vW1z91-v.mjs';
 import { jsx, jsxs } from 'react/jsx-runtime';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

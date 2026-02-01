@@ -190,6 +190,18 @@ const $$CloudinaryImage = createComponent(($$result, $$props, $$slots) => {
     crop = "limit",
     aspectRatio
   } = Astro2.props;
+  if (!src) {
+    throw new Error(`[CloudinaryImage] Missing required prop: src`);
+  }
+  if (!widths || widths.length === 0) {
+    throw new Error(`[CloudinaryImage] Missing or empty required prop: widths (got: ${JSON.stringify(widths)})`);
+  }
+  if (!sizes) {
+    throw new Error(`[CloudinaryImage] Missing required prop: sizes`);
+  }
+  if (!alt) {
+    console.warn(`[CloudinaryImage] Missing alt text for image: ${src}`);
+  }
   const CLOUDINARY_CLOUD_NAME = "dgfuv7wif";
   const BASE_URL = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload`;
   function buildCloudinaryUrl(width) {

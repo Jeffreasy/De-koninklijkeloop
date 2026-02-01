@@ -1,6 +1,6 @@
 import { e as createComponent, m as maybeRenderHead, g as addAttribute, k as renderComponent, r as renderTemplate } from '../chunks/astro/server_Dvn5AkW6.mjs';
 import 'piccolore';
-import { s as siteConfig, c as $$CloudinaryImage, $ as $$BaseLayout, a as $$Navbar, b as $$Footer } from '../chunks/Footer_DIWfRp3j.mjs';
+import { s as siteConfig, c as $$CloudinaryImage, $ as $$BaseLayout, a as $$Navbar, b as $$Footer } from '../chunks/Footer_vW1z91-v.mjs';
 import { B as Button, c as cn } from '../chunks/button_CPvoipf7.mjs';
 /* empty css                                 */
 import { Users, Trees, HeartHandshake, Crown, Heart, History, ArrowRight, Play } from 'lucide-react';

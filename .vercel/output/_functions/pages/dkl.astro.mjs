@@ -1,6 +1,6 @@
 import { e as createComponent, m as maybeRenderHead, k as renderComponent, r as renderTemplate, g as addAttribute, h as createAstro } from '../chunks/astro/server_Dvn5AkW6.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout, a as $$Navbar, b as $$Footer } from '../chunks/Footer_DIWfRp3j.mjs';
+import { $ as $$BaseLayout, a as $$Navbar, b as $$Footer } from '../chunks/Footer_vW1z91-v.mjs';
 import { Flag, Crown, MapPin, Accessibility, ExternalLink } from 'lucide-react';
 export { renderers } from '../renderers.mjs';
 

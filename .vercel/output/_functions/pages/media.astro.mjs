@@ -1,6 +1,6 @@
 import { e as createComponent, m as maybeRenderHead, g as addAttribute, k as renderComponent, r as renderTemplate, n as renderScript, h as createAstro } from '../chunks/astro/server_Dvn5AkW6.mjs';
 import 'piccolore';
-import { c as $$CloudinaryImage, $ as $$BaseLayout, s as siteConfig, a as $$Navbar, b as $$Footer } from '../chunks/Footer_DIWfRp3j.mjs';
+import { c as $$CloudinaryImage, $ as $$BaseLayout, s as siteConfig, a as $$Navbar, b as $$Footer } from '../chunks/Footer_vW1z91-v.mjs';
 /* empty css                                 */
 import 'clsx';
 import { g as getImagesFromFolder, v as videos } from '../chunks/cloudinary_Ch7D9O-N.mjs';
