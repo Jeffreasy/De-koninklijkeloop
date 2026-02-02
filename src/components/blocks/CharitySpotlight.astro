@@ -23,39 +23,62 @@ const currentCampaign = latest as ActiveCampaign;
 ---
 
 <section
-    class="py-24 relative overflow-hidden bg-body transition-colors duration-300"
+    class="py-12 md:py-24 relative overflow-hidden bg-body transition-colors duration-300"
 >
-    <div class="container mx-auto px-6 relative z-10">
+    <div class="container mx-auto px-4 md:px-6 relative z-10">
         <div class="mb-24">
             <!-- Split Header Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-20">
+            <div
+                class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-20"
+            >
                 <!-- Left Column: Content -->
                 <div class="text-left order-2 lg:order-1">
                     <div class="flex justify-start mb-6">
-                        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-sm font-medium animate-fade-in-up">
+                        <span
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-sm font-medium animate-fade-in-up"
+                        >
                             <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-orange"></span>
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75"
+                                ></span>
+                                <span
+                                    class="relative inline-flex rounded-full h-2 w-2 bg-brand-orange"
+                                ></span>
                             </span>
                             Goede Doel {currentCampaign.year}
                         </span>
                     </div>
 
-                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6 font-display tracking-tight leading-tight">
+                    <h2
+                        class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-primary mb-4 md:mb-6 font-display tracking-tight leading-tight"
+                    >
                         {currentCampaign.header}
                     </h2>
-                    <p class="text-xl md:text-2xl text-accent-primary font-medium font-body mb-8">
+                    <p
+                        class="text-lg md:text-xl lg:text-2xl text-accent-primary font-medium font-body mb-6 md:mb-8"
+                    >
                         {currentCampaign.subtitle}
                     </p>
-                    <p class="text-lg text-muted leading-relaxed mb-10 max-w-xl">
+                    <p
+                        class="text-base md:text-lg text-muted leading-relaxed mb-8 md:mb-10 max-w-xl"
+                    >
                         {currentCampaign.description}
                     </p>
 
                     <div>
-                        <a href={currentCampaign.links.donation} target="_blank" rel="noopener noreferrer">
-                            <Button size="lg" className="rounded-full px-10 h-14 text-lg bg-accent-primary hover:bg-orange-600 text-white shadow-[0_0_20px_rgba(255,147,40,0.3)] hover:shadow-[0_0_30px_rgba(255,147,40,0.5)] border-none transition-all group">
+                        <a
+                            href={currentCampaign.links.donation}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Button
+                                size="lg"
+                                className="w-full md:w-auto rounded-full px-8 md:px-10 h-12 md:h-14 text-base md:text-lg bg-accent-primary hover:bg-orange-600 text-white shadow-[0_0_20px_rgba(255,147,40,0.3)] hover:shadow-[0_0_30px_rgba(255,147,40,0.5)] border-none transition-all group min-h-[48px]"
+                            >
                                 Steun {currentCampaign.name}
-                                <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                                <ArrowRight
+                                    className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1"
+                                />
                             </Button>
                         </a>
                     </div>
@@ -63,22 +86,34 @@ const currentCampaign = latest as ActiveCampaign;
 
                 <!-- Right Column: Professional Banner -->
                 <div class="relative group perspective-1000 order-1 lg:order-2">
-                    <div class="absolute inset-0 bg-brand-orange/20 rounded-3xl blur-[60px] opacity-40 group-hover:opacity-60 transition-opacity duration-700"></div>
-                    
-                    <div class="relative rounded-3xl overflow-hidden glass-card border border-white/10 shadow-2xl transform-gpu transition-transform duration-700 hover:scale-[1.02] hover:rotate-1">
-                        <div class="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"></div>
-                        <CloudinaryImage 
+                    <div
+                        class="absolute inset-0 bg-brand-orange/20 rounded-3xl blur-[60px] opacity-40 group-hover:opacity-60 transition-opacity duration-700"
+                    >
+                    </div>
+
+                    <div
+                        class="relative rounded-3xl overflow-hidden glass-card border border-white/10 shadow-2xl transform-gpu transition-transform duration-700 hover:scale-[1.02] hover:rotate-1"
+                    >
+                        <div
+                            class="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"
+                        >
+                        </div>
+                        <CloudinaryImage
                             src="OnlyFriendsBanner_wpltle"
                             alt={`Banner ${currentCampaign.name}`}
                             widths={[400, 640, 768, 1024, 1280, 1536]}
                             sizes="(max-width: 768px) 100vw, 50vw"
                             class="w-full h-auto object-cover md:min-h-[400px]"
                         />
-                        
+
                         <!-- Overlay Tag -->
                         <div class="absolute bottom-4 left-4 z-20">
-                            <div class="px-4 py-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-white font-display font-bold text-sm flex items-center gap-2">
-                                <Heart className="w-4 h-4 text-brand-orange fill-brand-orange" />
+                            <div
+                                class="px-4 py-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-white font-display font-bold text-sm flex items-center gap-2"
+                            >
+                                <Heart
+                                    className="w-4 h-4 text-brand-orange fill-brand-orange"
+                                />
                                 {currentCampaign.name}
                             </div>
                         </div>
@@ -86,20 +121,49 @@ const currentCampaign = latest as ActiveCampaign;
                 </div>
             </div>
 
-            <!-- Features Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                {
-                    currentCampaign.features.map((feature) => (
-                        <div class="glass-card group p-8 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 border border-white/10 bg-surface/50 hover:bg-surface/80">
-                            <div class="text-4xl font-bold text-brand-sky group-hover:text-brand-orange transition-colors duration-300 mb-2 font-display">
-                                {feature.value}
+            <!-- Only Friends Stats Section -->
+            <div class="mb-16">
+                <!-- Section Header -->
+                <div class="flex items-center justify-center gap-3 mb-8">
+                    <div
+                        class="h-px flex-1 bg-linear-to-r from-transparent via-brand-orange/30 to-transparent"
+                    >
+                    </div>
+                    <div
+                        class="flex items-center gap-3 px-6 py-3 rounded-full bg-brand-orange/5 border border-brand-orange/20"
+                    >
+                        <Heart
+                            className="w-5 h-5 text-brand-orange fill-brand-orange"
+                        />
+                        <h3
+                            class="text-lg md:text-xl font-bold text-primary font-display"
+                        >
+                            Over {currentCampaign.name}
+                        </h3>
+                    </div>
+                    <div
+                        class="h-px flex-1 bg-linear-to-r from-transparent via-brand-orange/30 to-transparent"
+                    >
+                    </div>
+                </div>
+
+                <!-- Features Grid -->
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                >
+                    {
+                        currentCampaign.features.map((feature) => (
+                            <div class="glass-card group p-6 md:p-8 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 border border-brand-orange/20 bg-linear-to-br from-brand-orange/5 to-surface/50 hover:from-brand-orange/10 hover:to-surface/80 hover:border-brand-orange/40">
+                                <div class="text-3xl md:text-4xl font-bold text-brand-orange group-hover:scale-110 transition-transform duration-300 mb-2 font-display">
+                                    {feature.value}
+                                </div>
+                                <div class="text-xs md:text-sm text-muted uppercase tracking-wider font-medium group-hover:text-primary transition-colors">
+                                    {feature.label}
+                                </div>
                             </div>
-                            <div class="text-sm text-muted uppercase tracking-wider font-medium group-hover:text-primary transition-colors">
-                                {feature.label}
-                            </div>
-                        </div>
-                    ))
-                }
+                        ))
+                    }
+                </div>
             </div>
         </div>
 
@@ -110,14 +174,14 @@ const currentCampaign = latest as ActiveCampaign;
                         <div class="h-10 w-10 rounded-full bg-surface border border-border flex items-center justify-center text-muted">
                             <History className="w-5 h-5" />
                         </div>
-                        <h3 class="text-2xl font-bold text-primary font-display">
+                        <h3 class="text-xl md:text-2xl font-bold text-primary font-display">
                             Onze Impact Historie
                         </h3>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {pastCampaigns.map((campaign) => (
-                            <div class="glass-card p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-6 group hover:bg-surface/80 transition-all border border-white/5">
+                            <div class="glass-card p-4 md:p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6 group hover:bg-surface/80 transition-all border border-white/5">
                                 <div class="shrink-0 flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-brand-blue/10 text-brand-sky border border-brand-blue/20 group-hover:border-brand-sky/50 transition-colors">
                                     <span class="text-lg font-bold">
                                         {campaign.year}
@@ -125,7 +189,7 @@ const currentCampaign = latest as ActiveCampaign;
                                 </div>
 
                                 <div class="flex-1">
-                                    <h4 class="text-xl font-bold text-primary flex items-center gap-2">
+                                    <h4 class="text-lg md:text-xl font-bold text-primary flex items-center gap-2">
                                         {campaign.name}
                                         <Heart className="w-4 h-4 text-brand-orange fill-brand-orange opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </h4>

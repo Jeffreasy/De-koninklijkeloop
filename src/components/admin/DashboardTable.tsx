@@ -143,11 +143,11 @@ export default function DashboardTable() {
                             {filteredRegistrations.map((reg, index) => (
                                 <tr
                                     key={reg._id}
-                                    className="group hover:bg-white/[0.03] transition-colors duration-200"
+                                    className="group hover:bg-white/3 transition-colors duration-200"
                                 >
                                     <td className="py-4 px-6">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-glass-border to-transparent border border-glass-border flex items-center justify-center text-text-primary font-bold text-xs">
+                                            <div className="w-9 h-9 rounded-full bg-linear-to-br from-glass-border to-transparent border border-glass-border flex items-center justify-center text-text-primary font-bold text-xs">
                                                 {reg.name.charAt(0).toUpperCase()}
                                             </div>
                                             <div className="font-medium text-text-primary">{reg.name}</div>
@@ -202,7 +202,7 @@ function StatsCard({ label, value, icon, trend, color = "orange" }: { label: str
 
     return (
         <div className={`relative overflow-hidden bg-glass-bg/30 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 hover:border-white/20 transition-all duration-300 group`}>
-            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${bgClass} blur-2xl opacity-50 -mr-10 -mt-10 pointer-events-none`} />
+            <div className={`absolute top-0 right-0 w-32 h-32 bg-linear-to-br ${bgClass} blur-2xl opacity-50 -mr-10 -mt-10 pointer-events-none`} />
 
             <div className="relative flex justify-between items-start">
                 <div>
