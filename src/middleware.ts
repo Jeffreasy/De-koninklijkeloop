@@ -6,6 +6,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     // 1. Bypass Asset/API calls that don't need Tunneling
     if (url.pathname.startsWith("/_astro") ||
+        url.pathname.startsWith("/_vercel") ||  // Speed Insights + Analytics
         url.pathname.startsWith("/api/auth") ||
         url.pathname.includes(".")) {
         return next();
