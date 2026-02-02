@@ -57,9 +57,14 @@ export default function DashboardTable() {
 
     if (registrations === undefined) {
         return (
-            <div className="flex items-center justify-center py-20 text-text-muted animate-pulse gap-2">
+            <div
+                className="flex items-center justify-center py-20 text-text-muted animate-pulse gap-2"
+                role="status"
+                aria-live="polite"
+            >
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span>Gegevens ophalen...</span>
+                <span className="sr-only">Dashboard gegevens laden...</span>
             </div>
         );
     }
@@ -95,11 +100,11 @@ export default function DashboardTable() {
             </div>
 
             {/* Main Content Panel (Combined Toolbar & Table) */}
-            <div className="rounded-3xl border border-white/10 bg-glass-bg/40 backdrop-blur-xl shadow-2xl overflow-hidden">
+            <div className="rounded-2xl md:rounded-3xl border border-white/10 bg-glass-bg/40 backdrop-blur-xl shadow-2xl overflow-hidden">
 
                 {/* Panel Header / Toolbar */}
-                <div className="p-5 border-b border-glass-border flex flex-col sm:flex-row gap-4 justify-between items-center bg-white/5">
-                    <h3 className="text-lg font-display font-semibold text-text-primary hidden sm:block">Recente Inschrijvingen</h3>
+                <div className="p-4 md:p-5 border-b border-glass-border flex flex-col sm:flex-row gap-4 justify-between items-center bg-white/5">
+                    <h3 className="text-base md:text-lg font-display font-semibold text-text-primary hidden sm:block">Recente Inschrijvingen</h3>
 
                     <div className="flex items-center gap-3 w-full sm:w-auto">
                         <div className="relative flex-1 sm:w-72 group">
@@ -111,7 +116,8 @@ export default function DashboardTable() {
                                 placeholder="Zoeken..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="block w-full pl-9 pr-3 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
+                                className="block w-full pl-9 pr-3 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all min-h-[44px]"
+                                aria-label="Zoek in registraties"
                             />
                         </div>
                         <div className="px-3 py-2 rounded-xl bg-glass-border/20 text-xs font-medium text-text-muted border border-glass-border whitespace-nowrap">
@@ -195,7 +201,7 @@ function StatsCard({ label, value, icon, trend, color = "orange" }: { label: str
     const bgClass = gradients[color];
 
     return (
-        <div className={`relative overflow-hidden bg-glass-bg/30 backdrop-blur-md p-6 rounded-3xl border border-white/10 hover:border-white/20 transition-all duration-300 group`}>
+        <div className={`relative overflow-hidden bg-glass-bg/30 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 hover:border-white/20 transition-all duration-300 group`}>
             <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${bgClass} blur-2xl opacity-50 -mr-10 -mt-10 pointer-events-none`} />
 
             <div className="relative flex justify-between items-start">

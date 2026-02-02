@@ -74,10 +74,15 @@ export default function EventSettingsForm() {
 
     if (!settings) {
         return (
-            <div className="premium-glass rounded-3xl p-8">
-                <div className="flex items-center justify-center">
+            <div className="premium-glass rounded-2xl md:rounded-3xl p-6 md:p-8">
+                <div
+                    className="flex items-center justify-center"
+                    role="status"
+                    aria-live="polite"
+                >
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary"></div>
                     <span className="ml-3 text-text-secondary">Laden...</span>
+                    <span className="sr-only">Evenement instellingen laden...</span>
                 </div>
             </div>
         );
@@ -87,14 +92,18 @@ export default function EventSettingsForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
             {/* Status Message */}
             {status && (
-                <div className={`p-4 rounded-xl ${status.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
+                <div
+                    className={`p-3 md:p-4 rounded-xl text-sm ${status.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}
+                    role="alert"
+                    aria-live="polite"
+                >
                     {status.message}
                 </div>
             )}
 
             {/* Evenement Info */}
-            <div className="premium-glass rounded-3xl p-6">
-                <h2 className="text-lg font-semibold mb-4 text-text-primary">Evenement Gegevens</h2>
+            <div className="premium-glass rounded-2xl md:rounded-3xl p-4 md:p-6">
+                <h2 className="text-base md:text-lg font-semibold mb-4 text-text-primary">Evenement Gegevens</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -105,8 +114,9 @@ export default function EventSettingsForm() {
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none"
+                            className="w-full px-3 md:px-4 py-2.5 md:py-2 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none min-h-[44px]"
                             placeholder="De Koninklijke Loop 2026"
+                            aria-label="Evenement naam"
                         />
                     </div>
 
@@ -163,8 +173,8 @@ export default function EventSettingsForm() {
             </div>
 
             {/* Locatie */}
-            <div className="premium-glass rounded-3xl p-6">
-                <h2 className="text-lg font-semibold mb-4 text-text-primary">Locatie</h2>
+            <div className="premium-glass rounded-2xl md:rounded-3xl p-4 md:p-6">
+                <h2 className="text-base md:text-lg font-semibold mb-4 text-text-primary">Locatie</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -209,8 +219,8 @@ export default function EventSettingsForm() {
             </div>
 
             {/* Media & Contact */}
-            <div className="premium-glass rounded-3xl p-6">
-                <h2 className="text-lg font-semibold mb-4 text-text-primary">Media & Contact</h2>
+            <div className="premium-glass rounded-2xl md:rounded-3xl p-4 md:p-6">
+                <h2 className="text-base md:text-lg font-semibold mb-4 text-text-primary">Media & Contact</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -261,11 +271,12 @@ export default function EventSettingsForm() {
             </div>
 
             {/* Submit Button */}
-            <div className="flex justify-end">
+            <div className="flex justify-center md:justify-end">
                 <button
                     type="submit"
                     disabled={saving || !accessToken}
-                    className="px-8 py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full md:w-auto px-6 md:px-8 py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                    aria-label="Evenement instellingen opslaan"
                 >
                     {saving ? "Opslaan..." : "Instellingen Opslaan"}
                 </button>

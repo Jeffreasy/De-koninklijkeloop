@@ -107,9 +107,9 @@ export function SocialManagerIsland() {
             <div className="glass-card p-4">
                 <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 justify-between">
                     {/* Left: Filters */}
-                    <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4 flex-wrap w-full md:w-auto">
                         {/* Filter Buttons */}
-                        <div className="flex items-center gap-2 p-1 bg-glass-border/20 rounded-xl">
+                        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 p-1 bg-glass-border/20 rounded-xl w-full md:w-auto">
                             {[
                                 { value: "all" as FilterType, label: "Alle", count: totalCount },
                                 { value: "visible" as FilterType, label: "Zichtbaar", count: visibleCount },
@@ -119,10 +119,11 @@ export function SocialManagerIsland() {
                                 <button
                                     key={f.value}
                                     onClick={() => setFilter(f.value)}
-                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${filter === f.value
-                                            ? "bg-accent-primary text-white shadow-lg shadow-accent-primary/20"
-                                            : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
+                                    className={`px-3 py-2 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] ${filter === f.value
+                                        ? "bg-accent-primary text-white shadow-lg shadow-accent-primary/20"
+                                        : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
                                         }`}
+                                    aria-label={`Filter op ${f.label.toLowerCase()}`}
                                 >
                                     {f.label} ({f.count})
                                 </button>
@@ -138,7 +139,8 @@ export function SocialManagerIsland() {
                     {/* Right: Actions */}
                     <button
                         onClick={handleCreate}
-                        className="px-4 py-2 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-all duration-200 shadow-lg shadow-accent-primary/20"
+                        className="px-4 py-2 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-all duration-200 shadow-lg shadow-accent-primary/20 w-full md:w-auto min-h-[44px]"
+                        aria-label="Nieuwe social media post toevoegen"
                     >
                         <div className="flex items-center gap-2">
                             <Plus className="w-4 h-4" />

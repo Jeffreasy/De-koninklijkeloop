@@ -69,29 +69,33 @@ export function SocialPostCard({
                 <div className="absolute inset-0 bg-brand-blue/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 p-4">
                     <button
                         onClick={() => onEdit(post._id)}
-                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg"
+                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px]"
                         title="Bewerken"
+                        aria-label="Post bewerken"
                     >
                         <iconify-icon icon="lucide:edit-3" width="20" />
                     </button>
                     <button
                         onClick={() => onToggleVisibility(post._id)}
-                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg"
+                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px]"
                         title={post.isVisible ? "Verbergen" : "Tonen"}
+                        aria-label={post.isVisible ? "Post verbergen" : "Post tonen"}
                     >
                         <iconify-icon icon={post.isVisible ? "lucide:eye-off" : "lucide:eye"} width="20" />
                     </button>
                     <button
                         onClick={() => onToggleFeatured(post._id)}
-                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg"
+                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px]"
                         title={post.isFeatured ? "Unfeatured" : "Maak Featured"}
+                        aria-label={post.isFeatured ? "Featured status verwijderen" : "Als featured markeren"}
                     >
                         <iconify-icon icon={post.isFeatured ? "lucide:star-off" : "lucide:star"} width="20" />
                     </button>
                     <button
                         onClick={() => onDelete(post._id)}
-                        className="p-3 rounded-xl bg-red-500/40 hover:bg-red-500/60 text-white backdrop-blur-sm transition-all duration-200 shadow-lg"
+                        className="p-3 rounded-xl bg-red-500/40 hover:bg-red-500/60 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px]"
                         title="Verwijderen"
+                        aria-label="Post verwijderen"
                     >
                         <iconify-icon icon="lucide:trash-2" width="20" />
                     </button>
