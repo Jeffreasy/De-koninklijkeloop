@@ -60,7 +60,6 @@ function buildCloudinaryUrl(width: number): string {
     const transformations = [
         `c_${crop}`,
         `w_${width}`,
-        aspectRatio ? `ar_${aspectRatio.replace(":", "_")}` : null,
         "f_auto", // Auto format (WebP/AVIF)
         "q_auto:good", // Auto quality optimization
     ]

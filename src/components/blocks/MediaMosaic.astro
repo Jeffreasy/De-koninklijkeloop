@@ -23,8 +23,8 @@ function shuffleArray<T>(array: T[]): T[] {
 
 // Fetch 2024 & 2025 images usage cached function
 const [images2024, images2025] = await Promise.all([
-    getImagesFromFolder("DKLFoto's 2024", "2024"),
-    getImagesFromFolder("DKLFoto's 2025", "2025"),
+    getImagesFromFolder("De Koninklijkeloop/DKLFoto's 2024", "2024"),
+    getImagesFromFolder("De Koninklijkeloop/DKLFoto's 2025", "2025"),
 ]);
 
 const cloudImages = [...images2025, ...images2024];
