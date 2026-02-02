@@ -150,7 +150,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
             />
 
             {/* Modal - Full screen on mobile, centered on desktop */}
-            <div className="relative w-full h-full md:h-auto md:max-w-4xl md:max-h-[90vh] md:rounded-3xl bg-surface/95 backdrop-blur-2xl border-0 md:border md:border-glass-border shadow-2xl flex flex-col">
+            <div className="relative w-full h-full md:h-auto md:max-w-6xl md:max-h-[90vh] md:rounded-3xl bg-surface/95 backdrop-blur-2xl border-0 md:border md:border-glass-border shadow-2xl flex flex-col">
                 {/* Header - Fixed on mobile */}
                 <div className="shrink-0 flex items-center justify-between p-4 md:p-6 border-b border-glass-border bg-surface/90 backdrop-blur-xl">
                     <h2 className="text-xl md:text-2xl font-display font-bold text-text-primary">
@@ -171,8 +171,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                     {/* Scrollable content area */}
                     <div className="flex-1 overflow-y-auto">
                         <div className="p-4 md:p-6">
-                            {/* Single column on mobile, grid on desktop */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                            {/* Single column on mobile, grid on tablet+ */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                 {/* Left Column: Form Fields */}
                                 <div className="space-y-4 md:space-y-5">
                                     {/* Image Upload/URL */}
