@@ -32,9 +32,15 @@ export default defineSchema({
         agreedToTerms: v.boolean(),
         agreedToMedia: v.boolean(),
 
+        // User Type & Auth
+        userType: v.optional(v.union(
+            v.literal("authenticated"),  // Has LaventeCare account
+            v.literal("guest")            // Event-only registration
+        )),
+        authUserId: v.optional(v.string()), // Linked Auth ID (only for authenticated)
+
         // Status
         status: v.union(v.literal("pending"), v.literal("paid"), v.literal("cancelled")),
-        authUserId: v.optional(v.string()), // Linked Auth ID
 
         createdAt: v.number(),
     })
@@ -125,6 +131,77 @@ export default defineSchema({
         .index("by_status", ["status"])
         .index("by_uploader", ["uploaderEmail"])
         .index("by_registration", ["registrationId"]),
+
+    // Media Metadata (Cloudinary Integration)
+    media_metadata: defineTable({
+        cloudinary_public_id: v.string(), // Cloudinary public_id (unique identifier)
+        alt_text: v.string(),            // User-defined alt text for accessibility
+        title: v.optional(v.string()),   // Optional title/caption for the image
+        folder: v.optional(v.string()),  // e.g., "De Koninklijkeloop/DKLFoto's 2024"
+        tags: v.optional(v.array(v.string())), // Future: custom tags
+        updated_by: v.string(),          // Admin user email or ID
+        updated_at: v.number(),          // Last update timestamp
+    })
+        .index("by_public_id", ["cloudinary_public_id"])
+        .index("by_folder", ["folder"]),
+
+    // Event Settings (Singleton - only one active event)
+    event_settings: defineTable({
+        // Singleton flag
+        is_active: v.boolean(),
+
+        // Basic Event Info
+        name: v.string(),
+        tagline: v.string(),
+        description: v.string(),
+
+        // Date & Time
+        event_date: v.string(), // ISO format: "2026-05-16"
+        event_date_display: v.string(), // "zaterdag 16 mei 2026"
+        registration_open: v.boolean(),
+        registration_deadline: v.optional(v.string()),
+
+        // Location
+        location_name: v.string(),
+        location_city: v.string(),
+        start_location: v.string(),
+        finish_location: v.string(),
+        route_description: v.string(),
+
+        // Capacity
+        max_participants: v.optional(v.number()),
+        current_participants: v.number(),
+
+        // Distances
+        available_distances: v.array(
+            v.object({
+                km: v.string(),
+                label: v.string(),
+                description: v.optional(v.string()),
+            })
+        ),
+
+        // Media
+        hero_video_id: v.string(),
+        hero_image_url: v.optional(v.string()),
+
+        // Contact
+        contact_email: v.string(),
+
+        // Email Settings
+        send_confirmation_emails: v.boolean(),
+        email_sender: v.string(),
+
+        // Payment Settings
+        payment_provider: v.optional(v.string()),
+        payment_api_key: v.optional(v.string()),
+
+        // Meta
+        created_at: v.number(),
+        updated_at: v.number(),
+        updated_by: v.optional(v.string()),
+    })
+        .index("by_active", ["is_active"]),
 
     leads: defineTable({
         email: v.string(),

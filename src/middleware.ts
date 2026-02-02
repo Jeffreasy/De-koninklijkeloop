@@ -75,8 +75,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // 6. Anti-Flicker & Headers
     const response = await next();
 
-    // Add security headers to the response (Redundancy for Vercel)
-    response.headers.set("X-Frame-Options", "DENY");
+    // Security headers (allow iframe in development for testing)
+    response.headers.set("X-Frame-Options", import.meta.env.DEV ? "SAMEORIGIN" : "DENY");
     response.headers.set("X-Content-Type-Options", "nosniff");
 
     return response;

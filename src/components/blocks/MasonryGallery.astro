@@ -173,6 +173,15 @@ const initialLoadCount = 12; // Show 12 images initially
 
             currentlyShown += itemsToShow.length;
 
+            // Track gallery engagement via Vercel Speed Insights
+            if (typeof window !== "undefined" && (window as any).si) {
+                (window as any).si("gallery_load_more", {
+                    images_loaded: currentlyShown,
+                    user_type:
+                        (window as any).DKL_USER_CONTEXT?.type || "anonymous",
+                });
+            }
+
             // Hide button if no more hidden items
             const remainingHidden = Array.from(allItems).filter(
                 (item) =>

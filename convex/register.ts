@@ -65,6 +65,7 @@ export const registerParticipant = action({
 
         const registrationId = await ctx.runMutation(internal.internal.createRegistration, {
             ...registrationData,
+            userType: "authenticated",
             authUserId: authUserId
         });
 

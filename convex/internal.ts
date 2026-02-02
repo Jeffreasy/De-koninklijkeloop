@@ -25,7 +25,8 @@ export const createRegistration = internalMutation({
         icePhone: v.string(),
         agreedToTerms: v.boolean(),
         agreedToMedia: v.boolean(),
-        authUserId: v.optional(v.string()) // Link to Auth System ID
+        userType: v.union(v.literal("authenticated"), v.literal("guest")),
+        authUserId: v.optional(v.string()) // Link to Auth System ID (only for authenticated)
     },
     handler: async (ctx, args) => {
         const existing = await ctx.db

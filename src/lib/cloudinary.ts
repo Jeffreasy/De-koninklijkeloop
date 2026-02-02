@@ -104,3 +104,92 @@ export async function getSponsors(): Promise<CloudinaryImage[]> {
         return [];
     }
 }
+
+/**
+ * Extended Cloudinary Image interface for admin panel
+ */
+export interface CloudinaryImageAdmin {
+    public_id: string;
+    secure_url: string;
+    width: number;
+    height: number;
+    format: string;
+    resource_type: string;
+    folder?: string;
+    created_at: string;
+    bytes: number;
+    context?: {
+        custom?: {
+            alt?: string;
+        };
+    };
+}
+
+/**
+ * Get all images from De Koninklijkeloop folders for admin panel
+ * Fetches from both 2024 and 2025 folders
+ */
+export async function getAllImagesForAdmin(): Promise<CloudinaryImageAdmin[]> {
+    const FOLDERS = [
+        'De Koninklijkeloop/DKLFoto\'s 2024',
+        'De Koninklijkeloop/DKLFoto\'s 2025'
+    ];
+
+    const CACHE_KEY = 'admin-all-images';
+    const now = Date.now();
+    const cached = cache.get(CACHE_KEY);
+
+    if (cached && (now - cached.timestamp < CACHE_TTL)) {
+        console.log(`[Cache] Serving admin images from memory`);
+        return cached.data;
+    }
+
+    try {
+        console.log(`[Cloudinary] Fetching all images for admin panel`);
+        const allImages: CloudinaryImageAdmin[] = [];
+
+        for (const folder of FOLDERS) {
+            const result = await cloudinary.api.resources_by_asset_folder(folder, {
+                max_results: 500,
+                context: true,
+                tags: true,
+                resource_type: 'image'
+            });
+
+            if (result.resources && result.resources.length > 0) {
+                const folderImages = result.resources.map((res: any) => ({
+                    public_id: res.public_id,
+                    secure_url: res.secure_url,
+                    width: res.width,
+                    height: res.height,
+                    format: res.format,
+                    resource_type: res.resource_type,
+                    folder: res.asset_folder || folder,
+                    created_at: res.created_at,
+                    bytes: res.bytes,
+                    context: res.context
+                }));
+
+                allImages.push(...folderImages);
+            }
+        }
+
+        // Update cache
+        cache.set(CACHE_KEY, { data: allImages, timestamp: now });
+
+        console.log(`[Cloudinary] Fetched ${allImages.length} images for admin panel`);
+        return allImages;
+
+    } catch (e: unknown) {
+        const error = e as { error?: { message?: string } };
+        console.error(`[Cloudinary] Error fetching admin images:`, error.error?.message || String(e));
+
+        // Return cached stale data if available on error
+        if (cached) {
+            console.warn(`[Cache] Serving STALE admin images due to API error`);
+            return cached.data;
+        }
+
+        return [];
+    }
+}

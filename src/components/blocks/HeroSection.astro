@@ -1,11 +1,18 @@
 ---
 // src/components/blocks/HeroSection.astro
 import { Button } from "../ui/button";
-import { siteConfig } from "../../config/site.config";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../../convex/_generated/api";
 
-const eventDate = siteConfig.event?.date || "28 Januari 2026";
-const eventLocation = siteConfig.event?.location || "Koninklijkeloop";
-const videoId = siteConfig.event?.heroVideo || "standaard_id";
+// Fetch event settings from Convex
+const convex = new ConvexHttpClient(import.meta.env.PUBLIC_CONVEX_URL);
+const settings = await convex.query(api.eventSettings.getActiveSettings);
+
+// Fallback to site.config if Convex fails
+const eventDate = settings?.event_date_display || "16 Mei 2026";
+const eventLocation = settings?.location_city || "Apeldoorn";
+const videoId = settings?.hero_video_id || "tt6k80";
+const tagline = settings?.tagline || "Samen maken we het verschil";
 ---
 
 <section
@@ -66,7 +73,7 @@ const videoId = siteConfig.event?.heroVideo || "standaard_id";
                 <span
                     class="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-400 block mt-4 pb-2"
                 >
-                    Samen maken we het verschil
+                    {tagline}
                 </span>
             </h1>
         </div>

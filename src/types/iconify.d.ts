@@ -1,0 +1,22 @@
+// Type definitions for iconify-icon web component
+// This resolves TypeScript errors for <iconify-icon> JSX elements
+
+import 'react';
+
+declare module 'react' {
+    namespace JSX {
+        interface IntrinsicElements {
+            'iconify-icon': React.DetailedHTMLProps<
+                React.HTMLAttributes<HTMLElement> & {
+                    icon?: string;
+                    width?: string | number;
+                    height?: string | number;
+                    flip?: string;
+                    rotate?: string | number;
+                    inline?: boolean;
+                },
+                HTMLElement
+            >;
+        }
+    }
+}

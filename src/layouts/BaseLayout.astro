@@ -18,7 +18,10 @@ const {
     <head>
         <meta charset="UTF-8" />
         <meta name="description" content={description} />
-        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta
+            http-equiv="Cache-Control"
+            content="no-cache, no-store, must-revalidate"
+        />
         <meta name="viewport" content="width=device-width" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="generator" content={Astro.generator} />
@@ -27,45 +30,49 @@ const {
         <script is:inline>
             // Anti-Flicker & Theme Initialization Script
             // Service Worker Cleanup - Ensures mobile users get fresh content
-            if (typeof window !== "undefined" && 'serviceWorker' in navigator) {
+            if (typeof window !== "undefined" && "serviceWorker" in navigator) {
                 // Register cleanup workers to remove old cached Service Workers
                 const registerCleanupWorker = (path, label) => {
-                    navigator.serviceWorker.register(path, { 
-                        updateViaCache: 'none',
-                        scope: '/' 
-                    })
-                    .then(registration => {
-                        // Update check (may fail if SW unregisters itself - this is expected)
-                        registration.update().catch(() => {
-                            // Silent catch - SW may have already unregistered
+                    navigator.serviceWorker
+                        .register(path, {
+                            updateViaCache: "none",
+                            scope: "/",
+                        })
+                        .then((registration) => {
+                            // Update check (may fail if SW unregisters itself - this is expected)
+                            registration.update().catch(() => {
+                                // Silent catch - SW may have already unregistered
+                            });
+                        })
+                        .catch(() => {
+                            // Silent catch - Expected after cleanup completes
                         });
-                    })
-                    .catch(() => {
-                        // Silent catch - Expected after cleanup completes
-                    });
                 };
 
                 // Register both cleanup workers for compatibility
-                registerCleanupWorker('/sw.js', 'primary');
-                registerCleanupWorker('/service-worker.js', 'legacy');
+                registerCleanupWorker("/sw.js", "primary");
+                registerCleanupWorker("/service-worker.js", "legacy");
 
                 // Fallback: Manual cleanup for any remaining registrations
-                navigator.serviceWorker.getRegistrations().then((registrations) => {
-                    registrations.forEach(reg => reg.unregister());
-                });
+                navigator.serviceWorker
+                    .getRegistrations()
+                    .then((registrations) => {
+                        registrations.forEach((reg) => reg.unregister());
+                    });
 
                 // Clear any orphaned caches
                 if ("caches" in window) {
                     caches.keys().then((names) => {
-                        names.forEach(name => caches.delete(name));
+                        names.forEach((name) => caches.delete(name));
                     });
                 }
             }
-            
+
             const getTheme = () => {
                 const stored = localStorage.getItem("theme");
                 if (stored) return stored;
-                return window.matchMedia("(prefers-color-scheme: light)").matches
+                return window.matchMedia("(prefers-color-scheme: light)")
+                    .matches
                     ? "light"
                     : "dark";
             };
@@ -105,16 +112,41 @@ const {
             rel="stylesheet"
         />
     </head>
-    <body class="bg-background text-text-body antialiased selection:bg-brand-primary/20">
+    <body
+        class="bg-background text-text-body antialiased selection:bg-brand-primary/20"
+    >
         <slot />
         <script is:inline define:vars={{ user: Astro.locals.user }}>
             window.DKL_INITIAL_USER = user;
+            // User context for analytics segmentation (non-PII)
+            window.DKL_USER_CONTEXT = {
+                type: user?.role || "anonymous",
+            };
         </script>
         <script>
             import { setAuth } from "../lib/auth";
+
             const user = window.DKL_INITIAL_USER;
+
             // Hydrate store on page load (without token, as it is HttpOnly)
             setAuth(null, user);
+
+            // Track route changes via View Transitions
+            document.addEventListener("astro:before-swap", (e) => {
+                const from = window.location.pathname;
+                const to = e.newDocument?.location?.pathname || "unknown";
+
+                // Track via Vercel Speed Insights global function
+                if (typeof window !== "undefined" && (window as any).si) {
+                    (window as any).si("route_changed", {
+                        from,
+                        to,
+                        user_type:
+                            (window as any).DKL_USER_CONTEXT?.type ||
+                            "anonymous",
+                    });
+                }
+            });
         </script>
     </body>
 </html>
