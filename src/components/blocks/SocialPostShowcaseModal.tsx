@@ -158,41 +158,58 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
 
                                 {/* Info Panel - Premium Glassmorphism - 50% height on mobile, scrollable */}
                                 <div className="h-[50vh] md:h-auto md:w-[420px] bg-linear-to-br from-surface/95 to-surface/90 backdrop-blur-2xl border-t md:border-t-0 md:border-l border-white/10 flex flex-col overflow-y-auto">
-                                    {/* Header - Compact on mobile */}
-                                    <div className="p-4 md:p-8 border-b border-white/10 shrink-0">
-                                        <div className="flex items-center gap-2 md:gap-4 mb-3 md:mb-6">
-                                            {/* Instagram Icon with Gradient */}
-                                            <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-linear-to-br from-brand-orange/20 to-orange-500/20 flex items-center justify-center border border-brand-orange/30 shadow-lg">
-                                                <iconify-icon
-                                                    icon="lucide:instagram"
-                                                    width="20"
-                                                    className="md:w-7 text-brand-orange"
-                                                />
+                                    {/* Header - Ultra Compact on mobile */}
+                                    <div className="p-3 md:p-8 border-b border-white/10 shrink-0">
+                                        {/* Profile info + CTA combined on mobile */}
+                                        <div className="flex items-center justify-between gap-2 mb-2 md:mb-0">
+                                            {/* Profile Section - Minimal on mobile */}
+                                            <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
+                                                {/* DKL Logo - Brand Identity */}
+                                                <div className="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-linear-to-br from-brand-orange/20 to-orange-500/20 flex items-center justify-center border border-brand-orange/30 shadow-lg shrink-0 overflow-hidden">
+                                                    <img
+                                                        src="https://res.cloudinary.com/dgfuv7wif/image/upload/v1769451085/DKLLogoV1_kx60i9.webp"
+                                                        alt="De Koninklijke Loop"
+                                                        className="w-6 h-6 md:w-10 md:h-10 object-contain"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-bold text-xs md:text-lg text-text-primary truncate">
+                                                        @koninklijkeloop
+                                                    </p>
+                                                    {formattedDate && (
+                                                        <div className="flex items-center gap-1 text-xs md:text-sm text-text-muted mt-0.5 md:mt-1">
+                                                            <Calendar className="w-3 h-3 md:w-4 md:h-4 shrink-0" />
+                                                            <span className="truncate">{formattedDate}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-bold text-sm md:text-lg text-text-primary truncate">
-                                                    @koninklijkeloop
-                                                </p>
-                                                {formattedDate && (
-                                                    <div className="flex items-center gap-1 md:gap-2 text-xs md:text-sm text-text-muted mt-0.5 md:mt-1">
-                                                        <Calendar className="w-3 h-3 md:w-4 md:h-4" />
-                                                        <span className="truncate">{formattedDate}</span>
-                                                    </div>
-                                                )}
-                                            </div>
+
+                                            {/* Instagram CTA - Icon badge on mobile, full button on desktop */}
+                                            <a
+                                                href={post.instagramUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="group shrink-0"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                {/* Mobile: Floating icon badge */}
+                                                <div className="md:hidden w-9 h-9 rounded-xl bg-linear-to-r from-brand-orange to-orange-500 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border border-white/20">
+                                                    <ExternalLink className="w-4 h-4 text-white" />
+                                                </div>
+
+                                                {/* Desktop: Full button */}
+                                                <div className="hidden md:flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-linear-to-r from-brand-orange to-orange-500 text-white font-bold hover:from-brand-orange/90 hover:to-orange-500/90 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] border border-white/20">
+                                                    <ExternalLink className="w-5 h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                                    Bekijk op Instagram
+                                                </div>
+                                            </a>
                                         </div>
 
-                                        {/* Instagram CTA - Compact on mobile */}
-                                        <a
-                                            href={post.instagramUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="group flex items-center justify-center gap-2 w-full px-4 py-2.5 md:px-6 md:py-4 rounded-xl md:rounded-2xl bg-linear-to-r from-brand-orange to-orange-500 text-white text-sm md:text-base font-bold hover:from-brand-orange/90 hover:to-orange-500/90 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] border border-white/20"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            <ExternalLink className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                                            <span className="truncate">Bekijk op Instagram</span>
-                                        </a>
+                                        {/* Mobile: Compact Instagram hint text */}
+                                        <p className="md:hidden text-xs text-text-muted text-center mt-2 opacity-60">
+                                            Tik rechts om te openen op Instagram
+                                        </p>
                                     </div>
 
                                     {/* Reactions - Compact on mobile */}
