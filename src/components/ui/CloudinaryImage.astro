@@ -32,7 +32,9 @@ if (!src) {
     throw new Error(`[CloudinaryImage] Missing required prop: src`);
 }
 if (!widths || widths.length === 0) {
-    throw new Error(`[CloudinaryImage] Missing or empty required prop: widths (got: ${JSON.stringify(widths)})`);
+    throw new Error(
+        `[CloudinaryImage] Missing or empty required prop: widths (got: ${JSON.stringify(widths)})`,
+    );
 }
 if (!sizes) {
     throw new Error(`[CloudinaryImage] Missing required prop: sizes`);
@@ -41,11 +43,14 @@ if (!alt) {
     console.warn(`[CloudinaryImage] Missing alt text for image: ${src}`);
 }
 
-const CLOUDINARY_CLOUD_NAME = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || "dgfuv7wif";
+const CLOUDINARY_CLOUD_NAME =
+    import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || "dgfuv7wif";
 
 // Validation: Ensure cloud name is available
 if (!CLOUDINARY_CLOUD_NAME) {
-    throw new Error(`[CloudinaryImage] PUBLIC_CLOUDINARY_CLOUD_NAME environment variable is not set`);
+    throw new Error(
+        `[CloudinaryImage] PUBLIC_CLOUDINARY_CLOUD_NAME environment variable is not set`,
+    );
 }
 
 const BASE_URL = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload`;
@@ -58,7 +63,6 @@ function buildCloudinaryUrl(width: number): string {
         aspectRatio ? `ar_${aspectRatio.replace(":", "_")}` : null,
         "f_auto", // Auto format (WebP/AVIF)
         "q_auto:good", // Auto quality optimization
-        "dpr_auto", // Device Pixel Ratio optimization
     ]
         .filter(Boolean)
         .join(",");
@@ -67,7 +71,9 @@ function buildCloudinaryUrl(width: number): string {
 }
 
 // Generate srcset string
-const srcset = widths.map((width) => `${buildCloudinaryUrl(width)} ${width}w`).join(", ");
+const srcset = widths
+    .map((width) => `${buildCloudinaryUrl(width)} ${width}w`)
+    .join(", ");
 
 // Default src (largest width)
 const defaultSrc = buildCloudinaryUrl(widths[widths.length - 1]);
