@@ -50,7 +50,7 @@ export default function MediaManagerIsland() {
 
                 // Merge with Convex metadata
                 const merged: MergedImage[] = cloudinaryImages.map(img => {
-                    const meta = metadata?.find((m: any) => m.public_id === img.public_id);
+                    const meta = metadata?.find((m: any) => m.cloudinary_public_id === img.public_id);
                     return {
                         ...img,
                         alt_text: meta?.alt_text || img.context?.custom?.alt,
