@@ -17,29 +17,51 @@ const initialLoadCount = 12; // Show 12 images initially
 
 <div class="space-y-12">
     <!-- Gallery Grid with Enhanced Spacing -->
-    <div id="gallery-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div
+        id="gallery-container"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    >
         {
             images.map((img, index) => (
-                <div 
-                    data-year={img.year || "all"} 
+                <div
+                    data-year={img.year || "all"}
                     data-index={index}
-                    class={`gallery-item media-item group relative overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 ${index >= initialLoadCount ? 'hidden' : ''}`}
+                    class={`gallery-item media-item group relative overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 ${index >= initialLoadCount ? "hidden" : ""}`}
                     style="opacity: 0; transform: translateY(20px);"
                 >
                     {/* Image Container with Aspect Ratio */}
-                    <div class={`relative bg-surface border border-border overflow-hidden ${img.aspect === 'vertical' ? 'aspect-[3/4]' : 'aspect-[4/3]'}`}>
+                    <div
+                        class={`relative bg-surface border border-border overflow-hidden ${img.aspect === "vertical" ? "aspect-3/4" : "aspect-4/3"}`}
+                    >
                         {/* Gradient Overlay on Hover */}
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 flex flex-col justify-end p-6">
+                        <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 flex flex-col justify-end p-6">
                             <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                                 <p class="text-white font-display font-bold text-lg leading-tight drop-shadow-lg mb-2">
                                     {img.alt}
                                 </p>
                                 <div class="flex items-center gap-2 text-white/80 text-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                                        <line x1="16" x2="16" y1="2" y2="6"/>
-                                        <line x1="8" x2="8" y1="2" y2="6"/>
-                                        <line x1="3" x2="21" y1="10" y2="10"/>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <rect
+                                            width="18"
+                                            height="18"
+                                            x="3"
+                                            y="4"
+                                            rx="2"
+                                            ry="2"
+                                        />
+                                        <line x1="16" x2="16" y1="2" y2="6" />
+                                        <line x1="8" x2="8" y1="2" y2="6" />
+                                        <line x1="3" x2="21" y1="10" y2="10" />
                                     </svg>
                                     <span>{img.year}</span>
                                 </div>
@@ -53,13 +75,17 @@ const initialLoadCount = 12; // Show 12 images initially
                             widths={[400, 600, 800, 1000]}
                             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                             crop="fill"
-                            aspectRatio={img.aspect === "vertical" ? "3:4" : "4:3"}
-                            loading={index < initialLoadCount ? "eager" : "lazy"}
+                            aspectRatio={
+                                img.aspect === "vertical" ? "3:4" : "4:3"
+                            }
+                            loading={
+                                index < initialLoadCount ? "eager" : "lazy"
+                            }
                             class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                         />
 
                         {/* Subtle Border Highlight on Hover */}
-                        <div class="absolute inset-0 border-2 border-brand-orange/0 group-hover:border-brand-orange/30 transition-colors duration-500 rounded-2xl pointer-events-none"></div>
+                        <div class="absolute inset-0 border-2 border-brand-orange/0 group-hover:border-brand-orange/30 transition-colors duration-500 rounded-2xl pointer-events-none" />
                     </div>
                 </div>
             ))
@@ -68,16 +94,30 @@ const initialLoadCount = 12; // Show 12 images initially
 
     <!-- Load More Button with Premium Styling -->
     <div class="flex justify-center pt-8" id="load-more-container">
-        <button 
+        <button
             id="load-more-btn"
             class="group relative px-10 py-4 rounded-2xl bg-surface border-2 border-brand-orange/30 hover:border-brand-orange text-primary font-bold transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-brand-orange/20 hover:-translate-y-1 overflow-hidden"
         >
             {/* Animated Background Gradient */}
-            <div class="absolute inset-0 bg-gradient-to-r from-brand-orange/0 via-brand-orange/5 to-brand-orange/0 group-hover:from-brand-orange/5 group-hover:via-brand-orange/10 group-hover:to-brand-orange/5 transition-all duration-500"></div>
-            
+            <div
+                class="absolute inset-0 bg-linear-to-r from-brand-orange/0 via-brand-orange/5 to-brand-orange/0 group-hover:from-brand-orange/5 group-hover:via-brand-orange/10 group-hover:to-brand-orange/5 transition-all duration-500"
+            >
+            </div>
+
             <span class="relative flex items-center gap-3">
                 <span class="text-lg">Meer foto's laden</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-y-1 transition-transform">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="group-hover:translate-y-1 transition-transform"
+                >
                     <path d="M12 5v14"></path>
                     <path d="m19 12-7 7-7-7"></path>
                 </svg>
@@ -91,9 +131,11 @@ const initialLoadCount = 12; // Show 12 images initially
     let currentlyShown = 12; // Track how many are currently visible
 
     function initLoadMore() {
-        const loadMoreBtn = document.getElementById('load-more-btn');
-        const loadMoreContainer = document.getElementById('load-more-container');
-        const allItems = document.querySelectorAll('.gallery-item');
+        const loadMoreBtn = document.getElementById("load-more-btn");
+        const loadMoreContainer = document.getElementById(
+            "load-more-container",
+        );
+        const allItems = document.querySelectorAll(".gallery-item");
 
         if (!loadMoreBtn || !loadMoreContainer) return;
 
@@ -101,55 +143,60 @@ const initialLoadCount = 12; // Show 12 images initially
         allItems.forEach((item, index) => {
             if (index < currentlyShown) {
                 setTimeout(() => {
-                    (item as HTMLElement).style.opacity = '1';
-                    (item as HTMLElement).style.transform = 'translateY(0)';
+                    (item as HTMLElement).style.opacity = "1";
+                    (item as HTMLElement).style.transform = "translateY(0)";
                 }, index * 50); // 50ms delay between each item
             }
         });
 
         // Hide button if all images are already shown
         if (allItems.length <= currentlyShown) {
-            loadMoreContainer.classList.add('hidden');
+            loadMoreContainer.classList.add("hidden");
         }
 
-        loadMoreBtn.addEventListener('click', () => {
-            const hiddenItems = Array.from(allItems).filter(item => 
-                item.classList.contains('hidden') && !item.classList.contains('filter-hidden')
+        loadMoreBtn.addEventListener("click", () => {
+            const hiddenItems = Array.from(allItems).filter(
+                (item) =>
+                    item.classList.contains("hidden") &&
+                    !item.classList.contains("filter-hidden"),
             );
 
             // Show next batch with stagger animation
             const itemsToShow = hiddenItems.slice(0, LOAD_INCREMENT);
             itemsToShow.forEach((item, index) => {
-                item.classList.remove('hidden');
+                item.classList.remove("hidden");
                 setTimeout(() => {
-                    (item as HTMLElement).style.opacity = '1';
-                    (item as HTMLElement).style.transform = 'translateY(0)';
+                    (item as HTMLElement).style.opacity = "1";
+                    (item as HTMLElement).style.transform = "translateY(0)";
                 }, index * 50);
             });
 
             currentlyShown += itemsToShow.length;
 
             // Hide button if no more hidden items
-            const remainingHidden = Array.from(allItems).filter(item => 
-                item.classList.contains('hidden') && !item.classList.contains('filter-hidden')
+            const remainingHidden = Array.from(allItems).filter(
+                (item) =>
+                    item.classList.contains("hidden") &&
+                    !item.classList.contains("filter-hidden"),
             );
-            
+
             if (remainingHidden.length === 0) {
-                loadMoreContainer.classList.add('hidden');
+                loadMoreContainer.classList.add("hidden");
             }
         });
     }
 
     // Initialize on page load
-    document.addEventListener('DOMContentLoaded', initLoadMore);
-    document.addEventListener('astro:page-load', initLoadMore);
+    document.addEventListener("DOMContentLoaded", initLoadMore);
+    document.addEventListener("astro:page-load", initLoadMore);
 </script>
 
 <style>
     .gallery-item {
-        transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-                    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-                    box-shadow 0.3s ease;
+        transition:
+            opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+            transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+            box-shadow 0.3s ease;
     }
 
     /* Ensure grid items maintain their space even when hidden */
