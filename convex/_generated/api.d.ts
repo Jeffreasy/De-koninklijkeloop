@@ -21,6 +21,7 @@ import type * as public_ from "../public.js";
 import type * as register from "../register.js";
 import type * as registerGuest from "../registerGuest.js";
 import type * as seedEventSettings from "../seedEventSettings.js";
+import type * as socialPosts from "../socialPosts.js";
 import type * as syncParticipantCount from "../syncParticipantCount.js";
 
 import type {
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   register: typeof register;
   registerGuest: typeof registerGuest;
   seedEventSettings: typeof seedEventSettings;
+  socialPosts: typeof socialPosts;
   syncParticipantCount: typeof syncParticipantCount;
 }>;
 

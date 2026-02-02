@@ -1,0 +1,23 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import SocialWrapper from "../../components/admin/SocialWrapper";
+---
+
+<AdminLayout title="Social Media | De Koninklijke Loop Admin">
+    <div class="space-y-6">
+        <!-- Page Header -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold font-display text-text-primary">
+                    Social Media Management
+                </h1>
+                <p class="text-text-muted mt-1">
+                    Beheer Instagram posts voor de homepage
+                </p>
+            </div>
+        </div>
+
+        <!-- Social Media Manager Island -->
+        <SocialWrapper client:load />
+    </div>
+</AdminLayout>

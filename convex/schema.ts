@@ -208,4 +208,28 @@ export default defineSchema({
         source: v.string(),
         createdAt: v.number(),
     }),
+
+    // Social Media Posts (Manual Instagram Management)
+    social_posts: defineTable({
+        // Post Content
+        imageUrl: v.string(),           // Direct URL to Instagram image
+        caption: v.string(),            // Instagram caption/description
+        instagramUrl: v.string(),       // Link to original Instagram post
+
+        // Display Settings
+        isFeatured: v.boolean(),        // Mark as "main/featured" post
+        displayOrder: v.number(),       // Display order (1 = shown first)
+
+        // Status
+        isVisible: v.boolean(),         // Visible on website
+
+        // Metadata
+        postedDate: v.optional(v.string()), // Original Instagram post date (optional)
+        createdAt: v.number(),          // When added to CMS
+        updatedAt: v.number(),          // Last update timestamp
+        updatedBy: v.string(),          // Admin email/ID
+    })
+        .index("by_display_order", ["displayOrder"])
+        .index("by_featured", ["isFeatured"])
+        .index("by_visible", ["isVisible"]),
 });
