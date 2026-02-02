@@ -33,24 +33,51 @@ export default function ParticipantsTable() {
         });
     }, [registrations, userTypeFilter, roleFilter, statusFilter]);
 
-    // Stats
+    // Stats - Optimized with single reduce instead of 6 filters
     const stats = useMemo(() => {
-        if (!registrations) return { total: 0, deelnemers: 0, begeleiders: 0, vrijwilligers: 0, authenticated: 0, guests: 0 };
+        if (!registrations) {
+            return {
+                total: 0,
+                deelnemers: 0,
+                begeleiders: 0,
+                vrijwilligers: 0,
+                authenticated: 0,
+                guests: 0
+            };
+        }
 
-        return {
-            total: registrations.length,
-            deelnemers: registrations.filter(r => r.role === "deelnemer").length,
-            begeleiders: registrations.filter(r => r.role === "begeleider").length,
-            vrijwilligers: registrations.filter(r => r.role === "vrijwilliger").length,
-            authenticated: registrations.filter(r => r.userType === "authenticated").length,
-            guests: registrations.filter(r => r.userType === "guest" || !r.userType).length, // Fallback for old records
-        };
+        return registrations.reduce((acc, r) => {
+            acc.total++;
+
+            // Count roles
+            if (r.role === "deelnemer") acc.deelnemers++;
+            else if (r.role === "begeleider") acc.begeleiders++;
+            else if (r.role === "vrijwilliger") acc.vrijwilligers++;
+
+            // Count user types
+            if (r.userType === "authenticated") acc.authenticated++;
+            else if (r.userType === "guest" || !r.userType) acc.guests++;
+
+            return acc;
+        }, {
+            total: 0,
+            deelnemers: 0,
+            begeleiders: 0,
+            vrijwilligers: 0,
+            authenticated: 0,
+            guests: 0
+        });
     }, [registrations]);
 
     if (!registrations) {
         return (
-            <div className="flex items-center justify-center py-12">
+            <div
+                className="flex items-center justify-center py-12"
+                role="status"
+                aria-live="polite"
+            >
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary"></div>
+                <span className="sr-only">Deelnemers gegevens laden...</span>
             </div>
         );
     }
@@ -103,6 +130,7 @@ export default function ParticipantsTable() {
                             value={userTypeFilter}
                             onChange={(e) => setUserTypeFilter(e.target.value as UserType)}
                             className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 transition-all"
+                            aria-label="Filter deelnemers op gebruikerstype"
                         >
                             <option value="all">🔓 Alle types</option>
                             <option value="authenticated">🔐 Met account</option>
@@ -114,6 +142,7 @@ export default function ParticipantsTable() {
                             value={roleFilter}
                             onChange={(e) => setRoleFilter(e.target.value as Role)}
                             className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-accent-primary/50"
+                            aria-label="Filter deelnemers op rol"
                         >
                             <option value="all">Alle rollen</option>
                             <option value="deelnemer">Deelnemer</option>
@@ -126,6 +155,7 @@ export default function ParticipantsTable() {
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value as Status)}
                             className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-accent-primary/50"
+                            aria-label="Filter deelnemers op betaalstatus"
                         >
                             <option value="all">Alle statussen</option>
                             <option value="paid">Betaald</option>
@@ -175,8 +205,8 @@ export default function ParticipantsTable() {
                                                 )}
                                                 {/* Role Badge */}
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium w-fit ${reg.role === "deelnemer" ? "bg-accent-primary/10 text-accent-primary" :
-                                                        reg.role === "begeleider" ? "bg-blue-500/10 text-blue-400" :
-                                                            "bg-green-500/10 text-green-400"
+                                                    reg.role === "begeleider" ? "bg-blue-500/10 text-blue-400" :
+                                                        "bg-green-500/10 text-green-400"
                                                     }`}>
                                                     {reg.role.charAt(0).toUpperCase() + reg.role.slice(1)}
                                                 </span>
@@ -206,8 +236,8 @@ export default function ParticipantsTable() {
                                         {/* Status */}
                                         <td className="py-4 px-4">
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${reg.status === "paid" ? "bg-green-500/10 text-green-400" :
-                                                    reg.status === "pending" ? "bg-yellow-500/10 text-yellow-400" :
-                                                        "bg-red-500/10 text-red-400"
+                                                reg.status === "pending" ? "bg-yellow-500/10 text-yellow-400" :
+                                                    "bg-red-500/10 text-red-400"
                                                 }`}>
                                                 {reg.status === "paid" ? "Betaald" :
                                                     reg.status === "pending" ? "In behandeling" :

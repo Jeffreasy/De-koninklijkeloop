@@ -1,9 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { $accessToken, logout } from "../../lib/auth";
 import { useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
+import type { Doc } from "../../../convex/_generated/dataModel";
+
+// ✅ Type-safe interface
+interface DashboardData {
+    user: { email: string; id: string };
+    registration: Doc<"registrations"> | null;
+}
 
 export default function ParticipantDashboardWrapper() {
     const [token, setToken] = useState<string | null>(null);
@@ -11,27 +18,25 @@ export default function ParticipantDashboardWrapper() {
     useEffect(() => {
         const initAuth = async () => {
             let t = $accessToken.get();
-            console.log("[Wrapper] Initial Token:", t ? "FOUND" : "NULL");
 
             if (!t) {
                 try {
-                    // Cookie-based Auth: Fetch the token specifically for Convex integration
-                    // This uses the HttpOnly cookie to authenticate this request
                     const { apiRequest } = await import("../../lib/api");
                     const res = await apiRequest("/auth/token");
                     if (res.token) {
                         t = res.token;
-                        // Optional: update store, or just use local state? 
-                        // Updating store might help other components
                         $accessToken.set(t);
                     }
                 } catch (e) {
-                    console.error("Failed to recover session:", e);
+                    console.error("Session recovery failed:", e);
                 }
             }
 
+            // ✅ Prevent infinite loop
             if (!t) {
-                window.location.href = "/login";
+                if (window.location.pathname !== "/login") {
+                    window.location.href = "/login";
+                }
             } else {
                 setToken(t);
             }
@@ -51,24 +56,28 @@ export default function ParticipantDashboardWrapper() {
 
 function DashboardContent({ token }: { token: string }) {
     const getDashboardData = useAction(api.participant.getDashboardData);
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<DashboardData | null>(null); // ✅ Type-safe
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+    // ✅ Get tenant from environment (PUBLIC_TENANT_ID in .env)
+    const tenantId = import.meta.env.PUBLIC_TENANT_ID ||
+        import.meta.env.PUBLIC_DEV_TENANT_ID ||
+        "b2727666-7230-4689-b58b-ceab8c2898d5";
+
+    // ✅ Optimized dependency array
     useEffect(() => {
-        console.log("[Wrapper] Load Effect Triggered. Token:", token ? "YES" : "NO");
         const load = async () => {
-            console.log("[Wrapper] Starting getDashboardData...");
             try {
-                const result = await getDashboardData({ token });
-                console.log("[Wrapper] getDashboardData SUCCESS:", result);
+                const result = await getDashboardData({ token, tenantId });
                 setData(result);
             } catch (err: any) {
-                console.error("[Wrapper] getDashboardData ERROR:", err);
-                console.error("Dashboard Data Load Error:", err);
-                if (err.message.includes("Unauthorized")) {
+                console.error("Dashboard load error:", err);
+
+                if (err.message.includes("Unauthorized") || err.message.includes("Auth verification failed")) {
                     logout();
-                    setError("Unauthorized access. Please check console.");
+                    setError("Toegang geweigerd. Log opnieuw in.");
                 } else {
                     setError("Kon gegevens niet ophalen.");
                 }
@@ -78,17 +87,43 @@ function DashboardContent({ token }: { token: string }) {
         };
 
         load();
-    }, [token, getDashboardData]);
+    }, [token]); // ✅ Removed getDashboardData dependency
+
+    // ✅ Proper logout handler with loading state
+    const handleLogout = useCallback(async () => {
+        setIsLoggingOut(true);
+        try {
+            await logout();
+        } catch (e) {
+            console.error("Logout failed:", e);
+            setIsLoggingOut(false);
+        }
+    }, []);
 
     if (loading) {
-        return <div className="text-text-body text-center p-10 animate-pulse">Gegevens laden...</div>;
+        return (
+            <div
+                className="text-text-body text-center p-10 animate-pulse"
+                role="status"
+                aria-live="polite"
+            >
+                Gegevens laden...
+            </div>
+        );
     }
 
     if (error) {
         return (
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-4" role="alert">
                 <div className="text-red-400">{error}</div>
-                <Button onClick={() => window.location.reload()} variant="outline">Opnieuw proberen</Button>
+                <Button
+                    onClick={() => window.location.reload()}
+                    variant="outline"
+                    aria-label="Probeer opnieuw om gegevens te laden"
+                    className="min-h-[44px]"
+                >
+                    Opnieuw proberen
+                </Button>
             </div>
         );
     }
@@ -96,13 +131,25 @@ function DashboardContent({ token }: { token: string }) {
     if (!data?.registration) {
         return (
             <div className="text-center space-y-4">
-                <div className="text-text-muted">Je bent ingelogd, maar we kunnen geen actieve registratie vinden voor dit account.</div>
-                <Button onClick={() => logout()} variant="outline">Uitloggen</Button>
+                <div className="text-text-muted">
+                    Je bent ingelogd, maar we kunnen geen actieve registratie vinden voor dit account.
+                </div>
+                <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    disabled={isLoggingOut}
+                    aria-label="Uitloggen van je account"
+                    className="min-h-[44px]"
+                >
+                    {isLoggingOut ? "Uitloggen..." : "Uitloggen"}
+                </Button>
             </div>
         );
     }
 
     const { registration } = data;
+    // ✅ Basic sanitization
+    const safeName = registration.name.trim().substring(0, 100);
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -110,14 +157,23 @@ function DashboardContent({ token }: { token: string }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                     <div>
-                        <h2 className="text-2xl font-bold text-text-body mb-2">Hallo, {registration.name}! 👋</h2>
-                        <p className="text-text-muted">Je bent geregistreerd als <span className="text-text-body font-medium capitalize">{registration.role}</span>.</p>
+                        <h2 className="text-xl md:text-2xl font-bold text-text-body mb-2">
+                            Hallo, {safeName}! 👋
+                        </h2>
+                        <p className="text-text-muted">
+                            Je bent geregistreerd als{" "}
+                            <span className="text-text-body font-medium capitalize">
+                                {registration.role}
+                            </span>.
+                        </p>
                     </div>
 
-                    <div className="bg-glass-bg rounded-xl p-6 space-y-4 border border-glass-border">
+                    <div className="bg-glass-bg rounded-xl p-4 md:p-6 space-y-4 border border-glass-border">
                         <div className="flex justify-between items-center border-b border-glass-border pb-4">
                             <span className="text-text-muted">Afstand</span>
-                            <span className="text-2xl font-bold text-brand-primary">{registration.distance} KM</span>
+                            <span className="text-xl md:text-2xl font-bold text-brand-primary">
+                                {registration.distance} KM
+                            </span>
                         </div>
                         <div className="flex justify-between items-center border-b border-glass-border pb-4">
                             <span className="text-text-muted">Status</span>
@@ -125,23 +181,33 @@ function DashboardContent({ token }: { token: string }) {
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-text-muted">Ondersteuning</span>
-                            <span className="text-text-body capitalize">{registration.supportNeeded}</span>
+                            <span className="text-text-body capitalize">
+                                {registration.supportNeeded}
+                            </span>
                         </div>
                     </div>
                 </div>
 
                 {/* Actions / Info */}
                 <div className="space-y-6">
-                    <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-xl p-6">
-                        <h3 className="text-lg font-bold text-text-body mb-2">🗓️ Zondag 26 April 2026</h3>
+                    <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-xl p-4 md:p-6">
+                        <h3 className="text-lg font-bold text-text-body mb-2">
+                            🗓️ Zondag 26 April 2026
+                        </h3>
                         <p className="text-text-muted text-sm">
                             Zet het in je agenda! Meer informatie over starttijden en routes volgt binnenkort via e-mail.
                         </p>
                     </div>
 
-                    <div className="flex justify-end">
-                        <Button onClick={() => logout()} variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10">
-                            Uitloggen
+                    <div className="flex justify-center md:justify-end">
+                        <Button
+                            onClick={handleLogout}
+                            variant="ghost"
+                            disabled={isLoggingOut}
+                            aria-label="Uitloggen van je account"
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10 min-h-[44px] w-full md:w-auto"
+                        >
+                            {isLoggingOut ? "Uitloggen..." : "Uitloggen"}
                         </Button>
                     </div>
                 </div>
@@ -151,22 +217,26 @@ function DashboardContent({ token }: { token: string }) {
 }
 
 function StatusBadge({ status }: { status: string }) {
-    const styles = {
-        pending: "bg-yellow-500/20 text-yellow-400 border-yellow-500/50",
-        paid: "bg-green-500/20 text-green-400 border-green-500/50",
-        cancelled: "bg-red-500/20 text-red-400 border-red-500/50",
-    };
-    const labels = {
-        pending: "In behandeling",
-        paid: "Bevestigd",
-        cancelled: "Geannuleerd"
+    const config = {
+        pending: {
+            style: "bg-yellow-500/20 text-yellow-400 border-yellow-500/50",
+            label: "In behandeling"
+        },
+        paid: {
+            style: "bg-green-500/20 text-green-400 border-green-500/50",
+            label: "Bevestigd"
+        },
+        cancelled: {
+            style: "bg-red-500/20 text-red-400 border-red-500/50",
+            label: "Geannuleerd"
+        }
     };
 
-    const s = status as keyof typeof styles;
+    const { style, label } = config[status as keyof typeof config] || config.pending;
 
     return (
-        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${styles[s] || styles.pending}`}>
-            {labels[s] || status}
+        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${style}`}>
+            {label}
         </span>
     );
 }
