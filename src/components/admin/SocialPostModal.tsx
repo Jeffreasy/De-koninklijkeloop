@@ -203,9 +203,9 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                                     setImagePreviewError(false);
                                                     setSelectedFile(null); // Clear file if URL is pasted
                                                 }}
-                                                placeholder="Of plak een URL (https://...)"
+                                                placeholder={selectedFile ? "Bestand geselecteerd - URL optioneel" : "Of plak een URL (https://...)"}
                                                 className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
-                                                required={!selectedFile} // Only required if no file selected
+                                                required={!selectedFile && !formData.imageUrl} // Only required if no file AND no URL
                                             />
                                         </div>
                                     </div>
