@@ -23,8 +23,8 @@ function shuffleArray<T>(array: T[]): T[] {
 
 // Fetch 2024 & 2025 images usage cached function
 const [images2024, images2025] = await Promise.all([
-    getImagesFromFolder("De Koninklijkeloop/DKLFoto's 2024", "2024"),
-    getImagesFromFolder("De Koninklijkeloop/DKLFoto's 2025", "2025")
+    getImagesFromFolder("DKLFoto's 2024", "2024"),
+    getImagesFromFolder("DKLFoto's 2025", "2025"),
 ]);
 
 const cloudImages = [...images2025, ...images2024];
@@ -39,17 +39,19 @@ let mappedImages = cloudImages.map((img) => ({
 // Fallback/Augmentation: If we have fewer than 16 images, mix in the curated local gallery
 // This prevents the "3x same photo" issue if the Cloudinary folder is nearly empty.
 if (mappedImages.length < 16) {
-    console.log(`[MediaMosaic] Only found ${mappedImages.length} images. Augmenting with local gallery.`);
-    const localFallback = gallery.map(img => ({
+    console.log(
+        `[MediaMosaic] Only found ${mappedImages.length} images. Augmenting with local gallery.`,
+    );
+    const localFallback = gallery.map((img) => ({
         src: `https://res.cloudinary.com/dgfuv7wif/image/upload/${img.src}`,
         alt: img.alt,
-        class: "h-full w-full object-cover"
+        class: "h-full w-full object-cover",
     }));
-    
+
     // Merge and Deduplicate by src
     const combined = [...mappedImages, ...localFallback];
     const uniqueMap = new Map();
-    combined.forEach(img => uniqueMap.set(img.src, img));
+    combined.forEach((img) => uniqueMap.set(img.src, img));
     mappedImages = Array.from(uniqueMap.values());
 }
 
@@ -105,10 +107,13 @@ if (displayImages.length > 32) {
                 >
                 </div>
 
-                <VideoShowcase videos={[
-                    videos.find(v => v.year === "2025" && v.featured)!,
-                    videos.find(v => v.year === "2024" && v.featured)!
-                ].filter(Boolean)} client:visible />
+                <VideoShowcase
+                    videos={[
+                        videos.find((v) => v.year === "2025" && v.featured)!,
+                        videos.find((v) => v.year === "2024" && v.featured)!,
+                    ].filter(Boolean)}
+                    client:visible
+                />
             </div>
 
             <div class="h-full min-h-[400px]">
