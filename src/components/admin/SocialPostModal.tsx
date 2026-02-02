@@ -142,227 +142,244 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center md:p-4">
+            {/* Backdrop - hidden on mobile for full-screen effect */}
             <div
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
                 onClick={onClose}
             />
 
-            {/* Modal */}
-            <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-surface/95 backdrop-blur-2xl rounded-3xl border border-glass-border shadow-2xl">
-                {/* Header */}
-                <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-glass-border bg-surface/80 backdrop-blur-xl">
-                    <h2 className="text-2xl font-display font-bold text-text-primary">
+            {/* Modal - Full screen on mobile, centered on desktop */}
+            <div className="relative w-full h-full md:h-auto md:max-w-4xl md:max-h-[90vh] md:rounded-3xl bg-surface/95 backdrop-blur-2xl border-0 md:border md:border-glass-border shadow-2xl flex flex-col">
+                {/* Header - Fixed on mobile */}
+                <div className="shrink-0 flex items-center justify-between p-4 md:p-6 border-b border-glass-border bg-surface/90 backdrop-blur-xl">
+                    <h2 className="text-xl md:text-2xl font-display font-bold text-text-primary">
                         {editingPost ? "Post Bewerken" : "Nieuwe Post"}
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-glass-border/30 transition-all"
+                        className="p-2 rounded-xl hover:bg-glass-border/30 transition-colors"
+                        disabled={isSaving || isUploading}
                     >
-                        <X className="w-6 h-6" />
+                        <X className="w-5 h-5 md:w-6 md:h-6 text-text-muted" />
                     </button>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="p-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Left Column: Form Fields */}
-                        <div className="space-y-5">
-                            {/* Image Upload/URL */}
-                            <div>
-                                <label className="block text-sm font-medium text-text-primary mb-3">
-                                    Afbeelding *
-                                </label>
+                {/* Form - Scrollable content */}
+                <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
+                    {/* Scrollable content area */}
+                    <div className="flex-1 overflow-y-auto">
+                        <div className="p-4 md:p-6">
+                            {/* Single column on mobile, grid on desktop */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                {/* Left Column: Form Fields */}
+                                <div className="space-y-4 md:space-y-5">
+                                    {/* Image Upload/URL */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
+                                            Afbeelding *
+                                        </label>
 
-                                {/* Server-Side Upload Button */}
-                                <ServerSideUploadButton
-                                    onFileSelect={(file) => {
-                                        setSelectedFile(file);
-                                        setImagePreviewError(false);
-                                    }}
-                                    onClearFile={() => {
-                                        setSelectedFile(null);
-                                    }}
-                                    selectedFile={selectedFile}
-                                    currentUrl={formData.imageUrl}
-                                />
+                                        {/* Server-Side Upload Button */}
+                                        <ServerSideUploadButton
+                                            onFileSelect={(file) => {
+                                                setSelectedFile(file);
+                                                setImagePreviewError(false);
+                                            }}
+                                            onClearFile={() => {
+                                                setSelectedFile(null);
+                                            }}
+                                            selectedFile={selectedFile}
+                                            currentUrl={formData.imageUrl}
+                                        />
 
-                                {/* Manual URL Input */}
-                                <div className="mt-3">
-                                    <input
-                                        type="url"
-                                        value={formData.imageUrl}
-                                        onChange={(e) => {
-                                            setFormData({ ...formData, imageUrl: e.target.value });
-                                            setImagePreviewError(false);
-                                            setSelectedFile(null); // Clear file if URL is pasted
-                                        }}
-                                        placeholder="Of plak een URL (https://...)"
-                                        className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
-                                        required={!selectedFile} // Only required if no file selected
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Instagram URL */}
-                            <div>
-                                <label className="block text-sm font-medium text-text-primary mb-2">
-                                    Instagram Post URL *
-                                </label>
-                                <input
-                                    type="url"
-                                    value={formData.instagramUrl}
-                                    onChange={(e) => handleInstagramUrlChange(e.target.value)}
-                                    placeholder="https://instagram.com/p/..."
-                                    className={`w-full px-4 py-3 bg-glass-bg/50 border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 ${urlError ? "border-red-500" : "border-glass-border"
-                                        }`}
-                                    required
-                                />
-                                {urlError && (
-                                    <p className="text-xs text-red-500 mt-1">{urlError}</p>
-                                )}
-                            </div>
-
-                            {/* Caption */}
-                            <div>
-                                <label className="block text-sm font-medium text-text-primary mb-2">
-                                    Caption *
-                                </label>
-                                <textarea
-                                    value={formData.caption}
-                                    onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
-                                    placeholder="Voeg een beschrijving toe..."
-                                    rows={4}
-                                    maxLength={500}
-                                    className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 resize-none"
-                                    required
-                                />
-                                <p className="text-xs text-text-muted mt-1">
-                                    {formData.caption.length}/500 karakters
-                                </p>
-                            </div>
-
-                            {/* Posted Date (Optional) */}
-                            <div>
-                                <label className="block text-sm font-medium text-text-primary mb-2">
-                                    Post Datum (Optioneel)
-                                </label>
-                                <input
-                                    type="date"
-                                    value={formData.postedDate}
-                                    onChange={(e) => setFormData({ ...formData, postedDate: e.target.value })}
-                                    className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
-                                />
-                            </div>
-
-                            {/* Display Order */}
-                            <div>
-                                <label className="block text-sm font-medium text-text-primary mb-2">
-                                    Volgorde
-                                </label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    value={formData.displayOrder}
-                                    onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 1 })}
-                                    className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
-                                />
-                                <p className="text-xs text-text-muted mt-1">
-                                    Lagere nummers worden eerst getoond
-                                </p>
-                            </div>
-
-                            {/* Toggles */}
-                            <div className="space-y-3 p-4 bg-glass-border/20 rounded-xl border border-glass-border">
-                                <label className="flex items-center gap-3 cursor-pointer group">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.isFeatured}
-                                        onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                                        className="w-5 h-5 rounded border-2 border-glass-border bg-glass-bg/50 checked:bg-brand-orange checked:border-brand-orange cursor-pointer"
-                                    />
-                                    <div className="flex-1">
-                                        <span className="text-sm font-medium text-text-primary group-hover:text-accent-primary transition-colors">
-                                            Featured Post
-                                        </span>
-                                        <p className="text-xs text-text-muted">Wordt groot getoond op homepage</p>
-                                    </div>
-                                </label>
-
-                                <label className="flex items-center gap-3 cursor-pointer group">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.isVisible}
-                                        onChange={(e) => setFormData({ ...formData, isVisible: e.target.checked })}
-                                        className="w-5 h-5 rounded border-2 border-glass-border bg-glass-bg/50 checked:bg-green-500 checked:border-green-500 cursor-pointer"
-                                    />
-                                    <div className="flex-1">
-                                        <span className="text-sm font-medium text-text-primary group-hover:text-accent-primary transition-colors">
-                                            Zichtbaar op website
-                                        </span>
-                                        <p className="text-xs text-text-muted">Post is publiek zichtbaar</p>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        {/* Right Column: Preview */}
-                        <div className="lg:sticky lg:top-6 h-fit">
-                            <div className="p-4 bg-glass-border/20 rounded-2xl border border-glass-border">
-                                <h3 className="text-sm font-medium text-text-primary mb-3">Preview</h3>
-                                {formData.imageUrl ? (
-                                    <div className="relative aspect-square overflow-hidden rounded-xl bg-glass-bg/50">
-                                        {!imagePreviewError ? (
-                                            <img
-                                                src={formData.imageUrl}
-                                                alt="Preview"
-                                                className="w-full h-full object-cover"
-                                                onError={() => setImagePreviewError(true)}
+                                        {/* Manual URL Input */}
+                                        <div className="mt-3">
+                                            <input
+                                                type="url"
+                                                value={formData.imageUrl}
+                                                onChange={(e) => {
+                                                    setFormData({ ...formData, imageUrl: e.target.value });
+                                                    setImagePreviewError(false);
+                                                    setSelectedFile(null); // Clear file if URL is pasted
+                                                }}
+                                                placeholder="Of plak een URL (https://...)"
+                                                className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                                                required={!selectedFile} // Only required if no file selected
                                             />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-text-muted">
-                                                <div className="text-center">
-                                                    <iconify-icon icon="lucide:image-off" width="48" className="mb-2 opacity-50" />
-                                                    <p className="text-sm">Afbeelding kon niet worden geladen</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="aspect-square flex items-center justify-center bg-glass-bg/30 rounded-xl border-2 border-dashed border-glass-border">
-                                        <div className="text-center text-text-muted">
-                                            <iconify-icon icon="lucide:image" width="48" className="mb-2 opacity-30" />
-                                            <p className="text-sm">Voeg een URL toe</p>
                                         </div>
                                     </div>
-                                )}
+
+                                    {/* Caption */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
+                                            Bericht *
+                                        </label>
+                                        <textarea
+                                            value={formData.caption}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, caption: e.target.value })
+                                            }
+                                            placeholder="Schrijf een pakkende caption..."
+                                            rows={4}
+                                            className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 resize-none"
+                                            required
+                                        />
+                                        <p className="mt-1.5 text-xs text-text-muted">
+                                            {formData.caption.length} / 500 tekens
+                                        </p>
+                                    </div>
+
+                                    {/* Instagram URL */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
+                                            Instagram Post URL *
+                                        </label>
+                                        <input
+                                            type="url"
+                                            value={formData.instagramUrl}
+                                            onChange={(e) => handleInstagramUrlChange(e.target.value)}
+                                            placeholder="https://www.instagram.com/p/..."
+                                            className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                                            required
+                                        />
+                                        {urlError && (
+                                            <p className="mt-1.5 text-xs text-red-400">{urlError}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Posted Date */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
+                                            Post Datum
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={formData.postedDate || ""}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, postedDate: e.target.value })
+                                            }
+                                            className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Right Column: Preview & Settings */}
+                                <div className="space-y-4 md:space-y-5">
+                                    {/* Image Preview */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
+                                            Preview
+                                        </label>
+                                        <div className="relative aspect-square rounded-xl overflow-hidden bg-glass-bg/30 border border-glass-border">
+                                            {formData.imageUrl ? (
+                                                <img
+                                                    src={formData.imageUrl}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-cover"
+                                                    onError={() => setImagePreviewError(true)}
+                                                />
+                                            ) : (
+                                                <div className="absolute inset-0 flex items-center justify-center text-text-muted">
+                                                    <div className="text-center p-4">
+                                                        <iconify-icon
+                                                            icon="lucide:image"
+                                                            width="48"
+                                                            className="mx-auto mb-3 opacity-30"
+                                                        />
+                                                        <p className="text-xs md:text-sm">Geen afbeelding geselecteerd</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {imagePreviewError && (
+                                                <div className="absolute inset-0 flex items-center justify-center bg-red-500/10 text-red-400">
+                                                    <p className="text-xs md:text-sm px-4 text-center">Afbeelding kan niet worden geladen</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Settings */}
+                                    <div className="space-y-3 md:space-y-4 p-3 md:p-4 bg-glass-bg/30 rounded-xl border border-glass-border">
+                                        <h3 className="text-sm font-medium text-text-primary mb-2">Instellingen</h3>
+
+                                        {/* Featured Toggle */}
+                                        <label className="flex items-center justify-between cursor-pointer group">
+                                            <span className="text-xs md:text-sm text-text-primary group-hover:text-accent-primary transition-colors">
+                                                Uitgelicht
+                                            </span>
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.isFeatured}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, isFeatured: e.target.checked })
+                                                }
+                                                className="w-10 h-6 bg-glass-border rounded-full appearance-none cursor-pointer transition-all duration-200 relative checked:bg-accent-primary"
+                                            />
+                                        </label>
+
+                                        {/* Visibility Toggle */}
+                                        <label className="flex items-center justify-between cursor-pointer group">
+                                            <span className="text-xs md:text-sm text-text-primary group-hover:text-accent-primary transition-colors">
+                                                Zichtbaar
+                                            </span>
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.isVisible}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, isVisible: e.target.checked })
+                                                }
+                                                className="w-10 h-6 bg-glass-border rounded-full appearance-none cursor-pointer transition-all duration-200 relative checked:bg-accent-primary"
+                                            />
+                                        </label>
+
+                                        {/* Display Order */}
+                                        <div>
+                                            <label className="block text-xs md:text-sm text-text-primary mb-1.5">
+                                                Volgorde ({formData.displayOrder})
+                                            </label>
+                                            <input
+                                                type="range"
+                                                min="1"
+                                                max="100"
+                                                value={formData.displayOrder}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        displayOrder: parseInt(e.target.value),
+                                                    })
+                                                }
+                                                className="w-full h-2 bg-glass-border rounded-lg appearance-none cursor-pointer accent-accent-primary"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-glass-border">
+                    {/* Footer - Fixed on mobile */}
+                    <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 p-4 md:p-6 border-t border-glass-border bg-surface/90 backdrop-blur-xl">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-3 rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-all duration-200"
-                            disabled={isSaving}
+                            className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-all duration-200 text-sm md:text-base font-medium"
+                            disabled={isSaving || isUploading}
                         >
                             Annuleren
                         </button>
                         <button
                             type="submit"
-                            className="px-6 py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-all duration-200 shadow-lg shadow-accent-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-all duration-200 shadow-lg shadow-accent-primary/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
                             disabled={isSaving || isUploading}
                         >
                             {isUploading ? (
-                                <span className="flex items-center gap-2">
+                                <span className="flex items-center justify-center gap-2">
                                     <iconify-icon icon="lucide:loader-2" width="16" className="animate-spin" />
                                     Uploaden...
                                 </span>
                             ) : isSaving ? (
-                                <span className="flex items-center gap-2">
+                                <span className="flex items-center justify-center gap-2">
                                     <iconify-icon icon="lucide:loader-2" width="16" className="animate-spin" />
                                     Opslaan...
                                 </span>
