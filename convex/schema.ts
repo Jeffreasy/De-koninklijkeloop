@@ -232,4 +232,14 @@ export default defineSchema({
         .index("by_display_order", ["displayOrder"])
         .index("by_featured", ["isFeatured"])
         .index("by_visible", ["isVisible"]),
+
+    // Social Post Reactions (User Engagement)
+    social_reactions: defineTable({
+        postId: v.id("social_posts"),   // Which post
+        userId: v.string(),             // User email/ID (from auth)
+        reactionType: v.string(),       // Emoji: "❤️", "👍", "😍", "🔥", "👏"
+        createdAt: v.number(),          // Timestamp
+    })
+        .index("by_post", ["postId"])
+        .index("by_user_post", ["userId", "postId"]), // Ensure one reaction per user per post
 });

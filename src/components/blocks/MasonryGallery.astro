@@ -20,7 +20,7 @@ const initialLoadCount = 12; // Show 12 images initially
 // Convert images to MediaItem format for lightbox
 const mediaItems: MediaItem[] = images.map((img) => ({
     type: "image" as const,
-    src: img.secureUrl || img.src, // Use secureUrl for modal, fallback to src
+    src: img.src, // Use src for modal
     alt: img.alt,
     title: img.alt,
     year: img.year,

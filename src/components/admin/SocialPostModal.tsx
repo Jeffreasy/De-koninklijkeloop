@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { X } from "lucide-react";
+import { ServerSideUploadButton, uploadFileToCloudinary } from "./ServerSideUploadButton";
 
 interface Props {
     isOpen: boolean;
@@ -39,8 +40,10 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
         postedDate: "",
     });
 
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [imagePreviewError, setImagePreviewError] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [urlError, setUrlError] = useState("");
 
     // Populate form when editing
@@ -95,8 +98,30 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
 
         setIsSaving(true);
         try {
-            await onSave(formData);
+            let finalImageUrl = formData.imageUrl;
+
+            // If a file is selected, upload it first
+            if (selectedFile) {
+                setIsUploading(true);
+                try {
+                    console.log('📤 Uploading file before saving...');
+                    finalImageUrl = await uploadFileToCloudinary(selectedFile);
+                    console.log('✅ File uploaded:', finalImageUrl);
+                } catch (uploadError) {
+                    console.error('❌ Upload failed:', uploadError);
+                    alert('Upload mislukt. Probeer opnieuw.');
+                    setIsUploading(false);
+                    setIsSaving(false);
+                    return;
+                } finally {
+                    setIsUploading(false);
+                }
+            }
+
+            // Save post with uploaded URL
+            await onSave({ ...formData, imageUrl: finalImageUrl });
             onClose();
+            setSelectedFile(null);
         } catch (error) {
             console.error("Error saving post:", error);
             alert("Fout bij opslaan. Probeer opnieuw.");
@@ -144,25 +169,40 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Left Column: Form Fields */}
                         <div className="space-y-5">
-                            {/* Image URL */}
+                            {/* Image Upload/URL */}
                             <div>
-                                <label className="block text-sm font-medium text-text-primary mb-2">
-                                    Afbeelding URL *
+                                <label className="block text-sm font-medium text-text-primary mb-3">
+                                    Afbeelding *
                                 </label>
-                                <input
-                                    type="url"
-                                    value={formData.imageUrl}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, imageUrl: e.target.value });
+
+                                {/* Server-Side Upload Button */}
+                                <ServerSideUploadButton
+                                    onFileSelect={(file) => {
+                                        setSelectedFile(file);
                                         setImagePreviewError(false);
                                     }}
-                                    placeholder="https://..."
-                                    className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
-                                    required
+                                    onClearFile={() => {
+                                        setSelectedFile(null);
+                                    }}
+                                    selectedFile={selectedFile}
+                                    currentUrl={formData.imageUrl}
                                 />
-                                <p className="text-xs text-text-muted mt-1">
-                                    Kopieer de afbeelding URL van Instagram
-                                </p>
+
+                                {/* Manual URL Input */}
+                                <div className="mt-3">
+                                    <input
+                                        type="url"
+                                        value={formData.imageUrl}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, imageUrl: e.target.value });
+                                            setImagePreviewError(false);
+                                            setSelectedFile(null); // Clear file if URL is pasted
+                                        }}
+                                        placeholder="Of plak een URL (https://...)"
+                                        className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                                        required={!selectedFile} // Only required if no file selected
+                                    />
+                                </div>
                             </div>
 
                             {/* Instagram URL */}
@@ -314,9 +354,14 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                         <button
                             type="submit"
                             className="px-6 py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-all duration-200 shadow-lg shadow-accent-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={isSaving}
+                            disabled={isSaving || isUploading}
                         >
-                            {isSaving ? (
+                            {isUploading ? (
+                                <span className="flex items-center gap-2">
+                                    <iconify-icon icon="lucide:loader-2" width="16" className="animate-spin" />
+                                    Uploaden...
+                                </span>
+                            ) : isSaving ? (
                                 <span className="flex items-center gap-2">
                                     <iconify-icon icon="lucide:loader-2" width="16" className="animate-spin" />
                                     Opslaan...

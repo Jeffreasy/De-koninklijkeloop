@@ -7,7 +7,7 @@ import CharitySpotlight from "../components/blocks/CharitySpotlight.astro";
 import PartnerCarousel from "../components/blocks/PartnerCarousel.astro";
 import SponsorSection from "../components/blocks/SponsorSection.astro";
 import MediaMosaic from "../components/blocks/MediaMosaic.astro";
-import SocialGrid from "../components/blocks/SocialGrid.astro";
+import SocialGridWrapper from "../components/blocks/SocialGridWrapper";
 import Footer from "../components/blocks/Footer.astro";
 ---
 
@@ -20,7 +20,7 @@ import Footer from "../components/blocks/Footer.astro";
 		<SponsorSection />
 		<CharitySpotlight />
 		<MediaMosaic />
-		<SocialGrid />
+		<SocialGridWrapper client:load />
 	</main>
 	<Footer />
 </BaseLayout>
