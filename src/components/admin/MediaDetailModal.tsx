@@ -102,9 +102,15 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                     <div className="space-y-4">
                         <div className="aspect-4/3 rounded-2xl overflow-hidden bg-slate-800/50">
                             <img
-                                src={`${image.secure_url}?w = 800 & h=600 & c_fit & f_auto & q_auto`}
+                                src={`https://res.cloudinary.com/${import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dgfuv7wif'}/image/upload/w_800,h_600,c_fit,f_auto,q_auto/${image.public_id}`}
                                 alt={image.alt_text || "Preview"}
                                 className="w-full h-full object-contain"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (!target.src.includes(image.secure_url)) {
+                                        target.src = image.secure_url;
+                                    }
+                                }}
                             />
                         </div>
 
