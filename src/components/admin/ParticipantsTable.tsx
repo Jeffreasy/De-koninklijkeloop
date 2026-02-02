@@ -118,18 +118,18 @@ export default function ParticipantsTable() {
 
             {/* Filters */}
             <div className="glass-card p-6">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0 mb-6">
                     <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
                         <Users className="w-5 h-5" />
                         Alle Inschrijvingen
                         <span className="text-sm font-normal text-text-muted">({filteredRegistrations.length})</span>
                     </h2>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
                         {/* User Type Filter */}
                         <select
                             value={userTypeFilter}
                             onChange={(e) => setUserTypeFilter(e.target.value as UserType)}
-                            className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 transition-all"
+                            className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 transition-all min-h-[44px]"
                             aria-label="Filter deelnemers op gebruikerstype"
                         >
                             <option value="all">🔓 Alle types</option>
@@ -141,7 +141,7 @@ export default function ParticipantsTable() {
                         <select
                             value={roleFilter}
                             onChange={(e) => setRoleFilter(e.target.value as Role)}
-                            className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-accent-primary/50"
+                            className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-accent-primary/50 min-h-[44px]"
                             aria-label="Filter deelnemers op rol"
                         >
                             <option value="all">Alle rollen</option>
@@ -154,7 +154,7 @@ export default function ParticipantsTable() {
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value as Status)}
-                            className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-accent-primary/50"
+                            className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-accent-primary/50 min-h-[44px]"
                             aria-label="Filter deelnemers op betaalstatus"
                         >
                             <option value="all">Alle statussen</option>
