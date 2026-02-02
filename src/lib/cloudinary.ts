@@ -1,22 +1,22 @@
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary } from 'cloudinary';
 
-// Initialize Cloudinary
+// Configure Cloudinary
 cloudinary.config({
-    cloud_name: import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
-    api_key: import.meta.env.PUBLIC_CLOUDINARY_API_KEY,
+    cloud_name: import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dtlhpx4kj',
+    api_key: import.meta.env.PUBLIC_CLOUDINARY_API_KEY || '457466563842673',
     api_secret: import.meta.env.CLOUDINARY_API_SECRET,
+    secure: true,
 });
 
-// Simple in-memory cache
-// Note: In serverless (Vercel), this persists only as long as the lambda instance is warm.
-// This is typically sufficient to handle burst traffic and reduce API calls significantly.
+// Cache for API responses
 const CACHE_TTL = 1000 * 60 * 60; // 1 hour
 const cache = new Map<string, { data: any[]; timestamp: number }>();
 
 export interface CloudinaryImage {
-    src: string;
+    src: string;          // public_id for CloudinaryImage component
+    secureUrl?: string;   // Full URL for modal/direct display
     alt: string;
-    aspect: 'horizontal' | 'vertical';
+    aspect: 'vertical' | 'horizontal';
     year: string;
 }
 
@@ -43,7 +43,8 @@ export async function getImagesFromFolder(folderName: string, year: string): Pro
         }
 
         const processedImages: CloudinaryImage[] = result.resources.map((res: any) => ({
-            src: res.public_id,
+            src: res.public_id,      // For CloudinaryImage component
+            secureUrl: res.secure_url, // For modal direct display
             alt: res.context?.custom?.alt || `Foto uit ${year}`,
             aspect: (res.width && res.height && res.width > res.height) ? 'horizontal' as const : 'vertical' as const,
             year: year

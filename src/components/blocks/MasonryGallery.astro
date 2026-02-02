@@ -1,6 +1,8 @@
 ---
 // src/components/blocks/MasonryGallery.astro
 import CloudinaryImage from "../ui/CloudinaryImage.astro";
+import MediaLightboxModal from "../islands/MediaLightboxModal";
+import type { MediaItem } from "../islands/MediaLightboxModal";
 
 interface Props {
     images: {
@@ -9,13 +11,23 @@ interface Props {
         aspect?: "vertical" | "horizontal" | string;
         year?: string;
     }[];
+    enableLightbox?: boolean; // Default: true
 }
 
-const { images } = Astro.props;
+const { images, enableLightbox = true } = Astro.props;
 const initialLoadCount = 12; // Show 12 images initially
+
+// Convert images to MediaItem format for lightbox
+const mediaItems: MediaItem[] = images.map((img) => ({
+    type: "image" as const,
+    src: img.secureUrl || img.src, // Use secureUrl for modal, fallback to src
+    alt: img.alt,
+    title: img.alt,
+    year: img.year,
+}));
 ---
 
-<div class="space-y-12">
+<div class="space-y-12" id="masonry-gallery-container">
     <!-- Gallery Grid with Enhanced Spacing -->
     <div
         id="gallery-container"
@@ -26,7 +38,8 @@ const initialLoadCount = 12; // Show 12 images initially
                 <div
                     data-year={img.year || "all"}
                     data-index={index}
-                    class={`gallery-item media-item group relative overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 ${index >= initialLoadCount ? "hidden" : ""}`}
+                    data-lightbox-index={index}
+                    class={`gallery-item media-item group relative overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 ${enableLightbox ? "cursor-pointer" : ""} ${index >= initialLoadCount ? "hidden" : ""}`}
                     style="opacity: 0; transform: translateY(20px);"
                 >
                     {/* Image Container with Aspect Ratio */}
@@ -124,6 +137,19 @@ const initialLoadCount = 12; // Show 12 images initially
             </span>
         </button>
     </div>
+
+    <!-- Media Lightbox Modal -->
+    {
+        enableLightbox && (
+            <MediaLightboxModal
+                client:only="react"
+                items={mediaItems}
+                initialIndex={0}
+                isOpen={false}
+                onClose={() => {}}
+            />
+        )
+    }
 </div>
 
 <script>
@@ -195,9 +221,48 @@ const initialLoadCount = 12; // Show 12 images initially
         });
     }
 
+    // Lightbox functionality
+    function initLightbox() {
+        const container = document.getElementById("masonry-gallery-container");
+        if (!container) return;
+
+        // Global state for lightbox
+        let lightboxState = {
+            isOpen: false,
+            currentIndex: 0,
+        };
+
+        // Find the React root and trigger state update
+        const updateLightbox = (index: number, isOpen: boolean) => {
+            const event = new CustomEvent("lightbox-state-change", {
+                detail: { index, isOpen },
+            });
+            window.dispatchEvent(event);
+        };
+
+        // Add click handlers to gallery items
+        const galleryItems = container.querySelectorAll(
+            ".gallery-item[data-lightbox-index]",
+        );
+        galleryItems.forEach((item) => {
+            item.addEventListener("click", () => {
+                const index = parseInt(
+                    (item as HTMLElement).dataset.lightboxIndex || "0",
+                );
+                updateLightbox(index, true);
+            });
+        });
+    }
+
     // Initialize on page load
-    document.addEventListener("DOMContentLoaded", initLoadMore);
-    document.addEventListener("astro:page-load", initLoadMore);
+    document.addEventListener("DOMContentLoaded", () => {
+        initLoadMore();
+        initLightbox();
+    });
+    document.addEventListener("astro:page-load", () => {
+        initLoadMore();
+        initLightbox();
+    });
 </script>
 
 <style>
