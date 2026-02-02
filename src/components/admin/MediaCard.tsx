@@ -25,6 +25,10 @@ export function MediaCard({ image, isSelected, onToggleSelect, onCardClick }: Pr
             {/* Image Container */}
             <div className="aspect-4/3 relative overflow-hidden bg-slate-800/50">
                 <img
+                    srcSet={`${image.secure_url}?w=400&h=300&c_fill&f_auto&q_auto 400w,
+                             ${image.secure_url}?w=800&h=600&c_fill&f_auto&q_auto 800w,
+                             ${image.secure_url}?w=1200&h=900&c_fill&f_auto&q_auto 1200w`}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     src={`${image.secure_url}?w=400&h=300&c_fill&f_auto&q_auto`}
                     alt={image.alt_text || "Geen alt text"}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

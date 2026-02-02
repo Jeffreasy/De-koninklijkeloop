@@ -32,6 +32,10 @@ export function SocialPostCard({
             {/* Image Preview */}
             <div className="relative aspect-square overflow-hidden bg-glass-bg/50">
                 <img
+                    srcSet={`${post.imageUrl}?w=400 400w,
+                             ${post.imageUrl}?w=800 800w,
+                             ${post.imageUrl}?w=1200 1200w`}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     src={post.imageUrl}
                     alt={truncatedCaption}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -49,8 +53,8 @@ export function SocialPostCard({
                         </div>
                     )}
                     <div className={`px-2 py-1 rounded-lg text-xs font-medium shadow-lg backdrop-blur-sm ${post.isVisible
-                            ? "bg-green-500/90 text-white"
-                            : "bg-gray-500/90 text-white"
+                        ? "bg-green-500/90 text-white"
+                        : "bg-gray-500/90 text-white"
                         }`}>
                         {post.isVisible ? "Visible" : "Hidden"}
                     </div>

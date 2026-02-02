@@ -40,7 +40,8 @@ export function PaginationControls({ currentPage, totalPages, totalItems, onPage
                 <button
                     onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-2 rounded-lg bg-glass-border/30 text-text-primary hover:bg-glass-border/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-glass-border/30 text-text-primary hover:bg-glass-border/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Vorige pagina"
                 >
                     <iconify-icon icon="lucide:chevron-left" width="18" />
                 </button>
@@ -58,10 +59,12 @@ export function PaginationControls({ currentPage, totalPages, totalItems, onPage
                             )}
                             <button
                                 onClick={() => onPageChange(page)}
-                                className={`px-3 py-2 rounded-lg font-medium transition-colors ${page === currentPage
-                                        ? 'bg-accent-primary text-white shadow-lg shadow-accent-primary/20'
-                                        : 'bg-glass-border/30 text-text-primary hover:bg-glass-border/50'
+                                className={`px-3 py-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg font-medium transition-colors ${page === currentPage
+                                    ? 'bg-accent-primary text-white shadow-lg shadow-accent-primary/20'
+                                    : 'bg-glass-border/30 text-text-primary hover:bg-glass-border/50'
                                     }`}
+                                aria-label={`Ga naar pagina ${page}`}
+                                aria-current={page === currentPage ? 'page' : undefined}
                             >
                                 {page}
                             </button>
@@ -73,7 +76,8 @@ export function PaginationControls({ currentPage, totalPages, totalItems, onPage
                 <button
                     onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-2 rounded-lg bg-glass-border/30 text-text-primary hover:bg-glass-border/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-glass-border/30 text-text-primary hover:bg-glass-border/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Volgende pagina"
                 >
                     <iconify-icon icon="lucide:chevron-right" width="18" />
                 </button>

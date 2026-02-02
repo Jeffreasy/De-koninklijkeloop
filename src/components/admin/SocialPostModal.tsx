@@ -158,8 +158,9 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-xl hover:bg-glass-border/30 transition-colors"
+                        className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-glass-border/30 transition-colors"
                         disabled={isSaving || isUploading}
+                        aria-label="Sluit modal"
                     >
                         <X className="w-5 h-5 md:w-6 md:h-6 text-text-muted" />
                     </button>
@@ -358,8 +359,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                         </div>
                     </div>
 
-                    {/* Footer - Fixed on mobile */}
-                    <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 p-4 md:p-6 border-t border-glass-border bg-surface/90 backdrop-blur-xl">
+                    {/* Footer - Sticky on mobile, fixed on desktop */}
+                    <div className="sticky bottom-0 lg:relative shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 p-4 md:p-6 border-t border-glass-border bg-surface/95 backdrop-blur-xl z-10">
                         <button
                             type="button"
                             onClick={onClose}

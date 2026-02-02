@@ -147,57 +147,63 @@ export default function ParticipantsTable() {
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-glass-border">
-                                    <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted">Type</th>
+                                    <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted">Type & Rol</th>
                                     <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted">Naam</th>
-                                    <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted">Email</th>
-                                    <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted">Rol</th>
-                                    <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted">Afstand</th>
+                                    <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted hidden md:table-cell">Email</th>
+                                    <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted hidden lg:table-cell">Afstand</th>
                                     <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted">Status</th>
-                                    <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted">ICE Contact</th>
+                                    <th className="text-left py-3 px-4 text-sm font-semibold text-text-muted hidden lg:table-cell">ICE Contact</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredRegistrations.map((reg) => (
                                     <tr key={reg._id} className="border-b border-glass-border/50 hover:bg-white/5 transition-colors">
+                                        {/* Type & Rol - Combined Column */}
                                         <td className="py-4 px-4">
-                                            {reg.userType === "authenticated" ? (
-                                                <div className="flex items-center gap-2 text-brand-orange">
-                                                    <ShieldCheck className="w-4 h-4" />
-                                                    <span className="text-xs font-medium">Account</span>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-2 text-purple-400">
-                                                    <UserCircle className="w-4 h-4" />
-                                                    <span className="text-xs font-medium">Gast</span>
-                                                </div>
-                                            )}
+                                            <div className="flex flex-col gap-2">
+                                                {/* UserType Badge */}
+                                                {reg.userType === "authenticated" ? (
+                                                    <div className="flex items-center gap-2 text-brand-orange">
+                                                        <ShieldCheck className="w-4 h-4" />
+                                                        <span className="text-xs font-medium">Account</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-2 text-purple-400">
+                                                        <UserCircle className="w-4 h-4" />
+                                                        <span className="text-xs font-medium">Gast</span>
+                                                    </div>
+                                                )}
+                                                {/* Role Badge */}
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium w-fit ${reg.role === "deelnemer" ? "bg-accent-primary/10 text-accent-primary" :
+                                                        reg.role === "begeleider" ? "bg-blue-500/10 text-blue-400" :
+                                                            "bg-green-500/10 text-green-400"
+                                                    }`}>
+                                                    {reg.role.charAt(0).toUpperCase() + reg.role.slice(1)}
+                                                </span>
+                                            </div>
                                         </td>
+                                        {/* Naam */}
                                         <td className="py-4 px-4">
                                             <div className="flex items-center gap-2">
                                                 <User className="w-4 h-4 text-text-muted" />
                                                 <span className="font-medium text-text-primary">{reg.name}</span>
                                             </div>
                                         </td>
-                                        <td className="py-4 px-4">
+                                        {/* Email - Hidden on mobile */}
+                                        <td className="py-4 px-4 hidden md:table-cell">
                                             <div className="flex items-center gap-2 text-text-muted text-sm">
                                                 <Mail className="w-4 h-4" />
                                                 {reg.email}
                                             </div>
                                         </td>
-                                        <td className="py-4 px-4">
-                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${reg.role === "deelnemer" ? "bg-accent-primary/10 text-accent-primary" :
-                                                    reg.role === "begeleider" ? "bg-blue-500/10 text-blue-400" :
-                                                        "bg-green-500/10 text-green-400"
-                                                }`}>
-                                                {reg.role}
-                                            </span>
-                                        </td>
-                                        <td className="py-4 px-4">
+                                        {/* Afstand - Hidden on mobile/tablet */}
+                                        <td className="py-4 px-4 hidden lg:table-cell">
                                             <div className="flex items-center gap-2 text-text-muted">
                                                 <MapPin className="w-4 h-4" />
                                                 <span className="text-sm">{reg.distance} km</span>
                                             </div>
                                         </td>
+                                        {/* Status */}
                                         <td className="py-4 px-4">
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${reg.status === "paid" ? "bg-green-500/10 text-green-400" :
                                                     reg.status === "pending" ? "bg-yellow-500/10 text-yellow-400" :
@@ -208,7 +214,8 @@ export default function ParticipantsTable() {
                                                         "Geannuleerd"}
                                             </span>
                                         </td>
-                                        <td className="py-4 px-4 text-sm text-text-muted">
+                                        {/* ICE Contact - Hidden on mobile/tablet */}
+                                        <td className="py-4 px-4 text-sm text-text-muted hidden lg:table-cell">
                                             <div className="flex items-center gap-2">
                                                 <Phone className="w-4 h-4" />
                                                 <div>

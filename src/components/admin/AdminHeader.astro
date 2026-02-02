@@ -3,38 +3,44 @@ const currentPath = Astro.url.pathname;
 const pathSegments = currentPath.split("/").filter(Boolean);
 ---
 
-<header class="h-20 lg:pl-64 fixed top-0 w-full z-35 flex items-center justify-between px-6 border-b border-glass-border bg-glass-bg/80 backdrop-blur-2xl">
+<header
+    class="h-20 lg:pl-64 fixed top-0 w-full z-35 flex items-center justify-between px-6 border-b border-glass-border bg-glass-bg/80 backdrop-blur-2xl"
+>
     <!-- Breadcrumbs -->
     <div class="flex items-center gap-2 text-sm text-text-muted">
-        <span class="hover:text-text-primary transition-colors cursor-default">Admin</span>
-        {pathSegments.slice(1).map((segment) => (
-            <>
-                <span>/</span>
-                <span class="capitalize text-text-primary font-medium">{segment}</span>
-            </>
-        ))}
+        <span class="hover:text-text-primary transition-colors cursor-default"
+            >Admin</span
+        >
+        {
+            pathSegments.slice(1).map((segment) => (
+                <>
+                    <span>/</span>
+                    <span class="capitalize text-text-primary font-medium">
+                        {segment}
+                    </span>
+                </>
+            ))
+        }
     </div>
 
     <!-- Actions -->
     <div class="flex items-center gap-4">
-        <button 
+        <button
             id="logout-btn"
             class="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-red-400 hover:bg-red-400/10 transition-colors border border-transparent hover:border-red-400/20"
         >
-            <iconify-icon icon="lucide:log-out" width="16" height="16"></iconify-icon>
+            <iconify-icon icon="lucide:log-out" width="16" height="16"
+            ></iconify-icon>
             <span>Uitloggen</span>
         </button>
 
         <!-- Mobile Menu Toggle (Visible only on small screens) -->
-        <button 
+        <button
             id="admin-mobile-toggle"
-            class="lg:hidden p-2 text-text-secondary hover:text-text-primary transition-colors rounded-lg hover:bg-glass-border/30"
-            aria-label="Toggle menu"
+            class="lg:hidden p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors rounded-lg hover:bg-glass-border/30"
+            aria-label="Open navigatie menu"
         >
-            <iconify-icon 
-                icon="lucide:menu" 
-                width="24" 
-                height="24"
+            <iconify-icon icon="lucide:menu" width="24" height="24"
             ></iconify-icon>
         </button>
     </div>

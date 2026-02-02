@@ -83,11 +83,17 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-lg hover:bg-glass-border/30 transition-colors text-text-muted hover:text-text-primary"
+                            className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-glass-border/30 transition-colors text-text-muted hover:text-text-primary"
+                            aria-label="Sluit modal"
                         >
                             <iconify-icon icon="lucide:x" width="24" />
                         </button>
                     </div>
+                </div>
+
+                {/* Swipe Handle (Mobile Visual Indicator) */}
+                <div className="lg:hidden flex justify-center pt-3 pb-2">
+                    <div className="w-12 h-1 rounded-full bg-glass-border/50" />
                 </div>
 
                 {/* Content - Two Column Layout */}
@@ -176,8 +182,8 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                                 value={altText}
                                 onChange={(e) => setAltText(e.target.value)}
                                 placeholder="Beschrijf de afbeelding voor screenreaders en SEO..."
-                                rows={3}
-                                className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 resize-none"
+                                rows={4}
+                                className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 resize-y min-h-[80px] max-h-[200px]"
                             />
                             <p className="text-xs text-text-muted">
                                 {altText.length} karakters • Aanbevolen: 50-125 karakters
@@ -255,7 +261,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 border-t border-glass-border bg-glass-bg/20 flex items-center justify-between">
+                <div className="sticky bottom-0 lg:relative p-6 border-t border-glass-border bg-glass-bg/95 backdrop-blur-xl z-10 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-text-muted">
                         {image.hasAltText ? (
                             <>

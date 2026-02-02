@@ -158,8 +158,10 @@ export default function DashboardTable() {
                                         {new Date(reg.createdAt).toLocaleDateString()}
                                     </td>
                                     <td className="py-4 px-6 text-right">
-                                        <button className="p-2 hover:bg-glass-border/30 rounded-lg transition-colors text-text-muted hover:text-text-primary">
-                                            <span className="sr-only">Details</span>
+                                        <button
+                                            className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-glass-border/30 rounded-lg transition-colors text-text-muted hover:text-text-primary"
+                                            aria-label="Bekijk details"
+                                        >
                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                                         </button>
                                     </td>

@@ -78,16 +78,16 @@ export function MediaToolbar({
                         </span>
                         <button
                             onClick={onBulkEdit}
-                            className="px-4 py-2 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
+                            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
+                            aria-label="Bulk bewerken geselecteerde afbeeldingen"
                         >
-                            <div className="flex items-center gap-2">
-                                <iconify-icon icon="lucide:edit-3" width="16" />
-                                <span>Bulk Bewerken</span>
-                            </div>
+                            <iconify-icon icon="lucide:edit-3" width="16" />
+                            <span>Bulk Bewerken</span>
                         </button>
                         <button
                             onClick={onDeselectAll}
-                            className="px-4 py-2 rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-colors"
+                            className="px-4 py-2.5 min-h-[44px] rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-colors"
+                            aria-label="Deselecteer alle afbeeldingen"
                         >
                             Deselecteer
                         </button>
