@@ -139,27 +139,27 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
                                 </div>
 
                                 {/* Right: Info Panel - Premium Glassmorphism - Scrollable */}
-                                <div className="flex flex-col bg-linear-to-br from-surface/95 to-surface/90 backdrop-blur-2xl border-t lg:border-t-0 lg:border-l border-white/10 overflow-hidden">
+                                <div className="flex flex-col bg-linear-to-br from-surface/95 to-surface/90 backdrop-blur-2xl border-t md:border-t-0 md:border-l border-white/10 overflow-hidden">
                                     {/* Header - Compact */}
-                                    <div className="p-4 md:p-6 border-b border-white/10 shrink-0">
+                                    <div className="p-4 md:p-6 lg:p-8 border-b border-white/10 shrink-0">
                                         <div className="flex items-center justify-between gap-3 mb-3">
                                             {/* Profile Section */}
-                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                            <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                                                 {/* DKL Logo - Brand Identity */}
-                                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-linear-to-br from-brand-orange/20 to-orange-500/20 flex items-center justify-center border border-brand-orange/30 shadow-lg shrink-0 overflow-hidden">
+                                                <div className="w-10 h-10 md:w-12 md:h-12 lg:w-16 lg:h-16 rounded-xl md:rounded-2xl bg-linear-to-br from-brand-orange/20 to-orange-500/20 flex items-center justify-center border border-brand-orange/30 shadow-lg shrink-0 overflow-hidden">
                                                     <img
                                                         src="https://res.cloudinary.com/dgfuv7wif/image/upload/v1769451085/DKLLogoV1_kx60i9.webp"
                                                         alt="De Koninklijke Loop"
-                                                        className="w-8 h-8 md:w-9 md:h-9 object-contain"
+                                                        className="w-8 h-8 md:w-9 md:h-9 lg:w-12 lg:h-12 object-contain"
                                                     />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-bold text-sm md:text-base text-text-primary truncate">
+                                                    <p className="font-bold text-sm md:text-base lg:text-xl text-text-primary truncate">
                                                         @koninklijkeloop
                                                     </p>
                                                     {formattedDate && (
-                                                        <div className="flex items-center gap-1 text-xs text-text-muted mt-0.5">
-                                                            <Calendar className="w-3 h-3 shrink-0" />
+                                                        <div className="flex items-center gap-1 text-xs md:text-sm text-text-muted mt-0.5">
+                                                            <Calendar className="w-3 h-3 md:w-4 md:h-4 shrink-0" />
                                                             <span className="truncate">{formattedDate}</span>
                                                         </div>
                                                     )}
@@ -171,17 +171,17 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
                                                 href={post.instagramUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="group shrink-0 flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-xl bg-linear-to-r from-brand-orange to-orange-500 text-white text-xs md:text-sm font-bold hover:from-brand-orange/90 hover:to-orange-500/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] border border-white/20"
+                                                className="group shrink-0 flex items-center gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl bg-linear-to-r from-brand-orange to-orange-500 text-white text-xs md:text-sm lg:text-base font-bold hover:from-brand-orange/90 hover:to-orange-500/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] border border-white/20"
                                                 onClick={(e) => e.stopPropagation()}
                                             >
-                                                <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                                <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                                                 <span className="hidden sm:inline">Instagram</span>
                                             </a>
                                         </div>
                                     </div>
 
                                     {/* Reactions - Compact */}
-                                    <div className="px-4 md:px-6 py-3 md:py-4 bg-linear-to-br from-white/5 to-transparent border-b border-white/10 shrink-0">
+                                    <div className="px-4 md:px-6 lg:px-8 py-3 md:py-5 lg:py-6 bg-linear-to-br from-white/5 to-transparent border-b border-white/10 shrink-0">
                                         <ReactionPicker
                                             postId={post._id as any}
                                             userId={userId}
@@ -190,14 +190,14 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
                                     </div>
 
                                     {/* Caption - Scrollable */}
-                                    <div className="flex-1 px-4 md:px-6 py-4 md:py-6 overflow-y-auto custom-scrollbar">
-                                        <p className="text-text-primary leading-relaxed text-sm md:text-base whitespace-pre-wrap">
+                                    <div className="flex-1 px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8 overflow-y-auto custom-scrollbar">
+                                        <p className="text-text-primary leading-relaxed text-sm md:text-base lg:text-lg whitespace-pre-wrap">
                                             {post.caption}
                                         </p>
                                     </div>
 
                                     {/* Footer - Desktop Counter */}
-                                    <div className="hidden lg:flex items-center justify-between px-6 py-4 border-t border-white/10 bg-linear-to-br from-white/5 to-transparent shrink-0">
+                                    <div className="hidden lg:flex items-center justify-between px-8 py-6 border-t border-white/10 bg-linear-to-br from-white/5 to-transparent shrink-0">
                                         <span className="text-sm font-medium text-text-muted">
                                             Post {currentIndex + 1} van {allPosts.length}
                                         </span>
