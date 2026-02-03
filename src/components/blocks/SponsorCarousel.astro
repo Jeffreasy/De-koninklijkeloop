@@ -33,7 +33,7 @@ const carouselItems = [...sponsors, ...sponsors];
         >
             {
                 carouselItems.map((sponsor, index) => (
-                    <div class="shrink-0 w-[180px] h-[100px] flex items-center justify-center group bg-white/60 backdrop-blur-md rounded-xl p-4 hover:bg-white/90 hover:scale-105 transition-all duration-500 shadow-sm hover:shadow-xl ring-1 ring-white/20">
+                    <div class="shrink-0 w-[180px] h-[100px] flex items-center justify-center group bg-white/80 rounded-xl p-4 hover:bg-white/90 hover:scale-105 transition-[transform,background-color,box-shadow] duration-300 shadow-sm hover:shadow-xl ring-1 ring-white/30 dark:ring-white/10 will-change-transform">
                         <CloudinaryImage
                             src={sponsor.src}
                             alt={sponsor.name}
