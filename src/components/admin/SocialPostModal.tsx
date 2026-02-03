@@ -41,6 +41,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
     });
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
     const [imagePreviewError, setImagePreviewError] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -72,6 +73,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
         }
         setImagePreviewError(false);
         setUrlError("");
+        setSelectedFile(null);
+        setFilePreviewUrl(null);
     }, [editingPost, isOpen]);
 
     const validateInstagramUrl = (url: string): boolean => {
@@ -83,8 +86,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
         e.preventDefault();
 
         // Validation
-        if (!formData.imageUrl.trim()) {
-            alert("Voeg een afbeelding URL toe");
+        if (!formData.imageUrl.trim() && !selectedFile) {
+            alert("Voeg een afbeelding toe (upload een bestand of plak een URL)");
             return;
         }
         if (!formData.caption.trim()) {
@@ -186,9 +189,19 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                             onFileSelect={(file) => {
                                                 setSelectedFile(file);
                                                 setImagePreviewError(false);
+                                                // Generate preview URL for the selected file
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setFilePreviewUrl(reader.result as string);
+                                                };
+                                                reader.readAsDataURL(file);
                                             }}
                                             onClearFile={() => {
                                                 setSelectedFile(null);
+                                                // Cleanup preview URL
+                                                if (filePreviewUrl) {
+                                                    setFilePreviewUrl(null);
+                                                }
                                             }}
                                             selectedFile={selectedFile}
                                             currentUrl={formData.imageUrl}
@@ -203,10 +216,11 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                                     setFormData({ ...formData, imageUrl: e.target.value });
                                                     setImagePreviewError(false);
                                                     setSelectedFile(null); // Clear file if URL is pasted
+                                                    setFilePreviewUrl(null); // Clear file preview
                                                 }}
-                                                placeholder={selectedFile ? "Bestand geselecteerd - URL optioneel" : "Of plak een URL (https://...)"}
-                                                className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
-                                                required={!selectedFile && !formData.imageUrl} // Only required if no file AND no URL
+                                                placeholder={selectedFile ? "Bestand geselecteerd - URL niet nodig" : "Of plak een URL (https://...)"}
+                                                className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                disabled={!!selectedFile}
                                             />
                                         </div>
                                     </div>
@@ -273,9 +287,9 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                             Preview
                                         </label>
                                         <div className="relative aspect-square rounded-xl overflow-hidden bg-glass-bg/30 border border-glass-border">
-                                            {formData.imageUrl ? (
+                                            {(filePreviewUrl || formData.imageUrl) ? (
                                                 <img
-                                                    src={formData.imageUrl}
+                                                    src={filePreviewUrl || formData.imageUrl}
                                                     alt="Preview"
                                                     className="w-full h-full object-cover"
                                                     onError={() => setImagePreviewError(true)}
