@@ -1,5 +1,5 @@
 import { X, ChevronLeft, ChevronRight, ExternalLink, Calendar } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useCallback, memo } from "react";
 import { ReactionPicker } from "./ReactionPicker";
 
 interface SocialPost {
@@ -21,20 +21,45 @@ interface Props {
     isAuthenticated: boolean;
 }
 
-export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNavigate, userId, isAuthenticated }: Props) {
+export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNavigate, userId, isAuthenticated }: Props) {
+    // Memoize expensive calculations
+    const currentIndex = useMemo(() =>
+        allPosts.findIndex((p) => p._id === post?._id),
+        [allPosts, post?._id]
+    );
+
+    const hasPrev = currentIndex > 0;
+    const hasNext = currentIndex < allPosts.length - 1;
+
+    const formattedDate = useMemo(() =>
+        post?.postedDate
+            ? new Date(post.postedDate).toLocaleDateString("nl-NL", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+            })
+            : null,
+        [post?.postedDate]
+    );
+
+    // Memoize event handlers
+    const handleClose = useCallback(() => onClose(), [onClose]);
+    const handlePrev = useCallback(() => onNavigate("prev"), [onNavigate]);
+    const handleNext = useCallback(() => onNavigate("next"), [onNavigate]);
+
     // Keyboard navigation
     useEffect(() => {
         if (!isOpen) return;
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
-            if (e.key === "ArrowLeft") onNavigate("prev");
-            if (e.key === "ArrowRight") onNavigate("next");
+            if (e.key === "Escape") handleClose();
+            if (e.key === "ArrowLeft") handlePrev();
+            if (e.key === "ArrowRight") handleNext();
         };
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isOpen, onClose, onNavigate]);
+    }, [isOpen, handleClose, handlePrev, handleNext]);
 
     // Lock body scroll when modal is open
     useEffect(() => {
@@ -50,32 +75,20 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
 
     if (!isOpen || !post) return null;
 
-    const currentIndex = allPosts.findIndex((p) => p._id === post._id);
-    const hasPrev = currentIndex > 0;
-    const hasNext = currentIndex < allPosts.length - 1;
-
-    const formattedDate = post.postedDate
-        ? new Date(post.postedDate).toLocaleDateString("nl-NL", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-        })
-        : null;
-
     return (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-2 md:p-8 animate-in fade-in duration-200">
-            {/* Premium Backdrop with Gradient */}
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-2 md:p-8 animate-in fade-in duration-200 will-change-[opacity]">
+            {/* Premium Backdrop with Gradient - Optimized without heavy blur */}
             <div
-                className="absolute inset-0 bg-linear-to-br from-black/98 via-black/95 to-brand-blue/20 backdrop-blur-3xl"
-                onClick={onClose}
+                className="absolute inset-0 bg-linear-to-br from-black/98 via-black/95 to-brand-blue/20"
+                onClick={handleClose}
             />
 
             {/* Modal Container */}
-            <div className="relative w-full h-full flex items-center justify-center">
+            <div className="relative w-full h-full flex items-center justify-center will-change-transform">
                 {/* Close Button - Floating Premium Style */}
                 <button
-                    onClick={onClose}
-                    className="absolute top-2 right-2 md:top-6 md:right-6 z-30 group p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl transition-all duration-300 border border-white/20 hover:border-white/30 shadow-2xl hover:scale-105"
+                    onClick={handleClose}
+                    className="absolute top-2 right-2 md:top-6 md:right-6 z-30 group p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 border border-white/20 hover:border-white/30 shadow-lg hover:scale-105 will-change-transform"
                     aria-label="Sluit modal"
                 >
                     <X className="w-5 h-5 md:w-6 md:h-6 transition-transform group-hover:rotate-90 duration-300" />
@@ -84,8 +97,8 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
                 {/* Navigation Buttons - Premium Glassmorphism */}
                 {hasPrev && (
                     <button
-                        onClick={() => onNavigate("prev")}
-                        className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-30 group p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl transition-all duration-300 border border-white/20 hover:border-brand-orange/50 shadow-2xl hover:scale-110"
+                        onClick={handlePrev}
+                        className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-30 group p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 border border-white/20 hover:border-brand-orange/50 shadow-lg hover:scale-110 will-change-transform"
                         aria-label="Vorige post"
                     >
                         <ChevronLeft className="w-5 h-5 md:w-7 md:h-7" />
@@ -94,8 +107,8 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
 
                 {hasNext && (
                     <button
-                        onClick={() => onNavigate("next")}
-                        className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-30 group p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl transition-all duration-300 border border-white/20 hover:border-brand-orange/50 shadow-2xl hover:scale-110"
+                        onClick={handleNext}
+                        className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-30 group p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 border border-white/20 hover:border-brand-orange/50 shadow-lg hover:scale-110 will-change-transform"
                         aria-label="Volgende post"
                     >
                         <ChevronRight className="w-5 h-5 md:w-7 md:h-7" />
@@ -106,25 +119,25 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
                 <div className="relative w-full h-full max-h-[96vh] rounded-xl md:rounded-4xl overflow-hidden">
                     {/* Gradient Border Effect */}
                     <div className="absolute inset-0 bg-linear-to-br from-brand-orange/30 via-transparent to-brand-blue/30 rounded-xl md:rounded-4xl p-px">
-                        <div className="w-full h-full bg-linear-to-br from-surface/98 to-surface/95 backdrop-blur-3xl rounded-xl md:rounded-4xl overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.4)]">
+                        <div className="w-full h-full bg-linear-to-br from-surface/98 to-surface/95 rounded-xl md:rounded-4xl overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.4)]">
                             {/* Content Layout - Responsive Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 h-full">
                                 {/* Left: Image Section - Premium Frame */}
                                 <div className="relative bg-linear-to-br from-black via-gray-900 to-black flex items-center justify-center overflow-hidden group">
                                     {/* Image with subtle inset shadow */}
                                     <div className="relative w-full h-full p-3 md:p-6">
-                                        <div className="relative w-full h-full rounded-xl md:rounded-2xl overflow-hidden shadow-[inset_0_0_60px_rgba(0,0,0,0.3)]">
+                                        <div className="relative w-full h-full rounded-xl md:rounded-2xl overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.2)]">
                                             <img
                                                 src={post.imageUrl}
                                                 alt={post.caption.slice(0, 100)}
-                                                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+                                                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-[1.02] will-change-transform"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Featured Badge - Premium Floating */}
                                     {post.isFeatured && (
-                                        <div className="absolute top-3 left-3 md:top-6 md:left-6 px-2 py-1 md:px-4 md:py-2 rounded-lg md:rounded-2xl bg-linear-to-r from-brand-orange to-orange-500 text-white text-xs md:text-sm font-bold shadow-2xl backdrop-blur-xl border border-white/20">
+                                        <div className="absolute top-3 left-3 md:top-6 md:left-6 px-2 py-1 md:px-4 md:py-2 rounded-lg md:rounded-2xl bg-linear-to-r from-brand-orange to-orange-500 text-white text-xs md:text-sm font-bold shadow-lg border border-white/20">
                                             <div className="flex items-center gap-1 md:gap-2">
                                                 <iconify-icon icon="lucide:star" width="12" className="md:w-4 animate-pulse" />
                                                 Featured
@@ -219,23 +232,7 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
                 </div>
             </div>
 
-            {/* Custom Scrollbar Styles */}
-            <style>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 6px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: rgba(255, 255, 255, 0.05);
-                    border-radius: 10px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: linear-gradient(to bottom, var(--color-brand-orange), var(--color-brand-blue));
-                    border-radius: 10px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: linear-gradient(to bottom, var(--color-brand-orange), var(--color-orange-500));
-                }
-            `}</style>
+
         </div>
     );
-}
+});

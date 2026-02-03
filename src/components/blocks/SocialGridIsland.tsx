@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Instagram } from "lucide-react";
@@ -6,7 +6,7 @@ import { SocialPostShowcaseModal } from "./SocialPostShowcaseModal";
 import { useStore } from "@nanostores/react";
 import { $accessToken, $user } from "../../lib/auth";
 
-export function SocialGridIsland() {
+export const SocialGridIsland = memo(function SocialGridIsland() {
     const featuredPost = useQuery(api.socialPosts.getFeatured);
     const thumbnailPosts = useQuery(api.socialPosts.getThumbnails, { limit: 7 });
 
@@ -27,21 +27,22 @@ export function SocialGridIsland() {
 
     const hasContent = allPosts.length > 0;
 
-    const handlePostClick = (postId: string) => {
+    // Memoize event handlers
+    const handlePostClick = useCallback((postId: string) => {
         const index = allPosts.findIndex((p) => p._id === postId);
         if (index !== -1) {
             setSelectedPostIndex(index);
             setIsModalOpen(true);
         }
-    };
+    }, [allPosts]);
 
-    const handleNavigate = (direction: "prev" | "next") => {
+    const handleNavigate = useCallback((direction: "prev" | "next") => {
         if (direction === "prev" && selectedPostIndex > 0) {
             setSelectedPostIndex(selectedPostIndex - 1);
         } else if (direction === "next" && selectedPostIndex < allPosts.length - 1) {
             setSelectedPostIndex(selectedPostIndex + 1);
         }
-    };
+    }, [selectedPostIndex, allPosts.length]);
 
     if (!hasContent) {
         return (
@@ -122,7 +123,7 @@ export function SocialGridIsland() {
                             <img
                                 src={featuredPost.imageUrl}
                                 alt={featuredPost.caption.slice(0, 100) || "Featured Instagram post"}
-                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110 will-change-transform"
                                 loading="lazy"
                             />
 
@@ -179,7 +180,7 @@ export function SocialGridIsland() {
                                     <img
                                         src={post.imageUrl}
                                         alt={post.caption.slice(0, 80) || "Instagram post"}
-                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110 will-change-transform"
                                         loading="lazy"
                                     />
 
@@ -212,4 +213,4 @@ export function SocialGridIsland() {
             />
         </section>
     );
-}
+});

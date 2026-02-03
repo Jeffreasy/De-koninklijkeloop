@@ -151,3 +151,22 @@
     letter-spacing: -0.025em;
   }
 }
+
+/* --- 5. Social Modal Custom Scrollbar --- */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--color-brand-orange), var(--color-brand-blue));
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, var(--color-brand-orange), var(--color-orange-500));
+}
