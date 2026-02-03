@@ -63,7 +63,7 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
         : null;
 
     return (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 md:p-6 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-2 md:p-8 animate-in fade-in duration-200">
             {/* Premium Backdrop with Gradient */}
             <div
                 className="absolute inset-0 bg-linear-to-br from-black/98 via-black/95 to-brand-blue/20 backdrop-blur-3xl"
@@ -71,11 +71,11 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
             />
 
             {/* Modal Container */}
-            <div className="relative w-full max-w-7xl max-h-[95vh] flex items-center justify-center">
+            <div className="relative w-full h-full flex items-center justify-center">
                 {/* Close Button - Floating Premium Style */}
                 <button
                     onClick={onClose}
-                    className="absolute -top-2 -right-2 md:top-4 md:right-4 z-30 group p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl transition-all duration-300 border border-white/20 hover:border-white/30 shadow-2xl hover:scale-105"
+                    className="absolute top-2 right-2 md:top-6 md:right-6 z-30 group p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl transition-all duration-300 border border-white/20 hover:border-white/30 shadow-2xl hover:scale-105"
                     aria-label="Sluit modal"
                 >
                     <X className="w-5 h-5 md:w-6 md:h-6 transition-transform group-hover:rotate-90 duration-300" />
@@ -85,7 +85,7 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
                 {hasPrev && (
                     <button
                         onClick={() => onNavigate("prev")}
-                        className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-30 group p-3 md:p-5 rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl transition-all duration-300 border border-white/20 hover:border-brand-orange/50 shadow-2xl hover:scale-110"
+                        className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-30 group p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl transition-all duration-300 border border-white/20 hover:border-brand-orange/50 shadow-2xl hover:scale-110"
                         aria-label="Vorige post"
                     >
                         <ChevronLeft className="w-5 h-5 md:w-7 md:h-7" />
@@ -95,7 +95,7 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
                 {hasNext && (
                     <button
                         onClick={() => onNavigate("next")}
-                        className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-30 group p-3 md:p-5 rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl transition-all duration-300 border border-white/20 hover:border-brand-orange/50 shadow-2xl hover:scale-110"
+                        className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-30 group p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl transition-all duration-300 border border-white/20 hover:border-brand-orange/50 shadow-2xl hover:scale-110"
                         aria-label="Volgende post"
                     >
                         <ChevronRight className="w-5 h-5 md:w-7 md:h-7" />
@@ -103,12 +103,12 @@ export function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNav
                 )}
 
                 {/* Main Content Card - Ultra Premium */}
-                <div className="relative w-full h-full max-h-[95vh] rounded-2xl md:rounded-4xl overflow-hidden">
+                <div className="relative w-full h-full max-h-[96vh] rounded-xl md:rounded-4xl overflow-hidden">
                     {/* Gradient Border Effect */}
-                    <div className="absolute inset-0 bg-linear-to-br from-brand-orange/30 via-transparent to-brand-blue/30 rounded-2xl md:rounded-4xl p-px">
-                        <div className="w-full h-full bg-linear-to-br from-surface/98 to-surface/95 backdrop-blur-3xl rounded-2xl md:rounded-4xl overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.4)]">
+                    <div className="absolute inset-0 bg-linear-to-br from-brand-orange/30 via-transparent to-brand-blue/30 rounded-xl md:rounded-4xl p-px">
+                        <div className="w-full h-full bg-linear-to-br from-surface/98 to-surface/95 backdrop-blur-3xl rounded-xl md:rounded-4xl overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.4)]">
                             {/* Content Layout - Responsive Grid */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 h-full max-h-[95vh]">
+                            <div className="grid grid-cols-1 md:grid-cols-2 h-full">
                                 {/* Left: Image Section - Premium Frame */}
                                 <div className="relative bg-linear-to-br from-black via-gray-900 to-black flex items-center justify-center overflow-hidden group">
                                     {/* Image with subtle inset shadow */}
