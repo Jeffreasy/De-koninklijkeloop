@@ -57,7 +57,7 @@ export default function MediaLightboxModal({
     // Close handler
     const handleClose = () => {
         setIsOpen(false);
-        propOnClose();
+        propOnClose?.();
     };
 
     // Reset state when index changes
@@ -263,7 +263,7 @@ export default function MediaLightboxModal({
                                 <img
                                     src={
                                         // If src contains https://, use it directly (secure_url)
-                                        // Otherwise, construct Cloudinary URL from public_id
+                                        // Otherwise, use src as public_id (already includes folder from Cloudinary API)
                                         currentItem.src.startsWith('https://')
                                             ? currentItem.src
                                             : `https://res.cloudinary.com/dtlhpx4kj/image/upload/f_auto,q_auto:good,w_1920/${currentItem.src}`
