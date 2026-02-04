@@ -14,6 +14,12 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         return new Response("API Root", { status: 404 });
     }
 
+    // CRITICAL: Exclude /email/* routes - they have their own proxy
+    if (path.startsWith('email/')) {
+        return new Response("Use specific email proxy", { status: 404 });
+    }
+
+    // API_URL already contains /api/v1
     const targetUrl = `${API_URL}/${path}`;
 
     try {
@@ -27,6 +33,12 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
 
         if (token) {
             headers.set("Authorization", `Bearer ${token}`);
+        }
+
+        // CRITICAL: Add Tenant ID for RLS enforcement
+        const tenantID = import.meta.env.PUBLIC_TENANT_ID || 'b2727666-7230-4689-b58b-ceab8c2898d5';
+        if (tenantID) {
+            headers.set("X-Tenant-ID", tenantID);
         }
 
         // Debug Proxy Request

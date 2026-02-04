@@ -33,14 +33,18 @@ export default function NotificationMonitor() {
 
     const fetchNotifications = async () => {
         try {
-            // Note: This would need a new backend endpoint
-            // For now, using email-stats which gives us outbox stats
-            const response = await fetch('/api/email/outbox/recent');
+            // Use dedicated email-stats proxy route
+            const response = await fetch('/api/email-stats');
 
             if (response.ok) {
                 const data = await response.json();
-                setNotifications(data.notifications || []);
-                setStats(data.stats || stats);
+                // email-stats returns: { queue: { pending, sent, failed }, delivery: {...} }
+                setNotifications([]); // No individual notifications from stats endpoint
+                setStats({
+                    pending: data.queue?.pending || 0,
+                    sent: data.queue?.sent || 0,
+                    failed: data.queue?.failed || 0
+                });
             }
         } catch (err) {
             console.error('[NotificationMonitor] Fetch error:', err);
