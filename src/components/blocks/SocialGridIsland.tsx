@@ -46,9 +46,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
 
     if (!hasContent) {
         return (
-            <section className="py-24 relative overflow-hidden bg-body">
-                {/* Background Decor */}
-                <div className="absolute top-1/4 -right-64 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none -z-10" />
+            <section className="py-24 relative overflow-hidden">
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="text-center mb-16 space-y-4">
@@ -86,9 +84,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
     }
 
     return (
-        <section className="py-24 relative overflow-hidden bg-body">
-            {/* Background Decor */}
-            <div className="absolute top-1/4 -right-64 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none -z-10" />
+        <section className="py-24 relative overflow-hidden">
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="text-center mb-16 space-y-4">
@@ -117,7 +113,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                     {featuredPost && (
                         <button
                             onClick={() => handlePostClick(featuredPost._id)}
-                            className="lg:row-span-2 group relative aspect-square lg:aspect-4/5 overflow-hidden rounded-3xl bg-surface border border-border hover:border-brand-orange/30 transition-all duration-300 shadow-xl cursor-pointer"
+                            className="lg:row-span-2 group relative aspect-square lg:aspect-4/5 overflow-hidden rounded-3xl bg-surface/80 backdrop-blur-sm border border-border hover:border-brand-orange/30 transition-all duration-300 shadow-xl cursor-pointer"
                         >
                             {/* Image */}
                             <img
@@ -174,7 +170,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                                 <button
                                     key={post._id}
                                     onClick={() => handlePostClick(post._id)}
-                                    className="group relative aspect-square overflow-hidden rounded-2xl bg-surface border border-border hover:border-brand-blue-light/30 transition-all duration-300 shadow-md cursor-pointer"
+                                    className="group relative aspect-square overflow-hidden rounded-2xl bg-surface/60 backdrop-blur-sm border border-border hover:border-brand-blue-light/30 transition-all duration-300 shadow-md cursor-pointer"
                                 >
                                     {/* Image */}
                                     <img

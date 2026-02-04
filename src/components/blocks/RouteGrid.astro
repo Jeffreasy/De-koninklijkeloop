@@ -29,12 +29,12 @@ const DefaultIcon = Footprints;
                     <div class="relative z-10 flex flex-col h-full">
                         <div class="flex justify-between items-start mb-4">
                             <div
-                                class="p-3 rounded-xl bg-surface/50 text-primary border border-white/5"
+                                class="p-3 rounded-xl bg-surface/50 text-primary border border-border"
                                 style={`color: ${route.color}`}
                             >
                                 <Icon className="w-6 h-6" />
                             </div>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-surface/80 border border-white/5 text-primary">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-surface/80 border border-border text-primary">
                                 {route.distance}
                             </span>
                         </div>
@@ -43,13 +43,16 @@ const DefaultIcon = Footprints;
                             {route.name}
                         </h3>
 
-                        <p class="text-secondary text-base leading-relaxed mb-6 flex-grow">
+                        <p class="text-secondary text-base leading-relaxed mb-6 grow">
                             {route.description}
                         </p>
 
                         <div class="flex items-center text-xs font-medium text-muted gap-2">
-                             <div class="h-1.5 w-1.5 rounded-full" style={`background-color: ${route.color}`}></div>
-                             <span>Gemarkeerde route</span>
+                            <div
+                                class="h-1.5 w-1.5 rounded-full"
+                                style={`background-color: ${route.color}`}
+                            />
+                            <span>Gemarkeerde route</span>
                         </div>
                     </div>
                 </div>

@@ -88,7 +88,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                 {/* Close Button - Floating Premium Style */}
                 <button
                     onClick={handleClose}
-                    className="absolute top-2 right-2 md:top-6 md:right-6 z-30 group p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 border border-white/20 hover:border-white/30 shadow-lg hover:scale-105 will-change-transform"
+                    className="absolute top-2 right-2 md:top-6 md:right-6 z-30 group p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 border border-border hover:border-white/30 shadow-lg hover:scale-105 will-change-transform"
                     aria-label="Sluit modal"
                 >
                     <X className="w-5 h-5 md:w-6 md:h-6 transition-transform group-hover:rotate-90 duration-300" />
@@ -98,7 +98,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                 {hasPrev && (
                     <button
                         onClick={handlePrev}
-                        className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-30 group p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 border border-white/20 hover:border-brand-orange/50 shadow-lg hover:scale-110 will-change-transform"
+                        className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-30 group p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 border border-border hover:border-brand-orange/50 shadow-lg hover:scale-110 will-change-transform"
                         aria-label="Vorige post"
                     >
                         <ChevronLeft className="w-5 h-5 md:w-7 md:h-7" />
@@ -108,7 +108,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                 {hasNext && (
                     <button
                         onClick={handleNext}
-                        className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-30 group p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 border border-white/20 hover:border-brand-orange/50 shadow-lg hover:scale-110 will-change-transform"
+                        className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-30 group p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 border border-border hover:border-brand-orange/50 shadow-lg hover:scale-110 will-change-transform"
                         aria-label="Volgende post"
                     >
                         <ChevronRight className="w-5 h-5 md:w-7 md:h-7" />
@@ -146,15 +146,15 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                     )}
 
                                     {/* Counter Badge */}
-                                    <div className="absolute bottom-3 left-3 md:hidden px-3 py-1 rounded-lg bg-white/10 text-white text-xs font-medium backdrop-blur-xl border border-white/20 shadow-xl">
+                                    <div className="absolute bottom-3 left-3 md:hidden px-3 py-1 rounded-lg bg-white/10 text-white text-xs font-medium backdrop-blur-xl border border-border shadow-xl">
                                         {currentIndex + 1} / {allPosts.length}
                                     </div>
                                 </div>
 
                                 {/* Right: Info Panel - Premium Glassmorphism - Scrollable */}
-                                <div className="flex flex-col bg-linear-to-br from-surface/95 to-surface/90 backdrop-blur-2xl border-t md:border-t-0 md:border-l border-white/10 overflow-hidden">
+                                <div className="flex flex-col bg-linear-to-br from-surface/95 to-surface/90 backdrop-blur-2xl border-t md:border-t-0 md:border-l border-border overflow-hidden">
                                     {/* Header - Compact */}
-                                    <div className="p-4 md:p-6 lg:p-8 border-b border-white/10 shrink-0">
+                                    <div className="p-4 md:p-6 lg:p-8 border-b border-border shrink-0">
                                         <div className="flex items-center justify-between gap-3 mb-3">
                                             {/* Profile Section */}
                                             <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
@@ -194,7 +194,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                     </div>
 
                                     {/* Reactions - Compact */}
-                                    <div className="px-4 md:px-6 lg:px-8 py-3 md:py-5 lg:py-6 bg-linear-to-br from-white/5 to-transparent border-b border-white/10 shrink-0">
+                                    <div className="px-4 md:px-6 lg:px-8 py-3 md:py-5 lg:py-6 bg-linear-to-br from-white/5 to-transparent border-b border-border shrink-0">
                                         <ReactionPicker
                                             postId={post._id as any}
                                             userId={userId}
@@ -210,12 +210,12 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                     </div>
 
                                     {/* Footer - Desktop Counter */}
-                                    <div className="hidden lg:flex items-center justify-between px-8 py-6 border-t border-white/10 bg-linear-to-br from-white/5 to-transparent shrink-0">
+                                    <div className="hidden lg:flex items-center justify-between px-8 py-6 border-t border-border bg-linear-to-br from-white/5 to-transparent shrink-0">
                                         <span className="text-sm font-medium text-text-muted">
                                             Post {currentIndex + 1} van {allPosts.length}
                                         </span>
                                         <div className="flex items-center gap-3">
-                                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+                                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-border">
                                                 <kbd className="text-xs font-bold text-text-muted">←</kbd>
                                                 <kbd className="text-xs font-bold text-text-muted">→</kbd>
                                             </div>

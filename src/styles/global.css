@@ -46,6 +46,7 @@
 
 /* Default (Dark Mode / Deep Sea) */
 :root {
+  color-scheme: dark;
   --bg-body: #020617;
   /* Slate-950 */
   --bg-surface: #0f172a;
@@ -53,8 +54,8 @@
 
   --text-primary: #f8fafc;
   /* Slate-50 */
-  --text-secondary: #cbd5e1;
-  /* Slate-300 - Higher contrast for readability */
+  --text-secondary: #e2e8f0;
+  /* Slate-200 - Higher contrast for readability in dark mode */
   --text-muted: #94a3b8;
   /* Slate-400 */
 
@@ -73,14 +74,15 @@
 /* Light Mode Overrides (Clear Sky) */
 [data-theme="light"],
 :root[data-theme="light"] {
+  color-scheme: light;
   --bg-body: #ffffff;
   --bg-surface: #f8fafc;
   /* Slate-50 */
 
   --text-primary: #0f172a;
   /* Slate-900 */
-  --text-secondary: #475569;
-  /* Slate-600 */
+  --text-secondary: #334155;
+  /* Slate-700 - Darker for better legibility */
   --text-muted: #64748b;
   /* Slate-500 */
 
@@ -130,26 +132,76 @@
 
 @layer base {
 
+  /* Native Scroll & Selection Polish */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    /* ~80px for fixed navbar */
+  }
+
+  ::selection {
+    background-color: var(--color-brand-orange);
+    color: #ffffff;
+  }
+
   html,
   body {
     @apply h-full w-full antialiased transition-colors duration-300;
     color: var(--text-primary);
     font-family: var(--font-body);
-    position: relative;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    text-rendering: optimizeLegibility;
+  }
 
-    background-color: var(--bg-body);
-    /* Default Gradient (Dark) */
+  /* DARK MODE - Default */
+  body {
+    background: #0a0f1e;
     background-image:
       radial-gradient(circle at 15% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 40%),
       radial-gradient(circle at 85% 100%, rgba(255, 147, 40, 0.06) 0%, transparent 40%);
     background-attachment: fixed;
   }
 
-  /* Light Mode Gradient Override */
-  :root[data-theme="light"] body {
-    background-image:
-      radial-gradient(circle at 50% 0%, rgba(2, 132, 199, 0.05) 0%, transparent 50%),
-      linear-gradient(to bottom, #ffffff, #f0f9ff);
+  /* LIGHT MODE - Direct gradient (no variables!) */
+  html[data-theme="light"] body {
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    background-attachment: fixed;
+  }
+
+  /* Light Mode: Animated blob 1 (Orange) */
+  html[data-theme="light"] body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -20%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 60%);
+    animation: float-blob-1 20s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Light Mode: Animated blob 2 (Blue) */
+  html[data-theme="light"] body::after {
+    content: '';
+    position: fixed;
+    bottom: -50%;
+    right: -20%;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, rgba(2, 132, 199, 0.15) 0%, transparent 60%);
+    animation: float-blob-2 25s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Ensure content stays above blobs */
+  html[data-theme="light"] body>* {
+    position: relative;
+    z-index: 1;
   }
 
   /* Typography */
@@ -194,5 +246,47 @@
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+/* --- 7. Light Mode Gradient Blob Animations --- */
+@keyframes float-blob-1 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(10%, -10%) scale(1.05);
+  }
+
+  66% {
+    transform: translate(-5%, 5%) scale(0.95);
+  }
+}
+
+@keyframes float-blob-2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(-8%, 8%) scale(1.05);
+  }
+
+  66% {
+    transform: translate(5%, -5%) scale(0.95);
+  }
+}
+
+/* Accessibility: Disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+  :root[data-theme="light"] body::before,
+  :root[data-theme="light"] body::after {
+    animation: none;
   }
 }

@@ -22,7 +22,7 @@ import { audioTracks } from "../../data/audio";
                 </div>
             </div>
 
-            <div class="mt-8 lg:mt-0 p-4 rounded-xl bg-black/20 border border-white/5">
+            <div class="mt-8 lg:mt-0 p-4 rounded-xl bg-black/20 border border-border">
                 <div class="flex items-center gap-3">
                      <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
                      <span class="text-xs font-mono text-white/70 tracking-widest uppercase">Live Opnames</span>
@@ -31,7 +31,7 @@ import { audioTracks } from "../../data/audio";
         </div>
 
         <!-- Playlist -->
-        <div class="lg:col-span-2 p-0 bg-body/50 backdrop-blur-md">
+        <div class="lg:col-span-2 p-0">
             <div class="flex flex-col h-full">
                 {audioTracks.map((track, index) => (
                     <div class="group/track relative p-6 border-b border-border last:border-0 hover:bg-white/5 transition-colors cursor-pointer audio-track-item" data-url={track.url}>
@@ -51,7 +51,7 @@ import { audioTracks } from "../../data/audio";
                                 </div>
                             </div>
                             <!-- Waveform Animation (Hidden by default) -->
-                             <div class="hidden active-indicator flex gap-1 items-end h-4">
+                             <div class="active-indicator flex gap-1 items-end h-4" style="display: none;">
                                 <span class="w-1 bg-brand-orange h-full animate-music-bar-1"></span>
                                 <span class="w-1 bg-brand-orange h-2/3 animate-music-bar-2"></span>
                                 <span class="w-1 bg-brand-orange h-full animate-music-bar-3"></span>

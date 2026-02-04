@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Test</title>
+    <style>
+        /* Test 1: Direct inline gradient on body */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: sans-serif;
+            
+            /* DIRECT GRADIENT - NO CSS VARIABLES */
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            background-attachment: fixed;
+        }
+        
+        /* Test 2: Animated blobs */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -20%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 60%);
+            animation: float-blob-1 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -50%;
+            right: -20%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(2, 132, 199, 0.15) 0%, transparent 60%);
+            animation: float-blob-2 25s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes float-blob-1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(10%, -10%) scale(1.05); }
+            66% { transform: translate(-5%, 5%) scale(0.95); }
+        }
+        
+        @keyframes float-blob-2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-8%, 8%) scale(1.05); }
+            66% { transform: translate(5%, -5%) scale(0.95); }
+        }
+        
+        .content {
+            position: relative;
+            z-index: 1;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>🎨 Gradient Test</h1>
+        <div class="card">
+            <h2>Test Instructions:</h2>
+            <ol>
+                <li><strong>Do you see a subtle gradient from white to light blue/gray?</strong></li>
+                <li><strong>Do you see moving orange and blue gradient blobs?</strong></li>
+                <li>If YES → The gradient CSS works, problem is in Astro setup</li>
+                <li>If NO → Browser doesn't support the CSS</li>
+            </ol>
+        </div>
+        
+        <div class="card">
+            <h3>Expected:</h3>
+            <ul>
+                <li>Background: White to light gray gradient</li>
+                <li>Orange blob: Top left, slowly moving</li>
+                <li>Blue blob: Bottom right, slowly moving</li>
+                <li>Subtle, premium look</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h3>Debug Info:</h3>
+            <p id="debug"></p>
+            <script>
+                const debug = document.getElementById('debug');
+                const styles = window.getComputedStyle(document.body);
+                debug.innerHTML = `
+                    <strong>Body background:</strong> ${styles.background}<br>
+                    <strong>Body background-color:</strong> ${styles.backgroundColor}<br>
+                    <strong>data-theme:</strong> ${document.documentElement.getAttribute('data-theme')}
+                `;
+            </script>
+        </div>
+    </div>
+</body>
+</html>

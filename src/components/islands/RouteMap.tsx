@@ -46,7 +46,7 @@ export default function RouteMap() {
                         className={cn(
                             "px-6 py-3 rounded-xl font-medium transition-all duration-300 backdrop-blur-md border",
                             selectedRouteId === route.id
-                                ? "bg-accent-primary text-slate-950 border-accent-primary shadow-lg scale-105 font-bold"
+                                ? "bg-accent-primary text-white border-accent-primary shadow-lg scale-105 font-bold"
                                 : "bg-glass-bg border-glass-border text-secondary hover:bg-glass-bg/80 hover:text-primary hover:border-white/20"
                         )}
                     >

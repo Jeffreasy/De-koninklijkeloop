@@ -21,7 +21,7 @@ const thumbnailPosts = await convex.query(api.socialPosts.getThumbnails, {
 const hasContent = !!featuredPost || thumbnailPosts.length > 0;
 ---
 
-<section class="py-24 relative overflow-hidden bg-body">
+<section class="py-24 relative overflow-hidden">
     <!-- Background Decor -->
     <div
         class="absolute top-1/4 -right-64 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none -z-10"

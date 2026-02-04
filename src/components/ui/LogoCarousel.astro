@@ -1,0 +1,190 @@
+---
+// src/components/ui/LogoCarousel.astro
+import CloudinaryImage from "./CloudinaryImage.astro";
+
+interface Props {
+    items: ReadonlyArray<{
+        readonly src: string;
+        readonly alt?: string;
+        readonly name?: string;
+    }>;
+    type?: "partner" | "sponsor";
+    speed?: number; // Duration in seconds, default 40
+}
+
+const { items: rawItems, type = "partner", speed = 40 } = Astro.props;
+
+// Ensure enough items for smooth infinite loop
+const items =
+    rawItems.length < 10 ? [...rawItems, ...rawItems, ...rawItems] : rawItems;
+
+// Render 2x for seamless loop
+const carouselItems = [...items, ...items];
+
+const itemLabel = type === "partner" ? "Partner" : "Sponsor";
+---
+
+<section
+    class="relative py-16 overflow-hidden border-y border-border/5"
+    aria-label={`${itemLabel} Carousel`}
+>
+    <!-- Fade-out Gradients -->
+    <div class="carousel-fade-left" aria-hidden="true"></div>
+    <div class="carousel-fade-right" aria-hidden="true"></div>
+
+    <!-- Carousel Content -->
+    <div class="flex overflow-hidden relative z-0">
+        <div
+            class="carousel-track"
+            style={`animation-duration: ${speed}s;`}
+            role="list"
+        >
+            {
+                carouselItems.map((item, index) => (
+                    <div
+                        class="carousel-card group"
+                        role="listitem"
+                        aria-label={`${itemLabel}: ${item.alt || item.name || `Logo ${index + 1}`}`}
+                    >
+                        <CloudinaryImage
+                            src={item.src}
+                            alt={item.alt || item.name || `${itemLabel} logo`}
+                            widths={[180, 360]}
+                            sizes="(max-width: 768px) 120px, 180px"
+                            crop="pad"
+                            class="carousel-logo"
+                        />
+                    </div>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Fade-out Gradients - Theme-aware */
+    .carousel-fade-left {
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 6rem;
+        z-index: 10;
+        background: linear-gradient(
+            to right,
+            var(--bg-body) 0%,
+            transparent 100%
+        );
+    }
+
+    .carousel-fade-right {
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 6rem;
+        z-index: 10;
+        background: linear-gradient(
+            to left,
+            var(--bg-body) 0%,
+            transparent 100%
+        );
+    }
+
+    /* Carousel Track */
+    .carousel-track {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        animation: infinite-scroll 40s linear infinite;
+        width: fit-content;
+        will-change: transform;
+    }
+
+    @media (min-width: 768px) {
+        .carousel-track {
+            gap: 4rem;
+        }
+    }
+
+    /* Pause on hover */
+    .carousel-track:hover {
+        animation-play-state: paused;
+    }
+
+    /* Card Styling */
+    .carousel-card {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 120px;
+        height: 80px;
+        background-color: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(12px);
+        border-radius: 0.75rem;
+        padding: 0.75rem;
+        transition-property: all;
+        transition-duration: 300ms;
+        transition-timing-function: ease-out;
+        box-shadow:
+            0 1px 3px 0 rgb(0 0 0 / 0.1),
+            0 1px 2px -1px rgb(0 0 0 / 0.1);
+        border-color: rgb(var(--border-color) / 0.1);
+        will-change: transform, box-shadow;
+    }
+
+    @media (min-width: 768px) {
+        .carousel-card {
+            width: 180px;
+            height: 100px;
+            padding: 1rem;
+            backdrop-filter: blur(24px);
+        }
+    }
+
+    /* Hover Effects */
+    .carousel-card:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        border-color: rgb(var(--accent-primary) / 0.2);
+    }
+
+    /* Logo Styling */
+    .carousel-logo {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition-property: transform;
+        transition-duration: 300ms;
+    }
+
+    .group:hover .carousel-logo {
+        transform: scale(1.08);
+    }
+
+    /* Animation */
+    @keyframes infinite-scroll {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-50%);
+        }
+    }
+
+    /* Accessibility: Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .carousel-track {
+            animation: none;
+        }
+
+        .carousel-card:hover,
+        .group:hover .carousel-logo {
+            transform: none;
+        }
+    }
+</style>

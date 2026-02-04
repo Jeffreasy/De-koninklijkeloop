@@ -112,9 +112,7 @@ const {
             rel="stylesheet"
         />
     </head>
-    <body
-        class="bg-background text-text-body antialiased selection:bg-brand-primary/20"
-    >
+    <body class="text-text-body antialiased selection:bg-brand-primary/20">
         <slot />
         <script is:inline define:vars={{ user: Astro.locals.user }}>
             window.DKL_INITIAL_USER = user;
