@@ -9,11 +9,14 @@ import NotificationMonitor from "../../components/admin/NotificationMonitor";
         <!-- Header -->
         <header class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-display font-bold text-text-primary mb-2">
+                <h1
+                    class="text-2xl md:text-3xl font-display font-bold text-text-primary mb-2"
+                >
                     📧 Email Management
                 </h1>
                 <p class="text-text-secondary">
-                    Inbox overzicht voor info@ en inschrijving@dekoninklijkeloop.nl
+                    Inbox overzicht voor info@ en
+                    inschrijving@dekoninklijkeloop.nl
                 </p>
             </div>
         </header>
@@ -23,7 +26,9 @@ import NotificationMonitor from "../../components/admin/NotificationMonitor";
 
         <!-- Notification Monitor Section -->
         <section class="mt-12">
-            <h2 class="text-2xl font-display font-bold text-text-primary mb-4">
+            <h2
+                class="text-xl md:text-2xl font-display font-bold text-text-primary mb-4"
+            >
                 🤖 Verzonden Notificaties
             </h2>
             <NotificationMonitor client:load />

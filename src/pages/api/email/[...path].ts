@@ -1,4 +1,3 @@
----
 // BFF Proxy for Email API
 // Tunnels email requests to LaventeCare Auth backend with cookie injection
 // Pattern consistent with existing /api/auth/[...path].ts proxy
@@ -6,7 +5,8 @@ import type { APIRoute } from 'astro';
 
 export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
     const { path } = params;
-    const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+    // PUBLIC_API_URL already includes /api/v1 suffix
+    const API_URL = import.meta.env.PUBLIC_API_URL || 'https://laventecareauthsystems.onrender.com/api/v1';
 
     // Get auth token from cookie
     const token = cookies.get('access_token')?.value;
@@ -18,29 +18,35 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
         });
     }
 
-    // Get tenant from locals (set by middleware)
-    const tenantID = locals.user?.tenant_id;
+    // Get tenant ID from environment (consistent with auth proxy pattern)
+    const tenantID = import.meta.env.PUBLIC_TENANT_ID || 'b2727666-7230-4689-b58b-ceab8c2898d5';
 
-    if (!tenantID) {
-        return new Response(JSON.stringify({ error: 'Tenant context missing' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' }
-        });
-    }
+    // Construct backend URL - API_URL already contains /api/v1
+    const backendUrl = `${API_URL}/admin/email/${path}`;
 
-    // Construct backend URL
-    const backendUrl = `${API_URL}/api/v1/admin/email/${path}`;
+    console.log(`[Email Proxy] Forwarding ${request.method} to ${backendUrl}`);
+    console.log(`[Email Proxy] X-Tenant-ID: ${tenantID}`);
 
     // Forward request to backend
     try {
+        // Clone request headers and extend them (matching catch-all proxy pattern)
+        const headers = new Headers(request.headers);
+
+        // Set required headers
+        headers.set('Authorization', `Bearer ${token}`);
+        headers.set('X-Tenant-ID', tenantID);
+        headers.set('Host', new URL(API_URL).host);
+        headers.set('Content-Type', 'application/json');
+
+        // Add CSRF token if present
+        const csrfToken = cookies.get('csrf_token')?.value;
+        if (csrfToken) {
+            headers.set('X-CSRF-Token', csrfToken);
+        }
+
         const response = await fetch(backendUrl, {
             method: request.method,
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'X-Tenant-ID': tenantID,
-                'X-CSRF-Token': cookies.get('csrf_token')?.value || '',
-                'Content-Type': 'application/json',
-            },
+            headers: headers,
             body: request.method !== 'GET' && request.method !== 'HEAD'
                 ? await request.text()
                 : undefined,
@@ -48,6 +54,26 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
 
         // Forward response from backend
         const data = await response.text();
+
+        // Log errors for debugging
+        if (!response.ok) {
+            console.error(`[Email Proxy] Backend error ${response.status}:`, {
+                url: backendUrl,
+                status: response.status,
+                statusText: response.statusText,
+                response: data.substring(0, 500) // First 500 chars
+            });
+        }
+
+        // Handle 204/205 No Content - these statuses CANNOT have a body
+        if (response.status === 204 || response.status === 205) {
+            return new Response(null, {
+                status: response.status,
+                headers: {
+                    'Content-Type': response.headers.get('Content-Type') || 'application/json',
+                },
+            });
+        }
 
         return new Response(data, {
             status: response.status,

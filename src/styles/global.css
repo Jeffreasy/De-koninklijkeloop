@@ -115,6 +115,19 @@
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 }
 
+/* Mobile Performance Optimization */
+@media (max-width: 768px) {
+  .glass-card {
+    @apply backdrop-blur-md;
+    /* Reduce from xl to md on mobile for better FPS */
+  }
+
+  .premium-glass {
+    @apply backdrop-blur-xl;
+    /* Reduce from 3xl to xl on mobile */
+  }
+}
+
 @layer base {
 
   html,
@@ -169,4 +182,17 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(to bottom, var(--color-brand-orange), var(--color-orange-500));
+}
+
+/* --- 6. Toast Notification Animation --- */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
