@@ -95,7 +95,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
     if (typeof document === "undefined") return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-0 md:p-8 animate-in fade-in duration-200 will-change-[opacity]">
+        <div className="fixed inset-0 z-9999 h-dvh flex items-center justify-center p-0 md:p-8 animate-in fade-in duration-200 will-change-[opacity]">
             {/* Premium Backdrop */}
             <div
                 className="absolute inset-0 bg-body/95 md:bg-black/90 backdrop-blur-xl transition-all"
