@@ -153,7 +153,7 @@ export default function RegisterForm() {
                         <Label htmlFor="name" className="transition-colors group-hover/field:text-brand-orange">Naam</Label>
                         <div className="relative transition-all duration-300">
                             <User className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted/50 transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
-                            <Input id="name" {...register("name")} placeholder="Vul je volledige naam in" className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-slate-50 dark:hover:bg-white/5" />
+                            <Input id="name" {...register("name")} placeholder="Vul je volledige naam in" className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-brand-orange/5" />
                         </div>
                         {errors.name && <p className="text-red-400 text-xs pl-1">{errors.name?.message}</p>}
                     </div>
@@ -162,7 +162,7 @@ export default function RegisterForm() {
                         <Label htmlFor="email" className="transition-colors group-hover/field:text-brand-orange">E-mailadres</Label>
                         <div className="relative transition-all duration-300">
                             <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted/50 transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
-                            <Input id="email" type="email" {...register("email")} placeholder="jouw.email@example.com" className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-slate-50 dark:hover:bg-white/5" />
+                            <Input id="email" type="email" {...register("email")} placeholder="jouw.email@example.com" className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-brand-orange/5" />
                         </div>
                         {errors.email && <p className="text-red-400 text-xs pl-1">{errors.email?.message}</p>}
                     </div>
@@ -194,7 +194,7 @@ export default function RegisterForm() {
                                 "cursor-pointer rounded-2xl border-2 p-4 text-center transition-all duration-300 relative group overflow-hidden",
                                 selectedRole === role.id
                                     ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
-                                    : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-transparent dark:bg-white/5 dark:hover:bg-white/10"
+                                    : "border-border glass-card hover:border-brand-orange/50"
                             )}
                         >
                             {selectedRole === role.id && (
@@ -242,7 +242,7 @@ export default function RegisterForm() {
                                 "cursor-pointer rounded-2xl border-2 p-4 text-center transition-all duration-300 relative group overflow-hidden",
                                 selectedDistance === dist.id
                                     ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
-                                    : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-transparent dark:bg-white/5 dark:hover:bg-white/10"
+                                    : "border-border glass-card hover:border-brand-orange/50"
                             )}
                         >
                             {selectedDistance === dist.id && (
@@ -288,7 +288,7 @@ export default function RegisterForm() {
                                 "cursor-pointer rounded-2xl border-2 p-4 text-center transition-all duration-300 relative group overflow-hidden",
                                 selectedSupport === opt.id
                                     ? "border-brand-primary bg-brand-primary/5 shadow-lg scale-[1.05]"
-                                    : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-transparent dark:bg-white/5 dark:hover:bg-white/10"
+                                    : "border-border glass-card hover:border-brand-orange/50"
                             )}
                         >
                             {selectedSupport === opt.id && (
@@ -314,7 +314,7 @@ export default function RegisterForm() {
                             id="supportDescription"
                             {...register("supportDescription")}
                             placeholder="Waar kunnen we je mee helpen?"
-                            className="min-h-[100px] bg-glass-bg focus-visible:ring-brand-orange/50 focus-visible:border-brand-orange shadow-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-all"
+                            className="min-h-[100px] bg-glass-bg focus-visible:ring-brand-orange/50 focus-visible:border-brand-orange shadow-sm hover:bg-brand-orange/5 transition-all"
                         />
                         {errors.supportDescription && <p className="text-red-400 text-xs pl-1 mt-1">{errors.supportDescription?.message}</p>}
                     </div>
@@ -338,7 +338,7 @@ export default function RegisterForm() {
                         <Label htmlFor="iceName" className="transition-colors group-hover/field:text-brand-orange">Naam contactpersoon</Label>
                         <div className="relative transition-all duration-300">
                             <Contact className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70 group-hover/field:scale-110 transform" />
-                            <Input id="iceName" {...register("iceName")} placeholder="Naam van partner, ouder, vriend..." className="pl-11 transition-all duration-300 group-focus-within/field:bg-transparent group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-slate-50 dark:hover:bg-white/5" />
+                            <Input id="iceName" {...register("iceName")} placeholder="Naam van partner, ouder, vriend..." className="pl-11 transition-all duration-300 group-focus-within/field:bg-transparent group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-brand-orange/5" />
                         </div>
                         {errors.iceName && <p className="text-red-400 text-xs pl-1">{errors.iceName?.message}</p>}
                     </div>
@@ -347,7 +347,7 @@ export default function RegisterForm() {
                         <Label htmlFor="icePhone" className="transition-colors group-hover/field:text-brand-orange">Telefoonnummer</Label>
                         <div className="relative transition-all duration-300">
                             <Phone className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70 group-hover/field:scale-110 transform" />
-                            <Input id="icePhone" type="tel" {...register("icePhone")} placeholder="06 12345678" className="pl-11 transition-all duration-300 group-focus-within/field:bg-transparent group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-slate-50 dark:hover:bg-white/5" />
+                            <Input id="icePhone" type="tel" {...register("icePhone")} placeholder="06 12345678" className="pl-11 transition-all duration-300 group-focus-within/field:bg-transparent group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-brand-orange/5" />
                         </div>
                         {errors.icePhone && <p className="text-red-400 text-xs pl-1">{errors.icePhone?.message}</p>}
                     </div>
@@ -367,7 +367,7 @@ export default function RegisterForm() {
                 </div>
 
                 <div className="space-y-4">
-                    <div className="flex items-start gap-4 p-4 bg-white dark:bg-white/5 rounded-xl border border-glass-border hover:border-brand-orange/30 transition-all cursor-pointer" onClick={() => setWantsAccount(!wantsAccount)}>
+                    <div className="flex items-start gap-4 p-4 glass-card border border-border hover:border-brand-orange/30 transition-all cursor-pointer" onClick={() => setWantsAccount(!wantsAccount)}>
                         <div className="pt-1">
                             <input
                                 type="checkbox"

@@ -113,7 +113,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                     {featuredPost && (
                         <button
                             onClick={() => handlePostClick(featuredPost._id)}
-                            className="lg:row-span-2 group relative aspect-square lg:aspect-4/5 overflow-hidden rounded-3xl bg-surface/80 backdrop-blur-sm border border-border hover:border-brand-orange/30 transition-all duration-300 shadow-xl cursor-pointer active:scale-[0.98]"
+                            className="lg:row-span-2 group relative aspect-square lg:aspect-4/5 overflow-hidden rounded-3xl glass-card transition-all duration-300 shadow-xl cursor-pointer active:scale-[0.98] hover:border-brand-orange/30"
                         >
                             {/* Image */}
                             <img
@@ -170,7 +170,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                                 <button
                                     key={post._id}
                                     onClick={() => handlePostClick(post._id)}
-                                    className="group relative aspect-square overflow-hidden rounded-2xl bg-surface/60 backdrop-blur-sm border border-border hover:border-brand-blue-light/30 transition-all duration-300 shadow-md cursor-pointer active:scale-95"
+                                    className="group relative aspect-square overflow-hidden rounded-2xl glass-card transition-all duration-300 shadow-md cursor-pointer active:scale-95 hover:border-brand-blue-light/30"
                                 >
                                     {/* Image */}
                                     <img
