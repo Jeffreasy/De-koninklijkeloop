@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2, Mail, Inbox, Star, Archive } from 'lucide-react';
+import ReplyModal from './ReplyModal';
 
 // Types
 interface Email {
@@ -32,7 +33,18 @@ export default function EmailManagerIsland() {
     const [selectedAccount, setSelectedAccount] = useState<Account>('info');
     const [emails, setEmails] = useState<Email[]>([]);
     const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+    const [showReplyModal, setShowReplyModal] = useState(false);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [stats, setStats] = useState<EmailStats | null>(null);
+
+    // Auto-dismiss toast after 3 seconds
+    useEffect(() => {
+        if (toast) {
+            const timer = setTimeout(() => setToast(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [toast]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -120,11 +132,13 @@ export default function EmailManagerIsland() {
                                 <button
                                     key={account}
                                     onClick={() => setSelectedAccount(account)}
+                                    aria-label={`Select ${account} mailbox`}
+                                    aria-pressed={selectedAccount === account}
                                     className={`
-                                        w-full text-left px-4 py-3 rounded-xl transition-all duration-200
+                                        w-full text-left px-4 py-3 rounded-xl transition-[background-color,border-color,color] duration-200
                                         ${selectedAccount === account
                                             ? 'bg-accent-primary/10 border border-accent-primary/20 text-accent-primary'
-                                            : 'bg-white/[0.02] border border-glass-border text-text-secondary hover:bg-white/[0.05]'
+                                            : 'bg-white/2 border border-glass-border text-text-secondary hover:bg-white/5'
                                         }
                                     `}
                                 >
@@ -183,8 +197,8 @@ export default function EmailManagerIsland() {
             <div className="lg:col-span-2">
                 <div className="glass-card overflow-hidden">
                     {/* Header */}
-                    <div className="px-6 py-4 border-b border-glass-border bg-white/[0.02]">
-                        <h2 className="text-lg font-display font-bold text-text-primary">
+                    <div className="px-6 py-4 border-b border-glass-border bg-white/2">
+                        <h2 className="text-base md:text-lg font-display font-bold text-text-primary">
                             {accountDisplayName[selectedAccount]}
                         </h2>
                         <p className="text-sm text-text-muted">
@@ -226,6 +240,7 @@ export default function EmailManagerIsland() {
                                 email={email}
                                 isSelected={selectedEmail?.id === email.id}
                                 onClick={() => handleEmailClick(email)}
+                                aria-label={`Email from ${email.from_name || email.from_address}, subject: ${email.subject || 'No subject'}, ${email.is_read ? 'read' : 'unread'}`}
                             />
                         ))}
                     </div>
@@ -238,11 +253,55 @@ export default function EmailManagerIsland() {
                     <EmailDetailPanel
                         email={selectedEmail}
                         onClose={() => setSelectedEmail(null)}
-                        onReply={() => {
-                            // TODO: Open reply modal
-                            console.log('Reply to:', selectedEmail.from_address);
-                        }}
+                        onReply={() => setShowReplyModal(true)}
                     />
+                </div>
+            )}
+
+            {/* Reply Modal */}
+            {showReplyModal && selectedEmail && (
+                <ReplyModal
+                    email={selectedEmail}
+                    onClose={() => setShowReplyModal(false)}
+                    onSuccess={() => {
+                        // Show success toast
+                        setToast({ message: 'Email verzonden! ✉️', type: 'success' });
+                        // Refresh inbox after sending reply
+                        fetchEmails();
+                        fetchStats();
+                    }}
+                />
+            )}
+
+            {/* Toast Notification */}
+            {toast && (
+                <div
+                    className="fixed bottom-6 right-6 z-50 glass-card px-6 py-4 rounded-xl shadow-2xl border-l-4
+                               flex items-center gap-3 animate-slide-up"
+                    style={{
+                        borderLeftColor: toast.type === 'success' ? 'var(--accent-primary)' : '#ef4444',
+                        animation: 'slideUp 0.3s ease-out'
+                    }}
+                >
+                    {toast.type === 'success' ? (
+                        <svg className="w-5 h-5 text-accent-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                    ) : (
+                        <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    )}
+                    <span className="text-sm font-medium text-text-primary">{toast.message}</span>
+                    <button
+                        onClick={() => setToast(null)}
+                        className="ml-2 text-text-muted hover:text-text-primary transition-colors"
+                        aria-label="Close notification"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
             )}
         </div>
@@ -276,14 +335,15 @@ function EmailListItem({ email, isSelected, onClick }: EmailListItemProps) {
     return (
         <button
             onClick={onClick}
+            aria-label={`Email from ${email.from_name || email.from_address}, ${email.subject || 'No subject'}`}
             className={`
-                w-full text-left px-6 py-4 transition-all duration-200 cursor-pointer
+                w-full text-left px-6 py-4 transition-[background-color,border-color] duration-200 cursor-pointer
                 ${isSelected
                     ? 'bg-accent-primary/5 border-l-2 border-accent-primary'
-                    : 'hover:bg-white/[0.03]'
+                    : 'hover:bg-white/3'
                 }
                 ${!email.is_read
-                    ? 'bg-accent-primary/[0.02] border-l-2 border-accent-primary/40'
+                    ? 'bg-accent-primary/2 border-l-2 border-accent-primary/40'
                     : ''
                 }
             `}
@@ -295,7 +355,7 @@ function EmailListItem({ email, isSelected, onClick }: EmailListItemProps) {
                         <span className={`text-sm truncate ${!email.is_read ? 'font-medium text-text-primary' : 'text-text-secondary'}`}>
                             {email.from_name || email.from_address}
                         </span>
-                        <span className="text-xs text-text-muted flex-shrink-0">
+                        <span className="text-xs text-text-muted shrink-0">
                             {formatRelativeTime(email.received_at)}
                         </span>
                     </div>
@@ -312,7 +372,7 @@ function EmailListItem({ email, isSelected, onClick }: EmailListItemProps) {
                 </div>
 
                 {/* Icons */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                     {email.has_attachments && (
                         <svg className="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -322,7 +382,7 @@ function EmailListItem({ email, isSelected, onClick }: EmailListItemProps) {
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                     )}
                     {!email.is_read && (
-                        <div className="w-2 h-2 bg-accent-primary rounded-full shadow-[0_0_8px_rgba(var(--accent-primary),0.6)]" />
+                        <div className="w-2 h-2 bg-accent-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(var(--accent-primary),0.6)]" />
                     )}
                 </div>
             </div>
@@ -362,9 +422,9 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
     return (
         <div className="glass-card overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-glass-border bg-white/[0.02] flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-glass-border bg-white/2 flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-display font-bold text-text-primary truncate">
+                    <h3 className="text-base md:text-lg font-display font-bold text-text-primary truncate">
                         {email.subject || '(Geen onderwerp)'}
                     </h3>
                     <p className="text-sm text-text-muted">
@@ -374,13 +434,15 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={onReply}
-                        className="px-4 py-2 bg-accent-primary/10 text-accent-primary rounded-lg hover:bg-accent-primary/20 transition text-sm font-medium"
+                        aria-label="Reply to this email"
+                        className="px-4 py-2 bg-accent-primary/10 text-accent-primary rounded-lg hover:bg-accent-primary/20 transition-[background-color] duration-200 text-sm font-medium"
                     >
                         Beantwoorden
                     </button>
                     <button
                         onClick={onClose}
-                        className="p-2 text-text-muted hover:text-text-primary transition"
+                        aria-label="Close email detail"
+                        className="p-2 text-text-muted hover:text-text-primary transition-colors duration-200"
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -400,9 +462,47 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
                 {!loading && fullEmail && (
                     <div className="prose prose-invert max-w-none">
                         {fullEmail.body_html ? (
-                            <div
-                                dangerouslySetInnerHTML={{ __html: fullEmail.body_html }}
-                                className="text-text-secondary"
+                            <iframe
+                                srcDoc={fullEmail.body_html}
+                                sandbox="allow-same-origin"
+                                className="w-full min-h-[400px] border-0 bg-white rounded-lg"
+                                title="Email Content"
+                                style={{
+                                    colorScheme: 'light',
+                                    height: 'auto',
+                                    minHeight: '400px'
+                                }}
+                                onLoad={(e) => {
+                                    // Auto-resize iframe to content height
+                                    const iframe = e.currentTarget;
+                                    try {
+                                        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+                                        if (doc) {
+                                            // Inject base styles to ensure readability
+                                            const style = doc.createElement('style');
+                                            style.textContent = `
+                                                body {
+                                                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                                                    padding: 1.5rem;
+                                                    margin: 0;
+                                                    max-width: 100%;
+                                                    overflow-wrap: break-word;
+                                                    word-wrap: break-word;
+                                                }
+                                                img { max-width: 100%; height: auto; }
+                                                a { color: #3b82f6; text-decoration: underline; }
+                                            `;
+                                            doc.head.appendChild(style);
+
+                                            // Resize iframe to fit content
+                                            const height = doc.documentElement.scrollHeight;
+                                            iframe.style.height = `${height + 20}px`;
+                                        }
+                                    } catch (err) {
+                                        // Cross-origin or security error - keep default height
+                                        console.warn('Cannot resize iframe:', err);
+                                    }
+                                }}
                             />
                         ) : (
                             <pre className="whitespace-pre-wrap text-text-secondary font-sans">

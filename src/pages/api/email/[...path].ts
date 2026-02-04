@@ -65,6 +65,16 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
             });
         }
 
+        // Handle 204/205 No Content - these statuses CANNOT have a body
+        if (response.status === 204 || response.status === 205) {
+            return new Response(null, {
+                status: response.status,
+                headers: {
+                    'Content-Type': response.headers.get('Content-Type') || 'application/json',
+                },
+            });
+        }
+
         return new Response(data, {
             status: response.status,
             headers: {
