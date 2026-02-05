@@ -41,7 +41,7 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
                                 className={cn(
                                     "relative flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-500 min-w-[85%] md:min-w-0 snap-center text-left group border",
                                     isActive
-                                        ? "bg-gradient-to-r from-brand-orange to-orange-600 text-white border-brand-orange shadow-lg shadow-brand-orange/20 scale-[1.02]"
+                                        ? "bg-linear-to-r from-brand-orange to-orange-600 text-white border-brand-orange shadow-lg shadow-brand-orange/20 scale-[1.02]"
                                         : "bg-surface/40 md:bg-transparent border-white/5 hover:bg-surface/50 hover:border-white/10 text-secondary hover:text-primary"
                                 )}
                             >
@@ -125,7 +125,7 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
                                             isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                                         )}
                                     >
-                                        <div className="px-5 pb-8 pt-0 pl-[4rem] md:pl-[4.5rem]">
+                                        <div className="px-5 pb-8 pt-0 pl-16 md:pl-18">
                                             <p className="text-secondary text-base leading-relaxed max-w-2xl">
                                                 {item.answer}
                                             </p>
