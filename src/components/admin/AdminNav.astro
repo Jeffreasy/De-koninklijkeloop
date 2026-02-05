@@ -51,13 +51,15 @@ const initials = getInitials(userName);
 
 <!-- Desktop Sidebar (Fixed, always visible on lg+) -->
 <aside
-  class="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-glass-border bg-glass-bg/80 backdrop-blur-2xl z-40"
+  class="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-glass-border bg-glass-bg/95 backdrop-blur-xl z-40"
 >
-  <!-- Logo Area -->
-  <div class="h-20 flex items-center px-6 border-b border-glass-border">
-    <a href="/" class="flex items-center gap-3 group">
+  <!-- Logo Area - Professional Header -->
+  <div
+    class="h-20 flex items-center justify-center px-6 border-b border-glass-border/50 bg-linear-to-b from-glass-bg/50 to-transparent"
+  >
+    <a href="/" class="flex items-center gap-2.5 group">
       <div
-        class="relative w-8 h-8 flex items-center justify-center bg-accent-primary/10 rounded-xl border border-accent-primary/20 group-hover:bg-accent-primary/20 transition-all duration-300 overflow-hidden"
+        class="relative w-9 h-9 flex items-center justify-center bg-linear-to-br from-accent-primary/20 to-accent-primary/5 rounded-xl border border-accent-primary/30 group-hover:border-accent-primary/50 group-hover:shadow-lg group-hover:shadow-accent-primary/20 transition-all duration-300 overflow-hidden"
       >
         <img
           src="https://res.cloudinary.com/dgfuv7wif/image/upload/v1769451085/DKLLogoV1_kx60i9.webp"
@@ -66,18 +68,18 @@ const initials = getInitials(userName);
         />
       </div>
       <span
-        class="font-display font-bold text-lg text-text-primary tracking-tight"
+        class="font-display font-bold text-xl text-text-primary tracking-tight group-hover:text-accent-primary transition-colors"
         >Admin<span class="text-accent-primary">.</span></span
       >
     </a>
   </div>
 
-  <!-- Navigation -->
-  <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+  <!-- Navigation - Professional Styling -->
+  <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1.5">
     <div
-      class="text-xs font-medium text-text-muted uppercase tracking-wider px-2 mb-2"
+      class="text-[10px] font-semibold text-text-muted/60 uppercase tracking-widest px-3 mb-3 select-none"
     >
-      Overzicht
+      Navigatie
     </div>
 
     {
@@ -85,50 +87,52 @@ const initials = getInitials(userName);
         <a
           href={item.href}
           class:list={[
-            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
+            "group flex items-center gap-3 px-3.5 py-3 rounded-xl text-[13px] font-medium transition-all duration-200 relative overflow-hidden",
             isActive(item.href)
-              ? "bg-accent-primary/10 text-accent-primary font-medium border border-accent-primary/10"
-              : "text-text-secondary hover:text-text-primary hover:bg-glass-border/50",
+              ? "bg-linear-to-r from-accent-primary/15 to-accent-primary/5 text-accent-primary shadow-sm border-l-[3px] border-accent-primary"
+              : "text-text-muted hover:text-text-primary hover:bg-glass-bg/40 hover:shadow-sm border-l-[3px] border-transparent hover:border-glass-border",
           ]}
         >
-          {/* Active Indicator Line */}
-          {isActive(item.href) && (
-            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-accent-primary rounded-r-full shadow-[0_0_12px_rgba(var(--accent-primary),0.6)]" />
-          )}
-
           <iconify-icon
             icon={item.icon}
-            width="20"
-            height="20"
+            width="18"
+            height="18"
             class:list={[
-              "transition-colors duration-200",
               isActive(item.href)
-                ? "text-accent-primary"
-                : "text-text-muted group-hover:text-text-primary",
+                ? ""
+                : "group-hover:scale-110 transition-transform duration-200",
             ]}
           />
-
-          <span>{item.name}</span>
+          <span class="tracking-wide">{item.name}</span>
+          {isActive(item.href) && (
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-accent-primary rounded-l-full" />
+          )}
         </a>
       ))
     }
   </nav>
 
-  <!-- User / Footer -->
-  <div class="p-4 border-t border-glass-border">
+  <!-- User Profile (Desktop) - Enhanced -->
+  <div
+    class="p-4 border-t border-glass-border/50 bg-linear-to-t from-glass-bg/30 to-transparent"
+  >
     <div
-      class="flex items-center gap-3 p-3 rounded-xl bg-glass-border/30 border border-white/5"
+      class="flex items-center gap-3 p-3 rounded-xl bg-linear-to-br from-glass-bg/40 to-glass-bg/20 hover:from-glass-bg/60 hover:to-glass-bg/30 border border-glass-border/30 hover:border-glass-border transition-all duration-200 cursor-pointer group"
     >
+      <!-- User Avatar -->
       <div
-        class="w-8 h-8 rounded-full bg-accent-primary/20 flex items-center justify-center text-accent-primary text-xs font-bold"
+        class="w-10 h-10 shrink-0 rounded-xl bg-linear-to-br from-accent-primary via-accent-primary/80 to-accent-primary/60 flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:shadow-xl group-hover:shadow-accent-primary/30 group-hover:scale-105 transition-all"
       >
         {initials}
       </div>
+      <!-- User Info -->
       <div class="flex-1 min-w-0">
-        <div class="text-sm font-medium text-text-primary truncate">
+        <div
+          class="text-sm font-semibold text-text-primary truncate group-hover:text-accent-primary transition-colors"
+        >
           {userName}
         </div>
-        <div class="text-xs text-text-muted truncate capitalize">
+        <div class="text-[11px] text-text-muted uppercase tracking-wider">
           {userRole}
         </div>
       </div>
@@ -136,18 +140,18 @@ const initials = getInitials(userName);
   </div>
 </aside>
 
-<!-- Mobile Drawer (Slides in from left) -->
+<!-- Mobile Drawer (Slide-in from left, overlays everything) -->
 <aside
   id="admin-mobile-drawer"
-  class="lg:hidden flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-glass-border bg-glass-bg/95 backdrop-blur-3xl z-50 -translate-x-full transition-transform duration-300 ease-out"
+  class="lg:hidden fixed left-0 top-0 h-screen w-64 bg-glass-bg/95 backdrop-blur-xl border-r border-glass-border z-50 flex flex-col -translate-x-full transition-transform duration-300"
 >
-  <!-- Logo Area -->
+  <!-- Mobile Logo Header - Professional -->
   <div
-    class="h-20 flex items-center justify-between px-6 border-b border-glass-border"
+    class="h-20 flex items-center justify-between px-6 border-b border-glass-border/50 bg-linear-to-b from-glass-bg/50 to-transparent"
   >
-    <a href="/" class="flex items-center gap-3 group">
+    <a href="/" class="flex items-center gap-2.5 group">
       <div
-        class="relative w-8 h-8 flex items-center justify-center bg-accent-primary/10 rounded-xl border border-accent-primary/20 group-hover:bg-accent-primary/20 transition-all duration-300 overflow-hidden"
+        class="relative w-9 h-9 flex items-center justify-center bg-linear-to-br from-accent-primary/20 to-accent-primary/5 rounded-xl border border-accent-primary/30 group-hover:border-accent-primary/50 group-hover:shadow-lg group-hover:shadow-accent-primary/20 transition-all duration-300 overflow-hidden"
       >
         <img
           src="https://res.cloudinary.com/dgfuv7wif/image/upload/v1769451085/DKLLogoV1_kx60i9.webp"
@@ -156,79 +160,80 @@ const initials = getInitials(userName);
         />
       </div>
       <span
-        class="font-display font-bold text-lg text-text-primary tracking-tight"
+        class="font-display font-bold text-xl text-text-primary tracking-tight group-hover:text-accent-primary transition-colors"
         >Admin<span class="text-accent-primary">.</span></span
       >
     </a>
 
     <!-- Close Button -->
     <button
-      id="admin-mobile-close"
-      class="p-2 -mr-2 text-text-muted hover:text-text-primary transition-colors rounded-lg hover:bg-glass-border/30"
+      id="mobile-drawer-close"
+      class="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-glass-bg/50 transition-all duration-200"
       aria-label="Sluit menu"
     >
       <iconify-icon icon="lucide:x" width="20" height="20"></iconify-icon>
     </button>
   </div>
 
-  <!-- Navigation -->
-  <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+  <!-- Mobile Navigation - Professional Styling -->
+  <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1.5">
     <div
-      class="text-xs font-medium text-text-muted uppercase tracking-wider px-2 mb-2"
+      class="text-[10px] font-semibold text-text-muted/60 uppercase tracking-widest px-3 mb-3 select-none"
     >
-      Overzicht
+      Navigatie
     </div>
 
     {
       navItems.map((item) => (
         <a
           href={item.href}
-          class="admin-nav-link"
           class:list={[
-            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
+            "group flex items-center gap-3 px-3.5 py-3 rounded-xl text-[13px] font-medium transition-all duration-200 relative overflow-hidden",
             isActive(item.href)
-              ? "bg-accent-primary/10 text-accent-primary font-medium border border-accent-primary/10"
-              : "text-text-secondary hover:text-text-primary hover:bg-glass-border/50",
+              ? "bg-linear-to-r from-accent-primary/15 to-accent-primary/5 text-accent-primary shadow-sm border-l-[3px] border-accent-primary"
+              : "text-text-muted hover:text-text-primary hover:bg-glass-bg/40 hover:shadow-sm border-l-[3px] border-transparent hover:border-glass-border",
           ]}
         >
-          {/* Active Indicator Line */}
-          {isActive(item.href) && (
-            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-accent-primary rounded-r-full shadow-[0_0_12px_rgba(var(--accent-primary),0.6)]" />
-          )}
-
           <iconify-icon
             icon={item.icon}
-            width="20"
-            height="20"
+            width="18"
+            height="18"
             class:list={[
-              "transition-colors duration-200",
               isActive(item.href)
-                ? "text-accent-primary"
-                : "text-text-muted group-hover:text-text-primary",
+                ? ""
+                : "group-hover:scale-110 transition-transform duration-200",
             ]}
           />
-
-          <span>{item.name}</span>
+          <span class="tracking-wide">{item.name}</span>
+          {isActive(item.href) && (
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-accent-primary rounded-l-full" />
+          )}
         </a>
       ))
     }
   </nav>
 
-  <!-- User / Footer -->
-  <div class="p-4 border-t border-glass-border">
+  <!-- Mobile User Profile - Enhanced -->
+  <div
+    class="p-4 border-t border-glass-border/50 bg-linear-to-t from-glass-bg/30 to-transparent"
+  >
     <div
-      class="flex items-center gap-3 p-3 rounded-xl bg-glass-border/30 border border-white/5"
+      class="flex items-center gap-3 p-3 rounded-xl bg-linear-to-br from-glass-bg/40 to-glass-bg/20 hover:from-glass-bg/60 hover:to-glass-bg/30 border border-glass-border/30 hover:border-glass-border transition-all duration-200 cursor-pointer group"
     >
+      <!-- User Avatar -->
       <div
-        class="w-8 h-8 rounded-full bg-accent-primary/20 flex items-center justify-center text-accent-primary text-xs font-bold"
+        class="w-10 h-10 shrink-0 rounded-xl bg-linear-to-br from-accent-primary via-accent-primary/80 to-accent-primary/60 flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:shadow-xl group-hover:shadow-accent-primary/30 group-hover:scale-105 transition-all"
       >
         {initials}
       </div>
+      <!-- User Info -->
       <div class="flex-1 min-w-0">
-        <div class="text-sm font-medium text-text-primary truncate">
+        <div
+          class="text-sm font-semibold text-text-primary truncate group-hover:text-accent-primary transition-colors"
+        >
           {userName}
         </div>
-        <div class="text-xs text-text-muted truncate capitalize">
+        <div class="text-[11px] text-text-muted uppercase tracking-wider">
           {userRole}
         </div>
       </div>

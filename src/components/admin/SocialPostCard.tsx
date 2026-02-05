@@ -53,8 +53,8 @@ export function SocialPostCard({
                         </div>
                     )}
                     <div className={`px-2 py-1 rounded-lg text-xs font-medium shadow-lg backdrop-blur-sm ${post.isVisible
-                        ? "bg-green-500/90 text-white"
-                        : "bg-gray-500/90 text-white"
+                        ? "bg-[rgb(var(--success))]/90 text-white dark:bg-[rgb(var(--success))]/80"
+                        : "bg-[rgb(var(--muted))]/90 text-white dark:bg-[rgb(var(--muted))]/70"
                         }`}>
                         {post.isVisible ? "Visible" : "Hidden"}
                     </div>
@@ -66,7 +66,7 @@ export function SocialPostCard({
                 </div>
 
                 {/* Hover Actions Overlay */}
-                <div className="absolute inset-0 bg-brand-blue/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 p-4">
+                <div className="absolute inset-0 bg-accent-primary/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 p-4">
                     <button
                         onClick={() => onEdit(post._id)}
                         className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px]"

@@ -87,8 +87,7 @@ const { title } = Astro.props;
     </script>
     <script>
       import { setAuth } from "../lib/auth";
-      // Force Dark Mode for Admin
-      document.documentElement.setAttribute("data-theme", "dark");
+      // Removed force dark mode - Admin now respects user theme preference
 
       const user = window.DKL_INITIAL_USER;
 

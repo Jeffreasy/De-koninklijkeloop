@@ -1,30 +1,24 @@
 ---
+import ThemeToggle from "../islands/ThemeToggle";
 const currentPath = Astro.url.pathname;
 const pathSegments = currentPath.split("/").filter(Boolean);
 ---
 
 <header
-    class="h-16 md:h-20 lg:pl-64 fixed top-0 w-full z-35 flex items-center justify-between px-4 md:px-6 border-b border-glass-border bg-glass-bg/80 backdrop-blur-2xl"
+    class="h-16 md:h-20 lg:pl-64 fixed top-0 w-full z-35 flex items-center justify-between px-4 md:px-6 bg-glass-bg/80 backdrop-blur-md shadow-sm shadow-black/5"
 >
-    <!-- Breadcrumbs - Hidden on small screens -->
-    <div class="hidden sm:flex items-center gap-2 text-sm text-text-muted">
-        <span class="hover:text-text-primary transition-colors cursor-default"
-            >Admin</span
-        >
-        {
-            pathSegments.slice(1).map((segment) => (
-                <>
-                    <span>/</span>
-                    <span class="capitalize text-text-primary font-medium">
-                        {segment}
-                    </span>
-                </>
-            ))
-        }
+    <!-- Page Title - Shows current section -->
+    <div class="flex items-center gap-3">
+        <h1 class="text-lg md:text-xl font-bold text-text-primary capitalize">
+            {pathSegments.slice(1).join(" ") || "Dashboard"}
+        </h1>
     </div>
 
     <!-- Actions -->
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3">
+        <!-- Theme Toggle -->
+        <ThemeToggle client:load />
+
         <button
             id="logout-btn"
             class="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-red-400 hover:bg-red-400/10 transition-colors border border-transparent hover:border-red-400/20"

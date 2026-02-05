@@ -168,9 +168,14 @@ export default function MediaManagerIsland() {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center py-20 text-text-muted animate-pulse gap-2">
+            <div
+                className="flex items-center justify-center py-20 text-text-muted animate-pulse gap-2"
+                role="status"
+                aria-live="polite"
+            >
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span>Afbeeldingen laden...</span>
+                <span className="sr-only">Media library gegevens worden geladen...</span>
             </div>
         );
     }

@@ -56,13 +56,13 @@ export default function NotificationMonitor() {
     const getStatusIcon = (status: string) => {
         switch (status) {
             case 'sent':
-                return <CheckCircle className="w-5 h-5 text-green-500" />;
+                return <CheckCircle className="w-5 h-5 text-[rgb(var(--success))]" />;
             case 'failed':
-                return <XCircle className="w-5 h-5 text-red-500" />;
+                return <XCircle className="w-5 h-5 text-[rgb(var(--error))]" />;
             case 'processing':
-                return <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />;
+                return <Loader2 className="w-5 h-5 text-[rgb(var(--info))] animate-spin" />;
             case 'pending':
-                return <Clock className="w-5 h-5 text-yellow-500" />;
+                return <Clock className="w-5 h-5 text-[rgb(var(--warning))]" />;
             default:
                 return <AlertCircle className="w-5 h-5 text-text-muted" />;
         }
@@ -70,10 +70,10 @@ export default function NotificationMonitor() {
 
     const getStatusBadge = (status: string) => {
         const styles = {
-            sent: 'bg-green-500/10 text-green-500 border-green-500/20',
-            failed: 'bg-red-500/10 text-red-500 border-red-500/20',
-            processing: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-            pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+            sent: 'bg-[rgb(var(--success))]/10 text-[rgb(var(--success))] border-[rgb(var(--success))]/20',
+            failed: 'bg-[rgb(var(--error))]/10 text-[rgb(var(--error))] border-[rgb(var(--error))]/20',
+            processing: 'bg-[rgb(var(--info))]/10 text-[rgb(var(--info))] border-[rgb(var(--info))]/20',
+            pending: 'bg-[rgb(var(--warning))]/10 text-[rgb(var(--warning))] border-[rgb(var(--warning))]/20'
         };
 
         return (
@@ -99,8 +99,8 @@ export default function NotificationMonitor() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="glass-card p-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-3 bg-green-500/10 rounded-xl">
-                            <Send className="w-6 h-6 text-green-500" />
+                        <div className="p-3 bg-[rgb(var(--success))]/10 rounded-xl">
+                            <Send className="w-6 h-6 text-[rgb(var(--success))]" />
                         </div>
                         <div>
                             <div className="text-2xl font-bold text-text-primary">
@@ -113,8 +113,8 @@ export default function NotificationMonitor() {
 
                 <div className="glass-card p-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-3 bg-yellow-500/10 rounded-xl">
-                            <Clock className="w-6 h-6 text-yellow-500" />
+                        <div className="p-3 bg-[rgb(var(--warning))]/10 rounded-xl">
+                            <Clock className="w-6 h-6 text-[rgb(var(--warning))]" />
                         </div>
                         <div>
                             <div className="text-2xl font-bold text-text-primary">
@@ -127,8 +127,8 @@ export default function NotificationMonitor() {
 
                 <div className="glass-card p-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-3 bg-red-500/10 rounded-xl">
-                            <XCircle className="w-6 h-6 text-red-500" />
+                        <div className="p-3 bg-[rgb(var(--error))]/10 rounded-xl">
+                            <XCircle className="w-6 h-6 text-[rgb(var(--error))]" />
                         </div>
                         <div>
                             <div className="text-2xl font-bold text-text-primary">
@@ -142,7 +142,7 @@ export default function NotificationMonitor() {
 
             {/* Notification Table */}
             <div className="glass-card overflow-hidden">
-                <div className="px-6 py-4 border-b border-glass-border bg-white/[0.02]">
+                <div className="px-6 py-4 border-b border-glass-border bg-white/2">
                     <h3 className="text-lg font-display font-bold text-text-primary">
                         Recente Notificaties
                     </h3>
@@ -164,7 +164,7 @@ export default function NotificationMonitor() {
                         </div>
                     ) : (
                         <table className="w-full">
-                            <thead className="bg-white/[0.02] border-b border-glass-border">
+                            <thead className="bg-white/2 border-b border-glass-border">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                                         Status
@@ -185,7 +185,7 @@ export default function NotificationMonitor() {
                             </thead>
                             <tbody className="divide-y divide-glass-border">
                                 {notifications.map((notif) => (
-                                    <tr key={notif.id} className="hover:bg-white/[0.02] transition">
+                                    <tr key={notif.id} className="hover:bg-white/2 transition">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-2">
                                                 {getStatusIcon(notif.status)}
