@@ -19,5 +19,19 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwind()],
+    server: {
+      proxy: {
+        '/api/v1': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          secure: false,
+        },
+        '/api/email': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          secure: false,
+        },
+      }
+    }
   },
 });
