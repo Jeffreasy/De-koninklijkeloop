@@ -3,6 +3,7 @@ import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import AdminNav from "../components/admin/AdminNav.astro";
 import AdminHeader from "../components/admin/AdminHeader.astro";
+import SpeedInsights from "@vercel/speed-insights/astro";
 
 interface Props {
   title: string;
@@ -19,83 +20,95 @@ const { title } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
-    
+
     <!-- Fonts -->
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Icons -->
-    <script src="https://code.iconify.design/iconify-icon/2.0.0/iconify-icon.min.js"></script>
+    <script
+      src="https://code.iconify.design/iconify-icon/2.0.0/iconify-icon.min.js"
+    ></script>
     <!-- Alpine.js Mobile Menu Setup -->
     <!-- CRITICAL: Initialize store BEFORE Alpine loads -->
     <script is:inline>
-      document.addEventListener('alpine:init', () => {
-        Alpine.store('adminNav', {
-          mobileMenuOpen: false
+      document.addEventListener("alpine:init", () => {
+        Alpine.store("adminNav", {
+          mobileMenuOpen: false,
         });
-        
+
         // Body scroll lock
         Alpine.effect(() => {
-          const isOpen = Alpine.store('adminNav').mobileMenuOpen;
+          const isOpen = Alpine.store("adminNav").mobileMenuOpen;
           if (isOpen) {
-            document.body.style.overflow = 'hidden';
+            document.body.style.overflow = "hidden";
           } else {
-            document.body.style.overflow = '';
+            document.body.style.overflow = "";
           }
         });
       });
     </script>
-    
+
     <!-- Then load Alpine (specific version for reliability) -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"
+    ></script>
+
     <ClientRouter />
   </head>
   <body class="bg-body text-text-body antialiased min-h-screen overflow-hidden">
-    
     <!-- Admin Navigation (Desktop Sidebar + Mobile Drawer) -->
     <AdminNav />
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col h-screen overflow-hidden">
-        <AdminHeader />
+      <AdminHeader />
 
-        <!-- Scrollable Content -->
-        <main class="flex-1 overflow-y-auto lg:pl-64 pt-24 px-6 pb-8 scroll-smooth">
-            <div class="max-w-7xl mx-auto lg:px-8 animate-in fade-in duration-500 slide-in-from-bottom-2">
-                <slot />
-            </div>
-        </main>
+      <!-- Scrollable Content -->
+      <main
+        class="flex-1 overflow-y-auto lg:pl-64 pt-24 px-6 pb-8 scroll-smooth"
+      >
+        <div
+          class="max-w-7xl mx-auto lg:px-8 animate-in fade-in duration-500 slide-in-from-bottom-2"
+        >
+          <slot />
+        </div>
+      </main>
     </div>
 
     <!-- Auth Hydration -->
     <script is:inline define:vars={{ user: Astro.locals.user }}>
-        window.DKL_INITIAL_USER = user;
+      window.DKL_INITIAL_USER = user;
     </script>
     <script>
-        import { setAuth } from "../lib/auth";
-        // Force Dark Mode for Admin
-        document.documentElement.setAttribute('data-theme', 'dark');
+      import { setAuth } from "../lib/auth";
+      // Removed force dark mode - Admin now respects user theme preference
 
-        const user = window.DKL_INITIAL_USER;
-        
-        // Hydrate Auth Store (Fetch Token from Proxy)
-        // Admin components need the raw token for Convex
-        fetch('/api/auth/token')
-            .then(res => {
-                if (res.ok) return res.json();
-                throw new Error("No session");
-            })
-            .then(data => {
-                console.log("[Admin] Token hydrated successfully");
-                setAuth(data.token, user);
-            })
-            .catch(() => {
-                console.warn("[Admin] Failed to hydrate token. Redirecting...");
-                setAuth(null, user);
-                // Optional: Redirect if critical, but middleware handles initial access
-                // window.location.href = "/login";
-            });
+      const user = window.DKL_INITIAL_USER;
+
+      // Hydrate Auth Store (Fetch Token from Proxy)
+      // Admin components need the raw token for Convex
+      fetch("/api/auth/token")
+        .then((res) => {
+          if (res.ok) return res.json();
+          throw new Error("No session");
+        })
+        .then((data) => {
+          console.log("[Admin] Token hydrated successfully");
+          setAuth(data.token, user);
+        })
+        .catch(() => {
+          console.warn("[Admin] Failed to hydrate token. Redirecting...");
+          setAuth(null, user);
+          // Optional: Redirect if critical, but middleware handles initial access
+          // window.location.href = "/login";
+        });
     </script>
+    <SpeedInsights />
   </body>
 </html>

@@ -68,7 +68,7 @@ interface EventMetadata {
     to?: string;
 
     // Performance
-    metric?: 'LCP' | 'FID' | 'CLS' | 'TTFB';
+    metric?: 'LCP' | 'INP' | 'CLS' | 'TTFB';
     threshold?: number;
 
     // User Context (non-PII)

@@ -205,8 +205,8 @@ export default function ParticipantsTable() {
                                                 )}
                                                 {/* Role Badge */}
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium w-fit ${reg.role === "deelnemer" ? "bg-accent-primary/10 text-accent-primary" :
-                                                    reg.role === "begeleider" ? "bg-blue-500/10 text-blue-400" :
-                                                        "bg-green-500/10 text-green-400"
+                                                    reg.role === "begeleider" ? "bg-[rgb(var(--info))]/10 text-[rgb(var(--info))]" :
+                                                        "bg-[rgb(var(--success))]/10 text-[rgb(var(--success))]"
                                                     }`}>
                                                     {reg.role.charAt(0).toUpperCase() + reg.role.slice(1)}
                                                 </span>
@@ -235,7 +235,7 @@ export default function ParticipantsTable() {
                                         </td>
                                         {/* Status */}
                                         <td className="py-4 px-4">
-                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${reg.status === "paid" ? "bg-green-500/10 text-green-400" :
+                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${reg.status === "paid" ? "bg-[rgb(var(--success))]/10 text-[rgb(var(--success))]" :
                                                 reg.status === "pending" ? "bg-yellow-500/10 text-yellow-400" :
                                                     "bg-red-500/10 text-red-400"
                                                 }`}>

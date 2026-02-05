@@ -13,21 +13,31 @@ const { shortcode, title, bare = false } = Astro.props;
 {
     bare ? (
         /* Bare Mode: Facade for direct video embed */
-         <div class="streamable-facade relative w-full aspect-video rounded-xl overflow-hidden shadow-lg bg-black/10 group cursor-pointer" data-shortcode={shortcode}>
-            <img 
-                src={`https://thumbs-east.streamable.com/image/${shortcode}.jpg`} 
-                onError="this.src='https://placehold.co/1920x1080/000000/FFF?text=Video+Laden'; this.onerror=null;"
-                alt="Video Thumbnail" 
+        <div
+            class="streamable-facade relative w-full aspect-video rounded-xl overflow-hidden shadow-lg bg-black/10 group cursor-pointer"
+            data-shortcode={shortcode}
+        >
+            <img
+                src={`https://thumbs-east.streamable.com/image/${shortcode}.jpg`}
+                onerror="this.src='https://placehold.co/1920x1080/000000/FFF?text=Video+Laden'; this.onerror=null;"
+                alt="Video Thumbnail"
                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
             />
-            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-            
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+
             {/* Play Button */}
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-white ml-1">
-                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        class="text-white ml-1"
+                    >
+                        <polygon points="5 3 19 12 5 21 5 3" />
                     </svg>
                 </div>
             </div>
@@ -35,20 +45,30 @@ const { shortcode, title, bare = false } = Astro.props;
     ) : (
         /* Card Mode: Facade with title bar */
         <div class="rounded-2xl overflow-hidden shadow-xl border border-border bg-surface group transition-all duration-300 hover:shadow-2xl hover:border-brand-blue-light/50">
-            <div class="streamable-facade relative w-full aspect-video bg-black/50 cursor-pointer" data-shortcode={shortcode}>
-                <img 
-                    src={`https://thumbs-east.streamable.com/image/${shortcode}.jpg`} 
-                    onError="this.src='https://placehold.co/1920x1080/000000/FFF?text=Video+Laden'; this.onerror=null;"
-                    alt={title || "Video"} 
+            <div
+                class="streamable-facade relative w-full aspect-video bg-black/50 cursor-pointer"
+                data-shortcode={shortcode}
+            >
+                <img
+                    src={`https://thumbs-east.streamable.com/image/${shortcode}.jpg`}
+                    onerror="this.src='https://placehold.co/1920x1080/000000/FFF?text=Video+Laden'; this.onerror=null;"
+                    alt={title || "Video"}
                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
                 />
-                
+
                 {/* Play Button */}
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                     <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-white ml-1">
-                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-xl">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            class="text-white ml-1"
+                        >
+                            <polygon points="5 3 19 12 5 21 5 3" />
                         </svg>
                     </div>
                 </div>
@@ -56,7 +76,7 @@ const { shortcode, title, bare = false } = Astro.props;
 
             {title && (
                 <div class="p-4 bg-surface border-t border-border backdrop-blur-sm">
-                    <p class="text-primary font-medium font-display tracking-tight group-hover:text-brand-sky transition-colors duration-300">
+                    <p class="text-primary font-medium font-display tracking-tight group-hover:text-action-blue transition-colors duration-300">
                         {title}
                     </p>
                 </div>
@@ -67,28 +87,34 @@ const { shortcode, title, bare = false } = Astro.props;
 
 <script>
     function initVideoFacades() {
-        const facades = document.querySelectorAll('.streamable-facade');
-        facades.forEach(facade => {
-            facade.addEventListener('click', () => {
-                const shortcode = facade.getAttribute('data-shortcode');
-                if (!shortcode) return;
+        const facades = document.querySelectorAll(".streamable-facade");
+        facades.forEach((facade) => {
+            facade.addEventListener(
+                "click",
+                () => {
+                    const shortcode = facade.getAttribute("data-shortcode");
+                    if (!shortcode) return;
 
-                const iframe = document.createElement('iframe');
-                iframe.src = `https://streamable.com/o/${shortcode}?autoplay=1`;
-                iframe.className = "absolute inset-0 w-full h-full animate-in fade-in duration-500";
-                iframe.frameBorder = "0";
-                iframe.allowFullscreen = true;
-                iframe.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
-                
-                // Clear content and append iframe
-                facade.innerHTML = '';
-                facade.appendChild(iframe);
-                facade.classList.remove('cursor-pointer', 'group'); // Remove pointer interactions
-            }, { once: true }); // Ensure event only fires once
+                    const iframe = document.createElement("iframe");
+                    iframe.src = `https://streamable.com/o/${shortcode}?autoplay=1`;
+                    iframe.className =
+                        "absolute inset-0 w-full h-full animate-in fade-in duration-500";
+                    iframe.frameBorder = "0";
+                    iframe.allowFullscreen = true;
+                    iframe.allow =
+                        "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
+
+                    // Clear content and append iframe
+                    facade.innerHTML = "";
+                    facade.appendChild(iframe);
+                    facade.classList.remove("cursor-pointer", "group"); // Remove pointer interactions
+                },
+                { once: true },
+            ); // Ensure event only fires once
         });
     }
 
     // Run on load and View Transitions
-    document.addEventListener('DOMContentLoaded', initVideoFacades);
-    document.addEventListener('astro:page-load', initVideoFacades);
+    document.addEventListener("DOMContentLoaded", initVideoFacades);
+    document.addEventListener("astro:page-load", initVideoFacades);
 </script>

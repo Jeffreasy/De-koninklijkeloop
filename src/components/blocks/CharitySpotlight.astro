@@ -23,7 +23,7 @@ const currentCampaign = latest as ActiveCampaign;
 ---
 
 <section
-    class="py-12 md:py-24 relative overflow-hidden bg-body transition-colors duration-300"
+    class="py-12 md:py-24 relative overflow-hidden transition-colors duration-300"
 >
     <div class="container mx-auto px-4 md:px-6 relative z-10">
         <div class="mb-24">
@@ -73,11 +73,13 @@ const currentCampaign = latest as ActiveCampaign;
                         >
                             <Button
                                 size="lg"
+                                aria-label={`Steun ${currentCampaign.name} - Opent in nieuw tabblad`}
                                 className="w-full md:w-auto rounded-full px-8 md:px-10 h-12 md:h-14 text-base md:text-lg bg-accent-primary hover:bg-orange-600 text-white shadow-[0_0_20px_rgba(255,147,40,0.3)] hover:shadow-[0_0_30px_rgba(255,147,40,0.5)] border-none transition-all group min-h-[48px]"
                             >
                                 Steun {currentCampaign.name}
                                 <ArrowRight
                                     className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1"
+                                    aria-hidden="true"
                                 />
                             </Button>
                         </a>
@@ -92,7 +94,7 @@ const currentCampaign = latest as ActiveCampaign;
                     </div>
 
                     <div
-                        class="relative rounded-3xl overflow-hidden glass-card border border-white/10 shadow-2xl transform-gpu transition-transform duration-700 hover:scale-[1.02] hover:rotate-1"
+                        class="relative rounded-3xl overflow-hidden glass-card border border-border shadow-2xl transform-gpu transition-transform duration-700 hover:scale-[1.02] hover:rotate-1 will-change-transform"
                     >
                         <div
                             class="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"
@@ -103,16 +105,19 @@ const currentCampaign = latest as ActiveCampaign;
                             alt={`Banner ${currentCampaign.name}`}
                             widths={[400, 640, 768, 1024, 1280, 1536]}
                             sizes="(max-width: 768px) 100vw, 50vw"
+                            loading="eager"
+                            fetchpriority="high"
                             class="w-full h-auto object-cover md:min-h-[400px]"
                         />
 
                         <!-- Overlay Tag -->
                         <div class="absolute bottom-4 left-4 z-20">
                             <div
-                                class="px-4 py-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-white font-display font-bold text-sm flex items-center gap-2"
+                                class="px-4 py-2 rounded-xl bg-black/60 backdrop-blur-md border border-border text-white font-display font-bold text-sm flex items-center gap-2"
                             >
                                 <Heart
                                     className="w-4 h-4 text-brand-orange fill-brand-orange"
+                                    aria-hidden="true"
                                 />
                                 {currentCampaign.name}
                             </div>
@@ -134,6 +139,7 @@ const currentCampaign = latest as ActiveCampaign;
                     >
                         <Heart
                             className="w-5 h-5 text-brand-orange fill-brand-orange"
+                            aria-hidden="true"
                         />
                         <h3
                             class="text-lg md:text-xl font-bold text-primary font-display"
@@ -148,85 +154,131 @@ const currentCampaign = latest as ActiveCampaign;
                 </div>
 
                 <!-- Features Grid -->
-                <div
+                <dl
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
                 >
                     {
                         currentCampaign.features.map((feature) => (
-                            <div class="glass-card group p-6 md:p-8 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 border border-brand-orange/20 bg-linear-to-br from-brand-orange/5 to-surface/50 hover:from-brand-orange/10 hover:to-surface/80 hover:border-brand-orange/40">
-                                <div class="text-3xl md:text-4xl font-bold text-brand-orange group-hover:scale-110 transition-transform duration-300 mb-2 font-display">
+                            <div class="glass-card group p-6 md:p-8 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 border border-brand-orange/20 bg-linear-to-br from-brand-orange/5 to-transparent hover:from-brand-orange/10 hover:to-transparent hover:border-brand-orange/40 will-change-transform">
+                                <dt class="sr-only">{feature.label}</dt>
+                                <dd
+                                    class="text-3xl md:text-4xl font-bold text-brand-orange group-hover:scale-110 transition-transform duration-300 mb-2 font-display"
+                                    aria-label={`${feature.value} ${feature.label}`}
+                                >
                                     {feature.value}
-                                </div>
-                                <div class="text-xs md:text-sm text-muted uppercase tracking-wider font-medium group-hover:text-primary transition-colors">
+                                </dd>
+                                <div
+                                    class="text-xs md:text-sm text-muted uppercase tracking-wider font-medium group-hover:text-primary transition-colors"
+                                    aria-hidden="true"
+                                >
                                     {feature.label}
                                 </div>
                             </div>
                         ))
                     }
-                </div>
+                </dl>
             </div>
         </div>
 
         {
             pastCampaigns.length > 0 && (
                 <div class="relative border-t border-border pt-16">
-                    <div class="flex items-center gap-4 mb-10">
-                        <div class="h-10 w-10 rounded-full bg-surface border border-border flex items-center justify-center text-muted">
-                            <History className="w-5 h-5" />
+                    {/* Header */}
+                    <div class="flex items-center justify-center gap-4 mb-16">
+                        <div class="flex items-center gap-4 px-6 py-3 rounded-full bg-surface border border-border">
+                            <History
+                                className="w-6 h-6 text-action-blue"
+                                aria-hidden="true"
+                            />
+                            <h3 class="text-2xl md:text-3xl font-bold text-primary font-display">
+                                Onze Impact Historie
+                            </h3>
                         </div>
-                        <h3 class="text-xl md:text-2xl font-bold text-primary font-display">
-                            Onze Impact Historie
-                        </h3>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {pastCampaigns.map((campaign) => (
-                            <div class="glass-card p-4 md:p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6 group hover:bg-surface/80 transition-all border border-white/5">
-                                <div class="shrink-0 flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-brand-blue/10 text-brand-sky border border-brand-blue/20 group-hover:border-brand-sky/50 transition-colors">
-                                    <span class="text-lg font-bold">
-                                        {campaign.year}
-                                    </span>
-                                </div>
+                    {/* Timeline Container */}
+                    <div class="relative max-w-4xl mx-auto">
+                        {/* Timeline Line */}
+                        <div class="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-linear-to-b from-brand-orange via-action-blue to-transparent opacity-30 hidden md:block" />
 
-                                <div class="flex-1">
-                                    <h4 class="text-lg md:text-xl font-bold text-primary flex items-center gap-2">
-                                        {campaign.name}
-                                        <Heart className="w-4 h-4 text-brand-orange fill-brand-orange opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    </h4>
-                                    <p class="text-sm text-muted mt-1 mb-2 line-clamp-2">
-                                        {campaign.description}
-                                    </p>
-                                    {campaign.amountRaised && (
-                                        <div class="text-sm font-medium text-brand-sky">
-                                            Opgehaald:{" "}
-                                            <span class="text-primary">
-                                                {campaign.amountRaised}
-                                            </span>
+                        {/* Timeline Items */}
+                        <div class="space-y-12">
+                            {pastCampaigns.map((campaign, index) => (
+                                <div class="relative">
+                                    {/* Timeline Dot */}
+                                    <div class="absolute left-8 md:left-1/2 top-8 w-4 h-4 -ml-2 rounded-full bg-brand-orange border-4 border-surface shadow-lg z-10 hidden md:block" />
+
+                                    {/* Card - Alternating sides on desktop */}
+                                    <div
+                                        class={`md:w-[calc(50%-3rem)] ${index % 2 === 0 ? "md:ml-auto md:pl-12" : "md:pr-12"}`}
+                                    >
+                                        <div class="glass-card group relative rounded-3xl overflow-hidden border-2 border-border hover:border-brand-orange/40 transition-all duration-500 will-change-transform hover:scale-[1.02] hover:shadow-2xl">
+                                            {/* Gradient Overlay */}
+                                            <div class="absolute inset-0 bg-linear-to-br from-brand-orange/5 via-transparent to-action-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                                            {/* Content */}
+                                            <div class="relative p-8 md:p-10">
+                                                {/* Year Badge - Prominent */}
+                                                <div class="inline-flex items-center justify-center mb-6">
+                                                    <div class="relative">
+                                                        <div class="absolute inset-0 bg-brand-orange/20 rounded-2xl blur-xl" />
+                                                        <div class="relative px-6 py-3 rounded-2xl bg-linear-to-r from-brand-orange to-orange-600 text-white font-display font-bold text-2xl shadow-lg">
+                                                            {campaign.year}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Charity Name */}
+                                                <div class="flex items-center gap-3 mb-4">
+                                                    <Heart
+                                                        className="w-6 h-6 text-brand-orange fill-brand-orange"
+                                                        aria-hidden="true"
+                                                    />
+                                                    <h4 class="text-2xl md:text-3xl font-bold text-primary font-display">
+                                                        {campaign.name}
+                                                    </h4>
+                                                </div>
+
+                                                {/* Description */}
+                                                <p class="text-base md:text-lg text-muted leading-relaxed mb-6">
+                                                    {campaign.description}
+                                                </p>
+
+                                                {/* Amount Raised - Prominent */}
+                                                {campaign.amountRaised && (
+                                                    <div class="pt-6 border-t border-border">
+                                                        <div class="flex items-baseline gap-2">
+                                                            <span class="text-sm text-muted uppercase tracking-wider font-medium">
+                                                                Opgehaald
+                                                            </span>
+                                                            <div class="flex-1 h-px bg-linear-to-r from-brand-orange/20 to-transparent" />
+                                                        </div>
+                                                        <div class="mt-2 text-4xl md:text-5xl font-bold font-display text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-600 group-hover:scale-105 transition-transform duration-300">
+                                                            {
+                                                                campaign.amountRaised
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Hover Arrow Indicator */}
+                                            <div class="absolute top-8 right-8 w-10 h-10 rounded-full bg-brand-orange/0 group-hover:bg-brand-orange/20 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100">
+                                                <ArrowRight
+                                                    className="w-5 h-5 text-brand-orange"
+                                                    aria-hidden="true"
+                                                />
+                                            </div>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
-
-                                <div class="hidden sm:block text-muted group-hover:text-brand-orange transition-colors">
-                                    <ArrowRight className="w-5 h-5" />
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 </div>
             )
         }
     </div>
 
-    <div
-        class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none opacity-40 dark:opacity-20"
-    >
-        <div
-            class="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-brand-blue-light/30 rounded-full blur-[120px]"
-        >
-        </div>
-        <div
-            class="absolute bottom-[-10%] right-[-5%] w-[30%] h-[30%] bg-brand-orange/20 rounded-full blur-[100px]"
-        >
-        </div>
-    </div>
+    <!-- Custom gradient blobs removed - relying on Liquid Light design system -->
 </section>

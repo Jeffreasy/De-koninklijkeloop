@@ -46,9 +46,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
 
     if (!hasContent) {
         return (
-            <section className="py-24 relative overflow-hidden bg-body">
-                {/* Background Decor */}
-                <div className="absolute top-1/4 -right-64 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none -z-10" />
+            <section className="py-24 relative overflow-hidden">
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="text-center mb-16 space-y-4">
@@ -86,9 +84,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
     }
 
     return (
-        <section className="py-24 relative overflow-hidden bg-body">
-            {/* Background Decor */}
-            <div className="absolute top-1/4 -right-64 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none -z-10" />
+        <section className="py-24 relative overflow-hidden">
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="text-center mb-16 space-y-4">
@@ -117,18 +113,18 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                     {featuredPost && (
                         <button
                             onClick={() => handlePostClick(featuredPost._id)}
-                            className="lg:row-span-2 group relative aspect-square lg:aspect-4/5 overflow-hidden rounded-3xl bg-surface border border-border hover:border-brand-orange/30 transition-all duration-300 shadow-xl cursor-pointer"
+                            className="lg:row-span-2 group relative aspect-square lg:aspect-4/5 overflow-hidden rounded-3xl glass-card transition-all duration-300 shadow-xl cursor-pointer active:scale-[0.98] hover:border-brand-orange/30"
                         >
                             {/* Image */}
                             <img
                                 src={featuredPost.imageUrl}
                                 alt={featuredPost.caption.slice(0, 100) || "Featured Instagram post"}
-                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110 will-change-transform"
+                                className="h-full w-full object-cover transition-transform duration-300 md:group-hover:scale-110 will-change-transform"
                                 loading="lazy"
                             />
 
                             {/* Gradient Overlay - Bottom */}
-                            <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-300" />
+                            <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent opacity-70 md:group-hover:opacity-90 transition-opacity duration-300" />
 
                             {/* Featured Badge */}
                             <div className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-brand-orange text-white text-xs font-bold shadow-lg backdrop-blur-sm">
@@ -160,8 +156,8 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                                 </div>
                             </div>
 
-                            {/* Hover Indicator */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-brand-orange/0 group-hover:bg-brand-orange/20 backdrop-blur-sm flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100">
+                            {/* Hover Indicator - Desktop Only */}
+                            <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-brand-orange/0 group-hover:bg-brand-orange/20 backdrop-blur-sm items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100">
                                 <iconify-icon icon="lucide:maximize-2" width="28" className="text-white" />
                             </div>
                         </button>
@@ -174,18 +170,18 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                                 <button
                                     key={post._id}
                                     onClick={() => handlePostClick(post._id)}
-                                    className="group relative aspect-square overflow-hidden rounded-2xl bg-surface border border-border hover:border-brand-blue-light/30 transition-all duration-300 shadow-md cursor-pointer"
+                                    className="group relative aspect-square overflow-hidden rounded-2xl glass-card transition-all duration-300 shadow-md cursor-pointer active:scale-95 hover:border-brand-blue-light/30"
                                 >
                                     {/* Image */}
                                     <img
                                         src={post.imageUrl}
                                         alt={post.caption.slice(0, 80) || "Instagram post"}
-                                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110 will-change-transform"
+                                        className="h-full w-full object-cover transition-transform duration-300 md:group-hover:scale-110 will-change-transform"
                                         loading="lazy"
                                     />
 
-                                    {/* Hover Overlay - Maritime Style */}
-                                    <div className="absolute inset-0 bg-brand-blue/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
+                                    {/* Hover Overlay - Desktop Only */}
+                                    <div className="hidden md:flex absolute inset-0 bg-brand-blue/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-col items-center justify-center p-4">
                                         <p className="text-white text-xs line-clamp-4 text-center font-medium mb-3">
                                             {post.caption || "Bekijk post"}
                                         </p>

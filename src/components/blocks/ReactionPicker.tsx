@@ -55,12 +55,12 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
         <div className="space-y-2 md:space-y-4">
             {/* Header - Compact on mobile */}
             <div className="flex items-center justify-between">
-                <h3 className="text-sm md:text-base font-bold text-text-primary flex items-center gap-1.5 md:gap-2">
+                <h3 className="text-sm md:text-base font-bold text-primary flex items-center gap-1.5 md:gap-2">
                     <span className="text-brand-orange text-base md:text-lg">💬</span>
                     Reacties
                 </h3>
                 {!isAuthenticated && (
-                    <p className="text-xs text-text-muted italic px-2 py-0.5 md:px-3 md:py-1 rounded-lg bg-white/5 border border-white/10">
+                    <p className="text-xs text-muted italic px-2 py-0.5 md:px-3 md:py-1 rounded-lg bg-surface/5 border border-border">
                         Log in om te reageren
                     </p>
                 )}
@@ -84,7 +84,7 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
                                 transition-all duration-300 overflow-hidden shrink-0
                                 ${isActive
                                     ? "bg-linear-to-r from-brand-orange to-orange-500 text-white shadow-lg md:shadow-xl shadow-brand-orange/30 scale-105 border border-brand-orange/50 md:border-2"
-                                    : "bg-white/5 text-text-primary hover:bg-white/10 border border-white/10 md:border-2 hover:border-brand-orange/30 shadow-md md:shadow-lg hover:shadow-lg md:hover:shadow-xl"
+                                    : "bg-surface/50 text-primary hover:bg-surface border border-border md:border-2 hover:border-brand-orange/30 shadow-md md:shadow-lg hover:shadow-lg md:hover:shadow-xl"
                                 }
                                 ${!isAuthenticated ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:scale-105 active:scale-95"}
                                 ${isProcessing ? "opacity-70" : ""}
@@ -135,7 +135,7 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
                             )}
 
                             {/* Hover Shimmer Effect */}
-                            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-linear-to-r from-transparent via-white/10 to-transparent" />
+                            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-linear-to-r from-transparent via-border to-transparent" />
                         </button>
                     );
                 })}
@@ -144,15 +144,15 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
             {/* Total Count - Compact on mobile */}
             {reactionCounts && Object.keys(reactionCounts).length > 0 && (
                 <div className="flex items-center gap-2 md:gap-3 pt-1 md:pt-2">
-                    <div className="h-px flex-1 bg-linear-to-r from-transparent via-white/10 to-transparent" />
-                    <div className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="h-px flex-1 bg-linear-to-r from-transparent via-border to-transparent" />
+                    <div className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl bg-white/5 border border-border backdrop-blur-sm">
                         <span className="text-brand-orange text-xs md:text-sm">🔥</span>
-                        <span className="text-xs md:text-sm font-medium text-text-muted">
+                        <span className="text-xs md:text-sm font-medium text-muted">
                             {Object.values(reactionCounts).reduce((a: number, b: number) => a + b, 0)} reactie
                             {Object.values(reactionCounts).reduce((a: number, b: number) => a + b, 0) !== 1 ? "s" : ""}
                         </span>
                     </div>
-                    <div className="h-px flex-1 bg-linear-to-r from-transparent via-white/10 to-transparent" />
+                    <div className="h-px flex-1 bg-linear-to-r from-transparent via-border to-transparent" />
                 </div>
             )}
 

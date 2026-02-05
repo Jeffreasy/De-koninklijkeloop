@@ -2,7 +2,7 @@
 // Web Vitals Performance Monitoring
 // Tracks Core Web Vitals and enforces performance budgets
 
-import { onCLS, onFID, onLCP, onTTFB, type Metric } from 'web-vitals';
+import { onCLS, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
 import { trackPerformanceBudgetExceeded } from './analytics';
 
 /**
@@ -11,7 +11,7 @@ import { trackPerformanceBudgetExceeded } from './analytics';
  */
 export const PERFORMANCE_BUDGETS = {
     LCP: 2500,   // Largest Contentful Paint: 2.5s
-    FID: 100,    // First Input Delay: 100ms
+    INP: 200,    // Interaction to Next Paint: 200ms
     CLS: 0.1,    // Cumulative Layout Shift: 0.1
     TTFB: 800,   // Time to First Byte: 800ms
 } as const;
@@ -21,7 +21,7 @@ export const PERFORMANCE_BUDGETS = {
  */
 const RATING_THRESHOLDS = {
     LCP: [2500, 4000],
-    FID: [100, 300],
+    INP: [200, 500],
     CLS: [0.1, 0.25],
     TTFB: [800, 1800],
 } as const;
@@ -82,7 +82,7 @@ function checkBudget(metric: Metric): void {
 
     if (metric.value > budget) {
         trackPerformanceBudgetExceeded(
-            metric.name as 'LCP' | 'FID' | 'CLS' | 'TTFB',
+            metric.name as 'LCP' | 'INP' | 'CLS' | 'TTFB',
             metric.value,
             budget
         );
@@ -114,7 +114,7 @@ export function initWebVitals(): void {
 
     // Measure Core Web Vitals
     onLCP(handleMetric);
-    onFID(handleMetric);
+    onINP(handleMetric);
     onCLS(handleMetric);
     onTTFB(handleMetric);
 
@@ -136,7 +136,7 @@ export function getCurrentWebVitals(): Promise<Record<string, number>> {
     return new Promise((resolve) => {
         const vitals: Record<string, number> = {};
         let collected = 0;
-        const total = 4; // LCP, FID, CLS, TTFB
+        const total = 4; // LCP, INP, CLS, TTFB
 
         const checkComplete = () => {
             collected++;
@@ -150,8 +150,8 @@ export function getCurrentWebVitals(): Promise<Record<string, number>> {
             checkComplete();
         });
 
-        onFID((metric: Metric) => {
-            vitals.FID = metric.value;
+        onINP((metric: Metric) => {
+            vitals.INP = metric.value;
             checkComplete();
         });
 

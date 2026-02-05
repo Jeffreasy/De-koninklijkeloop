@@ -22,7 +22,7 @@ const sponsors = getSponsors();
     <div class="text-center mb-12 md:mb-16">
       <h2 class="text-3xl md:text-4xl font-display font-bold text-primary mb-4">
         Onze <span
-          class="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-brand-sky"
+          class="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-action-blue"
           >Partners</span
         >
       </h2>
@@ -38,9 +38,9 @@ const sponsors = getSponsors();
       sponsors.length > 0 ? (
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
           {sponsors.map((sponsor) => (
-            <div class="group relative aspect-3/2 w-full rounded-xl bg-white/75 border border-glass-border/50 dark:border-white/10 p-6 flex items-center justify-center hover:scale-105 hover:border-brand-orange/30 hover:shadow-[0_0_30px_-10px_rgba(255,147,40,0.15)] transition-all duration-300 will-change-transform">
+            <div class="group relative aspect-3/2 w-full rounded-xl glass-card p-6 flex items-center justify-center hover:scale-105 hover:border-brand-orange/30 hover:shadow-[0_0_30px_-10px_rgba(255,147,40,0.15)] transition-all duration-300 will-change-transform">
               {/* Hover Glow Effect */}
-              <div class="absolute inset-0 bg-linear-to-br from-brand-orange/5 to-brand-sky/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+              <div class="absolute inset-0 bg-linear-to-br from-brand-orange/5 to-action-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
 
               <CloudinaryImage
                 src={sponsor.src}

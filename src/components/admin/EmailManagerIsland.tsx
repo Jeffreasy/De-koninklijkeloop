@@ -148,8 +148,8 @@ export default function EmailManagerIsland() {
                                     className={`
                                         w-full text-left px-4 py-3 rounded-xl transition-[background-color,border-color,color] duration-200
                                         ${selectedAccount === account
-                                            ? 'bg-accent-primary/10 border border-accent-primary/20 text-accent-primary'
-                                            : 'bg-white/2 border border-glass-border text-text-secondary hover:bg-white/5'
+                                            ? 'bg-accent-primary/10 border-2 border-accent-primary text-accent-primary font-medium'
+                                            : 'bg-glass-bg/30 border-2 border-glass-border text-text-muted hover:text-text-primary hover:bg-glass-bg/50'
                                         }
                                     `}
                                 >
@@ -220,9 +220,14 @@ export default function EmailManagerIsland() {
                     {/* Email List */}
                     <div className="divide-y divide-glass-border max-h-[500px] overflow-y-auto">
                         {loading && (
-                            <div className="flex items-center justify-center py-12">
+                            <div
+                                className="flex items-center justify-center py-12"
+                                role="status"
+                                aria-live="polite"
+                            >
                                 <Loader2 className="w-6 h-6 text-accent-primary animate-spin" />
                                 <span className="ml-3 text-text-muted">Emails laden...</span>
+                                <span className="sr-only">Email inbox wordt geladen...</span>
                             </div>
                         )}
 

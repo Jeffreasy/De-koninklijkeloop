@@ -43,7 +43,7 @@ export const siteConfig = {
             { name: "Routes & Kaart", href: "/routes" },
             { name: "Programma", href: "/programma" },
             { name: "Media", href: "/media" },
-            { name: "Veelgestelde Vragen", href: "/faq" },
+            { name: "Veelgestelde Vragen", href: "/contact#faq" },
         ],
         organisatie: [
             { name: "Over Ons", href: "/about" },

@@ -100,7 +100,7 @@ export default function DashboardTable() {
             </div>
 
             {/* Main Content Panel (Combined Toolbar & Table) */}
-            <div className="rounded-2xl md:rounded-3xl border border-white/10 bg-glass-bg/40 backdrop-blur-xl shadow-2xl overflow-hidden">
+            <div className="rounded-2xl md:rounded-3xl border border-glass-border bg-glass-bg/40 backdrop-blur-xl shadow-2xl overflow-hidden">
 
                 {/* Panel Header / Toolbar */}
                 <div className="p-4 md:p-5 border-b border-glass-border flex flex-col sm:flex-row gap-4 justify-between items-center bg-white/5">
@@ -201,7 +201,7 @@ function StatsCard({ label, value, icon, trend, color = "orange" }: { label: str
     const bgClass = gradients[color];
 
     return (
-        <div className={`relative overflow-hidden bg-glass-bg/30 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 hover:border-white/20 transition-all duration-300 group`}>
+        <div className={`relative overflow-hidden bg-glass-bg/30 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl border border-glass-border hover:border-accent-primary/30 transition-all duration-300 group`}>
             <div className={`absolute top-0 right-0 w-32 h-32 bg-linear-to-br ${bgClass} blur-2xl opacity-50 -mr-10 -mt-10 pointer-events-none`} />
 
             <div className="relative flex justify-between items-start">
@@ -215,7 +215,7 @@ function StatsCard({ label, value, icon, trend, color = "orange" }: { label: str
             </div>
             {trend && (
                 <div className="mt-4 pt-4 border-t border-glass-border/50 flex items-center gap-2">
-                    <span className="text-xs font-medium text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full">{trend}</span>
+                    <span className="text-xs font-medium text-[rgb(var(--success))] bg-[rgb(var(--success))]/10 px-2 py-0.5 rounded-full">{trend}</span>
                 </div>
             )}
         </div>
@@ -225,7 +225,7 @@ function StatsCard({ label, value, icon, trend, color = "orange" }: { label: str
 function Badge({ role }: { role?: string }) {
     const r = (role || "").toLowerCase();
 
-    let styles = "bg-gray-500/10 text-gray-400 border-gray-500/20";
+    let styles = "bg-[rgb(var(--muted))]/10 text-[rgb(var(--muted))] border-[rgb(var(--muted))]/20";
     let glowClass = "";
 
     if (r === "admin") {
@@ -237,7 +237,7 @@ function Badge({ role }: { role?: string }) {
         glowClass = "shadow-[0_0_8px_rgba(16,185,129,0.3)]";
     }
     if (r === "begeleider") {
-        styles = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+        styles = "bg-[rgb(var(--info))]/10 text-[rgb(var(--info))] border-[rgb(var(--info))]/20";
         glowClass = "shadow-[0_0_8px_rgba(59,130,246,0.3)]";
     }
 
