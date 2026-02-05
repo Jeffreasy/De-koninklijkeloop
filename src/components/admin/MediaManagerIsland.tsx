@@ -40,36 +40,46 @@ export default function MediaManagerIsland() {
     const metadata = useQuery(api.mediaMetadata.getAll);
     const saveAltTextMutation = useMutation(api.mediaMetadata.saveAltText);
 
-    // Fetch Cloudinary images on mount
+    // Fetch Cloudinary images
+    const loadImages = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetch('/api/admin/cloudinary-images');
+            const cloudinaryImages: CloudinaryImageAdmin[] = await response.json();
+
+            // Merge with Convex metadata
+            const merged: MergedImage[] = cloudinaryImages.map(img => {
+                const meta = metadata?.find((m: any) => m.cloudinary_public_id === img.public_id);
+                return {
+                    ...img,
+                    alt_text: meta?.alt_text || img.context?.custom?.alt,
+                    title: meta?.title,
+                    tags: meta?.tags,
+                    hasAltText: !!(meta?.alt_text || img.context?.custom?.alt)
+                };
+            });
+
+            setImages(merged);
+        } catch (error) {
+            console.error("Failed to fetch Cloudinary images", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Initial load & Metadata updates
     useEffect(() => {
-        const fetchImages = async () => {
-            try {
-                setIsLoading(true);
-                const response = await fetch('/api/admin/cloudinary-images');
-                const cloudinaryImages: CloudinaryImageAdmin[] = await response.json();
-
-                // Merge with Convex metadata
-                const merged: MergedImage[] = cloudinaryImages.map(img => {
-                    const meta = metadata?.find((m: any) => m.cloudinary_public_id === img.public_id);
-                    return {
-                        ...img,
-                        alt_text: meta?.alt_text || img.context?.custom?.alt,
-                        title: meta?.title,
-                        tags: meta?.tags,
-                        hasAltText: !!(meta?.alt_text || img.context?.custom?.alt)
-                    };
-                });
-
-                setImages(merged);
-            } catch (error) {
-                console.error("Failed to fetch Cloudinary images", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchImages();
+        loadImages();
     }, [metadata]);
+
+    // Handle Upload Success
+    const handleUploadSuccess = (url: string) => {
+        console.log("Upload successful, refreshing images...", url);
+        // Add a small delay to allow Cloudinary API to update
+        setTimeout(() => {
+            loadImages();
+        }, 1000);
+    };
 
     // Filtering
     const filteredImages = images.filter(img => {
@@ -191,6 +201,7 @@ export default function MediaManagerIsland() {
                 onDeselectAll={() => setSelectedIds(new Set())}
                 onSelectAll={handleSelectAll}
                 allSelected={selectedIds.size === paginatedImages.length && paginatedImages.length > 0}
+                onUploadSuccess={handleUploadSuccess}
             />
 
             {/* Media Grid */}

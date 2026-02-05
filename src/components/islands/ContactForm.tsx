@@ -18,6 +18,7 @@ type FormData = z.infer<typeof schema>
 export default function ContactForm() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [success, setSuccess] = useState(false)
+    const [submitError, setSubmitError] = useState<string | null>(null)
 
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(schema)
@@ -25,11 +26,28 @@ export default function ContactForm() {
 
     const onSubmit = async (data: FormData) => {
         setIsSubmitting(true)
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        console.log(data)
-        setIsSubmitting(false)
-        setSuccess(true)
+        setSubmitError(null)
+
+        try {
+            const response = await fetch('/api/v1/public/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+
+            if (!response.ok) {
+                throw new Error('Er is iets misgegaan bij het verzenden.')
+            }
+
+            setSuccess(true)
+        } catch (err) {
+            console.error(err)
+            setSubmitError('Verzenden mislukt. Probeer het later nog eens.')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     if (success) {
@@ -44,6 +62,11 @@ export default function ContactForm() {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {submitError && (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm text-center">
+                    {submitError}
+                </div>
+            )}
             <div className="space-y-2">
                 <Label htmlFor="name">Naam</Label>
                 <Input id="name" {...register("name")} placeholder="Jouw naam" />

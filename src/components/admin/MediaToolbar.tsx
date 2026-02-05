@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { CloudinaryUploadButton } from "./CloudinaryUploadButton.tsx";
 
 interface Props {
     searchTerm: string;
@@ -11,6 +12,7 @@ interface Props {
     onDeselectAll: () => void;
     onSelectAll: () => void;
     allSelected: boolean;
+    onUploadSuccess: (url: string) => void;
 }
 
 export function MediaToolbar({
@@ -23,13 +25,14 @@ export function MediaToolbar({
     onBulkEdit,
     onDeselectAll,
     onSelectAll,
-    allSelected
+    allSelected,
+    onUploadSuccess
 }: Props) {
     return (
         <div className="glass-card p-4">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 justify-between">
+            <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4 justify-between">
                 {/* Left: Search + Filters */}
-                <div className="flex items-center gap-3 flex-wrap flex-1 w-full lg:w-auto">
+                <div className="flex items-center gap-3 flex-wrap flex-1 w-full xl:w-auto">
                     {/* Search Input */}
                     <div className="relative group flex-1 min-w-[240px]">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-accent-primary transition-colors" />
@@ -43,7 +46,7 @@ export function MediaToolbar({
                     </div>
 
                     {/* Folder Filter */}
-                    < select
+                    <select
                         value={folderFilter}
                         onChange={(e) => setFolderFilter(e.target.value)}
                         className="px-3 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary focus:ring-1 focus:ring-accent-primary/50"
@@ -70,29 +73,38 @@ export function MediaToolbar({
                     </div>
                 </div>
 
-                {/* Right: Bulk Actions */}
-                {selectedCount > 0 && (
-                    <div className="flex items-center gap-3 w-full lg:w-auto">
-                        <span className="text-sm text-text-muted whitespace-nowrap">
-                            {selectedCount} geselecteerd
-                        </span>
-                        <button
-                            onClick={onBulkEdit}
-                            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
-                            aria-label="Bulk bewerken geselecteerde afbeeldingen"
-                        >
-                            <iconify-icon icon="lucide:edit-3" width="16" />
-                            <span>Bulk Bewerken</span>
-                        </button>
-                        <button
-                            onClick={onDeselectAll}
-                            className="px-4 py-2.5 min-h-[44px] rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-colors"
-                            aria-label="Deselecteer alle afbeeldingen"
-                        >
-                            Deselecteer
-                        </button>
+                {/* Right: Actions */}
+                <div className="flex items-center gap-3 w-full xl:w-auto justify-end">
+                    {/* Bulk Actions (Only visible when selected) */}
+                    {selectedCount > 0 && (
+                        <>
+                            <span className="text-sm text-text-muted whitespace-nowrap hidden sm:inline">
+                                {selectedCount} geselecteerd
+                            </span>
+                            <button
+                                onClick={onBulkEdit}
+                                className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
+                                aria-label="Bulk bewerken geselecteerde afbeeldingen"
+                            >
+                                <iconify-icon icon="lucide:edit-3" width="16" />
+                                <span className="hidden sm:inline">Bulk Bewerken</span>
+                            </button>
+                            <button
+                                onClick={onDeselectAll}
+                                className="px-4 py-2 min-h-[44px] rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-colors"
+                                aria-label="Deselecteer alle afbeeldingen"
+                            >
+                                Deselecteer
+                            </button>
+                            <div className="w-px h-8 bg-glass-border mx-1"></div>
+                        </>
+                    )}
+
+                    {/* Upload Button */}
+                    <div className="w-full sm:w-auto">
+                        <CloudinaryUploadButton onUploadSuccess={onUploadSuccess} />
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );
