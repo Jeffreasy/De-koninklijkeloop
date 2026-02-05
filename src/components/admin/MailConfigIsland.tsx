@@ -46,12 +46,25 @@ export default function MailConfigIsland() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    // Don't preset password, it's sensitive
-                    setConfig({
-                        ...data,
-                        password: '',
-                        port: Number(data.port)
-                    });
+                    if (data.configured) {
+                        const backendConfig = data.config;
+                        // Map Backend -> Frontend
+                        setConfig({
+                            provider: 'smtp', // Default
+                            host: backendConfig.host,
+                            port: Number(backendConfig.port),
+                            username: backendConfig.user,
+                            password: '', // Don't preset password, it's sensitive
+                            from_email: backendConfig.from,
+                            from_name: '', // Backend doesn't store name? Or stores "Name <email>"? Backend just stores string.
+                            // Map TLS Mode
+                            // Backend 'starttls' -> Frontend 'tls' (Label: TLS (STARTTLS))
+                            // Backend 'tls' -> Frontend 'ssl' (Label: SSL)
+                            // Default to 'tls'
+                            encryption: backendConfig.tls_mode === 'tls' ? 'ssl' : 'tls',
+                            auth_type: 'login' // Default/Ignored
+                        });
+                    }
                 } else {
                     console.error("Failed to fetch mail config");
                 }
@@ -71,16 +84,27 @@ export default function MailConfigIsland() {
         setStatus(null);
 
         try {
+            // Map Frontend -> Backend
+            // Frontend 'tls' (STARTTLS) -> Backend 'starttls'
+            // Frontend 'ssl' (Implicit) -> Backend 'tls'
+            const tlsMode = config.encryption === 'ssl' ? 'tls' : 'starttls';
+
+            const payload = {
+                host: config.host,
+                port: Number(config.port),
+                user: config.username,
+                password: config.password,
+                from: config.from_email,
+                tls_mode: tlsMode
+            };
+
             const response = await fetch('/api/v1/admin/mail-config', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify({
-                    ...config,
-                    port: Number(config.port)
-                })
+                body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
