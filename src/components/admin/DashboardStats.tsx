@@ -1,0 +1,133 @@
+import { useMemo } from "react";
+import { Users, Euro, Map, TrendingUp, UserCheck, UserPlus, Clock } from "lucide-react";
+
+interface Registration {
+    _id: string;
+    name: string;
+    email: string;
+    role: string; // "deelnemer" | "begeleider" | "vrijwilliger"
+    distance?: string; // "2.5", "6", "10", "15"
+    status: string; // "paid", "pending", "cancelled"
+    createdAt: number;
+    amount?: number; // Optional, if we have custom amounts. Otherwise we estimate.
+    userType?: string;
+}
+
+interface DashboardStats {
+    totalRevenue: number;
+    totalParticipants: number;
+    newToday: number;
+    participantsByDistance: Record<string, number>;
+    participantsByRole: Record<string, number>;
+    participantsByUserType: Record<string, number>;
+    uniqueReach: number;
+    topDomains: { domain: string, count: number }[];
+    recentRegistrations: Registration[];
+}
+
+// Estimated pricing for revenue calculation if not in DB
+const PRICE_MAP: Record<string, number> = {
+    "2.5": 5, // €5.00
+    "6": 7.50, // €7.50
+    "10": 10, // €10.00
+    "15": 12.50 // €12.50
+};
+
+const DEFAULT_PRICE = 5; // Fallback
+
+export function useDashboardStats(registrations: Registration[] | undefined): DashboardStats {
+    return useMemo(() => {
+        if (!registrations) {
+            return {
+                totalRevenue: 0,
+                totalParticipants: 0,
+                newToday: 0,
+                participantsByDistance: {},
+                participantsByRole: {},
+                participantsByUserType: {},
+                uniqueReach: 0,
+                topDomains: [],
+                recentRegistrations: []
+            };
+        }
+
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+        let revenue = 0;
+        let newTodayCount = 0;
+        const distMap: Record<string, number> = { "2.5": 0, "6": 0, "10": 0, "15": 0 };
+        const roleMap: Record<string, number> = { "deelnemer": 0, "begeleider": 0, "vrijwilliger": 0 };
+        const domainMap: Record<string, number> = {};
+        const userTypeMap: Record<string, number> = { "authenticated": 0, "guest": 0 };
+        const uniqueEmails = new Set<string>();
+
+        registrations.forEach(reg => {
+            // Unique Emails
+            if (reg.email) {
+                uniqueEmails.add(reg.email.toLowerCase());
+
+                // Domain Stats
+                const domain = reg.email.split('@')[1]?.toLowerCase();
+                if (domain) {
+                    domainMap[domain] = (domainMap[domain] || 0) + 1;
+                }
+            }
+
+            // User Type
+            const type = reg.userType === "authenticated" ? "authenticated" : "guest";
+            userTypeMap[type]++;
+
+            // Count Roles
+            if (roleMap[reg.role] !== undefined) {
+                roleMap[reg.role]++;
+            }
+
+            // Count Distances (only for walkers)
+            if (reg.role === "deelnemer" && reg.distance && distMap[reg.distance] !== undefined) {
+                distMap[reg.distance]++;
+            }
+
+            // Revenue Calculation (Kept as secondary metric)
+            if (reg.status === "paid") {
+                const price = reg.distance ? (PRICE_MAP[reg.distance] || DEFAULT_PRICE) : 0;
+                revenue += price;
+            }
+
+            // New Today
+            if (reg.createdAt >= startOfToday) {
+                newTodayCount++;
+            }
+        });
+
+        // Sort Domains by popularity
+        const topDomains = Object.entries(domainMap)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 4) // Top 4
+            .map(([domain, count]) => ({ domain, count }));
+
+        // Recent 5
+        const recent = [...registrations]
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .slice(0, 5);
+
+        return {
+            totalRevenue: revenue,
+            totalParticipants: registrations.length,
+            uniqueReach: uniqueEmails.size,
+            newToday: newTodayCount,
+            participantsByDistance: distMap,
+            participantsByRole: roleMap,
+            participantsByUserType: userTypeMap,
+            topDomains,
+            recentRegistrations: recent
+        };
+    }, [registrations]);
+}
+
+export const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("nl-NL", {
+        style: "currency",
+        currency: "EUR"
+    }).format(amount);
+};
