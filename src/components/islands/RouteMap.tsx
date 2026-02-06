@@ -1,104 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
 import { routes } from '../../lib/routeData';
 import { cn } from '../../lib/utils';
-// Fix for missing default icon in Leaflet with webpack/vite
-import L from 'leaflet';
 
-// Use CDN URLs for markers to avoid Vite/Vercel asset resolution issues
-let DefaultIcon = L.icon({
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
-
-// Updated component to fit view bounds of the route
-function MapUpdater({ points }: { points: { lat: number; lng: number }[] }) {
-    const map = useMap();
-    useEffect(() => {
-        if (points && points.length > 0) {
-            const bounds = L.latLngBounds(points.map(p => [p.lat, p.lng]));
-            map.fitBounds(bounds, { padding: [50, 50] });
-        }
-    }, [points, map]);
-    return null;
-}
+const RouteMapInner = React.lazy(() => import('./RouteMapInner'));
 
 export default function RouteMap() {
     const [selectedRouteId, setSelectedRouteId] = useState<string>(routes[0].id);
     const selectedRoute = routes.find(r => r.id === selectedRouteId) || routes[0];
 
+    // Lazy load logic
+    const [isVisible, setIsVisible] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { rootMargin: '200px' }
+        );
+
+        if (containerRef.current) {
+            observer.observe(containerRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
     return (
         <div className="flex flex-col gap-6">
-            {/* Controls */}
-            <div className="flex flex-wrap justify-center gap-4">
-                {routes.map((route) => (
-                    <button
-                        key={route.id}
-                        onClick={() => setSelectedRouteId(route.id)}
-                        className={cn(
-                            "px-6 py-3 rounded-xl font-medium transition-all duration-300 backdrop-blur-md border",
-                            selectedRouteId === route.id
-                                ? "bg-brand-orange text-white border-brand-orange shadow-lg scale-105 font-bold shadow-brand-orange/25"
-                                : "bg-glass-bg border-glass-border text-text-body hover:text-brand-orange hover:bg-glass-bg/80 hover:border-brand-orange/20"
-                        )}
-                    >
-                        {route.distance}
-                    </button>
-                ))}
-            </div>
-
-            {/* Info Card */}
-            <div className="text-center max-w-2xl mx-auto mb-8">
-                <h2 className="text-3xl md:text-4xl font-display font-bold text-text-primary mb-3">
+            {/* Title - Always visible outside */}
+            <div className="text-center max-w-2xl mx-auto">
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-text-primary">
                     {selectedRoute.name}
                 </h2>
-                <p className="text-lg text-text-muted leading-relaxed max-w-xl mx-auto">
-                    {selectedRoute.description}
-                </p>
-
-                {/* Visual indicator of metric */}
-                <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface/50 border border-white/10 backdrop-blur-md">
-                    <div className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: selectedRoute.color }}></div>
-                    <span className="text-sm font-medium text-text-primary">
-                        {selectedRoute.distance}
-                    </span>
-                </div>
             </div>
 
-            {/* Map */}
-            <div className="relative h-[500px] w-full rounded-3xl overflow-hidden border border-glass-border shadow-2xl">
-                <MapContainer
-                    center={[52.234, 5.945]}
-                    zoom={13}
-                    scrollWheelZoom={false}
-                    className="h-full w-full z-0"
-                >
-                    <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
+            {/* Map Container with Floating Elements */}
+            <div ref={containerRef} className="min-h-[500px] w-full rounded-3xl overflow-hidden border border-glass-border shadow-2xl bg-surface/5 relative group">
+                {!isVisible ? (
+                    <div className="absolute inset-0 flex items-center justify-center text-text-muted">
+                        <span className="animate-pulse">Kaart laden bij scrollen...</span>
+                    </div>
+                ) : (
+                    <>
+                        <Suspense fallback={
+                            <div className="absolute inset-0 flex items-center justify-center text-brand-orange bg-surface/50 backdrop-blur-sm">
+                                <Loader2 className="w-10 h-10 animate-spin" />
+                            </div>
+                        }>
+                            <RouteMapInner route={selectedRoute} />
+                        </Suspense>
 
-                    <Polyline
-                        positions={selectedRoute.points.map(p => [p.lat, p.lng])}
-                        pathOptions={{ color: selectedRoute.color, weight: 6, opacity: 0.8 }}
-                    />
+                        {/* Floating Info (Top) */}
+                        <div className="absolute top-6 left-4 right-4 z-400 flex justify-center pointer-events-none">
+                            <div className="max-w-md bg-white/90 dark:bg-black/60 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-xl rounded-2xl p-4 text-center pointer-events-auto">
+                                <p className="text-sm md:text-base text-text-primary dark:text-white/90 leading-relaxed font-medium">
+                                    {selectedRoute.description}
+                                </p>
+                                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10">
+                                    <div className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: selectedRoute.color }}></div>
+                                    <span className="text-xs font-bold text-text-primary dark:text-white">
+                                        {selectedRoute.distance}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
-                    <Marker position={[52.234120, 5.945890]}>
-                        <Popup>
-                            Start/Finish: Paleis Het Loo
-                        </Popup>
-                    </Marker>
-
-                    <MapUpdater points={selectedRoute.points} />
-                </MapContainer>
+                        {/* Floating Controls */}
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-400 w-full max-w-max px-4">
+                            <div className="flex flex-wrap justify-center gap-2 p-2 rounded-2xl bg-white/90 dark:bg-black/60 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-xl">
+                                {routes.map((route) => (
+                                    <button
+                                        key={route.id}
+                                        onClick={() => setSelectedRouteId(route.id)}
+                                        className={cn(
+                                            "px-4 py-2 rounded-xl font-bold text-sm transition-all duration-300",
+                                            selectedRouteId === route.id
+                                                ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25 scale-105"
+                                                : "bg-transparent text-text-muted hover:text-brand-orange hover:bg-black/5 dark:hover:bg-white/10"
+                                        )}
+                                    >
+                                        {route.distance}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );
