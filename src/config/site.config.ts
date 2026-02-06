@@ -106,6 +106,6 @@ export const siteConfig = {
     meta: {
         titleSuffix: " | De Koninklijke Loop",
         defaultDescription:
-            "De Koninklijke Loop - Inclusief wandelevenement op 17 mei 2026",
+            "De Koninklijke Loop - Inclusief wandelevenement op 16 mei 2026",
     },
 } as const;
