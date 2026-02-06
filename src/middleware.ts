@@ -79,5 +79,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
     response.headers.set("X-Frame-Options", import.meta.env.DEV ? "SAMEORIGIN" : "DENY");
     response.headers.set("X-Content-Type-Options", "nosniff");
 
+    // Content Security Policy
+    const csp = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://*.convex.cloud https://res.cloudinary.com https://widget.cloudinary.com https://vercel.live https://va.vercel-scripts.com https://cdn.jsdelivr.net https://code.iconify.design",
+        "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com https://unpkg.com",
+        "img-src 'self' data: https://res.cloudinary.com https://*.convex.cloud https://thumbs-east.streamable.com https://placehold.co https://*.tile.openstreetmap.org https://unpkg.com",
+        "font-src 'self' data: * https://api.fontshare.com https://fonts.gstatic.com https://fonts.googleapis.com",
+        "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://laventecareauthsystems.onrender.com https://res.cloudinary.com https://*.tile.openstreetmap.org https://va.vercel-analytics.com https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com",
+        "frame-src https://streamable.com https://*.streamable.com https://vercel.live https://www.komoot.com https://*.komoot.com",
+        "frame-ancestors 'none'",
+        "upgrade-insecure-requests"
+    ].join("; ");
+
+    response.headers.set("Content-Security-Policy", csp);
+
     return response;
 });
