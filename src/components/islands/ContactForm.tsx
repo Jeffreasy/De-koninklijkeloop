@@ -38,6 +38,19 @@ export default function ContactForm() {
                 message: data.message
             });
 
+            // Trigger Email via Go API
+            const response = await fetch('/api/v1/public/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error:', errorText);
+                throw new Error(`Email sending failed: ${errorText}`);
+            }
+
             setSuccess(true)
             reset()
         } catch (err) {

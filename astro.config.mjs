@@ -22,12 +22,12 @@ export default defineConfig({
     server: {
       proxy: {
         '/api/v1': {
-          target: 'http://localhost:8080',
+          target: process.env.API_TARGET || 'http://localhost:8080',
           changeOrigin: true,
           secure: false,
         },
         '/api/email': {
-          target: 'http://localhost:8080',
+          target: process.env.API_TARGET || 'http://localhost:8080',
           changeOrigin: true,
           secure: false,
         },

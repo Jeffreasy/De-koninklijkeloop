@@ -19,8 +19,20 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         return new Response("Use specific email proxy", { status: 404 });
     }
 
-    // API_URL already contains /api/v1
-    const targetUrl = `${API_URL}/${path}`;
+    // Clean up path to avoid double /v1/v1
+    let cleanPath = path;
+    if (API_URL.endsWith('/v1') && cleanPath.startsWith('v1/')) {
+        cleanPath = cleanPath.substring(3); // Remove 'v1/'
+    } else if (API_URL.endsWith('/api') && cleanPath.startsWith('api/')) {
+        cleanPath = cleanPath.substring(4);
+    }
+
+    // Ensure no double slashes
+    if (cleanPath.startsWith('/')) {
+        cleanPath = cleanPath.substring(1);
+    }
+
+    const targetUrl = `${API_URL}/${cleanPath}`;
 
     try {
         // Inject Authorization header from cookie if valid
@@ -45,21 +57,29 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         console.log(`[Proxy] Forwarding ${request.method} to ${targetUrl}`);
         console.log(`[Proxy] X-Tenant-ID: ${headers.get("X-Tenant-ID")}`);
 
+        let body: any = undefined;
+        if (request.method !== 'GET') {
+            const rawBody = await request.clone().text();
+            console.log(`[Proxy] Request Body (${rawBody.length} chars): ${rawBody.substring(0, 100)}...`);
+            body = rawBody; // Forward as string or stream
+        }
+
         const response = await fetch(targetUrl, {
             method: request.method,
             headers: headers,
-            body: request.method !== 'GET' ? request.clone().body as any : undefined,
-            duplex: 'half' // Required for Node, harmless on Vercel
+            body: body,
+            // duplex: 'half' // Removed for compatibility if using string body
         } as any);
+
+        const responseText = await response.text();
+        console.log(`[Proxy] Response ${response.status}: ${responseText.substring(0, 100)}...`);
 
         const responseHeaders = new Headers(response.headers);
         responseHeaders.delete('content-encoding');
         responseHeaders.delete('content-length');
-
-        // Security: Remove any potential Set-Cookie from backend passing through
         responseHeaders.delete('set-cookie');
 
-        return new Response(response.body, {
+        return new Response(responseText, {
             status: response.status,
             headers: responseHeaders
         });
