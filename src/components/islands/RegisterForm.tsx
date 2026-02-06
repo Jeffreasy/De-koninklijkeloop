@@ -350,7 +350,7 @@ export default function RegisterForm() {
                         <Phone className="w-6 h-6" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold font-display text-text-body">Noodcontact (ICE)</h3>
+                        <h3 className="text-xl font-bold font-display text-text-body">Noodcontact</h3>
                         <p className="text-sm text-text-muted">Wie kunnen we bellen in geval van nood?</p>
                     </div>
                 </div>
