@@ -1,12 +1,12 @@
 ---
 // src/components/blocks/MediaMosaic.astro
-import VideoShowcase from "../islands/VideoShowcase";
-import LiveImageGrid from "../islands/LiveImageGrid";
-import { videos } from "../../data/videos";
-import { Button } from "../ui/button";
+import VideoShowcase from "../../islands/VideoShowcase";
+import LiveImageGrid from "../../islands/LiveImageGrid";
+import { videos } from "../../../data/videos";
+import { Button } from "../../ui/button";
 import { Play, ArrowRight } from "lucide-react";
-import { gallery } from "../../data/gallery";
-import { getImagesFromFolder } from "../../lib/cloudinary";
+import { gallery } from "../../../data/gallery";
+import { getImagesFromFolder } from "../../../lib/cloudinary";
 
 // Featured content config
 const featuredVideo = videos.find((v) => v.featured) || videos[0];

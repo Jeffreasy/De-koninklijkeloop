@@ -1,10 +1,10 @@
 import { useState, useCallback, memo } from "react";
 import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { api } from "../../../../convex/_generated/api";
 import { Instagram } from "lucide-react";
 import { SocialPostShowcaseModal } from "./SocialPostShowcaseModal";
 import { useStore } from "@nanostores/react";
-import { $accessToken, $user } from "../../lib/auth";
+import { $accessToken, $user } from "../../../lib/auth";
 
 export const SocialGridIsland = memo(function SocialGridIsland() {
     const featuredPost = useQuery(api.socialPosts.getFeatured);

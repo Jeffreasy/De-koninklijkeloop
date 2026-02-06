@@ -1,9 +1,9 @@
 ---
 // src/components/blocks/CharitySpotlight.astro
-import { charityHistory } from "../../data/charityConfig"; // Zorg dat deze import klopt
-import { Button } from "../ui/button";
+import { charityHistory } from "../../../data/charityConfig"; // Zorg dat deze import klopt
+import { Button } from "../../ui/button";
 import { ArrowRight, History, Heart } from "lucide-react";
-import CloudinaryImage from "../ui/CloudinaryImage.astro";
+import CloudinaryImage from "../../ui/CloudinaryImage.astro";
 
 // Logica: Haal de huidige (2026) en het archief (2025, 2024) uit elkaar
 const [latest, ...pastCampaigns] = charityHistory;

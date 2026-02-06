@@ -62,10 +62,11 @@ export const siteConfig = {
 
     // Sponsors
     sponsors: [
-        { name: "3x3 Anders", src: "3x3anderslogo_itwm3g" },
-        { name: "Beeld Pakker", src: "BeeldpakkerLogo_wijjmq" },
-        { name: "Mojo Dojo", src: "LogoLayout_1_iphclc" },
-        { name: "Sterk In Vloeren", src: "SterkinVloerenLOGO_zrdofb" },
+        { name: "3x3 Anders", src: "3x3anderslogo_itwm3g", url: "https://3x3anders.nl" },
+        { name: "Beeld Pakker", src: "BeeldpakkerLogo_wijjmq", url: "#" }, // Reverted to placeholder per user correction
+        { name: "Mojo Dojo", src: "LogoLayout_1_iphclc", url: "https://mojodojo.io" },
+        { name: "Sterk In Vloeren", src: "SterkinVloerenLOGO_zrdofb", url: "https://sterk-in-vloeren.nl" },
+        { name: "Bas Visual Storytelling", src: "vrookpkj9aghvyc28ix5_i2dwx0", url: "https://basvisualstorytelling.nl" },
     ],
 
     // Featured Media

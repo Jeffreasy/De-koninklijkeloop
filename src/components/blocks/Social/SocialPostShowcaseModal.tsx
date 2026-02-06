@@ -2,7 +2,7 @@ import { X, ChevronLeft, ChevronRight, ExternalLink, Calendar, Maximize2, Minimi
 import { useEffect, useMemo, useCallback, memo, useState } from "react";
 import { createPortal } from "react-dom";
 import { ReactionPicker } from "./ReactionPicker";
-import type { Id } from "../../../convex/_generated/dataModel";
+import type { Id } from "../../../../convex/_generated/dataModel";
 
 interface SocialPost {
     _id: Id<"social_posts">;

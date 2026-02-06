@@ -1,8 +1,8 @@
 ---
 // src/components/blocks/Navbar.astro
-import ThemeToggle from "../islands/ThemeToggle";
-import { siteConfig } from "../../config/site.config";
-import CloudinaryImage from "../ui/CloudinaryImage.astro";
+import ThemeToggle from "../../islands/ThemeToggle";
+import { siteConfig } from "../../../config/site.config";
+import CloudinaryImage from "../../ui/CloudinaryImage.astro";
 import { Menu, X, ChevronRight, ArrowRight } from "lucide-react";
 
 const pathname = Astro.url.pathname;
@@ -297,7 +297,7 @@ const isActive = (href: string) => {
 </script>
 
 <style>
-    @reference "../../styles/global.css";
+    @reference "../../../styles/global.css";
 
     /* Scrolled Navbar State - Glassmorphism with Orange Border */
     nav[data-scrolled="true"] {
