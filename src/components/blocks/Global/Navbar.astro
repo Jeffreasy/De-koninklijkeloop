@@ -67,12 +67,12 @@ const isActive = (href: string) => {
             <div
                 class="pl-4 ml-4 border-l border-border h-8 flex items-center opacity-70 hover:opacity-100 transition-opacity"
             >
-                <ThemeToggle client:load />
+                <ThemeToggle client:idle />
             </div>
         </div>
 
         <div class="md:hidden flex items-center gap-3">
-            <ThemeToggle client:load />
+            <ThemeToggle client:idle />
             <button
                 id="mobile-menu-btn"
                 class="p-3.5 bg-surface border border-border hover:border-brand-orange rounded-xl transition-all hover:scale-105 shadow-lg hover:shadow-xl active:scale-95 group"

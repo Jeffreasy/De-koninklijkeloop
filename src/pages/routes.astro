@@ -41,7 +41,7 @@ import RouteGrid from "../components/blocks/Route/RouteGrid.astro";
             </div>
 
             <!-- Client-only map to avoid SSR issues with Leaflet -->
-            <RouteMap client:only="react" />
+            <RouteMap client:visible />
         </div>
     </main>
 

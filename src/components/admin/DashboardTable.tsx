@@ -23,6 +23,10 @@ export default function DashboardTable() {
     const [registrations, setRegistrations] = useState<Registration[] | undefined>(undefined);
     const [searchTerm, setSearchTerm] = useState("");
 
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 15;
+
     const accessToken = useStore($accessToken);
     const getRegistrations = useAction(api.admin.getRegistrations);
 
@@ -74,6 +78,18 @@ export default function DashboardTable() {
         reg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         reg.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    // Pagination Logic
+    const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
+    const paginatedRegistrations = filteredRegistrations.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // Reset pagination when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -140,7 +156,7 @@ export default function DashboardTable() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-glass-border/50">
-                            {filteredRegistrations.map((reg, index) => (
+                            {paginatedRegistrations.map((reg, index) => (
                                 <tr
                                     key={reg._id}
                                     className="group hover:bg-white/3 transition-colors duration-200"
@@ -184,6 +200,35 @@ export default function DashboardTable() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {filteredRegistrations.length > itemsPerPage && (
+                    <div className="px-6 py-4 border-t border-glass-border flex items-center justify-between bg-glass-bg/20">
+                        <div className="text-sm text-text-muted">
+                            Toont <span className="font-medium text-text-primary">{(currentPage - 1) * itemsPerPage + 1}</span> tot <span className="font-medium text-text-primary">{Math.min(currentPage * itemsPerPage, filteredRegistrations.length)}</span> van <span className="font-medium text-text-primary">{filteredRegistrations.length}</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="h-8 w-8 p-0"
+                            >
+                                &lt;
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="h-8 w-8 p-0"
+                            >
+                                &gt;
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
