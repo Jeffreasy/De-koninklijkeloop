@@ -2,36 +2,16 @@
 import { Button } from "../ui/button";
 // We importeren strakke SVG icons voor de "Tech" uitstraling
 import { Users, Trees, HeartHandshake, Crown } from "lucide-react";
-
-const features = [
-    {
-        title: "Inclusiviteit",
-        description:
-            "Een evenement waar iedereen meedoet, ongeacht beperking of achtergrond. Samen breken we barrières.",
-        icon: Users, // Referentie naar het component, niet een string
-    },
-    {
-        title: "Gezondheid",
-        description:
-            "Bewegen is leven. We stimuleren een actieve levensstijl in de prachtige natuur van de Veluwe.",
-        icon: Trees,
-    },
-    {
-        title: "Verbinding",
-        description:
-            "Ontmoet nieuwe mensen, deel verhalen en wandel samen naar de finish. Niemand loopt alleen.",
-        icon: HeartHandshake,
-    },
-];
 ---
 
 <section class="relative py-24 overflow-hidden border-y border-border">
+    {/* Dark Mode: Deep Royal Glow */}
     <div
-        class="absolute top-0 left-1/4 w-96 h-96 bg-brand-blue-light/10 rounded-full blur-[128px] pointer-events-none"
+        class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-brand-blue-light/20 rounded-full blur-[128px] pointer-events-none mix-blend-screen"
     >
     </div>
     <div
-        class="absolute bottom-0 right-1/4 w-96 h-96 bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none"
+        class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-brand-orange/10 rounded-full blur-[128px] pointer-events-none mix-blend-screen"
     >
     </div>
 
@@ -40,25 +20,25 @@ const features = [
             <div class="space-y-8">
                 <div>
                     <h2
-                        class="text-4xl md:text-5xl font-display font-bold text-primary leading-tight"
+                        class="text-4xl md:text-5xl font-display font-medium text-primary leading-tight uppercase tracking-wide"
                     >
-                        Wandelen voor een
-                        <span class="text-royal-gradient">
-                            Inclusieve Wereld
+                        Samen in beweging voor een
+                        <span class="text-royal-gradient block mt-1">
+                            Inclusief Apeldoorn
                         </span>
                     </h2>
                     <p class="mt-6 text-lg text-muted leading-relaxed">
-                        De Koninklijke Loop is meer dan een wandeltocht; het is
-                        een beweging. Een initiatief <strong
-                            class="text-primary font-semibold"
-                            >voor en door</strong
-                        > mensen met een beperking, waarbij we laten zien dat beperkingen
-                        wegvallen als we samen optrekken.
+                        De Koninklijke Loop draagt actief bij aan de lokale
+                        sportambities. Wij creëren een sociaal veilige
+                        sportomgeving waarin beperkingen wegvallen. Het gaat
+                        niet alleen om de finish halen, maar om meedoen in de
+                        maatschappij.
                     </p>
                     <p class="mt-4 text-lg text-muted leading-relaxed">
-                        Op 16 Mei 2026 kleuren we Kootwijk oranje en blauw. Van
-                        de 2.5KM "Roll & Stroll" tot de uitdagende 15KM
-                        bosroute: er is plek voor iedereen.
+                        Op 16 Mei 2026 zetten we samen Apeldoorn op de kaart als
+                        sportstad. Van de toegankelijke 2.5KM "Roll & Stroll"
+                        tot de uitdagende 15KM: wij maken bewegen mogelijk voor
+                        iedereen.
                     </p>
                 </div>
 
@@ -66,18 +46,18 @@ const features = [
                     <a href="/register">
                         <Button
                             size="lg"
-                            className="rounded-full px-8 bg-brand-orange hover:bg-orange-400 shadow-lg shadow-brand-orange/20 text-white font-medium border-none"
+                            className="rounded-xl px-8 bg-brand-orange hover:bg-orange-400 shadow-lg shadow-brand-orange/20 text-white font-bold border-none transition-transform hover:scale-105"
                         >
-                            Schrijf je in
+                            Doe mee & Beweeg
                         </Button>
                     </a>
                     <a href="/about">
                         <Button
-                            variant="ghost"
+                            variant="glass"
                             size="lg"
-                            className="rounded-full px-8 text-primary hover:bg-primary/5 border border-border"
+                            className="rounded-xl px-8 text-primary hover:text-brand-orange transition-colors"
                         >
-                            Lees ons verhaal
+                            Onze maatschappelijke rol
                         </Button>
                     </a>
                 </div>
@@ -85,59 +65,90 @@ const features = [
 
             <div class="grid gap-6">
                 <div
-                    class="glass-card p-8 rounded-3xl relative overflow-hidden group hover:shadow-2xl transition-all duration-500"
+                    class="premium-glass p-8 rounded-3xl relative overflow-hidden group hover:shadow-2xl transition-all duration-500 border border-white/10 dark:border-white/5"
                 >
                     <div
-                        class="absolute inset-0 bg-linear-to-br from-brand-blue/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        class="absolute inset-0 bg-linear-to-br from-brand-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                     >
                     </div>
 
                     <div class="relative z-10">
                         <div
-                            class="w-14 h-14 bg-brand-orange/10 rounded-xl flex items-center justify-center mb-6 text-brand-orange"
+                            class="w-14 h-14 bg-brand-orange/10 rounded-xl flex items-center justify-center mb-6 text-brand-orange ring-1 ring-brand-orange/20"
                         >
                             <Crown className="w-7 h-7" />
                         </div>
-                        <h3 class="text-xl font-bold text-primary mb-3">
+                        <h3 class="text-2xl font-display text-primary mb-3">
                             Koninklijke Allure
                         </h3>
                         <p class="text-muted leading-relaxed">
-                            Start en finish in een vorstelijke ambiance.
-                            Begeleid door muziek, sfeer en applaus voelt elke
-                            deelnemer zich een winnaar.
+                            Start en finish in een vorstelijke ambiance. Wij
+                            vieren de diversiteit van onze sporters met muziek,
+                            sfeer en applaus. Hier voelt elke deelnemer zich een
+                            kampioen.
                         </p>
                     </div>
                 </div>
 
                 <div class="grid sm:grid-cols-2 gap-6">
-                    {
-                        features.slice(0, 2).map((feature) => (
-                            <div class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300">
-                                <div class="mb-4 text-action-blue">
-                                    <feature.icon className="w-8 h-8" />
-                                </div>
-                                <h4 class="font-bold text-primary mb-2">
-                                    {feature.title}
-                                </h4>
-                                <p class="text-sm text-muted">
-                                    {feature.description}
-                                </p>
-                            </div>
-                        ))
-                    }
+                    <div
+                        class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 border border-white/10 dark:border-white/5"
+                    >
+                        <div
+                            class="mb-4 text-action-blue bg-action-blue/10 w-12 h-12 rounded-lg flex items-center justify-center"
+                        >
+                            <Users className="w-6 h-6" />
+                        </div>
+                        <h4
+                            class="font-display text-lg text-primary mb-2 tracking-wide"
+                        >
+                            Inclusief Sportklimaat
+                        </h4>
+                        <p class="text-sm text-muted leading-relaxed">
+                            In lijn met 'Uniek Sporten': een evenement zonder
+                            drempels. Wij zorgen dat iedere Apeldoorner mee kan
+                            doen, ongeacht beperking.
+                        </p>
+                    </div>
+
+                    <div
+                        class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 border border-white/10 dark:border-white/5"
+                    >
+                        <div
+                            class="mb-4 text-action-blue bg-action-blue/10 w-12 h-12 rounded-lg flex items-center justify-center"
+                        >
+                            <Trees className="w-6 h-6" />
+                        </div>
+                        <h4
+                            class="font-display text-lg text-primary mb-2 tracking-wide"
+                        >
+                            Vitale Leefstijl
+                        </h4>
+                        <p class="text-sm text-muted leading-relaxed">
+                            Bewegen is de basis voor gezondheid. Wij stimuleren
+                            jong en oud om sportief actief te zijn in het groen
+                            van de Veluwe.
+                        </p>
+                    </div>
                 </div>
 
                 <div
-                    class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 sm:col-span-2 lg:col-span-1 lg:hidden"
+                    class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 sm:col-span-2 lg:col-span-1 lg:hidden border border-white/10 dark:border-white/5"
                 >
-                    <div class="mb-4 text-brand-orange">
-                        <HeartHandshake className="w-8 h-8" />
+                    <div
+                        class="mb-4 text-brand-orange bg-brand-orange/10 w-12 h-12 rounded-lg flex items-center justify-center"
+                    >
+                        <HeartHandshake className="w-6 h-6" />
                     </div>
-                    <h4 class="font-bold text-primary mb-2">
-                        {features[2].title}
+                    <h4
+                        class="font-display text-lg text-primary mb-2 tracking-wide"
+                    >
+                        Sociale Verbinding
                     </h4>
-                    <p class="text-sm text-muted">
-                        {features[2].description}
+                    <p class="text-sm text-muted leading-relaxed">
+                        Sport als middel tegen eenzaamheid. Een sociaal veilige
+                        omgeving waar ontmoeting centraal staat en niemand
+                        alleen loopt.
                     </p>
                 </div>
             </div>
