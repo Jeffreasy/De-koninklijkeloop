@@ -55,7 +55,7 @@ const currentCampaign = latest as ActiveCampaign;
                         {currentCampaign.header}
                     </h2>
                     <p
-                        class="text-lg md:text-xl lg:text-2xl text-accent-primary font-medium font-body mb-6 md:mb-8"
+                        class="text-lg md:text-xl lg:text-2xl text-brand-orange font-medium font-body mb-6 md:mb-8"
                     >
                         {currentCampaign.subtitle}
                     </p>
@@ -74,7 +74,7 @@ const currentCampaign = latest as ActiveCampaign;
                             <Button
                                 size="lg"
                                 aria-label={`Steun ${currentCampaign.name} - Opent in nieuw tabblad`}
-                                className="w-full md:w-auto rounded-full px-8 md:px-10 h-12 md:h-14 text-base md:text-lg bg-accent-primary hover:bg-orange-600 text-white shadow-[0_0_20px_rgba(255,147,40,0.3)] hover:shadow-[0_0_30px_rgba(255,147,40,0.5)] border-none transition-all group min-h-[48px]"
+                                className="w-full md:w-auto rounded-full px-8 md:px-10 h-12 md:h-14 text-base md:text-lg bg-brand-orange hover:bg-orange-400 text-white shadow-[0_0_20px_rgba(255,147,40,0.3)] hover:shadow-[0_0_30px_rgba(255,147,40,0.5)] border-none transition-all group min-h-[48px]"
                             >
                                 Steun {currentCampaign.name}
                                 <ArrowRight
@@ -162,7 +162,7 @@ const currentCampaign = latest as ActiveCampaign;
                             <div class="glass-card group p-6 md:p-8 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 border border-brand-orange/20 bg-linear-to-br from-brand-orange/5 to-transparent hover:from-brand-orange/10 hover:to-transparent hover:border-brand-orange/40 will-change-transform">
                                 <dt class="sr-only">{feature.label}</dt>
                                 <dd
-                                    class="text-3xl md:text-4xl font-bold text-brand-orange group-hover:scale-110 transition-transform duration-300 mb-2 font-display"
+                                    class="text-3xl md:text-4xl font-bold text-brand-orange group-hover:scale-110 transition-transform duration-300 mb-2 font-display drop-shadow-sm"
                                     aria-label={`${feature.value} ${feature.label}`}
                                 >
                                     {feature.value}
@@ -222,7 +222,7 @@ const currentCampaign = latest as ActiveCampaign;
                                                 <div class="inline-flex items-center justify-center mb-6">
                                                     <div class="relative">
                                                         <div class="absolute inset-0 bg-brand-orange/20 rounded-2xl blur-xl" />
-                                                        <div class="relative px-6 py-3 rounded-2xl bg-linear-to-r from-brand-orange to-orange-600 text-white font-display font-bold text-2xl shadow-lg">
+                                                        <div class="relative px-6 py-3 rounded-2xl bg-[linear-gradient(135deg,hsl(var(--color-brand-orange))_0%,#fbbf24_100%)] text-white font-display font-bold text-2xl shadow-lg">
                                                             {campaign.year}
                                                         </div>
                                                     </div>
@@ -253,7 +253,7 @@ const currentCampaign = latest as ActiveCampaign;
                                                             </span>
                                                             <div class="flex-1 h-px bg-linear-to-r from-brand-orange/20 to-transparent" />
                                                         </div>
-                                                        <div class="mt-2 text-4xl md:text-5xl font-bold font-display text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-600 group-hover:scale-105 transition-transform duration-300">
+                                                        <div class="mt-2 text-4xl md:text-5xl font-bold font-display text-brand-orange group-hover:scale-105 transition-transform duration-300 drop-shadow-sm">
                                                             {
                                                                 campaign.amountRaised
                                                             }

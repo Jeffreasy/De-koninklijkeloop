@@ -28,7 +28,7 @@ export function SocialPostCard({
         : post.caption;
 
     return (
-        <div className="glass-card group relative overflow-hidden rounded-2xl border border-glass-border hover:border-accent-primary/30 transition-all duration-300">
+        <div className="glass-card group relative overflow-hidden rounded-2xl border border-glass-border hover:border-brand-orange/30 transition-all duration-300">
             {/* Image Preview */}
             <div className="relative aspect-square overflow-hidden bg-glass-bg/50">
                 <img
@@ -66,7 +66,7 @@ export function SocialPostCard({
                 </div>
 
                 {/* Hover Actions Overlay */}
-                <div className="absolute inset-0 bg-accent-primary/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 p-4">
+                <div className="absolute inset-0 bg-brand-orange/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 p-4">
                     <button
                         onClick={() => onEdit(post._id)}
                         className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px]"
@@ -111,7 +111,7 @@ export function SocialPostCard({
                     href={post.instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-accent-primary hover:text-brand-orange transition-colors"
+                    className="inline-flex items-center gap-1 text-xs text-brand-orange hover:text-orange-400 transition-colors"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <iconify-icon icon="lucide:external-link" width="12" />

@@ -84,8 +84,7 @@ const spotlights = [
                 <h1
                     class="text-4xl md:text-6xl font-display font-bold text-primary tracking-tight"
                 >
-                    Beeldmateriaal & <span
-                        class="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-400"
+                    Beeldmateriaal & <span class="text-royal-gradient"
                         >Media</span
                     >
                 </h1>
@@ -101,31 +100,31 @@ const spotlights = [
                 >
                     <button
                         data-filter="all"
-                        class="filter-btn active px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-accent-primary/50 transition-all font-medium"
+                        class="filter-btn active px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-brand-orange/50 transition-all font-medium"
                     >
                         Alle
                     </button>
                     <button
                         data-filter="2026"
-                        class="filter-btn px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-accent-primary/50 transition-all font-medium"
+                        class="filter-btn px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-brand-orange/50 transition-all font-medium"
                     >
                         2026
                     </button>
                     <button
                         data-filter="2025"
-                        class="filter-btn px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-accent-primary/50 transition-all font-medium"
+                        class="filter-btn px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-brand-orange/50 transition-all font-medium"
                     >
                         2025
                     </button>
                     <button
                         data-filter="2024"
-                        class="filter-btn px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-accent-primary/50 transition-all font-medium"
+                        class="filter-btn px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-brand-orange/50 transition-all font-medium"
                     >
                         2024
                     </button>
                     <button
                         data-filter="Archief"
-                        class="filter-btn px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-accent-primary/50 transition-all font-medium"
+                        class="filter-btn px-6 py-2 rounded-full border border-border text-muted hover:text-primary hover:border-brand-orange/50 transition-all font-medium"
                     >
                         Archief
                     </button>
@@ -180,10 +179,10 @@ const spotlights = [
 
                                         {/* Content Container */}
                                         <div class="w-full lg:w-2/5 p-8 md:p-10 flex flex-col justify-center space-y-6 border-t lg:border-t-0 lg:border-l border-border bg-surface/50 backdrop-blur-sm relative z-10">
-                                            <div class="inline-flex items-center gap-2 text-accent-primary font-bold text-xs tracking-widest uppercase">
+                                            <div class="inline-flex items-center gap-2 text-brand-orange font-bold text-xs tracking-widest uppercase">
                                                 <span class="relative flex h-2.5 w-2.5">
-                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-primary opacity-75" />
-                                                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-primary" />
+                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75" />
+                                                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-orange" />
                                                 </span>
                                                 {spotlight.label}
                                             </div>
@@ -626,7 +625,7 @@ const spotlights = [
             @reference "../styles/global.css";
 
             .filter-btn.active {
-                @apply bg-accent-primary text-white border-accent-primary shadow-lg shadow-brand-orange/20;
+                @apply bg-brand-orange text-white border-brand-orange shadow-lg shadow-brand-orange/20;
             }
 
             .media-item {

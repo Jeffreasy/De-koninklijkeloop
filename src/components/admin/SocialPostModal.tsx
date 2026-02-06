@@ -199,7 +199,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                             setFilePreviewUrl(null); // Clear file preview
                                         }}
                                         placeholder={selectedFile ? "Bestand geselecteerd - URL niet nodig" : "Of plak een URL (https://...)"}
-                                        className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50 disabled:opacity-50 disabled:cursor-not-allowed"
                                         disabled={!!selectedFile}
                                     />
                                 </div>
@@ -217,7 +217,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     }
                                     placeholder="Schrijf een pakkende caption..."
                                     rows={4}
-                                    className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 resize-none"
+                                    className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50 resize-none"
                                     required
                                 />
                                 <p className="mt-1.5 text-xs text-text-muted">
@@ -235,7 +235,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     value={formData.instagramUrl}
                                     onChange={(e) => handleInstagramUrlChange(e.target.value)}
                                     placeholder="https://www.instagram.com/p/..."
-                                    className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                                    className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                                     required
                                 />
                                 {urlError && (
@@ -254,7 +254,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     onChange={(e) =>
                                         setFormData({ ...formData, postedDate: e.target.value })
                                     }
-                                    className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                                    className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                                 />
                             </div>
                         </div>
@@ -300,7 +300,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
 
                                 {/* Featured Toggle */}
                                 <label className="flex items-center justify-between cursor-pointer group">
-                                    <span className="text-xs md:text-sm text-text-primary group-hover:text-accent-primary transition-colors">
+                                    <span className="text-xs md:text-sm text-text-primary group-hover:text-brand-orange transition-colors">
                                         Uitgelicht
                                     </span>
                                     <input
@@ -309,13 +309,13 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                         onChange={(e) =>
                                             setFormData({ ...formData, isFeatured: e.target.checked })
                                         }
-                                        className="w-10 h-6 bg-glass-border rounded-full appearance-none cursor-pointer transition-all duration-200 relative checked:bg-accent-primary"
+                                        className="w-10 h-6 bg-glass-border rounded-full appearance-none cursor-pointer transition-all duration-200 relative checked:bg-brand-orange"
                                     />
                                 </label>
 
                                 {/* Visibility Toggle */}
                                 <label className="flex items-center justify-between cursor-pointer group">
-                                    <span className="text-xs md:text-sm text-text-primary group-hover:text-accent-primary transition-colors">
+                                    <span className="text-xs md:text-sm text-text-primary group-hover:text-brand-orange transition-colors">
                                         Zichtbaar
                                     </span>
                                     <input
@@ -324,7 +324,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                         onChange={(e) =>
                                             setFormData({ ...formData, isVisible: e.target.checked })
                                         }
-                                        className="w-10 h-6 bg-glass-border rounded-full appearance-none cursor-pointer transition-all duration-200 relative checked:bg-accent-primary"
+                                        className="w-10 h-6 bg-glass-border rounded-full appearance-none cursor-pointer transition-all duration-200 relative checked:bg-brand-orange"
                                     />
                                 </label>
 
@@ -344,7 +344,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                                 displayOrder: parseInt(e.target.value),
                                             })
                                         }
-                                        className="w-full h-2 bg-glass-border rounded-lg appearance-none cursor-pointer accent-accent-primary"
+                                        className="w-full h-2 bg-glass-border rounded-lg appearance-none cursor-pointer accent-brand-orange"
                                     />
                                 </div>
                             </div>
@@ -364,7 +364,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                     </button>
                     <button
                         type="submit"
-                        className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-all duration-200 shadow-lg shadow-accent-primary/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
+                        className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all duration-200 shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
                         disabled={isSaving || isUploading}
                     >
                         {isUploading ? (

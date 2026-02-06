@@ -19,7 +19,7 @@ export function MediaCard({ image, isSelected, onToggleSelect, onCardClick }: Pr
 
     return (
         <div
-            className="group relative overflow-hidden rounded-2xl border border-glass-border bg-glass-bg/30 backdrop-blur-md hover:border-accent-primary/30 transition-all duration-300 cursor-pointer"
+            className="group relative overflow-hidden rounded-2xl border border-glass-border bg-glass-bg/30 backdrop-blur-md hover:border-brand-orange/30 transition-all duration-300 cursor-pointer"
             onClick={handleCardClick}
         >
             {/* Image Container */}
@@ -70,7 +70,7 @@ export function MediaCard({ image, isSelected, onToggleSelect, onCardClick }: Pr
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => { }} // Handled by div onClick
-                        className="w-5 h-5 rounded border-2 border-glass-border bg-glass-bg/80 checked:bg-accent-primary checked:border-accent-primary cursor-pointer pointer-events-none"
+                        className="w-5 h-5 rounded border-2 border-glass-border bg-glass-bg/80 checked:bg-brand-orange checked:border-brand-orange cursor-pointer pointer-events-none"
                         aria-hidden="true"
                     />
                 </div>

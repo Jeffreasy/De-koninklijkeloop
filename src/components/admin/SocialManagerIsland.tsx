@@ -92,7 +92,7 @@ export function SocialManagerIsland() {
     if (posts === undefined) {
         return (
             <div className="flex items-center justify-center py-24">
-                <Loader2 className="w-8 h-8 animate-spin text-accent-primary" />
+                <Loader2 className="w-8 h-8 animate-spin text-brand-orange" />
             </div>
         );
     }
@@ -120,7 +120,7 @@ export function SocialManagerIsland() {
                                     key={f.value}
                                     onClick={() => setFilter(f.value)}
                                     className={`px-3 py-2 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] ${filter === f.value
-                                        ? "bg-accent-primary text-white shadow-lg shadow-accent-primary/20"
+                                        ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
                                         : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
                                         }`}
                                     aria-label={`Filter op ${f.label.toLowerCase()}`}
@@ -139,7 +139,7 @@ export function SocialManagerIsland() {
                     {/* Right: Actions */}
                     <button
                         onClick={handleCreate}
-                        className="px-4 py-2 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-all duration-200 shadow-lg shadow-accent-primary/20 w-full md:w-auto min-h-[44px]"
+                        className="px-4 py-2 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all duration-200 shadow-lg shadow-brand-orange/20 w-full md:w-auto min-h-[44px]"
                         aria-label="Nieuwe social media post toevoegen"
                     >
                         <div className="flex items-center gap-2">
@@ -169,7 +169,7 @@ export function SocialManagerIsland() {
                         {filter === "all" && (
                             <button
                                 onClick={handleCreate}
-                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-all duration-200 shadow-lg shadow-accent-primary/20"
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all duration-200 shadow-lg shadow-brand-orange/20"
                             >
                                 <Plus className="w-4 h-4" />
                                 Eerste Post Toevoegen

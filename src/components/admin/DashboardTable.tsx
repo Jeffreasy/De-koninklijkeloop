@@ -82,7 +82,7 @@ export default function DashboardTable() {
                 <StatsCard
                     label="Totaal Inschrijvingen"
                     value={registrations.length.toString()}
-                    icon={<Users className="w-5 h-5 text-accent-primary" />}
+                    icon={<Users className="w-5 h-5 text-brand-orange" />}
                     trend="+12% vs vorige maand"
                 />
                 <StatsCard
@@ -109,14 +109,14 @@ export default function DashboardTable() {
                     <div className="flex items-center gap-3 w-full sm:w-auto">
                         <div className="relative flex-1 sm:w-72 group">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search className="h-4 w-4 text-text-muted group-focus-within:text-accent-primary transition-colors" />
+                                <Search className="h-4 w-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
                             </div>
                             <input
                                 type="text"
                                 placeholder="Zoeken..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="block w-full pl-9 pr-3 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all min-h-[44px]"
+                                className="block w-full pl-9 pr-3 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-brand-orange/50 transition-all min-h-[44px]"
                                 aria-label="Zoek in registraties"
                             />
                         </div>
@@ -192,7 +192,7 @@ export default function DashboardTable() {
 // Sub-components for cleanliness
 function StatsCard({ label, value, icon, trend, color = "orange" }: { label: string, value: string, icon: React.ReactNode, trend?: string, color?: "orange" | "blue" | "green" }) {
     const gradients = {
-        orange: "from-accent-primary/10 to-transparent",
+        orange: "from-brand-orange/10 to-transparent",
         blue: "from-blue-500/10 to-transparent",
         green: "from-green-500/10 to-transparent"
     };
@@ -201,7 +201,7 @@ function StatsCard({ label, value, icon, trend, color = "orange" }: { label: str
     const bgClass = gradients[color];
 
     return (
-        <div className={`relative overflow-hidden bg-glass-bg/30 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl border border-glass-border hover:border-accent-primary/30 transition-all duration-300 group`}>
+        <div className={`relative overflow-hidden bg-glass-bg/30 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl border border-glass-border hover:border-brand-orange/30 transition-all duration-300 group`}>
             <div className={`absolute top-0 right-0 w-32 h-32 bg-linear-to-br ${bgClass} blur-2xl opacity-50 -mr-10 -mt-10 pointer-events-none`} />
 
             <div className="relative flex justify-between items-start">

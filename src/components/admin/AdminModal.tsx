@@ -190,7 +190,7 @@ export function AdminModalFooterButtons({
                 type="button"
                 onClick={onConfirm}
                 disabled={confirmDisabled || isLoading}
-                className="px-6 py-2 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20 disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
+                className="px-6 py-2 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
             >
                 {isLoading ? 'Even geduld...' : confirmText}
             </button>

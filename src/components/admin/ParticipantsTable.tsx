@@ -76,7 +76,7 @@ export default function ParticipantsTable() {
                 role="status"
                 aria-live="polite"
             >
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange"></div>
                 <span className="sr-only">Deelnemers gegevens laden...</span>
             </div>
         );
@@ -92,7 +92,7 @@ export default function ParticipantsTable() {
                 </div>
                 <div className="glass-card p-4">
                     <div className="text-text-muted text-sm mb-1">Deelnemers</div>
-                    <div className="text-2xl font-bold text-accent-primary">{stats.deelnemers}</div>
+                    <div className="text-2xl font-bold text-brand-orange">{stats.deelnemers}</div>
                 </div>
                 <div className="glass-card p-4">
                     <div className="text-text-muted text-sm mb-1">Begeleiders</div>
@@ -141,7 +141,7 @@ export default function ParticipantsTable() {
                         <select
                             value={roleFilter}
                             onChange={(e) => setRoleFilter(e.target.value as Role)}
-                            className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-accent-primary/50 min-h-[44px]"
+                            className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 min-h-[44px]"
                             aria-label="Filter deelnemers op rol"
                         >
                             <option value="all">Alle rollen</option>
@@ -154,7 +154,7 @@ export default function ParticipantsTable() {
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value as Status)}
-                            className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-accent-primary/50 min-h-[44px]"
+                            className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 min-h-[44px]"
                             aria-label="Filter deelnemers op betaalstatus"
                         >
                             <option value="all">Alle statussen</option>
@@ -204,7 +204,7 @@ export default function ParticipantsTable() {
                                                     </div>
                                                 )}
                                                 {/* Role Badge */}
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium w-fit ${reg.role === "deelnemer" ? "bg-accent-primary/10 text-accent-primary" :
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium w-fit ${reg.role === "deelnemer" ? "bg-brand-orange/10 text-brand-orange" :
                                                     reg.role === "begeleider" ? "bg-[rgb(var(--info))]/10 text-[rgb(var(--info))]" :
                                                         "bg-[rgb(var(--success))]/10 text-[rgb(var(--success))]"
                                                     }`}>

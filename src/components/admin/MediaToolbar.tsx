@@ -35,13 +35,13 @@ export function MediaToolbar({
                 <div className="flex items-center gap-3 flex-wrap flex-1 w-full xl:w-auto">
                     {/* Search Input */}
                     <div className="relative group flex-1 min-w-[240px]">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-accent-primary transition-colors" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
                         <input
                             type="text"
                             placeholder="Zoeken op bestandsnaam..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-3 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent-primary/50"
+                            className="w-full pl-10 pr-3 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-brand-orange/50"
                         />
                     </div>
 
@@ -49,7 +49,7 @@ export function MediaToolbar({
                     <select
                         value={folderFilter}
                         onChange={(e) => setFolderFilter(e.target.value)}
-                        className="px-3 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary focus:ring-1 focus:ring-accent-primary/50"
+                        className="px-3 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary focus:ring-1 focus:ring-brand-orange/50"
                     >
                         <option value="all">Alle Mappen</option>
                         <option value="2024">DKLFoto's 2024</option>
@@ -62,7 +62,7 @@ export function MediaToolbar({
                             type="checkbox"
                             checked={allSelected}
                             onChange={onSelectAll}
-                            className="w-4 h-4 rounded border-2 border-glass-border bg-glass-bg/50 checked:bg-accent-primary checked:border-accent-primary cursor-pointer"
+                            className="w-4 h-4 rounded border-2 border-glass-border bg-glass-bg/50 checked:bg-brand-orange checked:border-brand-orange cursor-pointer"
                         />
                         <span className="text-xs font-medium text-text-muted">Selecteer alle</span>
                     </label>
@@ -83,7 +83,7 @@ export function MediaToolbar({
                             </span>
                             <button
                                 onClick={onBulkEdit}
-                                className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
+                                className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20"
                                 aria-label="Bulk bewerken geselecteerde afbeeldingen"
                             >
                                 <iconify-icon icon="lucide:edit-3" width="16" />

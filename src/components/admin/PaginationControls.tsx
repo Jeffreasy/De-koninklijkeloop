@@ -61,8 +61,8 @@ export function PaginationControls({ currentPage, totalPages, totalItems, onPage
                                 <button
                                     onClick={() => onPageChange(page)}
                                     className={`px-3 py-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg font-medium transition-colors ${page === currentPage
-                                            ? 'bg-accent-primary text-white shadow-lg shadow-accent-primary/20'
-                                            : 'bg-glass-border/30 text-text-primary hover:bg-glass-border/50'
+                                        ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20'
+                                        : 'bg-glass-border/30 text-text-primary hover:bg-glass-border/50'
                                         }`}
                                     aria-label={`Ga naar pagina ${page}`}
                                     aria-current={page === currentPage ? 'page' : undefined}
@@ -75,7 +75,7 @@ export function PaginationControls({ currentPage, totalPages, totalItems, onPage
                 </div>
 
                 {/* Mobile: Just show current page */}
-                <div className="sm:hidden px-3 py-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-accent-primary text-white font-medium text-sm">
+                <div className="sm:hidden px-3 py-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-brand-orange text-white font-medium text-sm">
                     {currentPage}
                 </div>
 

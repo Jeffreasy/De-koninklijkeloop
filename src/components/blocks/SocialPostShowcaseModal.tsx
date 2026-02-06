@@ -188,7 +188,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                 href={post.instagramUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-2.5 rounded-xl bg-linear-to-r from-brand-orange to-orange-600 text-white hover:shadow-lg hover:scale-105 transition-all"
+                                className="p-2.5 rounded-xl bg-[linear-gradient(135deg,hsl(var(--color-brand-orange))_0%,#fbbf24_100%)] text-white hover:shadow-lg hover:scale-105 transition-all"
                             >
                                 <ExternalLink className="w-5 h-5" />
                             </a>

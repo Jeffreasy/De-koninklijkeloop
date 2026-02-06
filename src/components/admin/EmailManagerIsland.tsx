@@ -132,7 +132,7 @@ export default function EmailManagerIsland() {
 
                         <button
                             onClick={() => setShowComposeModal(true)}
-                            className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 bg-accent-primary text-white font-medium rounded-xl hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
+                            className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 bg-brand-orange text-white font-medium rounded-xl hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20"
                         >
                             <Plus className="w-5 h-5" />
                             Nieuw Bericht
@@ -148,13 +148,13 @@ export default function EmailManagerIsland() {
                                     className={`
                                         w-full text-left px-4 py-3 rounded-xl transition-[background-color,border-color,color] duration-200
                                         ${selectedAccount === account
-                                            ? 'bg-accent-primary/10 border-2 border-accent-primary text-accent-primary font-medium'
+                                            ? 'bg-brand-orange/10 border-2 border-brand-orange text-brand-orange font-medium'
                                             : 'bg-glass-bg/30 border-2 border-glass-border text-text-muted hover:text-text-primary hover:bg-glass-bg/50'
                                         }
                                     `}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <Mail className={`w-5 h-5 ${selectedAccount === account ? 'text-accent-primary' : 'text-text-muted'}`} />
+                                        <Mail className={`w-5 h-5 ${selectedAccount === account ? 'text-brand-orange' : 'text-text-muted'}`} />
                                         <div className="flex-1 min-w-0">
                                             <div className="text-sm font-medium truncate">
                                                 {account}@
@@ -182,11 +182,11 @@ export default function EmailManagerIsland() {
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 text-accent-primary">
+                                <div className="flex items-center gap-2 text-brand-orange">
                                     <Mail className="w-4 h-4" />
                                     <span className="text-sm">Ongelezen</span>
                                 </div>
-                                <span className="text-sm font-medium text-accent-primary">
+                                <span className="text-sm font-medium text-brand-orange">
                                     {stats.unread_count}
                                 </span>
                             </div>
@@ -225,7 +225,7 @@ export default function EmailManagerIsland() {
                                 role="status"
                                 aria-live="polite"
                             >
-                                <Loader2 className="w-6 h-6 text-accent-primary animate-spin" />
+                                <Loader2 className="w-6 h-6 text-brand-orange animate-spin" />
                                 <span className="ml-3 text-text-muted">Emails laden...</span>
                                 <span className="sr-only">Email inbox wordt geladen...</span>
                             </div>
@@ -236,7 +236,7 @@ export default function EmailManagerIsland() {
                                 <p className="text-red-400">{error}</p>
                                 <button
                                     onClick={fetchEmails}
-                                    className="mt-4 px-4 py-2 bg-accent-primary/10 text-accent-primary rounded-lg hover:bg-accent-primary/20 transition"
+                                    className="mt-4 px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-lg hover:bg-brand-orange/20 transition"
                                 >
                                     Opnieuw proberen
                                 </button>
@@ -306,12 +306,12 @@ export default function EmailManagerIsland() {
                     className="fixed bottom-6 right-6 z-50 glass-card px-6 py-4 rounded-xl shadow-2xl border-l-4
                                flex items-center gap-3 animate-slide-up"
                     style={{
-                        borderLeftColor: toast.type === 'success' ? 'var(--accent-primary)' : '#ef4444',
+                        borderLeftColor: toast.type === 'success' ? 'var(--color-brand-orange)' : '#ef4444',
                         animation: 'slideUp 0.3s ease-out'
                     }}
                 >
                     {toast.type === 'success' ? (
-                        <svg className="w-5 h-5 text-accent-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-5 h-5 text-brand-orange shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                     ) : (
@@ -366,11 +366,11 @@ function EmailListItem({ email, isSelected, onClick }: EmailListItemProps) {
             className={`
                 w-full text-left px-6 py-4 transition-[background-color,border-color] duration-200 cursor-pointer
                 ${isSelected
-                    ? 'bg-accent-primary/5 border-l-2 border-accent-primary'
+                    ? 'bg-brand-orange/5 border-l-2 border-brand-orange'
                     : 'hover:bg-white/3'
                 }
                 ${!email.is_read
-                    ? 'bg-accent-primary/2 border-l-2 border-accent-primary/40'
+                    ? 'bg-brand-orange/2 border-l-2 border-brand-orange/40'
                     : ''
                 }
             `}
@@ -409,7 +409,7 @@ function EmailListItem({ email, isSelected, onClick }: EmailListItemProps) {
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                     )}
                     {!email.is_read && (
-                        <div className="w-2 h-2 bg-accent-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(var(--accent-primary),0.6)]" />
+                        <div className="w-2 h-2 bg-brand-orange rounded-full animate-pulse shadow-[0_0_8px_hsl(var(--color-brand-orange)/0.6)]" />
                     )}
                 </div>
             </div>
@@ -462,7 +462,7 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
                     <button
                         onClick={onReply}
                         aria-label="Reply to this email"
-                        className="px-4 py-2 bg-accent-primary/10 text-accent-primary rounded-lg hover:bg-accent-primary/20 transition-[background-color] duration-200 text-sm font-medium"
+                        className="px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-lg hover:bg-brand-orange/20 transition-[background-color] duration-200 text-sm font-medium"
                     >
                         Beantwoorden
                     </button>
@@ -488,8 +488,8 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {fullEmail.attachments.map((att: any, i: number) => (
-                                <div key={i} className="flex items-center gap-3 p-3 bg-white/5 border border-glass-border rounded-lg group hover:border-accent-primary/50 transition-colors">
-                                    <div className="p-2 bg-white/5 rounded-lg text-accent-primary">
+                                <div key={i} className="flex items-center gap-3 p-3 bg-white/5 border border-glass-border rounded-lg group hover:border-brand-orange/50 transition-colors">
+                                    <div className="p-2 bg-white/5 rounded-lg text-brand-orange">
                                         <Paperclip className="w-4 h-4" />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -505,7 +505,7 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
                                             href={att.storage_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="p-2 text-text-muted hover:text-accent-primary transition-colors"
+                                            className="p-2 text-text-muted hover:text-brand-orange transition-colors"
                                             title="Downloaden"
                                         >
                                             <Download className="w-4 h-4" />
@@ -522,7 +522,7 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
             <div className="p-6">
                 {loading && (
                     <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-6 h-6 text-accent-primary animate-spin" />
+                        <Loader2 className="w-6 h-6 text-brand-orange animate-spin" />
                     </div>
                 )}
 

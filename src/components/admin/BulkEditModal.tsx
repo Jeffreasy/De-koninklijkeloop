@@ -103,7 +103,7 @@ export function BulkEditModal({ isOpen, selectedImages, onClose, onSave, accessT
                                 value={bulkAltTexts[img.public_id] ?? img.alt_text ?? ""}
                                 onChange={(e) => handleBulkChange(img.public_id, e.target.value)}
                                 placeholder="Alt text..."
-                                className="w-full px-3 py-2 bg-glass-bg/50 border border-glass-border rounded-lg text-sm text-text-primary focus:ring-1 focus:ring-accent-primary/50 focus:outline-none"
+                                className="w-full px-3 py-2 bg-glass-bg/50 border border-glass-border rounded-lg text-sm text-text-primary focus:ring-1 focus:ring-brand-orange/50 focus:outline-none"
                             />
                         </div>
                     </div>

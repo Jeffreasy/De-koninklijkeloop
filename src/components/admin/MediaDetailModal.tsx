@@ -166,7 +166,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                             onChange={(e) => setAltText(e.target.value)}
                             placeholder="Beschrijf de afbeelding voor screenreaders en SEO..."
                             rows={4}
-                            className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 resize-y min-h-[80px] max-h-[200px]"
+                            className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50 resize-y min-h-[80px] max-h-[200px]"
                         />
                         <p className="text-xs text-text-muted">
                             {altText.length} karakters • Aanbevolen: 50-125 karakters
@@ -191,7 +191,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Geef de afbeelding een titel..."
-                            className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                            className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                         />
                         <p className="text-xs text-text-muted">
                             Wordt gebruikt als caption in galerijen
@@ -208,7 +208,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                             value={tags.join(', ')}
                             onChange={(e) => setTags(e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
                             placeholder="2.5km, finish, actie..."
-                            className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                            className="w-full px-4 py-3 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                         />
                         <p className="text-xs text-text-muted">
                             Gescheiden door komma's
@@ -218,24 +218,24 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                     {/* Alt Text Tips */}
                     <div className="glass-card p-4 space-y-2">
                         <div className="flex items-center gap-2 mb-2">
-                            <iconify-icon icon="lucide:lightbulb" width="16" className="text-accent-primary" />
+                            <iconify-icon icon="lucide:lightbulb" width="16" className="text-brand-orange" />
                             <h4 className="text-sm font-semibold text-text-primary">Alt Text Tips</h4>
                         </div>
                         <ul className="space-y-1.5 text-xs text-text-muted">
                             <li className="flex items-start gap-2">
-                                <span className="text-accent-primary shrink-0">✓</span>
+                                <span className="text-brand-orange shrink-0">✓</span>
                                 <span>Beschrijf wat je ziet, niet "foto van"</span>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-accent-primary shrink-0">✓</span>
+                                <span className="text-brand-orange shrink-0">✓</span>
                                 <span>Wees specifiek: "Lopers bij De Grote Kerk"</span>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-accent-primary shrink-0">✓</span>
+                                <span className="text-brand-orange shrink-0">✓</span>
                                 <span>Vermijd "afbeelding van" of "plaatje"</span>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-accent-primary shrink-0">✓</span>
+                                <span className="text-brand-orange shrink-0">✓</span>
                                 <span>Houd het kort maar informatief</span>
                             </li>
                         </ul>

@@ -1,38 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  /* --- 1. Definieer je Core Palette --- */
-  --color-brand-orange: #ff9328;
-  --color-brand-blue: #0f172a;
-  /* Zeer donker Slate/Navy */
-  --color-brand-blue-light: #334155;
-  /* Lichtere variant voor borders */
-  --color-action-blue: #2563eb;
-  /* Helderder blauw voor links/info in light mode */
+  /* --- 1. Definieer je Core Palette (HSL) --- */
+  --color-brand-orange: 30 100% 58%;
+  /* #ff9328 */
+  --color-brand-blue: 222 47% 11%;
+  /* #0f172a */
+  --color-brand-blue-light: 215 25% 27%;
+  /* #334155 */
+  --color-action-blue: 221 83% 53%;
+  /* #2563eb */
 
   /* --- 2. Semantische Mapping (Default: Dark Mode) --- */
-  /* Doel: "Deep Tech" - Bioluminescentie sfeer */
-
   --color-body: var(--bg-body);
-  /* bg-body */
   --color-surface: var(--bg-surface);
-  /* bg-surface */
 
   --color-primary: var(--text-primary);
-  /* text-primary */
   --color-secondary: var(--text-secondary);
-  /* text-secondary */
   --color-muted: var(--text-muted);
-  /* text-muted */
 
   --color-accent-primary: var(--accent-primary);
-  /* accent-primary */
   --color-border: var(--border-subtle);
-  /* border-border */
 
   /* Typography */
-  --font-display: "Satoshi", sans-serif;
-  --font-body: "Inter", sans-serif;
+  --font-display: "Bebas Neue", sans-serif;
+  --font-body: "Source Sans 3", sans-serif;
 
   /* Border Radius */
   --radius-action: 0.75rem;
@@ -54,6 +46,8 @@
 /* Default (Dark Mode / Deep Sea) */
 :root {
   color-scheme: dark;
+
+  /* HSL Values (Space separated for Tailwind v4 opacity modifiers) */
   --bg-body: #020617;
   /* Slate-950 */
   --bg-surface: #0f172a;
@@ -62,67 +56,55 @@
   --text-primary: #f8fafc;
   /* Slate-50 */
   --text-secondary: #e2e8f0;
-  /* Slate-200 - Higher contrast for readability in dark mode */
+  /* Slate-200 */
   --text-muted: #94a3b8;
   /* Slate-400 */
 
   --accent-primary: #ff9328;
-  /* --color-brand-orange */
+  /* Brand Orange */
   --border-subtle: rgba(148, 163, 184, 0.15);
-  /* Subtle Slate border */
 
-  /* Deep Tech Glass */
+  /* Glass */
   --glass-bg: rgba(15, 23, 42, 0.75);
-  /* More opaque for legibility */
   --glass-border: rgba(148, 163, 184, 0.08);
-  /* Slate-400 subtle border - less harsh than white */
 
-  /* Admin Status Colors (Dark Mode) */
+  /* Admin Status Colors (RGB/HSL compatible) */
   --success: 34 197 94;
-  /* green-500 RGB */
   --warning: 234 179 8;
-  /* yellow-500 RGB */
   --error: 239 68 68;
-  /* red-500 RGB */
   --info: 59 130 246;
-  /* blue-500 RGB */
   --muted: 100 116 139;
-  /* slate-500 RGB */
 }
 
 /* Light Mode Overrides (Clear Sky) */
 [data-theme="light"],
 :root[data-theme="light"] {
   color-scheme: light;
+
   --bg-body: #ffffff;
   --bg-surface: #f8fafc;
-  /* Slate-50 */
 
   --text-primary: #0f172a;
-  /* Slate-900 */
   --text-secondary: #334155;
-  /* Slate-700 - Darker for better legibility */
   --text-muted: #64748b;
-  /* Slate-500 */
 
   --accent-primary: #f97316;
   --border-subtle: #e2e8f0;
 
   --glass-bg: rgba(255, 255, 255, 0.85);
-  /* Frosty */
   --glass-border: rgba(15, 23, 42, 0.08);
+}
 
-  /* Admin Status Colors (Light Mode - Same values for consistency) */
-  --success: 34 197 94;
-  /* green-500 RGB */
-  --warning: 234 179 8;
-  /* yellow-500 RGB */
-  --error: 239 68 68;
-  /* red-500 RGB */
-  --info: 59 130 246;
-  /* blue-500 RGB */
-  --muted: 100 116 139;
-  /* slate-500 RGB */
+/* --- Global Interaction Rules --- */
+button,
+[role="button"],
+a,
+input[type="submit"],
+input[type="reset"],
+input[type="button"],
+.card,
+.clickable {
+  cursor: pointer;
 }
 
 
@@ -161,6 +143,14 @@
   }
 }
 
+@utility text-royal-gradient {
+  background: linear-gradient(135deg, hsl(var(--color-brand-orange)) 0%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(255, 147, 40, 0.3));
+}
+
 @layer base {
 
   /* Native Scroll & Selection Polish */
@@ -186,58 +176,33 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* DARK MODE - Default */
+  /* Dark Mode: Royal Path Pattern (Clean Ambient) */
   body {
-    background: #0a0f1e;
+    background-color: var(--bg-body);
     background-image:
-      radial-gradient(circle at 15% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 85% 100%, rgba(255, 147, 40, 0.06) 0%, transparent 40%);
+      /* Radial Path Highlight */
+      radial-gradient(circle at 50% 0%, hsla(var(--color-action-blue) / 0.15) 0%, transparent 60%),
+      radial-gradient(circle at 100% 100%, hsla(var(--color-brand-orange) / 0.1) 0%, transparent 40%);
+    background-size: 100% 100%, 100% 100%;
     background-attachment: fixed;
   }
 
-  /* LIGHT MODE - Royal Light Theme */
+  /* Light Mode: Royal Path Pattern (Clean Ambient) */
   html[data-theme="light"] body {
-    /* Warm Orange-Mist to Cool Royal-Haze - Deepened */
-    background: linear-gradient(135deg, #fff1ec 0%, #eff4ff 100%);
+    background-color: var(--bg-body);
+    background-image:
+      /* Radial Path Highlight */
+      radial-gradient(circle at 50% 0%, hsla(var(--color-action-blue) / 0.08) 0%, transparent 70%),
+      radial-gradient(circle at 90% 90%, hsla(var(--color-brand-orange) / 0.12) 0%, transparent 50%);
+    background-size: 100% 100%, 100% 100%;
     background-attachment: fixed;
   }
 
-  /* Light Mode: Animated blob 1 (Royal Orange) */
-  html[data-theme="light"] body::before {
-    content: '';
-    position: fixed;
-    top: -50%;
-    left: -20%;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    /* Make it round */
-    filter: blur(80px);
-    /* Soften edges */
-    /* Richer Orange, significantly higher opacity (0.40) */
-    background: radial-gradient(circle, rgba(255, 147, 40, 0.40) 0%, transparent 60%);
-    animation: float-blob-1 20s ease-in-out infinite;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* Light Mode: Animated blob 2 (Royal Blue) */
+  /* Remove Blobs */
+  html[data-theme="light"] body::before,
   html[data-theme="light"] body::after {
-    content: '';
-    position: fixed;
-    bottom: -50%;
-    right: -20%;
-    width: 80%;
-    height: 80%;
-    border-radius: 50%;
-    /* Make it round */
-    filter: blur(80px);
-    /* Soften edges */
-    /* Richer Blue, significantly higher opacity (0.30) */
-    background: radial-gradient(circle, rgba(37, 99, 235, 0.30) 0%, transparent 60%);
-    animation: float-blob-2 25s ease-in-out infinite;
-    pointer-events: none;
-    z-index: 0;
+    display: none;
+    animation: none;
   }
 
   /* Ensure content stays above blobs */
@@ -254,8 +219,12 @@
   h5,
   h6 {
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.025em;
+    font-weight: 400;
+    /* Bebas Neue is properly bold at 400. 700 causes faux-bold. */
+    letter-spacing: 0.02em;
+    /* Reduced spacing for Bebas */
+    text-transform: uppercase;
+    /* Bebas is uppercase only, ensuring consistency */
   }
 }
 

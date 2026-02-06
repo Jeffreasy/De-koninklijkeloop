@@ -162,7 +162,7 @@ export default function PhotoUploadWidget({ cloudName, apiKey, userEmail }: Phot
                 <Button
                     onClick={openWidget}
                     variant="default"
-                    className="inline-flex items-center gap-2 px-8 py-6 rounded-xl bg-brand-orange text-white font-bold hover:bg-orange-600 hover:text-white transition-all duration-300 shadow-xl shadow-brand-orange/20 transform hover:-translate-y-1 group"
+                    className="inline-flex items-center gap-2 px-8 py-6 rounded-xl bg-brand-orange text-white font-bold hover:bg-orange-400 hover:text-white transition-all duration-300 shadow-xl shadow-brand-orange/20 transform hover:-translate-y-1 group"
                 >
                     <UploadCloud className="w-5 h-5 group-hover:scale-110 transition-transform" />
                     <span>Upload Foto's & Video's</span>

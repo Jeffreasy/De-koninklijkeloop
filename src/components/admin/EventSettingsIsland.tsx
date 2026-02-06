@@ -37,7 +37,7 @@ export default function EventSettingsIsland({ convexUrl }: Props) {
                     role="status"
                     aria-live="polite"
                 >
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange"></div>
                     <span className="ml-3 text-text-secondary">Convex client wordt geïnitialiseerd...</span>
                     <span className="sr-only">Laden...</span>
                 </div>
@@ -53,8 +53,8 @@ export default function EventSettingsIsland({ convexUrl }: Props) {
                     <button
                         onClick={() => setActiveTab('event')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'event'
-                                ? 'bg-accent-primary text-white shadow-lg shadow-accent-primary/20'
-                                : 'text-text-muted hover:text-text-primary hover:bg-white/5'
+                            ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20'
+                            : 'text-text-muted hover:text-text-primary hover:bg-white/5'
                             }`}
                     >
                         <Calendar className="w-4 h-4" />
@@ -63,8 +63,8 @@ export default function EventSettingsIsland({ convexUrl }: Props) {
                     <button
                         onClick={() => setActiveTab('email')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'email'
-                                ? 'bg-accent-primary text-white shadow-lg shadow-accent-primary/20'
-                                : 'text-text-muted hover:text-text-primary hover:bg-white/5'
+                            ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20'
+                            : 'text-text-muted hover:text-text-primary hover:bg-white/5'
                             }`}
                     >
                         <Mail className="w-4 h-4" />

@@ -24,24 +24,33 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
             {/* Navigation (Mobile: Horizontal Scroll, Desktop: Vertical Sidebar) */}
             <div className="md:col-span-4">
                 {/* Mobile Label */}
-                <div className="md:hidden mb-4 text-xs font-bold text-muted uppercase tracking-widest pl-1">
+                <div className="md:hidden mb-4 text-xs font-bold text-muted uppercase tracking-widest pl-1" id="faq-cat-label">
                     Kies een onderwerp
                 </div>
 
-                <div className="flex md:flex-col gap-3 overflow-x-auto pb-4 md:pb-0 scrollbar-hide snap-x px-1">
+                <div
+                    className="flex md:flex-col gap-3 overflow-x-auto pb-4 md:pb-0 scrollbar-hide snap-x px-1"
+                    role="tablist"
+                    aria-label="FAQ Categorieën"
+                    aria-labelledby="faq-cat-label"
+                >
                     {items.map((category, index) => {
                         const isActive = activeCategoryIndex === index;
                         return (
                             <button
                                 key={index}
+                                role="tab"
+                                aria-selected={isActive}
+                                aria-controls={`faq-panel-${index}`}
+                                id={`faq-tab-${index}`}
                                 onClick={() => {
                                     setActiveCategoryIndex(index);
                                     setOpenId(null); // Reset open question when switching
                                 }}
                                 className={cn(
-                                    "relative flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-500 min-w-[85%] md:min-w-0 snap-center text-left group border",
+                                    "relative flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-500 min-w-[85%] md:min-w-0 snap-center text-left group border focus:outline-none focus:ring-2 focus:ring-brand-orange/50",
                                     isActive
-                                        ? "bg-linear-to-r from-brand-orange to-orange-600 text-white border-brand-orange shadow-lg shadow-brand-orange/20 scale-[1.02]"
+                                        ? "bg-[linear-gradient(135deg,hsl(var(--color-brand-orange))_0%,#fbbf24_100%)] text-white border-brand-orange shadow-lg shadow-brand-orange/20 scale-[1.02]"
                                         : "bg-surface/40 md:bg-transparent border-white/5 hover:bg-surface/50 hover:border-white/10 text-secondary hover:text-primary"
                                 )}
                             >
@@ -70,6 +79,9 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
             <div className="md:col-span-8 min-h-[500px]">
                 <div
                     key={activeCategoryIndex}
+                    role="tabpanel"
+                    id={`faq-panel-${activeCategoryIndex}`}
+                    aria-labelledby={`faq-tab-${activeCategoryIndex}`}
                     className="premium-glass rounded-3xl p-6 md:p-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500"
                 >
 
@@ -89,37 +101,45 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
                                     className={cn(
                                         "rounded-2xl border transition-all duration-500 overflow-hidden group/item",
                                         isOpen
-                                            ? "bg-brand-blue-light/10 border-accent-primary/40 shadow-lg shadow-brand-orange/5"
+                                            ? "bg-brand-blue-light/10 border-brand-orange/40 shadow-lg shadow-brand-orange/5"
                                             : "bg-white/2 border-white/5 hover:border-white/10 hover:bg-white/5"
                                     )}
                                 >
-                                    <button
-                                        onClick={() => toggleItem(qIndex)}
-                                        className="w-full px-5 py-5 flex items-center justify-between text-left focus:outline-none"
-                                    >
-                                        <div className="flex items-center gap-4 pr-4">
-                                            <span className={cn(
-                                                "text-xl transition-all duration-500",
-                                                isOpen ? "opacity-100 scale-110" : "opacity-50 grayscale group-hover/item:opacity-100 group-hover/item:grayscale-0"
+                                    <h3>
+                                        <button
+                                            aria-expanded={isOpen}
+                                            aria-controls={`faq-answer-${qIndex}`}
+                                            id={`faq-trigger-${qIndex}`}
+                                            onClick={() => toggleItem(qIndex)}
+                                            className="w-full px-5 py-5 flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-brand-orange/50 rounded-2xl"
+                                        >
+                                            <div className="flex items-center gap-4 pr-4">
+                                                <span className={cn(
+                                                    "text-xl transition-all duration-500",
+                                                    isOpen ? "opacity-100 scale-110" : "opacity-50 grayscale group-hover/item:opacity-100 group-hover/item:grayscale-0"
+                                                )}>
+                                                    {item.icon}
+                                                </span>
+                                                <span className={cn(
+                                                    "text-lg font-medium transition-colors duration-300",
+                                                    isOpen ? "text-brand-orange drop-shadow-sm" : "text-primary group-hover/item:text-white"
+                                                )}>
+                                                    {item.question}
+                                                </span>
+                                            </div>
+                                            <div className={cn(
+                                                "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 shrink-0",
+                                                isOpen ? "bg-brand-orange/20 text-brand-orange rotate-180" : "bg-white/5 text-secondary group-hover/item:bg-white/10"
                                             )}>
-                                                {item.icon}
-                                            </span>
-                                            <span className={cn(
-                                                "text-lg font-medium transition-colors duration-300",
-                                                isOpen ? "text-accent-primary" : "text-primary group-hover/item:text-white"
-                                            )}>
-                                                {item.question}
-                                            </span>
-                                        </div>
-                                        <div className={cn(
-                                            "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 shrink-0",
-                                            isOpen ? "bg-accent-primary/20 text-accent-primary rotate-180" : "bg-white/5 text-secondary group-hover/item:bg-white/10"
-                                        )}>
-                                            <ChevronDown className="w-5 h-5" />
-                                        </div>
-                                    </button>
+                                                <ChevronDown className="w-5 h-5" />
+                                            </div>
+                                        </button>
+                                    </h3>
 
                                     <div
+                                        id={`faq-answer-${qIndex}`}
+                                        role="region"
+                                        aria-labelledby={`faq-trigger-${qIndex}`}
                                         className={cn(
                                             "transition-all duration-500 ease-in-out overflow-hidden",
                                             isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
@@ -133,7 +153,7 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
                                             {item.action && (
                                                 <a
                                                     href={item.actionText?.includes("inschrijven") ? "/register" : "/contact"}
-                                                    className="inline-flex items-center gap-2 mt-6 text-sm font-bold text-white bg-accent-primary hover:bg-orange-600 px-5 py-2.5 rounded-lg shadow-lg shadow-brand-orange/20 transition-all hover:scale-105 active:scale-95"
+                                                    className="inline-flex items-center gap-2 mt-6 text-sm font-bold text-white bg-brand-orange hover:bg-orange-400 px-5 py-2.5 rounded-lg shadow-lg shadow-brand-orange/20 transition-all hover:scale-105 active:scale-95 focus:ring-2 focus:ring-offset-2 focus:ring-brand-orange"
                                                 >
                                                     {item.actionText}
                                                     <ArrowRight className="w-4 h-4" />

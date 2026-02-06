@@ -51,7 +51,7 @@ const isActive = (href: string) => {
                                 class:list={[
                                     "px-4 py-2 rounded-full text-sm font-medium transition-all relative font-display tracking-wide",
                                     item.highlight
-                                        ? "bg-accent-primary text-white shadow-lg shadow-brand-orange/20 hover:bg-orange-600 hover:scale-105"
+                                        ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20 hover:bg-orange-400 hover:scale-105"
                                         : active
                                           ? "text-brand-orange bg-brand-orange/10 font-bold shadow-inner" // Active State
                                           : "text-secondary hover:text-primary hover:bg-surface/50", // Default
@@ -96,7 +96,7 @@ const isActive = (href: string) => {
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <!-- Animated Gradient Blobs -->
         <div
-            class="absolute top-0 right-0 w-96 h-96 bg-linear-to-br from-brand-orange/30 to-orange-600/20 blur-[120px] rounded-full animate-pulse"
+            class="absolute top-0 right-0 w-96 h-96 bg-[linear-gradient(135deg,hsl(var(--color-brand-orange)/0.3)_0%,hsl(var(--color-brand-orange)/0.2)_100%)] blur-[120px] rounded-full animate-pulse"
         >
         </div>
         <div
@@ -194,7 +194,7 @@ const isActive = (href: string) => {
             style={`transition-delay: ${(navItems.filter((i) => i.name !== "Inschrijven").length + 1) * 50}ms`}
         >
             <button
-                class="w-full relative overflow-hidden group py-5 rounded-2xl bg-linear-to-r from-brand-orange via-orange-500 to-orange-600 text-white font-bold font-display text-xl shadow-2xl shadow-brand-orange/50 hover:shadow-brand-orange/70 active:scale-95 transition-all hover:scale-[1.02] border-2 border-orange-400/30 hover:border-orange-300/50"
+                class="w-full relative overflow-hidden group py-5 rounded-2xl bg-[linear-gradient(135deg,hsl(var(--color-brand-orange))_0%,#fbbf24_100%)] text-white font-bold font-display text-xl shadow-2xl shadow-brand-orange/50 hover:shadow-brand-orange/70 active:scale-95 transition-all hover:scale-[1.02] border-2 border-orange-400/30 hover:border-orange-300/50"
             >
                 {/* Shine Effect */}
                 <div

@@ -52,7 +52,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                     <div className="text-center mb-16 space-y-4">
                         <h2 className="text-4xl md:text-5xl font-display font-bold text-primary tracking-tight">
                             Volg ons op{" "}
-                            <span className="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-400">
+                            <span className="text-royal-gradient">
                                 Instagram
                             </span>
                         </h2>
@@ -63,7 +63,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                             href="https://instagram.com/koninklijkeloop"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-accent-primary hover:text-brand-orange transition-colors font-medium"
+                            className="inline-flex items-center gap-2 text-brand-orange hover:text-orange-400 transition-colors font-medium"
                         >
                             <Instagram className="w-5 h-5" />
                             @koninklijkeloop
@@ -90,7 +90,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                 <div className="text-center mb-16 space-y-4">
                     <h2 className="text-4xl md:text-5xl font-display font-bold text-primary tracking-tight">
                         Volg ons op{" "}
-                        <span className="text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-orange-400">
+                        <span className="text-brand-orange drop-shadow-sm brightness-110">
                             Instagram
                         </span>
                     </h2>
@@ -101,7 +101,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                         href="https://instagram.com/koninklijkeloop"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-accent-primary hover:text-brand-orange transition-colors font-medium"
+                        className="inline-flex items-center gap-2 text-brand-orange hover:text-orange-400 transition-colors font-medium"
                     >
                         <Instagram className="w-5 h-5" />
                         @koninklijkeloop

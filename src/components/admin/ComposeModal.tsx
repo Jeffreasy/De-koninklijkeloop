@@ -92,7 +92,7 @@ export default function ComposeModal({ onClose, onSuccess, defaultTo = '' }: Com
                             type="email"
                             value={to}
                             onChange={(e) => setTo(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/50 focus-visible:border-accent-primary transition-[border-color,box-shadow] duration-200"
+                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 focus-visible:border-brand-orange transition-[border-color,box-shadow] duration-200"
                             placeholder="ontvanger@example.com"
                             disabled={sending}
                             aria-required="true"
@@ -109,7 +109,7 @@ export default function ComposeModal({ onClose, onSuccess, defaultTo = '' }: Com
                             type="text"
                             value={subject}
                             onChange={(e) => setSubject(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/50 focus-visible:border-accent-primary transition-[border-color,box-shadow] duration-200"
+                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 focus-visible:border-brand-orange transition-[border-color,box-shadow] duration-200"
                             placeholder="Onderwerp..."
                             disabled={sending}
                             aria-required="true"
@@ -126,7 +126,7 @@ export default function ComposeModal({ onClose, onSuccess, defaultTo = '' }: Com
                             value={body}
                             onChange={(e) => setBody(e.target.value)}
                             rows={12}
-                            className="w-full px-4 py-3 bg-glass-bg border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/50 focus-visible:border-accent-primary resize-y min-h-[200px] transition-[border-color,box-shadow] duration-200"
+                            className="w-full px-4 py-3 bg-glass-bg border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 focus-visible:border-brand-orange resize-y min-h-[200px] transition-[border-color,box-shadow] duration-200"
                             placeholder="Typ hier je bericht..."
                             disabled={sending}
                             aria-required="true"
@@ -153,7 +153,7 @@ export default function ComposeModal({ onClose, onSuccess, defaultTo = '' }: Com
                     <button
                         onClick={handleSend}
                         disabled={sending || !body.trim() || !to.trim() || !subject.trim()}
-                        className="px-6 py-2.5 text-sm font-medium text-white bg-accent-primary hover:bg-accent-primary/90 disabled:bg-glass-border disabled:text-text-muted disabled:cursor-not-allowed rounded-xl transition-[background-color,opacity] duration-200 flex items-center gap-2 shadow-lg shadow-accent-primary/20"
+                        className="px-6 py-2.5 text-sm font-medium text-white bg-brand-orange hover:bg-orange-400 disabled:bg-glass-border disabled:text-text-muted disabled:cursor-not-allowed rounded-xl transition-[background-color,opacity] duration-200 flex items-center gap-2 shadow-lg shadow-brand-orange/20"
                         aria-label={sending ? "Sending email..." : "Send email"}
                     >
                         {sending ? (

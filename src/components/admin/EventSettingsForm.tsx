@@ -80,7 +80,7 @@ export default function EventSettingsForm() {
                     role="status"
                     aria-live="polite"
                 >
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange"></div>
                     <span className="ml-3 text-text-secondary">Laden...</span>
                     <span className="sr-only">Evenement instellingen laden...</span>
                 </div>
@@ -114,7 +114,7 @@ export default function EventSettingsForm() {
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full px-3 md:px-4 py-2.5 md:py-2 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none min-h-[44px]"
+                            className="w-full px-3 md:px-4 py-2.5 md:py-2 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none min-h-[44px]"
                             placeholder="De Koninklijke Loop 2026"
                             aria-label="Evenement naam"
                         />
@@ -128,7 +128,7 @@ export default function EventSettingsForm() {
                             type="text"
                             value={formData.tagline}
                             onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
                             placeholder="Samen maken we het verschil"
                         />
                     </div>
@@ -141,7 +141,7 @@ export default function EventSettingsForm() {
                             type="date"
                             value={formData.event_date}
                             onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
                         />
                     </div>
 
@@ -153,7 +153,7 @@ export default function EventSettingsForm() {
                             type="text"
                             value={formData.event_date_display}
                             onChange={(e) => setFormData({ ...formData, event_date_display: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
                             placeholder="zaterdag 16 mei 2026"
                         />
                     </div>
@@ -165,7 +165,7 @@ export default function EventSettingsForm() {
                             type="checkbox"
                             checked={formData.registration_open}
                             onChange={(e) => setFormData({ ...formData, registration_open: e.target.checked })}
-                            className="w-4 h-4 rounded border-glass-border bg-glass-bg/50 text-accent-primary focus:ring-2 focus:ring-accent-primary/50"
+                            className="w-4 h-4 rounded border-glass-border bg-glass-bg/50 text-brand-orange focus:ring-2 focus:ring-brand-orange/50"
                         />
                         <span className="text-sm text-text-secondary">Registratie open</span>
                     </label>
@@ -185,7 +185,7 @@ export default function EventSettingsForm() {
                             type="text"
                             value={formData.location_city}
                             onChange={(e) => setFormData({ ...formData, location_city: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
                             placeholder="Apeldoorn"
                         />
                     </div>
@@ -198,7 +198,7 @@ export default function EventSettingsForm() {
                             type="text"
                             value={formData.start_location}
                             onChange={(e) => setFormData({ ...formData, start_location: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
                             placeholder="Kootwijk"
                         />
                     </div>
@@ -211,7 +211,7 @@ export default function EventSettingsForm() {
                             type="text"
                             value={formData.finish_location}
                             onChange={(e) => setFormData({ ...formData, finish_location: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
                             placeholder="Grote Kerk, Apeldoorn"
                         />
                     </div>
@@ -231,7 +231,7 @@ export default function EventSettingsForm() {
                             type="text"
                             value={formData.hero_video_id}
                             onChange={(e) => setFormData({ ...formData, hero_video_id: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
                             placeholder="tt6k80"
                         />
                     </div>
@@ -244,7 +244,7 @@ export default function EventSettingsForm() {
                             type="email"
                             value={formData.contact_email}
                             onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
                             placeholder="info@dekoninklijkeloop.nl"
                         />
                     </div>
@@ -257,7 +257,7 @@ export default function EventSettingsForm() {
                             type="number"
                             value={formData.max_participants}
                             onChange={(e) => setFormData({ ...formData, max_participants: parseInt(e.target.value) })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-accent-primary/50 focus:outline-none"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
                             placeholder="500"
                         />
                     </div>
@@ -275,7 +275,7 @@ export default function EventSettingsForm() {
                 <button
                     type="submit"
                     disabled={saving || !accessToken}
-                    className="w-full md:w-auto px-6 md:px-8 py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                    className="w-full md:w-auto px-6 md:px-8 py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
                     aria-label="Evenement instellingen opslaan"
                 >
                     {saving ? "Opslaan..." : "Instellingen Opslaan"}

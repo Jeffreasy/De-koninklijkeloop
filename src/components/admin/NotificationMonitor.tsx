@@ -154,7 +154,7 @@ export default function NotificationMonitor() {
                 <div className="overflow-x-auto">
                     {loading ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-6 h-6 text-accent-primary animate-spin" />
+                            <Loader2 className="w-6 h-6 text-brand-orange animate-spin" />
                             <span className="ml-3 text-text-muted">Notificaties laden...</span>
                         </div>
                     ) : notifications.length === 0 ? (

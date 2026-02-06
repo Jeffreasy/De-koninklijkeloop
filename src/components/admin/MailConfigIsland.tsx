@@ -146,7 +146,7 @@ export default function MailConfigIsland() {
             {/* Server Settings */}
             <div className="premium-glass rounded-2xl md:rounded-3xl p-6">
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-accent-primary/20 flex items-center justify-center text-accent-primary">
+                    <div className="w-10 h-10 rounded-xl bg-brand-orange/20 flex items-center justify-center text-brand-orange">
                         <Server className="w-5 h-5" />
                     </div>
                     <div>
@@ -163,7 +163,7 @@ export default function MailConfigIsland() {
                                 type="text"
                                 value={config.host}
                                 onChange={e => setConfig({ ...config, host: e.target.value })}
-                                className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                                className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                                 placeholder="smtp.example.com"
                                 required
                             />
@@ -174,7 +174,7 @@ export default function MailConfigIsland() {
                                 type="number"
                                 value={config.port}
                                 onChange={e => setConfig({ ...config, port: Number(e.target.value) })}
-                                className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                                className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                                 placeholder="587"
                                 required
                             />
@@ -188,7 +188,7 @@ export default function MailConfigIsland() {
                             <select
                                 value={config.encryption}
                                 onChange={e => setConfig({ ...config, encryption: e.target.value as any })}
-                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50 appearance-none"
+                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50 appearance-none"
                             >
                                 <option value="none">Geen (Onveilig)</option>
                                 <option value="ssl">SSL</option>
@@ -204,7 +204,7 @@ export default function MailConfigIsland() {
                             <select
                                 value={config.auth_type}
                                 onChange={e => setConfig({ ...config, auth_type: e.target.value as any })}
-                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50 appearance-none"
+                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50 appearance-none"
                             >
                                 <option value="none">Geen</option>
                                 <option value="plain">PLAIN</option>
@@ -234,7 +234,7 @@ export default function MailConfigIsland() {
                             type="text"
                             value={config.username}
                             onChange={e => setConfig({ ...config, username: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                             placeholder="user@example.com"
                         />
                     </div>
@@ -244,7 +244,7 @@ export default function MailConfigIsland() {
                             type="password"
                             value={config.password}
                             onChange={e => setConfig({ ...config, password: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                             placeholder="••••••••••••"
                         />
                         <p className="text-xs text-text-muted mt-1">Laat leeg om huidig wachtwoord te behouden</p>
@@ -271,7 +271,7 @@ export default function MailConfigIsland() {
                             type="text"
                             value={config.from_name}
                             onChange={e => setConfig({ ...config, from_name: e.target.value })}
-                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                            className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                             placeholder="De Koninklijke Loop"
                         />
                     </div>
@@ -283,7 +283,7 @@ export default function MailConfigIsland() {
                                 type="email"
                                 value={config.from_email}
                                 onChange={e => setConfig({ ...config, from_email: e.target.value })}
-                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                                 placeholder="noreply@dekoninklijkeloop.nl"
                             />
                         </div>
@@ -296,7 +296,7 @@ export default function MailConfigIsland() {
                 <button
                     type="submit"
                     disabled={saving}
-                    className="flex items-center gap-2 px-8 py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20 disabled:opacity-50"
+                    className="flex items-center gap-2 px-8 py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 disabled:opacity-50"
                 >
                     {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                     <span>{saving ? 'Opslaan...' : 'Configuratie Opslaan'}</span>
