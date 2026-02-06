@@ -50,10 +50,10 @@ export default function ContactForm() {
 
     if (success) {
         return (
-            <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-6 rounded-2xl text-center animate-fade-in">
-                <h3 className="text-xl font-bold mb-2">Bericht Verzonden!</h3>
-                <p>We nemen zo snel mogelijk contact met je op.</p>
-                <Button variant="outline" className="mt-4 border-green-500/30 hover:bg-green-500/10 text-green-400" onClick={() => setSuccess(false)}>Nog een bericht sturen</Button>
+            <div className="bg-success/10 border border-success/20 text-success p-6 rounded-2xl text-center animate-fade-in">
+                <h3 className="text-xl font-display font-bold mb-2">Bericht Verzonden!</h3>
+                <p className="text-secondary">We nemen zo snel mogelijk contact met je op.</p>
+                <Button variant="outline" className="mt-4 border-success/30 hover:bg-success/10 text-success" onClick={() => setSuccess(false)}>Nog een bericht sturen</Button>
             </div>
         )
     }
@@ -66,35 +66,32 @@ export default function ContactForm() {
                 </div>
             )}
             <div className="space-y-2">
-                <Label htmlFor="name" className="text-white/80">Naam</Label>
+                <Label htmlFor="name">Naam</Label>
                 <Input
                     id="name"
                     {...register("name")}
                     placeholder="Jouw naam"
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-brand-orange/50 focus:ring-brand-orange/20"
                 />
                 {errors.name && <p className="text-red-400 text-xs">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="email" className="text-white/80">Email</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
                     id="email"
                     type="email"
                     {...register("email")}
                     placeholder="jouw@email.nl"
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-brand-orange/50 focus:ring-brand-orange/20"
                 />
                 {errors.email && <p className="text-red-400 text-xs">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="message" className="text-white/80">Bericht</Label>
+                <Label htmlFor="message">Bericht</Label>
                 <Textarea
                     id="message"
                     {...register("message")}
                     placeholder="Waar kunnen we je mee helpen?"
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/30 min-h-[120px] focus:border-brand-orange/50 focus:ring-brand-orange/20"
                 />
                 {errors.message && <p className="text-red-400 text-xs">{errors.message.message}</p>}
             </div>
