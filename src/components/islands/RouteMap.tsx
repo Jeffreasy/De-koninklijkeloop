@@ -41,7 +41,7 @@ export default function RouteMap() {
             </div>
 
             {/* Map Container with Floating Elements */}
-            <div ref={containerRef} className="min-h-[500px] w-full rounded-3xl overflow-hidden border border-glass-border shadow-2xl bg-surface/5 relative group">
+            <div ref={containerRef} className="min-h-[500px] w-full rounded-3xl overflow-hidden border border-glass-border shadow-2xl bg-surface/5 relative group z-0">
                 {!isVisible ? (
                     <div className="absolute inset-0 flex items-center justify-center text-text-muted">
                         <span className="animate-pulse">Kaart laden bij scrollen...</span>
@@ -62,12 +62,6 @@ export default function RouteMap() {
                                 <p className="text-sm md:text-base text-text-primary dark:text-white/90 leading-relaxed font-medium">
                                     {selectedRoute.description}
                                 </p>
-                                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10">
-                                    <div className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: selectedRoute.color }}></div>
-                                    <span className="text-xs font-bold text-text-primary dark:text-white">
-                                        {selectedRoute.distance}
-                                    </span>
-                                </div>
                             </div>
                         </div>
 
