@@ -29,7 +29,7 @@ export const faqData: FAQCategory[] = [
             },
             {
                 question: "Wanneer vindt de Koninklijke Loop 2026 plaats?",
-                answer: "De Koninklijke Loop vindt op zaterdag 17 mei 2026 plaats.",
+                answer: "De Koninklijke Loop vindt op zaterdag 16 mei 2026 plaats.",
                 icon: "📅"
             },
             {
