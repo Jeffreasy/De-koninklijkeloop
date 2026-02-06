@@ -10,6 +10,7 @@
 
 import type * as admin from "../admin.js";
 import type * as auth from "../auth.js";
+import type * as contact from "../contact.js";
 import type * as donations from "../donations.js";
 import type * as eventSettings from "../eventSettings.js";
 import type * as internal_ from "../internal.js";
@@ -34,6 +35,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   auth: typeof auth;
+  contact: typeof contact;
   donations: typeof donations;
   eventSettings: typeof eventSettings;
   internal: typeof internal_;

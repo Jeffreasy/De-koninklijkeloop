@@ -242,4 +242,15 @@ export default defineSchema({
     })
         .index("by_post", ["postId"])
         .index("by_user_post", ["userId", "postId"]), // Ensure one reaction per user per post
+
+    // Contact Messages
+    messages: defineTable({
+        name: v.string(),
+        email: v.string(),
+        message: v.string(),
+        status: v.union(v.literal("new"), v.literal("read"), v.literal("archived")),
+        createdAt: v.number(),
+    })
+        .index("by_status", ["status"])
+        .index("by_email", ["email"]),
 });
