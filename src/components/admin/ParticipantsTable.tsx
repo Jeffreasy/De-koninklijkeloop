@@ -1,14 +1,41 @@
-import { useQuery } from "convex/react";
+import { useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useStore } from "@nanostores/react";
+import { $accessToken } from "../../lib/auth";
 import { Users, Filter, Mail, Phone, MapPin, User, ShieldCheck, UserCircle } from "lucide-react";
 
 type UserType = "all" | "authenticated" | "guest";
 type Role = "all" | "deelnemer" | "begeleider" | "vrijwilliger";
 type Status = "all" | "pending" | "paid" | "cancelled";
 
+// Mimic the type from DashboardTable or define it
+interface Registration {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+    distance?: string;
+    status: string;
+    userType?: string;
+    iceName?: string;
+    icePhone?: string;
+    createdAt: number;
+}
+
 export default function ParticipantsTable() {
-    const registrations = useQuery(api.internal.listRegistrations);
+    const accessToken = useStore($accessToken);
+    const getRegistrations = useAction(api.admin.getRegistrations);
+    const [registrations, setRegistrations] = useState<Registration[] | undefined>(undefined);
+
+    // Fetch data using Secure Action
+    useEffect(() => {
+        if (accessToken) {
+            getRegistrations({ token: accessToken })
+                .then((data: any) => setRegistrations(data))
+                .catch(err => console.error("Admin Auth Failed", err));
+        }
+    }, [accessToken, getRegistrations]);
 
     const [userTypeFilter, setUserTypeFilter] = useState<UserType>("all");
     const [roleFilter, setRoleFilter] = useState<Role>("all");
@@ -21,19 +48,22 @@ export default function ParticipantsTable() {
         return registrations.filter((reg) => {
             // User Type Filter
             if (userTypeFilter === "authenticated" && reg.userType !== "authenticated") return false;
-            if (userTypeFilter === "guest" && reg.userType !== "guest") return false;
+            // ... (rest of logic) ... -> actually, need to keep the filter logic below, merged manually
+            if (userTypeFilter === "guest" && (reg.userType !== "guest" && reg.userType !== undefined)) return false; // Guest is default if undefined? No, explicit.
 
             // Role Filter
+            // @ts-ignore
             if (roleFilter !== "all" && reg.role !== roleFilter) return false;
 
             // Status Filter
+            // @ts-ignore
             if (statusFilter !== "all" && reg.status !== statusFilter) return false;
 
             return true;
         });
     }, [registrations, userTypeFilter, roleFilter, statusFilter]);
 
-    // Stats - Optimized with single reduce instead of 6 filters
+    // Stats
     const stats = useMemo(() => {
         if (!registrations) {
             return {
@@ -56,7 +86,7 @@ export default function ParticipantsTable() {
 
             // Count user types
             if (r.userType === "authenticated") acc.authenticated++;
-            else if (r.userType === "guest" || !r.userType) acc.guests++;
+            else if (r.userType === "guest") acc.guests++;
 
             return acc;
         }, {

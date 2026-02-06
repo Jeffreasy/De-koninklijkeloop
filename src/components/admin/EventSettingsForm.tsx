@@ -72,7 +72,7 @@ export default function EventSettingsForm() {
         }
     };
 
-    if (!settings) {
+    if (settings === undefined) {
         return (
             <div className="premium-glass rounded-2xl md:rounded-3xl p-6 md:p-8">
                 <div
@@ -84,6 +84,15 @@ export default function EventSettingsForm() {
                     <span className="ml-3 text-text-secondary">Laden...</span>
                     <span className="sr-only">Evenement instellingen laden...</span>
                 </div>
+            </div>
+        );
+    }
+
+    if (settings === null) {
+        return (
+            <div className="premium-glass rounded-2xl md:rounded-3xl p-6 md:p-8 text-center">
+                <h3 className="text-xl font-semibold text-text-primary mb-2">Geen instellingen gevonden</h3>
+                <p className="text-text-muted">Er zijn geen actieve evenementinstellingen. Draai het seed script of controleer de database.</p>
             </div>
         );
     }

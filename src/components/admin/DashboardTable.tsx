@@ -30,6 +30,11 @@ export default function DashboardTable() {
     const accessToken = useStore($accessToken);
     const getRegistrations = useAction(api.admin.getRegistrations);
 
+    // Reset pagination when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     useEffect(() => {
         setIsMounted(true);
     }, []);
@@ -85,11 +90,6 @@ export default function DashboardTable() {
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
-
-    // Reset pagination when search changes
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm]);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
