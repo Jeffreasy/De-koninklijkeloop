@@ -46,8 +46,8 @@ export default function RouteMap() {
                         className={cn(
                             "px-6 py-3 rounded-xl font-medium transition-all duration-300 backdrop-blur-md border",
                             selectedRouteId === route.id
-                                ? "bg-brand-orange text-white border-brand-orange shadow-lg scale-105 font-bold"
-                                : "bg-glass-bg border-glass-border text-secondary hover:bg-glass-bg/80 hover:text-primary hover:border-white/20"
+                                ? "bg-brand-orange text-white border-brand-orange shadow-lg scale-105 font-bold shadow-brand-orange/25"
+                                : "bg-glass-bg border-glass-border text-text-body hover:text-brand-orange hover:bg-glass-bg/80 hover:border-brand-orange/20"
                         )}
                     >
                         {route.distance}
@@ -57,17 +57,17 @@ export default function RouteMap() {
 
             {/* Info Card */}
             <div className="text-center max-w-2xl mx-auto mb-8">
-                <h2 className="text-3xl md:text-4xl font-display font-bold text-primary mb-3">
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-text-primary mb-3">
                     {selectedRoute.name}
                 </h2>
-                <p className="text-lg text-secondary leading-relaxed max-w-xl mx-auto">
+                <p className="text-lg text-text-muted leading-relaxed max-w-xl mx-auto">
                     {selectedRoute.description}
                 </p>
 
                 {/* Visual indicator of metric */}
                 <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface/50 border border-white/10 backdrop-blur-md">
                     <div className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: selectedRoute.color }}></div>
-                    <span className="text-sm font-medium text-primary">
+                    <span className="text-sm font-medium text-text-primary">
                         {selectedRoute.distance}
                     </span>
                 </div>
