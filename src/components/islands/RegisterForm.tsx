@@ -9,7 +9,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { cn } from "../../lib/utils";
-import { User, Mail, MapPin, Users, HeartHandshake, CheckCircle2, ChevronRight, Phone, Contact, Camera, Lock, UserPlus } from "lucide-react";
+import { User, Mail, MapPin, Users, HeartHandshake, CheckCircle2, ChevronRight, Phone, Contact, Camera, Lock, UserPlus, Footprints, Route, Medal, Trophy, XCircle, HelpCircle } from "lucide-react";
 
 // Zod Schema (Password removed)
 const schema = z.object({
@@ -205,15 +205,15 @@ export default function RegisterForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
-                        { id: "deelnemer", label: "Deelnemer", icon: "🏃", desc: "Ik loop mee" },
-                        { id: "begeleider", label: "Begeleider", icon: "🤝", desc: "Ik begeleid iemand" },
-                        { id: "vrijwilliger", label: "Vrijwilliger", icon: "💪", desc: "Ik help mee" }
+                        { id: "deelnemer", label: "Deelnemer", icon: User, desc: "Ik loop mee" },
+                        { id: "begeleider", label: "Begeleider", icon: HeartHandshake, desc: "Ik begeleid iemand" },
+                        { id: "vrijwilliger", label: "Vrijwilliger", icon: Users, desc: "Ik help mee" }
                     ].map((role) => (
                         <div
                             key={role.id}
                             onClick={() => setValue("role", role.id as any)}
                             className={cn(
-                                "cursor-pointer rounded-2xl border-2 p-4 text-center transition-all duration-300 relative group overflow-hidden",
+                                "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[120px]",
                                 selectedRole === role.id
                                     ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
                                     : "border-border glass-card hover:border-brand-orange/50"
@@ -223,15 +223,17 @@ export default function RegisterForm() {
                                 <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />
                             )}
                             {selectedRole === role.id && (
-                                <div className="absolute top-2 right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
-                                    <CheckCircle2 className="w-4 h-4 fill-brand-orange/20" />
+                                <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
+                                    <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
                                 </div>
                             )}
-                            <div className="text-3xl mb-3 transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 filter drop-shadow-md">{role.icon}</div>
-                            <div className={cn("font-bold text-lg transition-colors duration-300", selectedRole === role.id ? "text-brand-orange" : "text-text-body")}>
+                            <div className="mb-1 md:mb-3 transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 filter drop-shadow-md">
+                                <role.icon className={cn("w-8 h-8 md:w-10 md:h-10", selectedRole === role.id ? "text-brand-orange" : "text-brand-orange/70")} />
+                            </div>
+                            <div className={cn("font-bold text-sm md:text-lg transition-colors duration-300", selectedRole === role.id ? "text-brand-orange" : "text-text-body")}>
                                 {role.label}
                             </div>
-                            <div className="text-xs text-text-muted mt-1 group-hover:text-text-body transition-colors">{role.desc}</div>
+                            <div className="text-[10px] md:text-xs text-text-muted mt-1 group-hover:text-text-body transition-colors leading-tight">{role.desc}</div>
                         </div>
                     ))}
                 </div>
@@ -252,16 +254,16 @@ export default function RegisterForm() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
-                        { id: "2.5", label: "2.5 KM", icon: "🚶", color: "text-green-500" },
-                        { id: "6", label: "6 KM", icon: "🏃", color: "text-blue-500" },
-                        { id: "10", label: "10 KM", icon: "🏃‍♂️", color: "text-purple-500" },
-                        { id: "15", label: "15 KM", icon: "🏃‍♀️", color: "text-orange-500" }
+                        { id: "2.5", label: "2.5 KM", icon: Footprints, color: "text-green-500" },
+                        { id: "6", label: "6 KM", icon: Route, color: "text-blue-500" },
+                        { id: "10", label: "10 KM", icon: Medal, color: "text-purple-500" },
+                        { id: "15", label: "15 KM", icon: Trophy, color: "text-orange-500" }
                     ].map((dist) => (
                         <div
                             key={dist.id}
                             onClick={() => setValue("distance", dist.id as any)}
                             className={cn(
-                                "cursor-pointer rounded-2xl border-2 p-4 text-center transition-all duration-300 relative group overflow-hidden",
+                                "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[100px]",
                                 selectedDistance === dist.id
                                     ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
                                     : "border-border glass-card hover:border-brand-orange/50"
@@ -271,12 +273,14 @@ export default function RegisterForm() {
                                 <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />
                             )}
                             {selectedDistance === dist.id && (
-                                <div className="absolute top-2 right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
-                                    <CheckCircle2 className="w-4 h-4 fill-brand-orange/20" />
+                                <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
+                                    <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
                                 </div>
                             )}
-                            <div className="text-2xl mb-2 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 filter drop-shadow-md">{dist.icon}</div>
-                            <div className={cn("font-bold text-lg transition-colors duration-300", selectedDistance === dist.id ? "text-brand-orange" : "text-text-body")}>
+                            <div className="mb-1 md:mb-2 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 filter drop-shadow-md">
+                                <dist.icon className={cn("w-7 h-7 md:w-8 md:h-8", dist.color)} />
+                            </div>
+                            <div className={cn("font-bold text-sm md:text-lg transition-colors duration-300", selectedDistance === dist.id ? "text-brand-orange" : "text-text-body")}>
                                 {dist.label}
                             </div>
                         </div>
@@ -299,15 +303,15 @@ export default function RegisterForm() {
 
                 <div className="grid grid-cols-3 gap-4">
                     {[
-                        { id: "ja", label: "Ja, graag", icon: "✅" },
-                        { id: "nee", label: "Nee", icon: "❌" },
-                        { id: "anders", label: "Anders", icon: "❓" }
+                        { id: "ja", label: "Ja, graag", icon: CheckCircle2 },
+                        { id: "nee", label: "Nee", icon: XCircle },
+                        { id: "anders", label: "Anders", icon: HelpCircle }
                     ].map((opt) => (
                         <div
                             key={opt.id}
                             onClick={() => setValue("supportNeeded", opt.id as any)}
                             className={cn(
-                                "cursor-pointer rounded-2xl border-2 p-4 text-center transition-all duration-300 relative group overflow-hidden",
+                                "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[100px]",
                                 selectedSupport === opt.id
                                     ? "border-brand-primary bg-brand-primary/5 shadow-lg scale-[1.05]"
                                     : "border-border glass-card hover:border-brand-orange/50"
@@ -317,12 +321,14 @@ export default function RegisterForm() {
                                 <div className="absolute inset-0 bg-linear-to-tr from-brand-primary/10 to-transparent pointer-events-none" />
                             )}
                             {selectedSupport === opt.id && (
-                                <div className="absolute top-2 right-2 text-brand-primary animate-in fade-in zoom-in duration-300">
-                                    <CheckCircle2 className="w-4 h-4 fill-brand-orange/20" />
+                                <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-primary animate-in fade-in zoom-in duration-300">
+                                    <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
                                 </div>
                             )}
-                            <div className="text-2xl mb-2 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 filter drop-shadow-md">{opt.icon}</div>
-                            <div className={cn("font-bold text-lg transition-colors duration-300", selectedSupport === opt.id ? "text-brand-orange" : "text-text-body")}>
+                            <div className="mb-1 md:mb-2 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 filter drop-shadow-md">
+                                <opt.icon className={cn("w-7 h-7 md:w-8 md:h-8", selectedSupport === opt.id ? "text-brand-orange" : "text-text-muted")} />
+                            </div>
+                            <div className={cn("font-bold text-sm md:text-lg transition-colors duration-300 leading-tight", selectedSupport === opt.id ? "text-brand-orange" : "text-text-body")}>
                                 {opt.label}
                             </div>
                         </div>
@@ -350,7 +356,7 @@ export default function RegisterForm() {
                         <Phone className="w-6 h-6" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold font-display text-text-body">Noodcontact (ICE)</h3>
+                        <h3 className="text-xl font-bold font-display text-text-body">Noodcontact</h3>
                         <p className="text-sm text-text-muted">Wie kunnen we bellen in geval van nood?</p>
                     </div>
                 </div>
@@ -474,15 +480,15 @@ export default function RegisterForm() {
                 <Button
                     type="submit"
                     variant="default"
-                    className="w-full bg-brand-orange text-white shadow-2xl shadow-brand-orange/30 h-14 text-lg rounded-2xl group transition-all duration-500 hover:scale-[1.02] hover:shadow-brand-orange/50 hover:bg-brand-orange/90 relative overflow-hidden"
+                    className="w-full bg-brand-orange text-white shadow-2xl shadow-brand-orange/30 min-h-14 h-auto py-4 text-base md:text-lg rounded-2xl group transition-all duration-500 hover:scale-[1.02] hover:shadow-brand-orange/50 hover:bg-brand-orange/90 relative overflow-hidden whitespace-normal"
                     disabled={isSubmitting}
                 >
                     <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
                     {isSubmitting ? (
                         "Bezig met verwerken..."
                     ) : (
-                        <span className="flex items-center gap-2 relative z-10">
-                            {wantsAccount ? "Account Aanmaken & Inschrijven" : "Nu Inschrijven (Zonder Account)"} <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        <span className="flex items-center justify-center gap-2 relative z-10 leading-tight">
+                            {wantsAccount ? "Account Aanmaken & Inschrijven" : "Nu Inschrijven (Zonder Account)"} <ChevronRight className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" />
                         </span>
                     )}
                 </Button>
