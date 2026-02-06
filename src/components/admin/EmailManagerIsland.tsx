@@ -409,7 +409,7 @@ function EmailListItem({ email, isSelected, onClick }: EmailListItemProps) {
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                     )}
                     {!email.is_read && (
-                        <div className="w-2 h-2 bg-brand-orange rounded-full animate-pulse shadow-[0_0_8px_hsl(var(--color-brand-orange)/0.6)]" />
+                        <div className="w-2 h-2 bg-brand-orange rounded-full animate-pulse shadow-[0_0_8px_color-mix(in_srgb,var(--color-brand-orange),transparent_40%)]" />
                     )}
                 </div>
             </div>

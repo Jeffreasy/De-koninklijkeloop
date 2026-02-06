@@ -50,7 +50,7 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
                                 className={cn(
                                     "relative flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-500 min-w-[85%] md:min-w-0 snap-center text-left group border focus:outline-none focus:ring-2 focus:ring-brand-orange/50",
                                     isActive
-                                        ? "bg-[linear-gradient(135deg,hsl(var(--color-brand-orange))_0%,#fbbf24_100%)] text-white border-brand-orange shadow-lg shadow-brand-orange/20 scale-[1.02]"
+                                        ? "bg-[linear-gradient(135deg,var(--color-brand-orange)_0%,#fbbf24_100%)] text-white border-brand-orange shadow-lg shadow-brand-orange/20 scale-[1.02]"
                                         : "bg-surface/40 md:bg-transparent border-white/5 hover:bg-surface/50 hover:border-white/10 text-secondary hover:text-primary"
                                 )}
                             >
