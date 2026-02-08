@@ -318,4 +318,24 @@ export default defineSchema({
         updated_at: v.number(),
     })
         .index("by_order", ["order"]),
+
+    // Feedback System (Editor/Admin Feedback)
+    feedback: defineTable({
+        type: v.string(), // "bug", "feature", "praise", "other"
+        message: v.string(),
+        metadata: v.optional(v.any()), // flexible object for url, browser, etc.
+        status: v.union(v.literal("open"), v.literal("in_progress"), v.literal("closed"), v.literal("rejected")),
+        adminNotes: v.optional(v.string()), // For admin replies/notes
+
+        // User Info (Snapshot)
+        userId: v.optional(v.string()), // If authenticated
+        userName: v.optional(v.string()),
+        userEmail: v.optional(v.string()),
+
+        createdAt: v.number(),
+        updatedAt: v.number(),
+    })
+        .index("by_status", ["status"])
+        .index("by_type", ["type"])
+        .index("by_created", ["createdAt"]),
 });

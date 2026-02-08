@@ -14,6 +14,7 @@ import type * as auth from "../auth.js";
 import type * as contact from "../contact.js";
 import type * as donations from "../donations.js";
 import type * as eventSettings from "../eventSettings.js";
+import type * as feedback from "../feedback.js";
 import type * as fixData from "../fixData.js";
 import type * as internal_ from "../internal.js";
 import type * as media from "../media.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   contact: typeof contact;
   donations: typeof donations;
   eventSettings: typeof eventSettings;
+  feedback: typeof feedback;
   fixData: typeof fixData;
   internal: typeof internal_;
   media: typeof media;

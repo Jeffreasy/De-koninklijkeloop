@@ -5,6 +5,7 @@ import AdminNav from "../components/admin/AdminNav.astro";
 import AdminHeader from "../components/admin/AdminHeader.astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
 import { ToastContainer } from "../components/ui/ToastContainer";
+import FeedbackModal from "../components/admin/FeedbackModal";
 
 interface Props {
   title: string;
@@ -113,6 +114,7 @@ const { title } = Astro.props;
         });
     </script>
     <ToastContainer client:idle />
+    <FeedbackModal client:idle convexUrl={import.meta.env.PUBLIC_CONVEX_URL} />
     <SpeedInsights />
   </body>
 </html>

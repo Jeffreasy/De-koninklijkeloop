@@ -1,14 +1,15 @@
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { useState, useEffect } from "react";
 import EventSettingsForm from "./EventSettingsForm";
-import MailConfigIsland from "./MailConfigIsland"; // Import the new component
-import { Calendar, Mail } from "lucide-react";
+import MailConfigIsland from "./MailConfigIsland";
+import FeedbackList from "./FeedbackList"; // Import new component
+import { Calendar, Mail, MessageSquarePlus } from "lucide-react";
 
 interface Props {
     convexUrl: string;
 }
 
-type Tab = 'event' | 'email';
+type Tab = 'event' | 'email' | 'feedback';
 
 export default function EventSettingsIsland({ convexUrl }: Props) {
     const [client, setClient] = useState<ConvexReactClient | null>(null);
@@ -70,15 +71,23 @@ export default function EventSettingsIsland({ convexUrl }: Props) {
                         <Mail className="w-4 h-4" />
                         <span>Server & E-mail</span>
                     </button>
+                    <button
+                        onClick={() => setActiveTab('feedback')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'feedback'
+                            ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20'
+                            : 'text-text-muted hover:text-text-primary hover:bg-white/5'
+                            }`}
+                    >
+                        <MessageSquarePlus className="w-4 h-4" />
+                        <span>Feedback</span>
+                    </button>
                 </div>
 
                 {/* Tab Content */}
                 <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    {activeTab === 'event' ? (
-                        <EventSettingsForm />
-                    ) : (
-                        <MailConfigIsland />
-                    )}
+                    {activeTab === 'event' && <EventSettingsForm />}
+                    {activeTab === 'email' && <MailConfigIsland />}
+                    {activeTab === 'feedback' && <FeedbackList />}
                 </div>
             </div>
         </ConvexProvider>
