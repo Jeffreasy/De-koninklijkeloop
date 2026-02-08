@@ -124,7 +124,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                             <img
                                 src={post.imageUrl}
                                 alt={post.caption.slice(0, 100)}
-                                className={`w-full h-full transition-transform duration-500 group-hover:scale-[1.02] ${isExpanded ? 'object-contain' : 'object-contain md:object-cover'}`}
+                                className={`w-full h-full transition-transform duration-500 group-hover:scale-[1.02] object-contain`}
                             />
                         </div>
                     </div>
@@ -163,7 +163,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                 <div className={`relative w-full md:w-1/2 flex-col flex-1 bg-surface md:bg-surface/95 md:backdrop-blur-2xl border-t md:border-t-0 md:border-l border-border overflow-hidden ${isExpanded ? 'hidden md:flex' : 'flex'}`}>
 
                     {/* Header */}
-                    <div className="p-5 border-b border-border shrink-0 bg-surface/50 backdrop-blur-sm sticky top-0 z-10">
+                    <div className="p-5 pr-20 border-b border-border shrink-0 bg-surface/50 backdrop-blur-sm sticky top-0 z-10">
                         <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
                                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-brand-orange/10 flex items-center justify-center border border-brand-orange/20 shrink-0">
@@ -188,7 +188,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                 href={post.instagramUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-2.5 rounded-xl bg-[linear-gradient(135deg,var(--color-brand-orange)_0%,#fbbf24_100%)] text-white hover:shadow-lg hover:scale-105 transition-all"
+                                className="p-2.5 mr-16 rounded-xl bg-[linear-gradient(135deg,var(--color-brand-orange)_0%,#fbbf24_100%)] text-white hover:shadow-lg hover:scale-105 transition-all"
                             >
                                 <ExternalLink className="w-5 h-5" />
                             </a>
