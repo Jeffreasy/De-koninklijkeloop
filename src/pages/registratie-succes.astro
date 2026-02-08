@@ -1,167 +1,21 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Navbar from '../components/blocks/Global/Navbar.astro';
-import Footer from '../components/blocks/Global/Footer.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/blocks/Global/Navbar.astro";
+import Footer from "../components/blocks/Global/Footer.astro";
+import RegistrationSuccessIsland from "../components/marketing/RegistrationSuccessIsland";
 ---
 
 <BaseLayout title="Registratie Gelukt - De Koninklijke Loop">
-  <Navbar />
-  
-  <main class="pt-32 pb-20">
-    <div class="success-container">
-      <div class="success-card">
-        <div class="icon-wrapper">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-          </svg>
-        </div>
-        
-        <h1>Registratie Gelukt!</h1>
-        
-        <p class="message">
-          Bedankt voor je inschrijving voor De Koninklijke Loop. 
-          Je ontvangt binnen enkele momenten een bevestigingsmail met alle details.
-        </p>
-        
-        <div class="info-box">
-          <h3>Wat nu?</h3>
-          <ul>
-            <li>Check je inbox voor de bevestigingsmail</li>
-            <li>Voeg het evenement toe aan je agenda</li>
-            <li>Bereid je voor op een geweldige loop!</li>
-          </ul>
-        </div>
-        
-        <a href="/" class="btn-home">Terug naar home</a>
-      </div>
-    </div>
-  </main>
-  
-  <Footer />
-</BaseLayout>
+  <div class="relative min-h-screen bg-app-bg overflow-hidden flex flex-col">
+    <!-- Navbar -->
+    <Navbar />
 
-<style>
-  .success-container {
-    min-height: 60vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-  }
-  
-  .success-card {
-    background: white;
-    border-radius: 16px;
-    padding: 3rem 2rem;
-    max-width: 600px;
-    width: 100%;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .icon-wrapper {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 2rem;
-    background: linear-gradient(135deg, #FF9328 0%, #ff6b35 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: scaleIn 0.5s ease-out;
-  }
-  
-  .icon-wrapper svg {
-    width: 48px;
-    height: 48px;
-    color: white;
-  }
-  
-  h1 {
-    font-size: 2.5rem;
-    color: #FF9328;
-    margin-bottom: 1rem;
-    font-weight: 700;
-  }
-  
-  .message {
-    font-size: 1.125rem;
-    color: #4a5568;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-  }
-  
-  .info-box {
-    background: #f7fafc;
-    border-left: 4px solid #FF9328;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    text-align: left;
-  }
-  
-  .info-box h3 {
-    font-size: 1.25rem;
-    color: #2d3748;
-    margin-bottom: 0.75rem;
-  }
-  
-  .info-box ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .info-box li {
-    padding: 0.5rem 0;
-    color: #4a5568;
-    position: relative;
-    padding-left: 1.5rem;
-  }
-  
-  .info-box li::before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    color: #FF9328;
-    font-weight: bold;
-  }
-  
-  .btn-home {
-    display: inline-block;
-    background: linear-gradient(135deg, #FF9328 0%, #ff6b35 100%);
-    color: white;
-    padding: 0.875rem 2rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  
-  .btn-home:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(255, 147, 40, 0.3);
-  }
-  
-  @keyframes scaleIn {
-    from {
-      transform: scale(0);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-  
-  @media (max-width: 640px) {
-    h1 {
-      font-size: 2rem;
-    }
-    
-    .success-card {
-      padding: 2rem 1.5rem;
-    }
-  }
-</style>
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center relative z-10 pt-20">
+      <RegistrationSuccessIsland client:load />
+    </main>
+
+    <!-- Footer -->
+    <Footer />
+  </div>
+</BaseLayout>
