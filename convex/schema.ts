@@ -39,14 +39,21 @@ export default defineSchema({
         )),
         authUserId: v.optional(v.string()), // Linked Auth ID (only for authenticated)
 
+        // Admin Notes
+        notes: v.optional(v.string()),
+
         // Status
         status: v.union(v.literal("pending"), v.literal("paid"), v.literal("cancelled")),
 
         createdAt: v.number(),
+
+        // Edition (for archiving)
+        edition: v.optional(v.string()) // e.g., "2025", "2026"
     })
         .index("by_email", ["email"])
         .index("by_auth_user_id", ["authUserId"]) // Scalability: Fast lookup by user
-        .index("by_status", ["status"]),
+        .index("by_status", ["status"])
+        .index("by_edition", ["edition"]),
 
     // Donations
     donations: defineTable({

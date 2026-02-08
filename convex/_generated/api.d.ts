@@ -9,6 +9,7 @@
  */
 
 import type * as admin from "../admin.js";
+import type * as archive from "../archive.js";
 import type * as auth from "../auth.js";
 import type * as contact from "../contact.js";
 import type * as donations from "../donations.js";
@@ -34,6 +35,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
+  archive: typeof archive;
   auth: typeof auth;
   contact: typeof contact;
   donations: typeof donations;

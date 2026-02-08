@@ -40,3 +40,69 @@ export const getRegistrations = action({
         return data;
     },
 });
+
+export const updateRegistration = action({
+    args: {
+        token: v.string(),
+        id: v.id("registrations"),
+        status: v.optional(v.string()), // String to match union type after validation
+        notes: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        // 1. Verify Token (Reused logic - ideally extract this)
+        const tenantId = process.env.TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
+        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
+
+        const res = await fetch(`${API_URL}/auth/me`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Cookie": `access_token=${args.token}`,
+                "X-Tenant-ID": tenantId
+            }
+        });
+
+        if (!res.ok) throw new Error("Unauthorized");
+        const userData = await res.json();
+        const user = userData.User || userData.user || userData;
+        if ((user.Role || user.role || "").toLowerCase() !== "admin") throw new Error("Forbidden");
+
+        // 2. Call Internal Mutation
+        // @ts-ignore - Status string to union type cast safe here as internal validates it
+        await ctx.runMutation(api.internal.updateRegistration, {
+            id: args.id,
+            status: args.status,
+            notes: args.notes
+        });
+    },
+});
+
+export const deleteRegistration = action({
+    args: {
+        token: v.string(),
+        id: v.id("registrations"),
+    },
+    handler: async (ctx, args) => {
+        // 1. Verify Token
+        const tenantId = process.env.TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
+        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
+
+        const res = await fetch(`${API_URL}/auth/me`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Cookie": `access_token=${args.token}`,
+                "X-Tenant-ID": tenantId
+            }
+        });
+
+        if (!res.ok) throw new Error("Unauthorized");
+        const userData = await res.json();
+        const user = userData.User || userData.user || userData;
+        if ((user.Role || user.role || "").toLowerCase() !== "admin") throw new Error("Forbidden");
+
+        // 2. Call Internal Mutation
+        // @ts-ignore - Internal mutation types might not be generated yet
+        await ctx.runMutation(api.internal.deleteRegistration, { id: args.id });
+    },
+});
