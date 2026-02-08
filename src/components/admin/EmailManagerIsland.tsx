@@ -480,7 +480,7 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
 
             {/* Attachments Section */}
             {
-                !loading && fullEmail && fullEmail.attachments && fullEmail.attachments.length > 0 && (
+                !loading && fullEmail && Array.isArray(fullEmail.attachments) && fullEmail.attachments.length > 0 && (
                     <div className="px-6 py-4 border-b border-glass-border bg-white/2">
                         <h4 className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
                             <Paperclip className="w-3 h-3" />

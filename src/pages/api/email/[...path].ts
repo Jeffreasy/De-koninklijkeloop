@@ -19,6 +19,7 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
     }
 
     // Get tenant ID from environment (consistent with auth proxy pattern)
+    // FALLBACK: Use the specific DKL tenant ID if env is missing
     const tenantID = import.meta.env.PUBLIC_TENANT_ID || 'b2727666-7230-4689-b58b-ceab8c2898d5';
 
     // Construct backend URL - API_URL already contains /api/v1

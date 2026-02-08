@@ -13,7 +13,9 @@ interface Props {
     onSelectAll: () => void;
     allSelected: boolean;
     onUploadSuccess: (url: string) => void;
+    onDelete: () => void;
 }
+
 
 export function MediaToolbar({
     searchTerm,
@@ -26,7 +28,8 @@ export function MediaToolbar({
     onDeselectAll,
     onSelectAll,
     allSelected,
-    onUploadSuccess
+    onUploadSuccess,
+    onDelete
 }: Props) {
     return (
         <div className="glass-card p-4">
@@ -88,6 +91,14 @@ export function MediaToolbar({
                             >
                                 <iconify-icon icon="lucide:edit-3" width="16" />
                                 <span className="hidden sm:inline">Bulk Bewerken</span>
+                            </button>
+                            <button
+                                onClick={onDelete}
+                                className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-colors font-medium"
+                                aria-label="Verwijder geselecteerde afbeeldingen"
+                            >
+                                <iconify-icon icon="lucide:trash-2" width="16" />
+                                <span className="hidden sm:inline">Verwijderen</span>
                             </button>
                             <button
                                 onClick={onDeselectAll}

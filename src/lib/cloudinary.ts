@@ -194,3 +194,25 @@ export async function getAllImagesForAdmin(): Promise<CloudinaryImageAdmin[]> {
         return [];
     }
 }
+
+/**
+ * Delete image from Cloudinary
+ */
+export async function deleteImage(publicId: string): Promise<boolean> {
+    try {
+        console.log(`[Cloudinary] Deleting image: ${publicId}`);
+        const result = await cloudinary.uploader.destroy(publicId);
+
+        if (result.result === 'ok') {
+            // Invalidate cache
+            cache.clear();
+            return true;
+        }
+
+        console.error(`[Cloudinary] Delete failed:`, result);
+        return false;
+    } catch (e) {
+        console.error(`[Cloudinary] Delete error:`, e);
+        return false;
+    }
+}

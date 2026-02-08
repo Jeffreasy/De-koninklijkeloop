@@ -87,29 +87,55 @@ export function MediaCard({ image, isSelected, onToggleSelect, onCardClick }: Pr
             </div>
 
             {/* Card Footer */}
-            <div className="p-4 space-y-2">
-                {/* Folder Path */}
-                <div className="text-xs text-text-muted/70 truncate" title={image.folder}>
-                    📁 {image.folder?.replace('De Koninklijkeloop/', '') || 'Onbekend'}
-                </div>
+            <div className="p-4 flex flex-col gap-2">
+                {/* Header Row: Title & Folder */}
+                {/* Header Row: Title & Folder */}
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                            <div className="text-[10px] uppercase tracking-wider text-text-muted/60 truncate mb-1">
+                                {image.folder?.replace('De Koninklijkeloop/', '') || 'Folder onbekend'}
+                            </div>
 
-                {/* Title or Filename */}
-                <div className="text-sm font-semibold text-text-primary truncate" title={image.title || image.public_id}>
-                    {image.title || image.public_id.split('/').pop()}
-                </div>
-
-                {/* Filename (if title exists) */}
-                {image.title && (
-                    <div className="text-xs font-mono text-text-muted/60 truncate" title={image.public_id}>
-                        {image.public_id.split('/').pop()}
+                            {/* Title Block - Conditional Styling */}
+                            <div className={`
+                                p-1.5 rounded-md text-sm font-semibold truncate transition-colors
+                                ${image.title
+                                    ? 'text-text-primary'
+                                    : 'bg-[rgb(var(--warning))]/10 text-[rgb(var(--warning))] border border-[rgb(var(--warning))]/20'}
+                            `}
+                                title={image.title || "Geen titel"}
+                            >
+                                {image.title || (
+                                    <div className="flex items-center gap-1.5">
+                                        <iconify-icon icon="lucide:alert-circle" width="14" />
+                                        <span>Naamloos</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
-                )}
+                </div>
 
-                {/* Alt Text Preview */}
-                <div className="text-xs text-text-primary/80 line-clamp-2 min-h-10">
-                    {image.alt_text || (
-                        <span className="text-text-muted/60 italic">Klik om alt text toe te voegen...</span>
-                    )}
+                {/* Metadata Badges / Info */}
+                <div className="flex items-center gap-2 text-[10px] text-text-muted font-mono pt-1 border-t border-glass-border/50 mt-1">
+                    <span>{image.format?.toUpperCase()}</span>
+                    <span>•</span>
+                    <span>{image.width}x{image.height}</span>
+                    <span>•</span>
+                    <span>{(image.bytes / 1024).toFixed(0)}KB</span>
+                </div>
+
+                {/* Alt Text Preview - More distinct visual block */}
+                <div className={`
+                    mt-1 p-2 rounded-lg text-xs leading-relaxed border
+                    ${image.alt_text
+                        ? 'bg-glass-bg/30 border-glass-border/50 text-text-primary/90'
+                        : 'bg-red-500/5 border-red-500/10 text-red-500/60 dashed-border'}
+                `}>
+                    <div className="line-clamp-2 min-h-[2.5em]">
+                        {image.alt_text || "Nog geen alt tekst toegevoegd..."}
+                    </div>
                 </div>
             </div>
         </div>

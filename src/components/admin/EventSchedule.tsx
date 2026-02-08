@@ -61,9 +61,9 @@ const EventSchedule = () => {
                                 {/* Timeline Node */}
                                 <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 shadow-lg shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-all duration-500 group-hover:scale-110
                                     ${isEvent
-                                        ? 'bg-gradient-to-br from-brand-orange to-red-500 text-white border-white/20 shadow-brand-orange/40'
+                                        ? 'bg-linear-to-br from-brand-orange to-red-500 text-white border-white/20 shadow-brand-orange/40'
                                         : isBreak
-                                            ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white border-white/20 shadow-blue-500/30'
+                                            ? 'bg-linear-to-br from-blue-500 to-indigo-600 text-white border-white/20 shadow-blue-500/30'
                                             : 'bg-glass-surface text-text-muted border-glass-border'
                                     }`}>
                                     {getIcon(item.icon)}
