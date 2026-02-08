@@ -21,7 +21,8 @@ export const registerParticipant = action({
         const tenantId = "b2727666-7230-4689-b58b-ceab8c2898d5";
 
         // 1. Create User in Auth System
-        const authRes = await fetch("https://laventecareauthsystems.onrender.com/api/v1/auth/register", {
+        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
+        const authRes = await fetch(`${API_URL}/auth/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

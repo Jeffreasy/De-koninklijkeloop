@@ -126,6 +126,7 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
     // INTERCEPT LOGOUT
     if (path === 'logout') {
         cookies.delete('dkl_auth_token', { path: '/' });
+        cookies.delete('access_token', { path: '/' });
         return new Response(JSON.stringify({ success: true }), { status: 200 });
     }
 

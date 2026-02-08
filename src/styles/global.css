@@ -211,20 +211,12 @@ input[type="button"],
     z-index: 1;
   }
 
-  /* Typography */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  /* Typography Utilities */
+  .font-header {
     font-family: var(--font-display);
     font-weight: 400;
-    /* Bebas Neue is properly bold at 400. 700 causes faux-bold. */
     letter-spacing: 0.02em;
-    /* Reduced spacing for Bebas */
     text-transform: uppercase;
-    /* Bebas is uppercase only, ensuring consistency */
   }
 }
 

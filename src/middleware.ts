@@ -86,7 +86,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com https://unpkg.com",
         "img-src 'self' data: https://res.cloudinary.com https://*.convex.cloud https://thumbs-east.streamable.com https://placehold.co https://*.tile.openstreetmap.org https://unpkg.com",
         "font-src 'self' data: * https://api.fontshare.com https://fonts.gstatic.com https://fonts.googleapis.com",
-        "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://laventecareauthsystems.onrender.com https://res.cloudinary.com https://*.tile.openstreetmap.org https://va.vercel-analytics.com https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com",
+        "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://laventecareauthsystems.onrender.com http://localhost:8080 ws://localhost:8080 https://res.cloudinary.com https://*.tile.openstreetmap.org https://va.vercel-analytics.com https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com",
         "frame-src 'self' https://streamable.com https://*.streamable.com https://vercel.live https://www.komoot.com https://*.komoot.com https://komoot.com https://komoot.de https://*.komoot.de",
         "frame-ancestors 'self' https://vercel.live",
         "upgrade-insecure-requests"

@@ -15,8 +15,9 @@ export const getDashboardData = action({
     }> => {
         try {
             // ✅ Removed Cookie header injection - only use Authorization header
+            const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
             const res = await fetch(
-                "https://laventecareauthsystems.onrender.com/api/v1/auth/me",
+                `${API_URL}/auth/me`,
                 {
                     headers: {
                         "Authorization": `Bearer ${args.token}`,

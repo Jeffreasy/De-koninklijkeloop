@@ -1,0 +1,23 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import TeamHub from "../../components/admin/TeamHub";
+
+// Force rebuild
+---
+
+<AdminLayout title="Team Hub | De Koninklijke Loop Admin">
+    <div class="mb-8">
+        <h2
+            class="text-3xl font-bold text-text-primary bg-clip-text text-transparent bg-linear-to-r from-text-primary to-text-muted/80 tracking-tight"
+        >
+            Team Organisatie
+        </h2>
+        <p class="text-text-muted mt-2 max-w-2xl">
+            Centrale plek voor alle vergaderstukken, notulen en dagplanningen
+            voor het kernteam.
+        </p>
+    </div>
+
+    <!-- Team Content Island -->
+    <TeamHub client:load />
+</AdminLayout>

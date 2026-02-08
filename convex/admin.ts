@@ -9,7 +9,8 @@ export const getRegistrations = action({
 
         // 1. Verify Token via Auth API
         // 1. Verify Token via Auth API
-        const res = await fetch("https://laventecareauthsystems.onrender.com/api/v1/auth/me", {
+        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
+        const res = await fetch(`${API_URL}/auth/me`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
