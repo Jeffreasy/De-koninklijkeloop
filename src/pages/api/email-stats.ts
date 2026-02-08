@@ -18,8 +18,8 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     // Get tenant ID from environment
     const tenantID = import.meta.env.PUBLIC_TENANT_ID || 'b2727666-7230-4689-b58b-ceab8c2898d5';
 
-    // Backend route uses hyphen: /api/admin/email-stats
-    const backendUrl = `${API_URL}/admin/email-stats`;
+    // Backend route: /api/email-stats
+    const backendUrl = `${API_URL}/email-stats`;
 
     console.log(`[Email Stats Proxy] Forwarding to ${backendUrl}`);
 

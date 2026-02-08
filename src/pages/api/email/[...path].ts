@@ -23,7 +23,7 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
     const tenantID = import.meta.env.PUBLIC_TENANT_ID || 'b2727666-7230-4689-b58b-ceab8c2898d5';
 
     // Construct backend URL - API_URL already contains /api/v1
-    const backendUrl = `${API_URL}/admin/email/${path}`;
+    const backendUrl = `${API_URL}/email/${path}`;
 
     console.log(`[Email Proxy] Forwarding ${request.method} to ${backendUrl}`);
     console.log(`[Email Proxy] X-Tenant-ID: ${tenantID}`);
