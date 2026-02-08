@@ -283,4 +283,39 @@ export default defineSchema({
     })
         .index("by_year", ["year"])
         .index("by_active", ["is_active"]),
+
+    // Team Hub: Minutes & Agendas
+    team_minutes: defineTable({
+        title: v.string(),
+        date: v.string(), // ISO "2026-01-19"
+        type: v.union(v.literal("meeting"), v.literal("agenda"), v.literal("other")),
+        status: v.union(v.literal("concept"), v.literal("final")),
+        tags: v.array(v.string()),
+        content: v.string(), // Markdown
+
+        // Meta
+        created_at: v.number(),
+        updated_at: v.number(),
+        updated_by: v.optional(v.string()),
+    })
+        .index("by_date", ["date"])
+        .index("by_type", ["type"]),
+
+    // Team Hub: Event Schedule (Chronological)
+    event_schedule: defineTable({
+        time: v.string(), // "10:15"
+        title: v.string(),
+        description: v.string(),
+        type: v.union(v.literal("logistics"), v.literal("event"), v.literal("break")),
+        icon: v.string(), // "aanvang", "start", etc.
+        routeId: v.optional(v.string()), // "15km"
+
+        // Sorting
+        order: v.number(),
+
+        // Meta
+        created_at: v.number(),
+        updated_at: v.number(),
+    })
+        .index("by_order", ["order"]),
 });

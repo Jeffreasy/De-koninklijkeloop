@@ -1,29 +1,57 @@
 import React, { useState } from 'react';
-import { teamMinutes, type MinuteItem } from './data/teamData';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import EventSchedule from './EventSchedule';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { useMutation } from 'convex/react';
+import { MinuteModal, ScheduleModal } from './TeamHubModals';
+import {
+    FileText,
+    Calendar,
+    Search,
+    Download,
+    ChevronLeft,
+    Filter,
+    Clock,
+    Tag,
+    Plus,
+    Edit3,
+    Trash2
+} from 'lucide-react';
+import { ConvexClientProvider } from '../islands/ConvexClientProvider';
+import type { Id } from '../../../convex/_generated/dataModel';
 
-// --- Icons ---
-const Icons = {
-    FileText: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></svg>,
-    Calendar: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>,
-    Search: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>,
-    Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>,
-    ChevronLeft: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-};
-
-const TeamHub = () => {
+const TeamHubContent = () => {
     const [activeTab, setActiveTab] = useState<'minutes' | 'schedule'>('minutes');
-    const [selectedMinute, setSelectedMinute] = useState<MinuteItem | null>(null);
+    const [selectedMinute, setSelectedMinute] = useState<any | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Filter Minutes
-    const filteredMinutes = teamMinutes.filter(m =>
-        m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    // Modal State
+    const [isMinuteModalOpen, setIsMinuteModalOpen] = useState(false);
+    const [editingMinute, setEditingMinute] = useState<any | null>(null);
+    const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+    const [editingScheduleItem, setEditingScheduleItem] = useState<any | null>(null);
+
+    const minutes = useQuery(api.team.getMinutes, { searchQuery: searchQuery || undefined });
+    const deleteMinute = useMutation(api.team.deleteMinute);
+
+    const handleOpenMinuteModal = (minute: any = null) => {
+        setEditingMinute(minute);
+        setIsMinuteModalOpen(true);
+    };
+
+    const handleDeleteMinute = async (id: Id<"team_minutes">) => {
+        if (confirm("Weet je zeker dat je deze notule wilt verwijderen?")) {
+            await deleteMinute({ id });
+            if (selectedMinute?._id === id) setSelectedMinute(null);
+        }
+    };
+
+    const handleOpenScheduleModal = (item: any = null) => {
+        setEditingScheduleItem(item);
+        setIsScheduleModalOpen(true);
+    };
 
     return (
         <div className="space-y-6">
@@ -43,7 +71,7 @@ const TeamHub = () => {
                             : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
                             }`}
                     >
-                        <Icons.FileText /> Notulen
+                        <FileText className="w-4 h-4" /> Notulen
                     </button>
                     <button
                         onClick={() => setActiveTab('schedule')}
@@ -52,7 +80,7 @@ const TeamHub = () => {
                             : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
                             }`}
                     >
-                        <Icons.Calendar /> Programma
+                        <Calendar className="w-4 h-4" /> Programma
                     </button>
                 </div>
             </div>
@@ -63,59 +91,82 @@ const TeamHub = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
                         {/* List View - Hidden on mobile if checking details */}
                         <div className={`lg:col-span-1 space-y-4 ${selectedMinute ? 'hidden lg:block' : 'block'}`}>
-                            {/* Search */}
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
-                                    <Icons.Search />
+                            {/* Actions & Search */}
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
+                                        <Search className="w-4 h-4" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Zoek in notulen..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50 transition-all"
+                                    />
                                 </div>
-                                <input
-                                    type="text"
-                                    placeholder="Zoek in notulen..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50 transition-all"
-                                />
+                                <button className="p-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-muted hover:text-brand-orange hover:bg-glass-surface transition-colors">
+                                    <Filter className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => handleOpenMinuteModal()}
+                                    className="p-2.5 bg-brand-orange text-white rounded-xl shadow-lg shadow-brand-orange/20 hover:bg-brand-orange-dark transition-colors"
+                                    title="Nieuwe Notule"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </button>
                             </div>
 
                             {/* Items */}
                             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                                {filteredMinutes.map((minute) => (
-                                    <div
-                                        key={minute.id}
-                                        onClick={() => setSelectedMinute(minute)}
-                                        className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 group ${selectedMinute?.id === minute.id
-                                            ? 'bg-brand-orange/10 border-brand-orange/50 shadow-md transform scale-[1.02]'
-                                            : 'bg-glass-bg border-glass-border hover:border-brand-orange/30 hover:bg-glass-surface'
-                                            }`}
-                                    >
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${minute.type === 'meeting'
-                                                ? 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-                                                : 'bg-purple-500/10 text-purple-500 border-purple-500/20'
-                                                }`}>
-                                                {minute.type === 'meeting' ? 'Vergadering' : 'Agenda'}
-                                            </span>
-                                            <span className="text-xs text-text-muted font-mono">
-                                                {format(new Date(minute.date), 'd MMM yyyy', { locale: nl })}
-                                            </span>
-                                        </div>
-                                        <h3 className={`font-semibold text-sm mb-2 line-clamp-2 ${selectedMinute?.id === minute.id ? 'text-brand-orange' : 'text-text-primary group-hover:text-brand-orange'
-                                            }`}>
-                                            {minute.title}
-                                        </h3>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {minute.tags.slice(0, 3).map(tag => (
-                                                <span key={tag} className="px-2 py-0.5 text-[10px] bg-glass-surface border border-glass-border rounded-md text-text-muted">
-                                                    #{tag}
-                                                </span>
-                                            ))}
-                                        </div>
+                                {!minutes ? (
+                                    // Skeleton Loading
+                                    [1, 2, 3].map(i => (
+                                        <div key={i} className="p-4 rounded-xl border border-glass-border bg-glass-bg animate-pulse h-24"></div>
+                                    ))
+                                ) : minutes.length === 0 ? (
+                                    <div className="text-center p-8 text-text-muted">
+                                        Geen notulen gevonden
                                     </div>
-                                ))}
+                                ) : (
+                                    minutes.map((minute) => (
+                                        <div
+                                            key={minute._id}
+                                            onClick={() => setSelectedMinute(minute)}
+                                            className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 group ${selectedMinute?._id === minute._id
+                                                ? 'bg-brand-orange/10 border-brand-orange/50 shadow-md transform scale-[1.02]'
+                                                : 'bg-glass-bg border-glass-border hover:border-brand-orange/30 hover:bg-glass-surface'
+                                                }`}
+                                        >
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${minute.type === 'meeting'
+                                                    ? 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                                                    : 'bg-purple-500/10 text-purple-500 border-purple-500/20'
+                                                    }`}>
+                                                    {minute.type === 'meeting' ? 'Vergadering' : 'Agenda'}
+                                                </span>
+                                                <span className="text-xs text-text-muted font-mono">
+                                                    {format(new Date(minute.date), 'd MMM yyyy', { locale: nl })}
+                                                </span>
+                                            </div>
+                                            <h3 className={`font-semibold text-sm mb-2 line-clamp-2 ${selectedMinute?._id === minute._id ? 'text-brand-orange' : 'text-text-primary group-hover:text-brand-orange'
+                                                }`}>
+                                                {minute.title}
+                                            </h3>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {minute.tags?.slice(0, 3).map((tag: string) => (
+                                                    <span key={tag} className="px-2 py-0.5 text-[10px] bg-glass-surface border border-glass-border rounded-md text-text-muted">
+                                                        #{tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
 
-                        {/* Detail View - Full width on mobile/tablet when active */}
+                        {/* Detail View */}
                         <div className={`lg:col-span-2 ${selectedMinute ? 'block' : 'hidden lg:block'}`}>
                             <div className="bg-glass-bg border border-glass-border rounded-2xl h-[700px] flex flex-col overflow-hidden shadow-sm relative">
                                 {selectedMinute ? (
@@ -126,59 +177,124 @@ const TeamHub = () => {
                                                 onClick={() => setSelectedMinute(null)}
                                                 className="lg:hidden mb-4 flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors text-sm font-medium"
                                             >
-                                                <Icons.ChevronLeft /> Terug naar overzicht
+                                                <ChevronLeft className="w-4 h-4" /> Terug naar overzicht
                                             </button>
 
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <div className="flex flex-wrap items-center gap-3 mb-2">
                                                         <h2 className="text-xl font-bold text-text-primary">{selectedMinute.title}</h2>
-                                                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-500 border border-green-500/20">
+                                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${selectedMinute.status === 'final'
+                                                            ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                            : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                                                            }`}>
                                                             {selectedMinute.status}
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center gap-4 text-sm text-text-muted">
                                                         <span className="flex items-center gap-1.5">
-                                                            <Icons.Calendar />
+                                                            <Calendar className="w-4 h-4" />
                                                             {format(new Date(selectedMinute.date), 'dd MMMM yyyy', { locale: nl })}
+                                                        </span>
+                                                        <span className="flex items-center gap-1.5">
+                                                            <Clock className="w-4 h-4" />
+                                                            {format(selectedMinute.created_at, 'HH:mm')}
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <button className="p-2 hover:bg-glass-surface rounded-lg text-text-muted hover:text-brand-orange transition-colors" title="Download PDF (Mock)">
-                                                    <Icons.Download />
-                                                </button>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => handleOpenMinuteModal(selectedMinute)}
+                                                        className="p-2 hover:bg-glass-surface rounded-lg text-text-muted hover:text-brand-orange transition-colors"
+                                                        title="Bewerken"
+                                                    >
+                                                        <Edit3 className="w-5 h-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteMinute(selectedMinute._id)}
+                                                        className="p-2 hover:bg-glass-surface rounded-lg text-text-muted hover:text-red-500 transition-colors"
+                                                        title="Verwijderen"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
+                                                    <button className="p-2 hover:bg-glass-surface rounded-lg text-text-muted hover:text-brand-orange transition-colors" title="Download PDF (Mock)">
+                                                        <Download className="w-5 h-5" />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                                             <div className="prose prose-sm md:prose-base prose-invert max-w-none text-text-secondary">
                                                 <div className="whitespace-pre-wrap font-sans leading-relaxed">
                                                     {/* Simple rendering for now, could use a markdown parser later */}
-                                                    {selectedMinute.content.split('\n').map((line, i) => (
+                                                    {selectedMinute.content.split('\n').map((line: string, i: number) => (
                                                         <p key={i} className={`mb-2 ${line.startsWith('#') || line.startsWith('**') ? 'font-bold text-text-primary mt-4' : ''}`}>
                                                             {line.replace(/\*\*/g, '')}
                                                         </p>
                                                     ))}
                                                 </div>
                                             </div>
+
+                                            {/* Tags Footer */}
+                                            {selectedMinute.tags && selectedMinute.tags.length > 0 && (
+                                                <div className="mt-8 pt-6 border-t border-glass-border">
+                                                    <div className="flex items-center gap-2 text-sm text-text-muted mb-3">
+                                                        <Tag className="w-4 h-4" />
+                                                        <span className="font-medium">Labels</span>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {selectedMinute.tags.map((tag: string) => (
+                                                            <span key={tag} className="px-3 py-1 rounded-full bg-glass-surface border border-glass-border text-xs text-text-secondary">
+                                                                {tag}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-text-muted p-8 text-center">
-                                        <div className="w-16 h-16 rounded-full bg-glass-surface flex items-center justify-center mb-4">
-                                            <Icons.FileText />
+                                    <div className="flex-1 flex flex-col items-center justify-center text-text-muted p-8 text-center bg-dots-pattern">
+                                        <div className="w-20 h-20 rounded-full bg-glass-surface flex items-center justify-center mb-6 shadow-sm border border-glass-border">
+                                            <FileText className="w-8 h-8 opacity-50" />
                                         </div>
-                                        <p className="font-medium">Selecteer een notule om de details te bekijken</p>
+                                        <h3 className="text-lg font-bold text-text-primary mb-2">Selecteer een notule</h3>
+                                        <p className="max-w-xs mx-auto">Klik in de lijst hiernaast om de details te bekijken of gebruik de zoekfunctie. Of maak een nieuwe aan.</p>
+                                        <button
+                                            onClick={() => handleOpenMinuteModal()}
+                                            className="mt-6 px-6 py-2 bg-brand-orange text-white rounded-xl shadow-lg shadow-brand-orange/20 hover:bg-brand-orange-dark transition-colors font-medium flex items-center gap-2"
+                                        >
+                                            <Plus className="w-4 h-4" /> Nieuwe Notule
+                                        </button>
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
                 ) : (
-                    <EventSchedule />
+                    <EventSchedule onAddClick={() => handleOpenScheduleModal()} onEditClick={(item) => handleOpenScheduleModal(item)} />
                 )}
             </div>
+
+            {/* Modals */}
+            <MinuteModal
+                isOpen={isMinuteModalOpen}
+                onClose={() => setIsMinuteModalOpen(false)}
+                initialData={editingMinute}
+            />
+            <ScheduleModal
+                isOpen={isScheduleModalOpen}
+                onClose={() => setIsScheduleModalOpen(false)}
+                initialData={editingScheduleItem}
+            />
         </div>
     );
 };
 
-export default TeamHub;
+export default function TeamHub() {
+    return (
+        <ConvexClientProvider>
+            <TeamHubContent />
+        </ConvexClientProvider>
+    );
+}
