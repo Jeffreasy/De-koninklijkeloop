@@ -26,12 +26,16 @@ export const createRegistration = internalMutation({
         agreedToTerms: v.boolean(),
         agreedToMedia: v.boolean(),
         userType: v.union(v.literal("authenticated"), v.literal("guest")),
-        authUserId: v.optional(v.string()) // Link to Auth System ID (only for authenticated)
+        authUserId: v.optional(v.string()), // Link to Auth System ID (only for authenticated)
+        edition: v.optional(v.string()), // Current edition (e.g. "2026")
     },
     handler: async (ctx, args) => {
+        const currentEdition = args.edition || "2026";
+
         const existing = await ctx.db
             .query("registrations")
             .withIndex("by_email", (q) => q.eq("email", args.email))
+            .filter((q) => q.eq(q.field("edition"), currentEdition))
             .first();
 
         if (existing) {
@@ -40,6 +44,7 @@ export const createRegistration = internalMutation({
 
         return await ctx.db.insert("registrations", {
             ...args,
+            edition: currentEdition,
             status: "pending",
             createdAt: Date.now(),
         });
