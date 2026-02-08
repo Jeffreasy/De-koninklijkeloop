@@ -260,4 +260,27 @@ export default defineSchema({
     })
         .index("by_status", ["status"])
         .index("by_email", ["email"]),
+
+    // Donation Campaigns (Dynamic GoFundMe Management)
+    donation_campaigns: defineTable({
+        year: v.string(),              // "2025", "2026"
+        title: v.string(),             // "Samen in Actie 2025"
+        description: v.optional(v.string()), // Context text
+
+        // Widget Configuration
+        gofundme_url: v.string(),      // The full widget URL
+
+        // Status
+        is_active: v.boolean(),        // Only one active at a time
+
+        // Targets
+        target_amount: v.optional(v.number()),
+        current_amount: v.optional(v.number()),
+
+        // Meta
+        created_at: v.number(),
+        updated_at: v.number(),
+    })
+        .index("by_year", ["year"])
+        .index("by_active", ["is_active"]),
 });

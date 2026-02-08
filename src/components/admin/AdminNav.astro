@@ -1,6 +1,12 @@
 ---
 // Sidebar Navigation Links
-const navItems = [
+// Get user data from auth context
+const user = Astro.locals.user;
+const userName = user?.name || "Admin User";
+const userRole = user?.role || "Beheerder";
+
+// Sidebar Navigation Links
+const allNavItems = [
   {
     name: "Dashboard",
     href: "/admin/dashboard",
@@ -15,6 +21,13 @@ const navItems = [
   { name: "Instellingen", href: "/admin/settings", icon: "lucide:settings" },
 ];
 
+const navItems = allNavItems.filter((item) => {
+  if (item.name === "Instellingen") {
+    return userRole === "admin";
+  }
+  return true;
+});
+
 const currentPath = Astro.url.pathname;
 
 // Helper to determine active state
@@ -23,11 +36,6 @@ const isActive = (path: string) => {
     return true;
   return currentPath.startsWith(path) && path !== "/admin/dashboard";
 };
-
-// Get user data from auth context
-const user = Astro.locals.user;
-const userName = user?.name || "Admin User";
-const userRole = user?.role || "Beheerder";
 
 // Calculate initials from name
 const getInitials = (name: string) => {

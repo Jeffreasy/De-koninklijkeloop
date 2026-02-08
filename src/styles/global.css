@@ -143,6 +143,12 @@ input[type="button"],
   }
 }
 
+@utility bg-dots-pattern {
+  background-image: radial-gradient(var(--text-muted) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.15;
+}
+
 @utility text-royal-gradient {
   background: linear-gradient(135deg, var(--color-brand-orange) 0%, #fbbf24 100%);
   -webkit-background-clip: text;

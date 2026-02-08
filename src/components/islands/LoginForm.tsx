@@ -63,7 +63,9 @@ export default function LoginForm() {
             setAuth(null, user);
 
             // 4. Redirect based on Role
-            if (user.role === "admin") {
+            console.log("[LoginForm] Login successful, redirecting based on role:", user.role);
+
+            if (user.role === "admin" || user.role === "editor") {
                 window.location.href = "/admin/dashboard";
             } else {
                 window.location.href = "/dashboard";

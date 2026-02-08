@@ -4,6 +4,7 @@ import { ClientRouter } from "astro:transitions";
 import AdminNav from "../components/admin/AdminNav.astro";
 import AdminHeader from "../components/admin/AdminHeader.astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
+import { ToastContainer } from "../components/ui/ToastContainer";
 
 interface Props {
   title: string;
@@ -111,6 +112,7 @@ const { title } = Astro.props;
           // window.location.href = "/login";
         });
     </script>
+    <ToastContainer client:idle />
     <SpeedInsights />
   </body>
 </html>

@@ -66,9 +66,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
         }
 
         // Role based access control (Example: Admin only)
-        if (url.pathname.startsWith("/admin") && locals.user.role !== "admin") {
-            console.log(`[Middleware] Forbidden access (Role mismatch) to ${url.pathname}.`);
+        // Role based access control (Example: Admin only)
+        // Role based access control (Example: Admin only)
+        if (url.pathname.startsWith("/admin") && locals.user.role !== "admin" && locals.user.role !== "editor") {
+            console.log(`[Middleware] Forbidden access (Role mismatch) to ${url.pathname}. Role: ${locals.user.role}`);
             return redirect("/dashboard"); // Or 403 page
+        }
+
+        // Strict Admin-only routes (Settings)
+        if (url.pathname.startsWith("/admin/settings") && locals.user.role !== "admin") {
+            console.log(`[Middleware] Forbidden access (Admin only) to ${url.pathname}. Role: ${locals.user.role}`);
+            return redirect("/admin/dashboard");
         }
     }
 
@@ -82,12 +90,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // Content Security Policy
     const csp = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://*.convex.cloud https://res.cloudinary.com https://widget.cloudinary.com https://vercel.live https://va.vercel-scripts.com https://cdn.jsdelivr.net https://code.iconify.design https://cdn.vercel-insights.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://*.convex.cloud https://res.cloudinary.com https://widget.cloudinary.com https://vercel.live https://va.vercel-scripts.com https://cdn.jsdelivr.net https://code.iconify.design https://cdn.vercel-insights.com https://www.gofundme.com",
         "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com https://unpkg.com",
         "img-src 'self' data: https://res.cloudinary.com https://*.convex.cloud https://thumbs-east.streamable.com https://placehold.co https://*.tile.openstreetmap.org https://unpkg.com",
         "font-src 'self' data: * https://api.fontshare.com https://fonts.gstatic.com https://fonts.googleapis.com",
         "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://laventecareauthsystems.onrender.com http://localhost:8080 ws://localhost:8080 https://res.cloudinary.com https://*.tile.openstreetmap.org https://va.vercel-analytics.com https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com",
-        "frame-src 'self' https://streamable.com https://*.streamable.com https://vercel.live https://www.komoot.com https://*.komoot.com https://komoot.com https://komoot.de https://*.komoot.de",
+        "frame-src 'self' https://streamable.com https://*.streamable.com https://vercel.live https://www.komoot.com https://*.komoot.com https://komoot.com https://komoot.de https://*.komoot.de https://www.gofundme.com",
         "frame-ancestors 'self' https://vercel.live",
         "upgrade-insecure-requests"
     ].join("; ");

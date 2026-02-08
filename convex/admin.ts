@@ -29,9 +29,9 @@ export const getRegistrations = action({
         const user = userData.User || userData.user || userData; // Handle PascalCase/snake_case/flat
         const role = (user.Role || user.role || "").toLowerCase();
 
-        if (role !== "admin") {
+        if (role !== "admin" && role !== "editor") {
             console.warn(`[Admin] Access Forbidden. User Role: ${role}`);
-            throw new Error("Forbidden: Insufficient Permissions (Admin Required)");
+            throw new Error("Forbidden: Insufficient Permissions (Admin or Editor Required)");
         }
 
         // 2. Fetch Data securely (Internal Query)
@@ -65,7 +65,8 @@ export const updateRegistration = action({
         if (!res.ok) throw new Error("Unauthorized");
         const userData = await res.json();
         const user = userData.User || userData.user || userData;
-        if ((user.Role || user.role || "").toLowerCase() !== "admin") throw new Error("Forbidden");
+        const role = (user.Role || user.role || "").toLowerCase();
+        if (role !== "admin" && role !== "editor") throw new Error("Forbidden");
 
         // 2. Call Internal Mutation
         // @ts-ignore - Status string to union type cast safe here as internal validates it
