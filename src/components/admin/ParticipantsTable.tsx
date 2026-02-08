@@ -188,10 +188,37 @@ export default function ParticipantsTable() {
         document.body.removeChild(link);
     };
 
-    // Stats Computation
+    // History Map (Loyalty)
+    const historyMap = useMemo(() => {
+        if (!registrations) return new Map<string, string[]>();
+        const map = new Map<string, string[]>();
+        registrations.forEach(r => {
+            const email = r.email.toLowerCase();
+            const editions = map.get(email) || [];
+            const edition = r.edition || "2026";
+            if (!editions.includes(edition)) {
+                editions.push(edition);
+            }
+            map.set(email, editions);
+        });
+        return map;
+    }, [registrations]);
+
+    // Helper to get loyalty info
+    const getLoyaltyInfo = (email: string) => {
+        const editions = historyMap.get(email.toLowerCase()) || [];
+        const count = editions.length;
+        return { count, editions };
+    };
+
+    // Stats Computation (Based on Edition Filter, ignoring other filters for dashboard feel)
     const stats = useMemo(() => {
         if (!registrations) return { total: 0, deelnemers: 0, begeleiders: 0, vrijwilligers: 0, authenticated: 0, guests: 0 };
-        return registrations.reduce((acc, r) => {
+
+        // Use filtered set based on edition
+        const editionRegistrations = registrations.filter(r => (r.edition || "2026") === editionFilter);
+
+        return editionRegistrations.reduce((acc, r) => {
             acc.total++;
             if (r.role === "deelnemer") acc.deelnemers++;
             else if (r.role === "begeleider") acc.begeleiders++;
@@ -200,7 +227,7 @@ export default function ParticipantsTable() {
             else if (r.userType === "guest") acc.guests++;
             return acc;
         }, { total: 0, deelnemers: 0, begeleiders: 0, vrijwilligers: 0, authenticated: 0, guests: 0 });
-    }, [registrations]);
+    }, [registrations, editionFilter]);
 
 
     if (!registrations) {
@@ -296,9 +323,9 @@ export default function ParticipantsTable() {
                                 onChange={(e) => setUserTypeFilter(e.target.value as UserType)}
                                 className="px-3 py-2.5 rounded-xl bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer"
                             >
-                                <option value="all">Alle types</option>
-                                <option value="authenticated">Accounts</option>
-                                <option value="guest">Gasten</option>
+                                <option value="all" className="bg-slate-900 text-gray-100">Alle types</option>
+                                <option value="authenticated" className="bg-slate-900 text-gray-100">Accounts</option>
+                                <option value="guest" className="bg-slate-900 text-gray-100">Gasten</option>
                             </select>
 
                             <select
@@ -306,10 +333,10 @@ export default function ParticipantsTable() {
                                 onChange={(e) => setRoleFilter(e.target.value as Role)}
                                 className="px-3 py-2.5 rounded-xl bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer"
                             >
-                                <option value="all">Alle rollen</option>
-                                <option value="deelnemer">Deelnemer</option>
-                                <option value="begeleider">Begeleider</option>
-                                <option value="vrijwilliger">Vrijwilliger</option>
+                                <option value="all" className="bg-slate-900 text-gray-100">Alle rollen</option>
+                                <option value="deelnemer" className="bg-slate-900 text-gray-100">Deelnemer</option>
+                                <option value="begeleider" className="bg-slate-900 text-gray-100">Begeleider</option>
+                                <option value="vrijwilliger" className="bg-slate-900 text-gray-100">Vrijwilliger</option>
                             </select>
 
                             <select
@@ -318,10 +345,10 @@ export default function ParticipantsTable() {
                                 className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 min-h-[44px]"
                                 aria-label="Filter deelnemers op status"
                             >
-                                <option value="all">Alle statussen</option>
-                                <option value="paid">Geaccepteerd</option>
-                                <option value="pending">In behandeling</option>
-                                <option value="cancelled">Geannuleerd</option>
+                                <option value="all" className="bg-slate-900 text-gray-100">Alle statussen</option>
+                                <option value="paid" className="bg-slate-900 text-gray-100">Geaccepteerd</option>
+                                <option value="pending" className="bg-slate-900 text-gray-100">In behandeling</option>
+                                <option value="cancelled" className="bg-slate-900 text-gray-100">Geannuleerd</option>
                             </select>
                         </div>
                     </div>
@@ -397,80 +424,94 @@ export default function ParticipantsTable() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-glass-border">
-                                    {paginatedRegistrations.map((reg) => (
-                                        <tr
-                                            key={reg._id}
-                                            onClick={() => setSelectedRegistration(reg)}
-                                            className="hover:bg-brand-orange/5 transition-colors cursor-pointer group"
-                                        >
-                                            {/* Name & Role */}
-                                            <td className="py-4 px-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${reg.userType === 'authenticated' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-white/10 text-text-muted'}`}>
-                                                        {reg.userType === 'authenticated' ? <ShieldCheck className="w-5 h-5" /> : <User className="w-5 h-5" />}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-medium text-text-primary group-hover:text-brand-orange transition-colors">
-                                                            {reg.name}
+                                    {paginatedRegistrations.map((reg) => {
+                                        const { count, editions } = getLoyaltyInfo(reg.email);
+                                        return (
+                                            <tr
+                                                key={reg._id}
+                                                onClick={() => setSelectedRegistration(reg)}
+                                                className="hover:bg-brand-orange/5 transition-colors cursor-pointer group"
+                                            >
+                                                {/* Name & Role */}
+                                                <td className="py-4 px-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${reg.userType === 'authenticated' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-white/10 text-text-muted'}`}>
+                                                            {reg.userType === 'authenticated' ? <ShieldCheck className="w-5 h-5" /> : <User className="w-5 h-5" />}
                                                         </div>
-                                                        <div className="text-xs text-text-muted flex items-center gap-1.5 mt-0.5">
-                                                            <span className={`capitalize ${reg.role === "deelnemer" ? "text-brand-orange" :
-                                                                reg.role === "begeleider" ? "text-blue-400" : "text-green-400"
-                                                                }`}>
-                                                                {reg.role}
-                                                            </span>
-                                                            <span>•</span>
-                                                            <span className="font-mono opacity-60">#{reg._id.slice(-6)}</span>
+                                                        <div>
+                                                            <div className="font-medium text-text-primary group-hover:text-brand-orange transition-colors flex items-center gap-2">
+                                                                {reg.name}
+                                                                {count > 1 && (
+                                                                    <span
+                                                                        className={`text-[10px] px-1.5 py-0.5 rounded-full border shadow-sm cursor-help font-bold ${count >= 3
+                                                                            ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+                                                                            : "bg-orange-500/10 text-orange-400 border-orange-500/20"
+                                                                            }`}
+                                                                        title={`Deelnames: ${editions.join(", ")}`}
+                                                                    >
+                                                                        {count}x
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="text-xs text-text-muted flex items-center gap-1.5 mt-0.5">
+                                                                <span className={`capitalize ${reg.role === "deelnemer" ? "text-brand-orange" :
+                                                                    reg.role === "begeleider" ? "text-blue-400" : "text-green-400"
+                                                                    }`}>
+                                                                    {reg.role}
+                                                                </span>
+                                                                <span>•</span>
+                                                                <span className="font-mono opacity-60">#{reg._id.slice(-6)}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </td>
+                                                </td>
 
-                                            {/* Contact (Hidden on mobile) */}
-                                            <td className="py-4 px-4 hidden md:table-cell">
-                                                <div className="flex flex-col gap-1 text-sm">
-                                                    <div className="flex items-center gap-2 text-text-primary">
-                                                        <Mail className="w-3.5 h-3.5 text-text-muted" />
-                                                        <span className="truncate max-w-[180px]">{reg.email}</span>
-                                                    </div>
-                                                    {reg.icePhone && (
-                                                        <div className="flex items-center gap-2 text-text-muted text-xs">
-                                                            <Phone className="w-3 h-3" />
-                                                            <span>ICE: {reg.icePhone}</span>
+                                                {/* Contact (Hidden on mobile) */}
+                                                <td className="py-4 px-4 hidden md:table-cell">
+                                                    <div className="flex flex-col gap-1 text-sm">
+                                                        <div className="flex items-center gap-2 text-text-primary">
+                                                            <Mail className="w-3.5 h-3.5 text-text-muted" />
+                                                            <span className="truncate max-w-[180px]">{reg.email}</span>
                                                         </div>
+                                                        {reg.icePhone && (
+                                                            <div className="flex items-center gap-2 text-text-muted text-xs">
+                                                                <Phone className="w-3 h-3" />
+                                                                <span>ICE: {reg.icePhone}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+
+                                                {/* Distance */}
+                                                <td className="py-4 px-4 hidden lg:table-cell">
+                                                    {reg.distance ? (
+                                                        <span className="px-2.5 py-1 rounded-md bg-white/5 border border-glass-border text-sm font-medium">
+                                                            {reg.distance} km
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-text-muted text-sm">-</span>
                                                     )}
-                                                </div>
-                                            </td>
+                                                </td>
 
-                                            {/* Distance */}
-                                            <td className="py-4 px-4 hidden lg:table-cell">
-                                                {reg.distance ? (
-                                                    <span className="px-2.5 py-1 rounded-md bg-white/5 border border-glass-border text-sm font-medium">
-                                                        {reg.distance} km
+                                                {/* Status */}
+                                                <td className="py-4 px-4">
+                                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${reg.status === "paid" ? "bg-green-500/10 text-green-500 border-green-500/20" :
+                                                        reg.status === "pending" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
+                                                            "bg-red-500/10 text-red-500 border-red-500/20"
+                                                        }`}>
+                                                        {reg.status === "paid" ? "Geaccepteerd" :
+                                                            reg.status === "pending" ? "In behandeling" :
+                                                                "Geannuleerd"}
                                                     </span>
-                                                ) : (
-                                                    <span className="text-text-muted text-sm">-</span>
-                                                )}
-                                            </td>
+                                                </td>
 
-                                            {/* Status */}
-                                            <td className="py-4 px-4">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${reg.status === "paid" ? "bg-green-500/10 text-green-500 border-green-500/20" :
-                                                    reg.status === "pending" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
-                                                        "bg-red-500/10 text-red-500 border-red-500/20"
-                                                    }`}>
-                                                    {reg.status === "paid" ? "Geaccepteerd" :
-                                                        reg.status === "pending" ? "In behandeling" :
-                                                            "Geannuleerd"}
-                                                </span>
-                                            </td>
-
-                                            {/* Date */}
-                                            <td className="py-4 px-4 text-right text-text-muted text-sm hidden sm:table-cell">
-                                                {new Date(reg.createdAt).toLocaleDateString()}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                {/* Date */}
+                                                <td className="py-4 px-4 text-right text-text-muted text-sm hidden sm:table-cell">
+                                                    {new Date(reg.createdAt).toLocaleDateString()}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>

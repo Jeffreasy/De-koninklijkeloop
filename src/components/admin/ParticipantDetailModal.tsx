@@ -175,9 +175,9 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                     onChange={(e) => setStatus(e.target.value)}
                                     className="w-full bg-app-bg px-4 py-3 rounded-xl border border-glass-border text-text-primary text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 transition-all outline-none appearance-none"
                                 >
-                                    <option value="paid">✅ Geaccepteerd</option>
-                                    <option value="pending">⏳ In behandeling</option>
-                                    <option value="cancelled">❌ Geannuleerd</option>
+                                    <option value="paid" className="bg-slate-900 text-gray-100">✅ Geaccepteerd</option>
+                                    <option value="pending" className="bg-slate-900 text-gray-100">⏳ In behandeling</option>
+                                    <option value="cancelled" className="bg-slate-900 text-gray-100">❌ Geannuleerd</option>
                                 </select>
                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

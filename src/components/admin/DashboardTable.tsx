@@ -19,6 +19,7 @@ interface Registration {
     iceName?: string;
     icePhone?: string;
     createdAt: number;
+    edition?: string;
 }
 
 export default function DashboardTable() {
@@ -27,6 +28,7 @@ export default function DashboardTable() {
     const [registrations, setRegistrations] = useState<Registration[] | undefined>(undefined);
     const [searchTerm, setSearchTerm] = useState("");
     const [typeFilter, setTypeFilter] = useState<"all" | "authenticated" | "guest">("all");
+    const [editionFilter, setEditionFilter] = useState<string>("2026");
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,12 +37,15 @@ export default function DashboardTable() {
     const accessToken = useStore($accessToken);
     const getRegistrations = useAction(api.admin.getRegistrations);
 
-    const stats = useDashboardStats(registrations);
+    // Filter by Edition before stats & list
+    const filteredByEdition = registrations?.filter(reg => (reg.edition || "2026") === editionFilter);
+
+    const stats = useDashboardStats(filteredByEdition);
 
     // Reset pagination when search changes
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, typeFilter]);
+    }, [searchTerm, typeFilter, editionFilter]);
 
     useEffect(() => {
         setIsMounted(true);
@@ -92,8 +97,8 @@ export default function DashboardTable() {
         );
     }
 
-    // Filter Logic
-    const filteredRegistrations = registrations.filter(reg => {
+    // Filter Logic for List View
+    const filteredRegistrations = (filteredByEdition || []).filter(reg => {
         const matchesSearch = reg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             reg.email.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -113,6 +118,24 @@ export default function DashboardTable() {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+
+            {/* Header / Toolbar */}
+            <div className="flex justify-end items-center gap-4">
+                <div className="flex bg-glass-border/30 rounded-xl p-1 border border-glass-border">
+                    <button
+                        onClick={() => setEditionFilter("2026")}
+                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${editionFilter === "2026" ? "bg-brand-orange text-white shadow-lg" : "text-text-muted hover:text-text-primary"}`}
+                    >
+                        2026
+                    </button>
+                    <button
+                        onClick={() => setEditionFilter("2025")}
+                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${editionFilter === "2025" ? "bg-brand-orange text-white shadow-lg" : "text-text-muted hover:text-text-primary"}`}
+                    >
+                        2025
+                    </button>
+                </div>
+            </div>
 
             {/* 1. KPi Bento Grid - Pro Max Edition */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
@@ -136,7 +159,7 @@ export default function DashboardTable() {
                             <h3 className="text-5xl font-display font-bold text-text-primary tracking-tight">
                                 {stats.uniqueReach}
                             </h3>
-                            <p className="text-sm font-medium text-text-muted mt-1">Unieke E-mailadressen</p>
+                            <p className="text-sm font-medium text-text-muted mt-1">Unieke E-mailadressen ({editionFilter})</p>
                         </div>
 
                         <div className="mt-6 pt-4 border-t border-glass-border/50">
