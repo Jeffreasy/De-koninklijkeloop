@@ -107,19 +107,17 @@ export default function LoginForm() {
         setSuccess(null);
 
         try {
-            const res = await fetch('/api/v1/auth/password/forgot', {
+            // Use apiRequest for consistent headers (Tenant-ID) and validation
+            await apiRequest('/auth/password/forgot', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
             });
-
-            if (!res.ok) throw new Error("Kon reset email niet versturen.");
 
             setSuccess("We hebben een email gestuurd met instructies om je wachtwoord te resetten.");
             setView('login');
         } catch (err: any) {
             console.error(err);
-            setError("Er ging iets mis. Controleer je emailadres.");
+            setError(err.message || "Er ging iets mis. Controleer je emailadres.");
         } finally {
             setIsSubmitting(false);
         }
