@@ -93,7 +93,6 @@ export default function RegisterForm() {
 
                 // Trigger Password Reset Email (To set initial password)
                 try {
-                    // Use Debug Endpoint to bypass proxy issues
                     const emailRes = await fetch('/api/debug-reset', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -101,14 +100,22 @@ export default function RegisterForm() {
                     });
 
                     if (!emailRes.ok) throw new Error("Email sending failed");
-
-                    // Redirect to login (Success)
-                    window.location.href = "/login?registered=true";
                 } catch (e) {
                     console.error("Failed to send password reset email", e);
-                    // Redirect to login (Email Failed)
-                    window.location.href = "/login?registered=true&email_error=true";
                 }
+
+                // Trigger Welcome Email + Telegram Notification
+                try {
+                    await fetch('/api/v1/auth/register-confirmation', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: data.name, email: data.email })
+                    });
+                } catch (e) {
+                    console.error("Failed to send welcome/notification", e);
+                }
+
+                window.location.href = "/login?registered=true";
             } else {
                 // Guest flow: no account, direct registration
                 await registerGuest({
