@@ -125,6 +125,23 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
 
     // INTERCEPT LOGOUT
     if (path === 'logout') {
+        const token = cookies.get("access_token")?.value || cookies.get("dkl_auth_token")?.value;
+
+        if (token) {
+            try {
+                // Notifying backend to invalidate token (RevocationService)
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'X-Tenant-ID': import.meta.env.PUBLIC_TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5"
+                    }
+                });
+            } catch (error) {
+                console.error("Backend logout failed (non-blocking):", error);
+            }
+        }
+
         cookies.delete('dkl_auth_token', { path: '/' });
         cookies.delete('access_token', { path: '/' });
         return new Response(JSON.stringify({ success: true }), { status: 200 });
