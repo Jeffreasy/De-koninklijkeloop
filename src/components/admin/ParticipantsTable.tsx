@@ -105,11 +105,9 @@ export default function ParticipantsTable() {
             if (userTypeFilter === "guest" && (reg.userType !== "guest" && reg.userType !== undefined)) return false;
 
             // Role Filter
-            // @ts-ignore
             if (roleFilter !== "all" && reg.role !== roleFilter) return false;
 
             // Status Filter
-            // @ts-ignore
             if (statusFilter !== "all" && reg.status !== statusFilter) return false;
 
             return true;
@@ -257,7 +255,7 @@ export default function ParticipantsTable() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.05 }}
-                        className={`glass-card p-4 border ${stat.border} ${stat.bg} relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300`}
+                        className={`glass-card p-4 border ${stat.border} ${stat.bg} relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 cursor-default`}
                     >
                         <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                             {stat.icon ? <stat.icon className="w-8 h-8" /> : <Users className="w-8 h-8" />}
@@ -269,7 +267,7 @@ export default function ParticipantsTable() {
             </div>
 
             {/* Main Action Bar */}
-            <div className="glass-card p-5 space-y-5 border border-white/10 shadow-2xl bg-black/40 backdrop-blur-xl rounded-2xl">
+            <div className="glass-card p-5 space-y-5 border border-glass-border shadow-2xl bg-glass-bg backdrop-blur-xl rounded-2xl">
                 <div className="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
                     {/* Search & Filters Group */}
                     <div className="flex flex-col md:flex-row gap-3 flex-1 w-full">
@@ -283,18 +281,18 @@ export default function ParticipantsTable() {
                                 placeholder="Zoek op naam, email of ID..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="block w-full pl-10 pr-3 py-2.5 border border-white/10 rounded-xl leading-5 bg-white/5 text-text-primary placeholder-text-muted focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-brand-orange/50 focus:border-brand-orange/50 sm:text-sm transition-all"
+                                className="block w-full pl-10 pr-3 py-2.5 border border-glass-border rounded-xl leading-5 bg-glass-surface/50 text-text-primary placeholder-text-muted focus:outline-none focus:bg-glass-surface focus:ring-1 focus:ring-brand-orange/50 focus:border-brand-orange/50 sm:text-sm transition-all"
                             />
                         </div>
 
                         <div className="flex flex-wrap gap-2">
                             {/* Edition Toggle */}
-                            <div className="flex bg-black/20 rounded-xl p-1 border border-white/5">
+                            <div className="flex bg-glass-surface/30 rounded-xl p-1 border border-glass-border/50">
                                 {["2026", "2025"].map((year) => (
                                     <button
                                         key={year}
                                         onClick={() => setEditionFilter(year)}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${editionFilter === year ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-white hover:bg-white/5"}`}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${editionFilter === year ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-text-primary hover:bg-glass-surface/50"}`}
                                     >
                                         {year}
                                     </button>
@@ -306,7 +304,7 @@ export default function ParticipantsTable() {
                                 <button
                                     onClick={handleImport2025}
                                     disabled={isImporting}
-                                    className="px-3 py-2 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-xs font-medium flex items-center gap-1.5 whitespace-nowrap"
+                                    className="px-3 py-2 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-xs font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
                                 >
                                     <Archive className="w-3.5 h-3.5" />
                                     {isImporting ? "Bezig..." : "Importeer"}
@@ -317,7 +315,7 @@ export default function ParticipantsTable() {
                             <select
                                 value={userTypeFilter}
                                 onChange={(e) => setUserTypeFilter(e.target.value as UserType)}
-                                className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-white/10 transition-colors"
+                                className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
                             >
                                 <option value="all" className="bg-slate-900">Alle types</option>
                                 <option value="authenticated" className="bg-slate-900">Accounts</option>
@@ -327,7 +325,7 @@ export default function ParticipantsTable() {
                             <select
                                 value={roleFilter}
                                 onChange={(e) => setRoleFilter(e.target.value as Role)}
-                                className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-white/10 transition-colors"
+                                className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
                             >
                                 <option value="all" className="bg-slate-900">Alle rollen</option>
                                 <option value="deelnemer" className="bg-slate-900">Deelnemer</option>
@@ -338,7 +336,7 @@ export default function ParticipantsTable() {
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as Status)}
-                                className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-white/10 transition-colors"
+                                className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
                             >
                                 <option value="all" className="bg-slate-900">Alle statussen</option>
                                 <option value="paid" className="bg-slate-900">Geaccepteerd</option>
@@ -351,7 +349,7 @@ export default function ParticipantsTable() {
                     {/* Export Button */}
                     <button
                         onClick={handleExportCSV}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-linear-to-r from-brand-orange/10 to-brand-orange/5 border border-brand-orange/20 text-brand-orange hover:from-brand-orange/20 hover:to-brand-orange/10 transition-all text-sm font-medium whitespace-nowrap shadow-lg shadow-brand-orange/5 group"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-linear-to-r from-brand-orange/10 to-brand-orange/5 border border-brand-orange/20 text-brand-orange hover:from-brand-orange/20 hover:to-brand-orange/10 transition-all text-sm font-medium whitespace-nowrap shadow-lg shadow-brand-orange/5 group cursor-pointer"
                     >
                         <Download className="w-4 h-4 group-hover:scale-110 transition-transform" />
                         Export CSV
@@ -360,17 +358,17 @@ export default function ParticipantsTable() {
             </div>
 
             {/* Data Display (Desktop Table / Mobile Cards) */}
-            <div className="glass-card overflow-hidden border border-white/10 shadow-2xl bg-black/40 backdrop-blur-xl rounded-2xl min-h-[400px]">
+            <div className="glass-card overflow-hidden border border-glass-border shadow-2xl bg-glass-bg backdrop-blur-xl rounded-2xl min-h-[400px]">
                 {processedRegistrations.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-24 text-center">
-                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
+                        <div className="w-16 h-16 bg-glass-surface/50 rounded-full flex items-center justify-center mb-4 border border-glass-border">
                             <Filter className="w-8 h-8 text-text-muted opacity-50" />
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-2">Geen deelnemers gevonden</h3>
+                        <h3 className="text-xl font-bold text-text-primary mb-2">Geen deelnemers gevonden</h3>
                         <p className="text-text-muted max-w-md">Geen resultaten voor de huidige filters. Probeer een andere zoekopdracht of pas de filters aan.</p>
                         <button
                             onClick={() => { setSearchQuery(""); setUserTypeFilter("all"); setRoleFilter("all"); setStatusFilter("all"); }}
-                            className="mt-6 px-6 py-2 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10 transition-colors text-sm font-medium"
+                            className="mt-6 px-6 py-2 bg-glass-surface/50 border border-glass-border text-text-primary rounded-xl hover:bg-glass-surface transition-colors text-sm font-medium cursor-pointer"
                         >
                             Filters wissen
                         </button>
@@ -381,24 +379,24 @@ export default function ParticipantsTable() {
                         <div className="hidden md:block overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="border-b border-white/10 bg-white/5">
-                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-white transition-colors group select-none" onClick={() => handleSort("name")}>
-                                            <div className="flex items-center gap-2">Naam & Rol <ChevronsUpDown className={`w-3 h-3 ${sortField === "name" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-white/50"}`} /></div>
+                                    <tr className="border-b border-glass-border bg-glass-surface/30">
+                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-text-primary transition-colors group select-none" onClick={() => handleSort("name")}>
+                                            <div className="flex items-center gap-2">Naam & Rol <ChevronsUpDown className={`w-3 h-3 ${sortField === "name" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-text-muted"}`} /></div>
                                         </th>
                                         <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider">Contact</th>
-                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-white transition-colors group select-none hidden lg:table-cell" onClick={() => handleSort("distance")}>
-                                            <div className="flex items-center gap-2">Afstand <ChevronsUpDown className={`w-3 h-3 ${sortField === "distance" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-white/50"}`} /></div>
+                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-text-primary transition-colors group select-none hidden lg:table-cell" onClick={() => handleSort("distance")}>
+                                            <div className="flex items-center gap-2">Afstand <ChevronsUpDown className={`w-3 h-3 ${sortField === "distance" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-text-muted"}`} /></div>
                                         </th>
-                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-white transition-colors group select-none" onClick={() => handleSort("status")}>
-                                            <div className="flex items-center gap-2">Status <ChevronsUpDown className={`w-3 h-3 ${sortField === "status" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-white/50"}`} /></div>
+                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-text-primary transition-colors group select-none" onClick={() => handleSort("status")}>
+                                            <div className="flex items-center gap-2">Status <ChevronsUpDown className={`w-3 h-3 ${sortField === "status" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-text-muted"}`} /></div>
                                         </th>
-                                        <th className="text-right py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-white transition-colors group select-none hidden xl:table-cell" onClick={() => handleSort("createdAt")}>
-                                            <div className="flex items-center justify-end gap-2">Datum <ChevronsUpDown className={`w-3 h-3 ${sortField === "createdAt" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-white/50"}`} /></div>
+                                        <th className="text-right py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-text-primary transition-colors group select-none hidden xl:table-cell" onClick={() => handleSort("createdAt")}>
+                                            <div className="flex items-center justify-end gap-2">Datum <ChevronsUpDown className={`w-3 h-3 ${sortField === "createdAt" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-text-muted"}`} /></div>
                                         </th>
                                         <th className="w-10"></th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-white/5">
+                                <tbody className="divide-y divide-glass-border/50">
                                     <AnimatePresence mode="popLayout">
                                         {paginatedRegistrations.map((reg, idx) => {
                                             const { count, editions } = getLoyaltyInfo(reg.email);
@@ -414,11 +412,11 @@ export default function ParticipantsTable() {
                                                 >
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center gap-4">
-                                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border border-white/5 ${reg.userType === 'authenticated' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-white/5 text-text-muted'}`}>
+                                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border border-glass-border/50 ${reg.userType === 'authenticated' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-glass-surface/50 text-text-muted'}`}>
                                                                 {reg.userType === 'authenticated' ? <ShieldCheck className="w-5 h-5" /> : <User className="w-5 h-5" />}
                                                             </div>
                                                             <div>
-                                                                <div className="font-medium text-white group-hover:text-brand-orange transition-colors flex items-center gap-2">
+                                                                <div className="font-medium text-text-primary group-hover:text-brand-orange transition-colors flex items-center gap-2">
                                                                     {reg.name}
                                                                     {count > 1 && (
                                                                         <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${count >= 3 ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`} title={`Deelnames: ${editions.join(", ")}`}>
@@ -427,7 +425,7 @@ export default function ParticipantsTable() {
                                                                     )}
                                                                 </div>
                                                                 <div className="text-xs text-text-muted flex items-center gap-2 mt-1">
-                                                                    <span className={`capitalize px-2 py-0.5 rounded-md bg-white/5 ${reg.role === "deelnemer" ? "text-brand-orange bg-brand-orange/5" :
+                                                                    <span className={`capitalize px-2 py-0.5 rounded-md bg-glass-surface/50 ${reg.role === "deelnemer" ? "text-brand-orange bg-brand-orange/5" :
                                                                         reg.role === "begeleider" ? "text-blue-400 bg-blue-500/5" : "text-green-400 bg-green-500/5"
                                                                         }`}>{reg.role}</span>
                                                                     <span className="font-mono opacity-40">#{reg._id.slice(-6)}</span>
@@ -437,7 +435,7 @@ export default function ParticipantsTable() {
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex flex-col gap-1 text-sm">
-                                                            <div className="flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
+                                                            <div className="flex items-center gap-2 text-text-secondary group-hover:text-text-primary transition-colors">
                                                                 <Mail className="w-3.5 h-3.5 text-text-muted" />
                                                                 <span className="truncate max-w-[180px]">{reg.email}</span>
                                                             </div>
@@ -450,7 +448,7 @@ export default function ParticipantsTable() {
                                                         </div>
                                                     </td>
                                                     <td className="py-4 px-6 hidden lg:table-cell">
-                                                        {reg.distance ? <span className="text-sm font-medium text-white/90">{reg.distance} km</span> : <span className="text-text-muted text-sm">-</span>}
+                                                        {reg.distance ? <span className="text-sm font-medium text-text-primary">{reg.distance} km</span> : <span className="text-text-muted text-sm">-</span>}
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${reg.status === "paid" ? "bg-green-500/10 text-green-400 border-green-500/20" :
@@ -487,18 +485,18 @@ export default function ParticipantsTable() {
                                             exit={{ opacity: 0, y: -10 }}
                                             transition={{ delay: idx * 0.05 }}
                                             onClick={() => setSelectedRegistration(reg)}
-                                            className="bg-white/5 border border-white/10 rounded-xl p-4 active:scale-[0.98] transition-all"
+                                            className="bg-glass-surface/50 border border-glass-border rounded-xl p-4 active:scale-[0.98] transition-all cursor-pointer"
                                         >
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border border-white/5 ${reg.userType === 'authenticated' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-white/5 text-text-muted'}`}>
+                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border border-glass-border/50 ${reg.userType === 'authenticated' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-glass-surface/50 text-text-muted'}`}>
                                                         {reg.userType === 'authenticated' ? <ShieldCheck className="w-5 h-5" /> : <User className="w-5 h-5" />}
                                                     </div>
                                                     <div>
-                                                        <div className="font-bold text-white text-base">{reg.name}</div>
+                                                        <div className="font-bold text-text-primary text-base">{reg.name}</div>
                                                         <div className="text-xs text-text-muted flex gap-2 items-center">
                                                             <span className="capitalize text-brand-orange">{reg.role}</span>
-                                                            {count > 1 && <span className="bg-white/10 px-1.5 rounded text-[10px]">{count}x</span>}
+                                                            {count > 1 && <span className="bg-glass-surface px-1.5 rounded text-[10px]">{count}x</span>}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -511,17 +509,17 @@ export default function ParticipantsTable() {
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                                                <div className="bg-black/40 rounded-lg p-2.5 border border-white/5">
-                                                    <div className="text-white/60 mb-0.5 text-[10px] uppercase tracking-wider">Email</div>
-                                                    <div className="text-white truncate">{reg.email}</div>
+                                                <div className="bg-glass-bg rounded-lg p-2.5 border border-glass-border/50">
+                                                    <div className="text-text-muted mb-0.5 text-[10px] uppercase tracking-wider">Email</div>
+                                                    <div className="text-text-primary truncate">{reg.email}</div>
                                                 </div>
-                                                <div className="bg-black/40 rounded-lg p-2.5 border border-white/5">
-                                                    <div className="text-white/60 mb-0.5 text-[10px] uppercase tracking-wider">Afstand</div>
-                                                    <div className="text-white font-medium">{reg.distance ? `${reg.distance} km` : '-'}</div>
+                                                <div className="bg-glass-bg rounded-lg p-2.5 border border-glass-border/50">
+                                                    <div className="text-text-muted mb-0.5 text-[10px] uppercase tracking-wider">Afstand</div>
+                                                    <div className="text-text-primary font-medium">{reg.distance ? `${reg.distance} km` : '-'}</div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                                            <div className="flex justify-between items-center pt-2 border-t border-glass-border/50">
                                                 <span className="text-[10px] text-text-muted font-mono">{new Date(reg.createdAt).toLocaleDateString()}</span>
                                                 <div className="flex items-center gap-1 text-xs text-brand-orange font-medium">
                                                     Details <ChevronRight className="w-3 h-3" />
@@ -536,25 +534,25 @@ export default function ParticipantsTable() {
                 )}
 
                 {/* Pagination Footer */}
-                <div className="px-6 py-4 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 bg-white/2">
+                <div className="px-6 py-4 border-t border-glass-border flex flex-col md:flex-row items-center justify-between gap-4 bg-glass-surface/20">
                     <span className="text-xs text-text-muted text-center md:text-left">
-                        Tonen <span className="font-bold text-white">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="font-bold text-white">{Math.min(currentPage * itemsPerPage, processedRegistrations.length)}</span> van <span className="font-bold text-white">{processedRegistrations.length}</span>
+                        Tonen <span className="font-bold text-text-primary">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="font-bold text-text-primary">{Math.min(currentPage * itemsPerPage, processedRegistrations.length)}</span> van <span className="font-bold text-text-primary">{processedRegistrations.length}</span>
                     </span>
-                    <div className="flex items-center gap-2 bg-black/20 p-1 rounded-xl border border-white/5">
+                    <div className="flex items-center gap-2 bg-glass-surface/30 p-1 rounded-xl border border-glass-border/50">
                         <button
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            className="p-2 rounded-lg hover:bg-white/10 text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="p-2 rounded-lg hover:bg-glass-surface text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
-                        <span className="text-xs font-medium px-3 text-white min-w-12 text-center">
+                        <span className="text-xs font-medium px-3 text-text-primary min-w-12 text-center">
                             {currentPage} / {totalPages || 1}
                         </span>
                         <button
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages}
-                            className="p-2 rounded-lg hover:bg-white/10 text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="p-2 rounded-lg hover:bg-glass-surface text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
                         >
                             <ChevronRight className="w-4 h-4" />
                         </button>
