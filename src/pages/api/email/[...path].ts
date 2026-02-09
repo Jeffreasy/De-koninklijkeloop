@@ -30,20 +30,16 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
 
     // Forward request to backend
     try {
-        // Clone request headers and extend them (matching catch-all proxy pattern)
-        const headers = new Headers(request.headers);
+        // IMPORTANT: Build clean headers instead of forwarding browser headers.
+        // Forwarding browser Cookie/Origin headers causes CSRF mismatch on the
+        // Go backend. Bearer token auth bypasses CSRF on the backend side,
+        // but only if we don't also forward conflicting cookie headers.
+        const headers = new Headers();
 
-        // Set required headers
         headers.set('Authorization', `Bearer ${token}`);
         headers.set('X-Tenant-ID', tenantID);
         headers.set('Host', new URL(API_URL).host);
         headers.set('Content-Type', 'application/json');
-
-        // Add CSRF token if present
-        const csrfToken = cookies.get('csrf_token')?.value;
-        if (csrfToken) {
-            headers.set('X-CSRF-Token', csrfToken);
-        }
 
         const response = await fetch(backendUrl, {
             method: request.method,
