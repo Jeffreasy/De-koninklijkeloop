@@ -6,10 +6,11 @@ import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import {
     Loader2, Map, UserCheck, Search, TrendingUp, Mail, ShieldCheck,
-    UserCircle, Globe, ArrowRight, Users, Euro, Clock, Settings,
-    Heart, UserPlus, ChevronRight, Zap, CalendarDays, Award
+    UserCircle, Globe, ArrowRight, Users, Settings,
+    Heart, UserPlus, ChevronRight, CalendarDays, Award
 } from "lucide-react";
-import { useDashboardStats, formatCurrency } from "./DashboardStats";
+import { useDashboardStats } from "./DashboardStats";
+import ParticipantDetailModal from "./ParticipantDetailModal";
 
 // Types
 interface Registration {
@@ -40,6 +41,7 @@ export default function DashboardTable() {
 
     const accessToken = useStore($accessToken);
     const getRegistrations = useAction(api.admin.getRegistrations);
+    const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
 
     // Filter by Edition before stats & list
     const filteredByEdition = registrations?.filter(reg => (reg.edition || "2026") === editionFilter);
@@ -167,7 +169,7 @@ export default function DashboardTable() {
             </div>
 
             {/* ═══════ 1. Hero Stats Row ═══════ */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                 {/* Totaal Deelnemers */}
                 <div className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-2xl p-4 md:p-5 group hover:border-brand-orange/30 transition-all duration-300">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange/8 blur-2xl rounded-full -mr-6 -mt-6 pointer-events-none group-hover:bg-brand-orange/15 transition-all duration-500"></div>
@@ -205,22 +207,6 @@ export default function DashboardTable() {
                     </div>
                 </div>
 
-                {/* Geschatte Opbrengst */}
-                <div className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-2xl p-4 md:p-5 group hover:border-emerald-500/30 transition-all duration-300">
-                    <div className="absolute top-0 left-0 w-24 h-24 bg-emerald-500/8 blur-2xl rounded-full -ml-6 -mt-6 pointer-events-none group-hover:bg-emerald-500/15 transition-all duration-500"></div>
-                    <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-400 border border-emerald-500/20">
-                                <Euro className="w-4 h-4" />
-                            </div>
-                        </div>
-                        <div className="text-2xl md:text-3xl font-display font-bold text-text-primary tracking-tight">
-                            {formatCurrency(stats.totalRevenue)}
-                        </div>
-                        <p className="text-xs text-text-muted mt-1 font-medium">Geschatte Opbrengst</p>
-                    </div>
-                </div>
-
                 {/* Rolverdeling Compact */}
                 <div className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-2xl p-4 md:p-5 group hover:border-sky-500/30 transition-all duration-300">
                     <div className="absolute bottom-0 right-0 w-24 h-24 bg-sky-500/8 blur-2xl rounded-full -mr-6 -mb-6 pointer-events-none group-hover:bg-sky-500/15 transition-all duration-500"></div>
@@ -246,7 +232,7 @@ export default function DashboardTable() {
             {/* ═══════ 2. Quick Actions ═══════ */}
             <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
                 {[
-                    { href: "/admin/registrations", label: "Registraties", icon: Users, color: "brand-orange" },
+                    { href: "/admin/deelnemers", label: "Inschrijvingen", icon: Users, color: "brand-orange" },
                     { href: "/admin/donaties", label: "Donaties", icon: Heart, color: "pink-500" },
                     { href: "/admin/email", label: "E-mail", icon: Mail, color: "blue-500" },
                     { href: "/admin/settings", label: "Instellingen", icon: Settings, color: "gray-400" },
@@ -424,8 +410,8 @@ export default function DashboardTable() {
                             )}
                         </div>
                         <div className="p-2 border-t border-glass-border/40 bg-white/5">
-                            <a href="/admin/registrations" className="w-full py-2 text-xs font-semibold text-text-secondary hover:text-brand-orange transition-colors flex items-center justify-center gap-2 rounded-xl hover:bg-white/5 cursor-pointer">
-                                Alle registraties bekijken <ArrowRight className="w-3 h-3" />
+                            <a href="/admin/deelnemers" className="w-full py-2 text-xs font-semibold text-text-secondary hover:text-brand-orange transition-colors flex items-center justify-center gap-2 rounded-xl hover:bg-white/5 cursor-pointer">
+                                Alle inschrijvingen bekijken <ArrowRight className="w-3 h-3" />
                             </a>
                         </div>
                     </div>
@@ -563,7 +549,10 @@ export default function DashboardTable() {
                                                 <AccountTypeBadge type={reg.userType} />
                                             </td>
                                             <td className="py-3 px-5 text-right">
-                                                <button className="text-xs text-text-muted hover:text-brand-orange font-medium transition-colors px-3 py-1.5 rounded-lg hover:bg-brand-orange/5 border border-transparent hover:border-brand-orange/20 cursor-pointer">
+                                                <button
+                                                    onClick={() => setSelectedRegistration(reg)}
+                                                    className="text-xs text-text-muted hover:text-brand-orange font-medium transition-colors px-3 py-1.5 rounded-lg hover:bg-brand-orange/5 border border-transparent hover:border-brand-orange/20 cursor-pointer"
+                                                >
                                                     Details
                                                 </button>
                                             </td>
@@ -612,6 +601,22 @@ export default function DashboardTable() {
                 </div>
 
             </div>
+
+            {/* Detail Modal */}
+            {selectedRegistration && (
+                <ParticipantDetailModal
+                    registration={selectedRegistration}
+                    onClose={() => setSelectedRegistration(null)}
+                    onUpdate={() => {
+                        setSelectedRegistration(null);
+                        if (accessToken) {
+                            getRegistrations({ token: accessToken })
+                                .then((data: any) => setRegistrations(data))
+                                .catch(err => console.error("Refresh failed", err));
+                        }
+                    }}
+                />
+            )}
         </div>
     );
 }
