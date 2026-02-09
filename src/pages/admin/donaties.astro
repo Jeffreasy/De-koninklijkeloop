@@ -63,7 +63,7 @@ import DonationSettingsIsland from "../../components/admin/DonationSettingsIslan
 
                     <div class="space-y-3">
                         <div
-                            class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10"
+                            class="flex items-center gap-3 p-3 rounded-xl bg-glass-surface/50 border border-glass-border"
                         >
                             <div
                                 class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400"
@@ -88,7 +88,7 @@ import DonationSettingsIsland from "../../components/admin/DonationSettingsIslan
 
                 <!-- Island: Settings Management -->
                 <div class="glass-card p-6 border-l-4 border-l-brand-orange">
-                    <DonationSettingsIsland client:visible />
+                    <DonationSettingsIsland client:only="react" />
                 </div>
             </div>
 

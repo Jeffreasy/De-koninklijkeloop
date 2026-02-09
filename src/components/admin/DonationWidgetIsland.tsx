@@ -68,14 +68,14 @@ function DonationWidgetContent() {
     if (activeCampaign === null) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[600px] text-center p-8 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-white/5 backdrop-blur-sm rounded-3xl border border-dashed border-white/10 group-hover:border-white/20 transition-colors"></div>
+                <div className="absolute inset-0 bg-glass-surface/50 backdrop-blur-sm rounded-3xl border border-dashed border-glass-border group-hover:border-glass-border/80 transition-colors"></div>
 
                 <div className="relative z-10">
-                    <div className="w-20 h-20 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center mb-6 mx-auto shadow-2xl shadow-black/50">
+                    <div className="w-20 h-20 rounded-full bg-glass-bg border border-glass-border flex items-center justify-center mb-6 mx-auto shadow-2xl shadow-black/50">
                         <Heart className="w-10 h-10 text-gray-600" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-2 font-display tracking-wide">Geen Actieve Campagne</h3>
-                    <p className="text-gray-400 max-w-sm mx-auto mb-8 leading-relaxed">
+                    <h3 className="text-2xl font-bold text-text-primary mb-2 font-display tracking-wide">Geen Actieve Campagne</h3>
+                    <p className="text-text-muted max-w-sm mx-auto mb-8 leading-relaxed">
                         Er is momenteel geen inzamelingsactie actief.
                         <br />Selecteer of maak een nieuwe campagne in het beheerpaneel.
                     </p>
@@ -96,7 +96,7 @@ function DonationWidgetContent() {
             <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                        <h2 className="text-3xl lg:text-4xl font-bold text-white font-display tracking-tight text-shadow-sm">
+                        <h2 className="text-3xl lg:text-4xl font-bold text-text-primary font-display tracking-tight text-shadow-sm">
                             {activeCampaign.title}
                         </h2>
                         <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange text-xs font-bold border border-brand-orange/20 shadow-[0_0_15px_rgba(255,147,40,0.15)] backdrop-blur-md">
@@ -106,7 +106,7 @@ function DonationWidgetContent() {
                     </div>
 
                     {activeCampaign.description && (
-                        <p className="text-gray-400 text-lg leading-relaxed max-w-2xl">
+                        <p className="text-text-muted text-lg leading-relaxed max-w-2xl">
                             {activeCampaign.description}
                         </p>
                     )}
@@ -125,7 +125,7 @@ function DonationWidgetContent() {
 
             <div className="flex-1 relative group">
                 {/* Glassmorphic Container */}
-                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl"></div>
+                <div className="absolute inset-0 bg-glass-bg/60 backdrop-blur-xl rounded-3xl border border-glass-border shadow-2xl"></div>
 
                 {/* Decorative Background Elements */}
                 <div className="absolute top-0 right-0 w-96 h-96 bg-brand-orange/5 rounded-full blur-[120px] pointer-events-none opacity-50 group-hover:opacity-75 transition-opacity duration-700"></div>
@@ -152,14 +152,14 @@ function DonationWidgetContent() {
                             <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4">
                                 <AlertTriangle className="w-8 h-8 text-amber-400" />
                             </div>
-                            <h3 className="text-lg font-bold text-white mb-2">Ongeldige GoFundMe URL</h3>
-                            <p className="text-gray-400 max-w-sm text-sm leading-relaxed mb-4">
+                            <h3 className="text-lg font-bold text-text-primary mb-2">Ongeldige GoFundMe URL</h3>
+                            <p className="text-text-muted max-w-sm text-sm leading-relaxed mb-4">
                                 De opgeslagen URL kon niet worden geparsed als een geldige GoFundMe campagne.
                             </p>
-                            <div className="text-xs text-gray-500 bg-black/20 rounded-lg px-4 py-2 font-mono break-all max-w-md">
+                            <div className="text-xs text-text-muted bg-glass-surface/30 rounded-lg px-4 py-2 font-mono break-all max-w-md">
                                 {activeCampaign.gofundme_url}
                             </div>
-                            <p className="text-xs text-gray-500 mt-3">
+                            <p className="text-xs text-text-muted mt-3">
                                 Verwacht formaat: https://www.gofundme.com/f/campagne-naam
                             </p>
                         </div>
