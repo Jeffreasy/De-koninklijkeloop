@@ -323,7 +323,7 @@ export default function EventSettingsForm() {
                             <select
                                 value={formData.mobile_app_status}
                                 onChange={(e) => setFormData({ ...formData, mobile_app_status: e.target.value as any })}
-                                className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
+                                className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none [&>option]:bg-gray-900 [&>option]:text-white"
                             >
                                 <option value="coming_soon">Binnenkort Beschikbaar (Coming Soon)</option>
                                 <option value="beta">Beta Test</option>

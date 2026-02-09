@@ -30,12 +30,17 @@ export default function MailConfigIsland() {
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [configError, setConfigError] = useState<string | null>(null);
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
     // Fetch configuration
     useEffect(() => {
         const fetchConfig = async () => {
-            if (!accessToken) return;
+            if (!accessToken) {
+                setLoading(false);
+                setConfigError("Niet geautoriseerd. Log opnieuw in.");
+                return;
+            }
 
             try {
                 const response = await fetch('/api/v1/admin/mail-config', {
@@ -46,30 +51,30 @@ export default function MailConfigIsland() {
 
                 if (response.ok) {
                     const data = await response.json();
+                    setConfigError(null);
                     if (data.configured) {
                         const backendConfig = data.config;
-                        // Map Backend -> Frontend
                         setConfig({
-                            provider: 'smtp', // Default
+                            provider: 'smtp',
                             host: backendConfig.host,
                             port: Number(backendConfig.port),
                             username: backendConfig.user,
-                            password: '', // Don't preset password, it's sensitive
+                            password: '',
                             from_email: backendConfig.from,
-                            from_name: '', // Backend doesn't store name? Or stores "Name <email>"? Backend just stores string.
-                            // Map TLS Mode
-                            // Backend 'starttls' -> Frontend 'tls' (Label: TLS (STARTTLS))
-                            // Backend 'tls' -> Frontend 'ssl' (Label: SSL)
-                            // Default to 'tls'
+                            from_name: '',
                             encryption: backendConfig.tls_mode === 'tls' ? 'ssl' : 'tls',
-                            auth_type: 'login' // Default/Ignored
+                            auth_type: 'login'
                         });
                     }
+                } else if (response.status === 404 || response.status === 502) {
+                    setConfigError("E-mail configuratie is niet beschikbaar. De backend server ondersteunt deze functie mogelijk nog niet.");
                 } else {
-                    console.error("Failed to fetch mail config");
+                    const errorText = await response.text().catch(() => 'Onbekende fout');
+                    setConfigError(`Kan configuratie niet ophalen (${response.status}): ${errorText}`);
                 }
             } catch (error) {
                 console.error("Error fetching mail config:", error);
+                setConfigError("Kan geen verbinding maken met de backend. Controleer of de server draait.");
             } finally {
                 setLoading(false);
             }
@@ -132,6 +137,23 @@ export default function MailConfigIsland() {
         );
     }
 
+    if (configError) {
+        return (
+            <div className="premium-glass rounded-2xl md:rounded-3xl p-6 md:p-8">
+                <div className="flex flex-col items-center justify-center text-center py-8">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4">
+                        <Server className="w-7 h-7 text-amber-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-text-primary mb-2">E-mail configuratie niet beschikbaar</h3>
+                    <p className="text-text-muted text-sm max-w-md leading-relaxed">{configError}</p>
+                    <p className="text-xs text-text-muted mt-4 opacity-60">
+                        Deze functie vereist de LaventeCare backend server met e-mail ondersteuning.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             {/* Status Message */}
@@ -188,7 +210,7 @@ export default function MailConfigIsland() {
                             <select
                                 value={config.encryption}
                                 onChange={e => setConfig({ ...config, encryption: e.target.value as any })}
-                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50 appearance-none"
+                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50 appearance-none [&>option]:bg-gray-900 [&>option]:text-white"
                             >
                                 <option value="none">Geen (Onveilig)</option>
                                 <option value="ssl">SSL</option>
@@ -204,7 +226,7 @@ export default function MailConfigIsland() {
                             <select
                                 value={config.auth_type}
                                 onChange={e => setConfig({ ...config, auth_type: e.target.value as any })}
-                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50 appearance-none"
+                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50 appearance-none [&>option]:bg-gray-900 [&>option]:text-white"
                             >
                                 <option value="none">Geen</option>
                                 <option value="plain">PLAIN</option>
