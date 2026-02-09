@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import EventSchedule from './EventSchedule';
+import VolunteerTasksManager from './VolunteerTasksManager';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { useMutation } from 'convex/react';
@@ -16,13 +17,14 @@ import {
     Tag,
     Plus,
     Edit3,
-    Trash2
+    Trash2,
+    ClipboardList
 } from 'lucide-react';
 import { ConvexClientProvider } from '../islands/ConvexClientProvider';
 import type { Id } from '../../../convex/_generated/dataModel';
 
 const TeamHubContent = () => {
-    const [activeTab, setActiveTab] = useState<'minutes' | 'schedule'>('minutes');
+    const [activeTab, setActiveTab] = useState<'minutes' | 'schedule' | 'volunteers'>('minutes');
     const [selectedMinute, setSelectedMinute] = useState<any | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -80,6 +82,15 @@ const TeamHubContent = () => {
                             }`}
                     >
                         <Calendar className="w-4 h-4" /> Programma
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('volunteers')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${activeTab === 'volunteers'
+                            ? 'bg-green-500 text-white shadow-md'
+                            : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
+                            }`}
+                    >
+                        <ClipboardList className="w-4 h-4" /> Vrijwilligers
                     </button>
                 </div>
             </div>
@@ -267,8 +278,10 @@ const TeamHubContent = () => {
                             </div>
                         </div>
                     </div>
-                ) : (
+                ) : activeTab === 'schedule' ? (
                     <EventSchedule onAddClick={() => handleOpenScheduleModal()} onEditClick={(item) => handleOpenScheduleModal(item)} />
+                ) : (
+                    <VolunteerTasksManager />
                 )}
             </div>
 

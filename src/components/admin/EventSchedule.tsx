@@ -14,7 +14,8 @@ import {
     Clock,
     Plus,
     Edit3,
-    Trash2
+    Trash2,
+    Users
 } from 'lucide-react';
 
 // Enhanced Icon Set based on Lucide
@@ -34,7 +35,14 @@ const getIcon = (iconName: string, className: string = "w-5 h-5") => {
 
 const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, onEditClick?: (item: any) => void }) => {
     const schedule = useQuery(api.team.getSchedule);
+    const volunteerTasks = useQuery(api.internal.listVolunteerTasks);
     const deleteScheduleItem = useMutation(api.team.deleteScheduleItem);
+
+    // Match volunteer tasks to schedule items by startTime
+    const getVolunteersForTime = (time: string) => {
+        if (!volunteerTasks || !time) return [];
+        return volunteerTasks.filter(t => t.startTime === time);
+    };
 
     const handleDelete = async (e: React.MouseEvent, id: any) => {
         e.stopPropagation();
@@ -88,6 +96,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                             const isEvent = item.type === 'event';
                             const isBreak = item.type === 'break';
                             const route = item.routeId ? routes.find(r => r.id === item.routeId) : null;
+                            const linkedVolunteers = getVolunteersForTime(item.time);
 
                             return (
                                 <div key={item._id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group/item">
@@ -165,6 +174,30 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: route.color }} />
                                                     <span className="text-xs font-semibold text-text-muted">{route.name}</span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Volunteer Badge */}
+                                        {linkedVolunteers.length > 0 && (
+                                            <div className={`mt-3 ${route ? '' : 'mt-4 pt-4 border-t border-glass-border'}`}>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-green-500/10 border border-green-500/20">
+                                                        <Users className="w-3 h-3 text-green-400" />
+                                                        <span className="text-[11px] font-semibold text-green-400">{linkedVolunteers.length}</span>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {linkedVolunteers.slice(0, 3).map(v => (
+                                                            <span key={v._id} className="px-2 py-0.5 rounded-md bg-glass-surface border border-glass-border text-[10px] text-text-muted truncate max-w-[100px]">
+                                                                {v.volunteerName}
+                                                            </span>
+                                                        ))}
+                                                        {linkedVolunteers.length > 3 && (
+                                                            <span className="px-2 py-0.5 rounded-md bg-glass-surface border border-glass-border text-[10px] text-text-muted">
+                                                                +{linkedVolunteers.length - 3}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
