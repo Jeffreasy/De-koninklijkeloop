@@ -43,8 +43,22 @@ const pathSegments = currentPath.split("/").filter(Boolean);
 <script>
     import { logout } from "../../lib/auth";
 
-    const logoutBtn = document.getElementById("logout-btn");
-    logoutBtn?.addEventListener("click", () => {
-        logout();
-    });
+    function attachLogout() {
+        const logoutBtn = document.getElementById("logout-btn");
+        if (logoutBtn) {
+            // Remove old listener to prevent duplicates, then add new one
+            logoutBtn.replaceWith(logoutBtn.cloneNode(true));
+            document
+                .getElementById("logout-btn")
+                ?.addEventListener("click", () => {
+                    logout();
+                });
+        }
+    }
+
+    // Initial load
+    attachLogout();
+
+    // Re-attach after View Transition page swaps
+    document.addEventListener("astro:page-load", attachLogout);
 </script>
