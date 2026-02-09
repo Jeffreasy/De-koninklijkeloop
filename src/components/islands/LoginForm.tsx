@@ -98,6 +98,81 @@ export default function LoginForm() {
         }
     };
 
+    const [view, setView] = useState<'login' | 'forgot'>('login');
+
+    const handleForgotSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setError(null);
+        setSuccess(null);
+
+        try {
+            const res = await fetch('/api/v1/auth/password/forgot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            if (!res.ok) throw new Error("Kon reset email niet versturen.");
+
+            setSuccess("We hebben een email gestuurd met instructies om je wachtwoord te resetten.");
+            setView('login');
+        } catch (err: any) {
+            console.error(err);
+            setError("Er ging iets mis. Controleer je emailadres.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (view === 'forgot') {
+        return (
+            <form onSubmit={handleForgotSubmit} className="space-y-4">
+                <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold text-white">Wachtwoord Herstellen</h3>
+                    <p className="text-sm text-white/60">Vul je emailadres in om een reset-link te ontvangen.</p>
+                </div>
+
+                {error && (
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm text-center">
+                        {error}
+                    </div>
+                )}
+
+                <div className="space-y-2">
+                    <Label htmlFor="reset-email">Email</Label>
+                    <Input
+                        id="reset-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="jouw@email.nl"
+                        required
+                    />
+                </div>
+
+                <Button
+                    type="submit"
+                    variant="default"
+                    className="w-full shadow-lg shadow-brand-primary/20"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? "Versturen..." : "Reset Link Sturen"}
+                </Button>
+
+                <div className="text-center mt-4">
+                    <button
+                        type="button"
+                        onClick={() => { setView('login'); setError(null); setSuccess(null); }}
+                        className="text-sm text-brand-orange hover:underline focus:outline-none"
+                    >
+                        Terug naar Inloggen
+                    </button>
+                </div>
+            </form>
+        );
+    }
+
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             {success && (
@@ -129,7 +204,16 @@ export default function LoginForm() {
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="password">Wachtwoord</Label>
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Wachtwoord</Label>
+                    <button
+                        type="button"
+                        onClick={() => { setView('forgot'); setError(null); setSuccess(null); }}
+                        className="text-xs text-brand-orange hover:underline focus:outline-none"
+                    >
+                        Wachtwoord vergeten?
+                    </button>
+                </div>
                 <Input
                     id="password"
                     type="password"
