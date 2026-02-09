@@ -141,6 +141,10 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
             headers.set("Authorization", `Bearer ${token}`);
         }
 
+        // FIX: Inject Tenant ID for all auth routes (Critical for password reset/register)
+        const tenantID = import.meta.env.PUBLIC_TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
+        headers.set("X-Tenant-ID", tenantID);
+
         // We cannot read body if we want to stream it, but for auth endpoints usually JSON.
         // If we consumed body above (we didn't for this branch), we are fine.
         const response = await fetch(targetUrl, {
