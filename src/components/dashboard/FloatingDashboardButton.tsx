@@ -16,7 +16,6 @@ export default function FloatingDashboardButton() {
         } else {
             setIsVisible(false);
         }
-        */
     }, [user]);
 
     // if (!isVisible) return null; // Removed to force visibility
@@ -49,4 +48,3 @@ export default function FloatingDashboardButton() {
         </a>
     );
 }
-```
