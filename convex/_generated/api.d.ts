@@ -11,6 +11,7 @@
 import type * as admin from "../admin.js";
 import type * as archive from "../archive.js";
 import type * as auth from "../auth.js";
+import type * as chat from "../chat.js";
 import type * as contact from "../contact.js";
 import type * as donations from "../donations.js";
 import type * as eventSettings from "../eventSettings.js";
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   archive: typeof archive;
   auth: typeof auth;
+  chat: typeof chat;
   contact: typeof contact;
   donations: typeof donations;
   eventSettings: typeof eventSettings;

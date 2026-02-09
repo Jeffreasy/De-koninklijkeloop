@@ -6,6 +6,7 @@ import AdminHeader from "../components/admin/AdminHeader.astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
 import { ToastContainer } from "../components/ui/ToastContainer";
 import FeedbackModal from "../components/admin/FeedbackModal";
+import ChatWidget from "../components/islands/ChatWidget";
 
 interface Props {
   title: string;
@@ -114,6 +115,15 @@ const { title } = Astro.props;
         });
     </script>
     <ToastContainer client:idle />
+    {
+      Astro.locals.user && (
+        <ChatWidget
+          client:idle
+          currentUser={Astro.locals.user}
+          convexUrl={import.meta.env.PUBLIC_CONVEX_URL}
+        />
+      )
+    }
     <FeedbackModal client:idle convexUrl={import.meta.env.PUBLIC_CONVEX_URL} />
     <SpeedInsights />
   </body>

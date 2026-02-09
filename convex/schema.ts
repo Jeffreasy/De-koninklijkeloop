@@ -335,7 +335,41 @@ export default defineSchema({
         createdAt: v.number(),
         updatedAt: v.number(),
     })
-        .index("by_status", ["status"])
         .index("by_type", ["type"])
         .index("by_created", ["createdAt"]),
+
+    /**
+     * Real-Time Presence System
+     * Tracks user activity for the "Green Dot" indicator.
+     * Logic: Frontend sends heartbeat every 30s. Offline if > 60s.
+     */
+    presence: defineTable({
+        user: v.string(), // Identifier (email or ID)
+        name: v.string(), // Display name cache
+        lastActive: v.number(), // Timestamp of last heartbeat
+        status: v.union(v.literal("online"), v.literal("offline")), // Explicit status override
+        currentPath: v.optional(v.string()), // Optional: Where are they?
+    })
+        .index("by_user", ["user"])
+        .index("by_last_active", ["lastActive"]),
+
+    /**
+     * Direct Messaging System
+     * 1-on-1 Chat with database persistence.
+     */
+    direct_messages: defineTable({
+        sender: v.string(), // User Identifier
+        recipient: v.string(), // User Identifier
+        content: v.string(), // Message body
+        isRead: v.boolean(), // Read status
+        type: v.union(v.literal("text"), v.literal("image"), v.literal("system")), // Message type
+
+        // Threading/Context (Optional)
+        conversationId: v.optional(v.string()), // optimize listing
+
+        createdAt: v.number(),
+    })
+        .index("by_recipient_read", ["recipient", "isRead"]) // Fast "Unread Count"
+        .index("by_participants", ["sender", "recipient"]) // Fetch conversation
+        .index("by_conversation", ["conversationId", "createdAt"]), // Fetch thread
 });
