@@ -66,6 +66,11 @@ export const updateSettings = mutation({
         payment_provider: v.optional(v.string()),
         payment_api_key: v.optional(v.string()),
 
+        // Mobile App
+        mobile_app_enabled: v.optional(v.boolean()),
+        mobile_app_url: v.optional(v.string()),
+        mobile_app_status: v.optional(v.union(v.literal("coming_soon"), v.literal("live"), v.literal("beta"))),
+
         // Auth
         token: v.string(), // Admin auth token (validated against LaventeCare)
     },

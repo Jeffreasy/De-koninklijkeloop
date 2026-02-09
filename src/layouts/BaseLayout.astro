@@ -13,7 +13,7 @@ const {
     description = "De Koninklijke Loop 2026 - Wandel mee voor het Liliane Fonds",
 } = Astro.props;
 
-import FloatingDashboardButton from "../components/dashboard/FloatingDashboardButton";
+import FloatingToolbox from "../components/dashboard/FloatingToolbox";
 ---
 
 <!doctype html>
@@ -149,7 +149,7 @@ import FloatingDashboardButton from "../components/dashboard/FloatingDashboardBu
                 }
             });
         </script>
-        <FloatingDashboardButton client:only="react" />
+        <FloatingToolbox client:only="react" />
         <SpeedInsights />
     </body>
 </html>

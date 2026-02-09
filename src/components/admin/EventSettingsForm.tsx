@@ -9,7 +9,22 @@ export default function EventSettingsForm() {
     const updateSettings = useMutation(api.eventSettings.updateSettings);
     const accessToken = useStore($accessToken);
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        name: string;
+        tagline: string;
+        event_date: string;
+        event_date_display: string;
+        registration_open: boolean;
+        location_city: string;
+        start_location: string;
+        finish_location: string;
+        max_participants: number;
+        hero_video_id: string;
+        contact_email: string;
+        mobile_app_enabled: boolean;
+        mobile_app_url: string;
+        mobile_app_status: "coming_soon" | "live" | "beta";
+    }>({
         name: '',
         tagline: '',
         event_date: '',
@@ -21,6 +36,9 @@ export default function EventSettingsForm() {
         max_participants: 500,
         hero_video_id: '',
         contact_email: '',
+        mobile_app_enabled: false,
+        mobile_app_url: '',
+        mobile_app_status: 'coming_soon',
     });
 
     const [saving, setSaving] = useState(false);
@@ -41,6 +59,9 @@ export default function EventSettingsForm() {
                 max_participants: settings.max_participants || 500,
                 hero_video_id: settings.hero_video_id || '',
                 contact_email: settings.contact_email || '',
+                mobile_app_enabled: settings.mobile_app_enabled ?? false,
+                mobile_app_url: settings.mobile_app_url || '',
+                mobile_app_status: settings.mobile_app_status || 'coming_soon',
             });
         }
     }, [settings]);
@@ -279,6 +300,54 @@ export default function EventSettingsForm() {
                 </div>
             </div>
 
+            {/* Mobile App Configuratie */}
+            <div className="premium-glass rounded-2xl md:rounded-3xl p-4 md:p-6">
+                <h2 className="text-base md:text-lg font-semibold mb-4 text-text-primary">Mobile App</h2>
+
+                <div className="space-y-4">
+                    <label className="flex items-center space-x-3 cursor-pointer p-3 bg-glass-bg/30 border border-glass-border rounded-xl hover:bg-glass-bg/50 transition-colors">
+                        <input
+                            type="checkbox"
+                            checked={formData.mobile_app_enabled}
+                            onChange={(e) => setFormData({ ...formData, mobile_app_enabled: e.target.checked })}
+                            className="w-5 h-5 rounded border-glass-border bg-glass-bg/50 text-brand-orange focus:ring-2 focus:ring-brand-orange/50"
+                        />
+                        <span className="font-medium text-text-primary">Toon App Button in Dashboard</span>
+                    </label>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-text-secondary mb-2">
+                                App Status
+                            </label>
+                            <select
+                                value={formData.mobile_app_status}
+                                onChange={(e) => setFormData({ ...formData, mobile_app_status: e.target.value as any })}
+                                className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
+                            >
+                                <option value="coming_soon">Binnenkort Beschikbaar (Coming Soon)</option>
+                                <option value="beta">Beta Test</option>
+                                <option value="live">Live</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-text-secondary mb-2">
+                                App Download URL
+                            </label>
+                            <input
+                                type="url"
+                                value={formData.mobile_app_url}
+                                onChange={(e) => setFormData({ ...formData, mobile_app_url: e.target.value })}
+                                className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
+                                placeholder="https://..."
+                                disabled={formData.mobile_app_status === 'coming_soon'}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Submit Button */}
             <div className="flex justify-center md:justify-end">
                 <button
@@ -290,6 +359,6 @@ export default function EventSettingsForm() {
                     {saving ? "Opslaan..." : "Instellingen Opslaan"}
                 </button>
             </div>
-        </form>
+        </form >
     );
 }
