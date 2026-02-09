@@ -7,13 +7,13 @@ import { internalMutation } from "./_generated/server";
 export const syncParticipantCount = internalMutation({
     args: {},
     handler: async (ctx) => {
-        // Count active registrations
-        const registrations = await ctx.db
+        // Count active registrations (not cancelled) for the current edition
+        const allRegistrations = await ctx.db
             .query("registrations")
-            .filter((q) => q.eq(q.field("status"), "confirmed"))
             .collect();
 
-        const count = registrations.length;
+        // Filter: non-cancelled registrations
+        const count = allRegistrations.filter(r => r.status !== "cancelled").length;
 
         // Get active settings
         const settings = await ctx.db
