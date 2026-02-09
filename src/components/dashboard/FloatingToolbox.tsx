@@ -3,10 +3,10 @@ import { $user } from "../../lib/auth";
 import { LayoutDashboard, Smartphone, X, ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useQuery } from "convex/react";
+import { useQuery, ConvexProvider, ConvexReactClient } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
-export default function FloatingToolbox() {
+function FloatingToolboxContent() {
     const user = useStore($user);
     const [isVisible, setIsVisible] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -127,5 +127,18 @@ export default function FloatingToolbox() {
                 </div>
             </button>
         </div>
+    );
+}
+
+export default function FloatingToolbox() {
+    const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
+    const [convexClient] = useState(() => convexUrl ? new ConvexReactClient(convexUrl) : null);
+
+    if (!convexClient) return null;
+
+    return (
+        <ConvexProvider client={convexClient}>
+            <FloatingToolboxContent />
+        </ConvexProvider>
     );
 }
