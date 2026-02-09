@@ -4,11 +4,15 @@ import { faqData } from "../../../data/faqData";
 import { HelpCircle } from "lucide-react";
 ---
 
-<section class="py-16 md:py-24 relative overflow-hidden" id="faq">
+<section
+    class="py-16 md:py-24 relative overflow-hidden"
+    id="faq"
+    aria-label="Veelgestelde vragen"
+>
     <div class="max-w-3xl mx-auto px-6 relative z-10">
         <div class="text-center mb-12">
             <div
-                class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-action-blue/10 text-action-blue border border-border mb-6"
+                class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-action-blue/10 text-action-blue border border-glass-border mb-6"
             >
                 <HelpCircle className="w-6 h-6 text-action-blue" />
             </div>
@@ -28,7 +32,7 @@ import { HelpCircle } from "lucide-react";
             <p class="text-muted">
                 Staat je vraag er niet tussen? <a
                     href="/contact"
-                    class="text-brand-orange hover:underline font-medium"
+                    class="text-brand-orange hover:underline font-medium cursor-pointer"
                     >Neem contact op</a
                 >
             </p>
