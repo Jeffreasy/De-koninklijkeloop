@@ -50,35 +50,37 @@ export default function EventSettingsIsland({ convexUrl }: Props) {
         <ConvexProvider client={client}>
             <div className="space-y-6">
                 {/* Tab Navigation */}
-                <div className="flex p-1 rounded-xl bg-glass-bg/30 border border-glass-border w-fit">
+                <div className="grid grid-cols-3 sm:flex p-1 rounded-xl bg-glass-bg/30 border border-glass-border w-full sm:w-fit gap-1 sm:gap-0">
                     <button
                         onClick={() => setActiveTab('event')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'event'
+                        className={`group relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'event'
                             ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20'
                             : 'text-text-muted hover:text-text-primary hover:bg-white/5'
                             }`}
                     >
-                        <Calendar className="w-4 h-4" />
-                        <span>Evenement</span>
+                        <Calendar className={`w-4 h-4 transition-transform ${activeTab === 'event' ? 'scale-110' : 'group-hover:scale-110'}`} />
+                        <span className="hidden xs:inline">Evenement</span>
+                        <span className="xs:hidden">Event</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('email')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'email'
+                        className={`group relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'email'
                             ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20'
                             : 'text-text-muted hover:text-text-primary hover:bg-white/5'
                             }`}
                     >
-                        <Mail className="w-4 h-4" />
-                        <span>Server & E-mail</span>
+                        <Mail className={`w-4 h-4 transition-transform ${activeTab === 'email' ? 'scale-110' : 'group-hover:scale-110'}`} />
+                        <span className="hidden xs:inline whitespace-nowrap">Server & E-mail</span>
+                        <span className="xs:hidden">Email</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('feedback')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'feedback'
+                        className={`group relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'feedback'
                             ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20'
                             : 'text-text-muted hover:text-text-primary hover:bg-white/5'
                             }`}
                     >
-                        <MessageSquarePlus className="w-4 h-4" />
+                        <MessageSquarePlus className={`w-4 h-4 transition-transform ${activeTab === 'feedback' ? 'scale-110' : 'group-hover:scale-110'}`} />
                         <span>Feedback</span>
                     </button>
                 </div>

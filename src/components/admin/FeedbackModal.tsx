@@ -142,77 +142,101 @@ function FeedbackModalContent() {
                             </AnimatePresence>
 
                             {/* Header */}
-                            <div className="p-5 border-b border-border flex items-center justify-between bg-surface/50">
-                                <div>
-                                    <h3 className="font-bold text-lg text-text-body">Feedback Sturen</h3>
-                                    <p className="text-xs text-text-muted">Help ons het platform te verbeteren.</p>
+                            <div className="relative p-6 border-b border-white/5 flex items-center justify-between bg-white/5">
+                                <div className="absolute inset-0 bg-linear-to-r from-brand-orange/5 to-transparent pointer-events-none" />
+                                <div className="relative">
+                                    <h3 className="font-bold font-display text-xl text-white tracking-tight">Feedback & Ideeën</h3>
+                                    <p className="text-xs text-text-muted mt-0.5 font-medium">Help ons het platform te verbeteren 🚀</p>
                                 </div>
                                 <button
                                     onClick={() => setIsOpen(false)}
-                                    className="p-2 rounded-lg hover:bg-black/5 text-text-muted hover:text-text-body transition-colors"
+                                    className="relative p-2 rounded-xl hover:bg-white/10 text-text-muted hover:text-white transition-all duration-300 group"
                                 >
-                                    <X className="w-5 h-5" />
+                                    <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
                                 </button>
                             </div>
 
                             {/* Form */}
-                            <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                            <form onSubmit={handleSubmit} className="p-6 space-y-6">
                                 {/* Type Selection */}
-                                <div className="grid grid-cols-3 gap-2">
-                                    {[
-                                        { id: 'bug', label: 'Bug', icon: Bug },
-                                        { id: 'feature', label: 'Idee', icon: Lightbulb },
-                                        { id: 'praise', label: 'Top!', icon: Heart }
-                                    ].map((t) => (
-                                        <button
-                                            key={t.id}
-                                            type="button"
-                                            onClick={() => setType(t.id)}
-                                            className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all ${type === t.id
-                                                ? 'bg-brand-orange/10 border-brand-orange text-brand-orange'
-                                                : 'bg-surface border-border text-text-muted hover:border-brand-orange/50 hover:bg-surface/80'
-                                                }`}
-                                        >
-                                            <t.icon className="w-5 h-5" />
-                                            <span className="text-xs font-medium">{t.label}</span>
-                                        </button>
-                                    ))}
+                                <div className="space-y-3">
+                                    <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Type Melding</label>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {[
+                                            { id: 'bug', label: 'Bug Melden', icon: Bug, color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+                                            { id: 'feature', label: 'Nieuw Idee', icon: Lightbulb, color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+                                            { id: 'praise', label: 'Compliment', icon: Heart, color: 'text-pink-400', bg: 'bg-pink-500/10', border: 'border-pink-500/20' }
+                                        ].map((t) => (
+                                            <button
+                                                key={t.id}
+                                                type="button"
+                                                onClick={() => setType(t.id)}
+                                                className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all duration-300 overflow-hidden group ${type === t.id
+                                                        ? `${t.bg} ${t.border} shadow-lg ring-1 ring-inset ring-white/10`
+                                                        : 'bg-white/5 border-white/5 text-text-muted hover:bg-white/10 hover:border-white/10'
+                                                    }`}
+                                            >
+                                                {type === t.id && (
+                                                    <motion.div
+                                                        layoutId="activeType"
+                                                        className={`absolute inset-0 ${t.bg} opacity-20`}
+                                                    />
+                                                )}
+                                                <div className={`p-2 rounded-xl bg-black/20 backdrop-blur-sm ${type === t.id ? t.color : 'text-text-muted group-hover:text-text-body'} transition-colors`}>
+                                                    <t.icon className="w-5 h-5" />
+                                                </div>
+                                                <span className={`text-xs font-bold ${type === t.id ? 'text-white' : 'text-text-muted group-hover:text-text-body'} transition-colors`}>
+                                                    {t.label}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 {/* Message */}
-                                <div className="space-y-2">
-                                    <textarea
-                                        value={message}
-                                        onChange={(e) => setMessage(e.target.value)}
-                                        placeholder="Beschrijf je feedback, bug of idee..."
-                                        className="w-full h-32 px-4 py-3 rounded-xl bg-surface/50 border border-border focus:border-brand-orange focus:ring-1 focus:ring-brand-orange/50 placeholder:text-text-muted/50 resize-none transition-all text-sm"
-                                        required
-                                        autoFocus
-                                    />
+                                <div className="space-y-3">
+                                    <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Jouw Bericht</label>
+                                    <div className="relative group">
+                                        <textarea
+                                            value={message}
+                                            onChange={(e) => setMessage(e.target.value)}
+                                            placeholder="Beschrijf duidelijk wat je bent tegengekomen of wat je graag zou willen zien..."
+                                            className="w-full h-32 px-4 py-3 rounded-2xl bg-black/20 border border-white/10 text-text-body placeholder:text-text-muted/40 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 resize-none transition-all text-sm leading-relaxed"
+                                            required
+                                            autoFocus
+                                        />
+                                        <div className="absolute inset-0 rounded-2xl bg-brand-orange/5 opacity-0 group-focus-within:opacity-100 pointer-events-none transition-opacity duration-500" />
+                                    </div>
                                 </div>
 
                                 {/* Footer Actions */}
-                                <div className="flex justify-end gap-3 pt-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsOpen(false)}
-                                        className="px-4 py-2 text-sm font-medium text-text-muted hover:text-text-body transition-colors"
-                                    >
-                                        Annuleren
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting || !message.trim()}
-                                        className="px-6 py-2 rounded-xl bg-brand-orange text-white text-sm font-medium shadow-lg shadow-brand-orange/25 hover:shadow-brand-orange/40 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all flex items-center gap-2"
-                                    >
-                                        {isSubmitting ? (
-                                            <>
-                                                <Loader2 className="w-4 h-4 animate-spin" /> Verwerken...
-                                            </>
-                                        ) : (
-                                            'Versturen'
-                                        )}
-                                    </button>
+                                <div className="flex items-center justify-between pt-2">
+                                    <p className="text-[10px] text-text-muted/60">
+                                        Wordt verstuurd als <span className="text-text-muted font-medium">{navigator.platform}</span> gebruiker
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsOpen(false)}
+                                            className="px-4 py-2.5 text-sm font-medium text-text-muted hover:text-white transition-colors"
+                                        >
+                                            Annuleren
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={isSubmitting || !message.trim()}
+                                            className="relative px-6 py-2.5 rounded-xl bg-brand-orange text-white text-sm font-bold shadow-lg shadow-brand-orange/20 hover:shadow-brand-orange/40 hover:-translate-y-0.5 hover:bg-brand-orange/90 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all flex items-center gap-2 overflow-hidden group"
+                                        >
+                                            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                                            <span className="relative flex items-center gap-2">
+                                                {isSubmitting ? (
+                                                    <><Loader2 className="w-4 h-4 animate-spin" /> Verwerken...</>
+                                                ) : (
+                                                    <><MessageSquarePlus className="w-4 h-4" /> Versturen</>
+                                                )}
+                                            </span>
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </motion.div>

@@ -91,63 +91,73 @@ export default function FeedbackList() {
                         <p className="text-text-muted text-sm">Er is nog geen feedback ingediend met dit filter.</p>
                     </div>
                 ) : (
-                    filteredFeedback.map((item) => (
-                        <div key={item._id} className="group bg-surface/30 border border-border hover:border-brand-orange/30 rounded-xl p-4 transition-all hover:bg-surface/50">
-                            <div className="flex items-start gap-4">
-                                <div className={`p-3 rounded-xl bg-surface border border-border shrink-0`}>
-                                    {getTypeIcon(item.type)}
-                                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filteredFeedback.map((item) => (
+                            <div key={item._id} className="group relative bg-[#0F172A]/40 backdrop-blur-md border border-white/5 hover:border-brand-orange/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-xl hover:shadow-black/20 hover:-translate-y-1 overflow-hidden">
+                                {/* Gradient Glow */}
+                                <div className="absolute inset-0 bg-linear-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                                <div className="flex-1 min-w-0 space-y-2">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p className="text-text-body font-medium leading-snug">{item.message}</p>
-                                            <div className="flex items-center gap-3 mt-1.5 text-xs text-text-muted">
-                                                <span className="flex items-center gap-1">
-                                                    <Clock className="w-3 h-3" />
-                                                    {new Date(item.createdAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                                                </span>
-                                                {item.metadata?.url && (
-                                                    <span className="truncate max-w-[200px]">
-                                                        op {item.metadata.url}
-                                                    </span>
-                                                )}
-                                            </div>
+                                <div className="relative space-y-4">
+                                    {/* Header: Icon & Status */}
+                                    <div className="flex items-start justify-between">
+                                        <div className={`p-3 rounded-xl bg-black/20 border border-white/5 ${item.type === 'bug' ? 'text-red-400' : item.type === 'feature' ? 'text-yellow-400' : 'text-pink-400'}`}>
+                                            {getTypeIcon(item.type)}
                                         </div>
                                         {getStatusBadge(item.status)}
                                     </div>
 
-                                    {/* Action Buttons */}
-                                    <div className="flex flex-wrap gap-2 pt-2 opacity-10 group-hover:opacity-100 transition-opacity">
+                                    {/* Message */}
+                                    <div>
+                                        <p className="text-text-body font-medium leading-relaxed text-sm line-clamp-3">
+                                            "{item.message}"
+                                        </p>
+                                    </div>
+
+                                    {/* Metadata Footer */}
+                                    <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-text-muted">
+                                        <span className="flex items-center gap-1.5">
+                                            <Clock className="w-3.5 h-3.5" />
+                                            {new Date(item.createdAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+                                        </span>
+                                        {item.metadata?.url && (
+                                            <span className="px-2 py-0.5 rounded-full bg-white/5 font-mono text-[10px] truncate max-w-[100px]">
+                                                {item.metadata.url}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Actions (Hover/Focus optimized) */}
+                                    <div className="pt-2 flex flex-wrap gap-2">
                                         {item.status !== 'closed' && (
                                             <button
                                                 onClick={() => handleStatusChange(item._id, 'closed')}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500/20 text-xs font-medium transition-colors"
+                                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-green-500/10 text-green-400 hover:bg-green-500/20 text-xs font-bold transition-colors border border-green-500/10 hover:border-green-500/30"
                                             >
-                                                <CheckCircle2 className="w-3 h-3" /> Oplossen
+                                                <CheckCircle2 className="w-3.5 h-3.5" /> Oplossen
                                             </button>
                                         )}
                                         {item.status !== 'in_progress' && item.status !== 'closed' && (
                                             <button
                                                 onClick={() => handleStatusChange(item._id, 'in_progress')}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 text-xs font-medium transition-colors"
+                                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 text-xs font-bold transition-colors border border-yellow-500/10 hover:border-yellow-500/30"
                                             >
-                                                <RotateCcw className="w-3 h-3" /> Mee bezig
+                                                <RotateCcw className="w-3.5 h-3.5" /> Mee bezig
                                             </button>
                                         )}
                                         {item.status !== 'rejected' && (
                                             <button
                                                 onClick={() => handleStatusChange(item._id, 'rejected')}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 text-xs font-medium transition-colors"
+                                                className="px-3 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold transition-colors border border-red-500/10 hover:border-red-500/30"
+                                                title="Afwijzen"
                                             >
-                                                <XCircle className="w-3 h-3" /> Afwijzen
+                                                <XCircle className="w-3.5 h-3.5" />
                                             </button>
                                         )}
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))
+                        ))}
+                    </div>
                 )}
             </div>
         </div>
