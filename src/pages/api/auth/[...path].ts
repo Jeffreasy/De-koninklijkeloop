@@ -136,6 +136,11 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
         const token = cookies.get("dkl_auth_token")?.value;
         const headers = new Headers(request.headers);
 
+        // FIX: Remove Origin/Referer to avoid CORS issues on Backend (since we are proxying server-side)
+        headers.delete('origin');
+        headers.delete('referer');
+        headers.delete('host'); // Let fetch set the correct host
+
         // FIX: Inject Bearer token for /auth/token checks
         if (token) {
             headers.set("Authorization", `Bearer ${token}`);
