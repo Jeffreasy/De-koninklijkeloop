@@ -20,7 +20,7 @@ import Footer from "../components/blocks/Global/Footer.astro";
 		<SponsorSection />
 		<CharitySpotlight />
 		<MediaMosaic />
-		<SocialGridWrapper client:load />
+		<SocialGridWrapper client:only="react" />
 	</main>
 	<Footer />
 </BaseLayout>

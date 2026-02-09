@@ -29,7 +29,11 @@ export const getReactionCounts = query({
             counts[reaction.reactionType] = (counts[reaction.reactionType] || 0) + 1;
         }
 
-        return counts;
+        // Convert to array to avoid "Invalid character" error in Convex return values (Emoji keys are restricted)
+        return Object.entries(counts).map(([emoji, count]) => ({
+            emoji,
+            count
+        }));
     },
 });
 

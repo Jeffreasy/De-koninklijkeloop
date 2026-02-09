@@ -19,6 +19,13 @@ const REACTIONS = [
 
 export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
     const reactionCounts = useQuery(api.socialReactions.getReactionCounts, { postId });
+
+    // Transform array back to record for easy lookup
+    const countsLookup = reactionCounts?.reduce((acc, { emoji, count }) => {
+        acc[emoji] = count;
+        return acc;
+    }, {} as Record<string, number>) || {};
+
     const userReaction = useQuery(api.socialReactions.getUserReaction, {
         postId,
         userId: userId || "",
@@ -69,7 +76,7 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
             {/* Compact Reaction Buttons - Horizontal scroll on mobile */}
             <div className="flex items-center gap-1.5 md:gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
                 {REACTIONS.map(({ emoji, label }) => {
-                    const count = reactionCounts?.[emoji] || 0;
+                    const count = countsLookup[emoji] || 0;
                     const isActive = userReaction === emoji;
                     const hasRipple = rippleEffect === emoji;
 
@@ -142,14 +149,14 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
             </div>
 
             {/* Total Count - Compact on mobile */}
-            {reactionCounts && Object.keys(reactionCounts).length > 0 && (
+            {reactionCounts && reactionCounts.length > 0 && (
                 <div className="flex items-center gap-2 md:gap-3 pt-1 md:pt-2">
                     <div className="h-px flex-1 bg-linear-to-r from-transparent via-border to-transparent" />
                     <div className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl bg-white/5 border border-border backdrop-blur-sm">
                         <span className="text-brand-orange text-xs md:text-sm">🔥</span>
                         <span className="text-xs md:text-sm font-medium text-muted">
-                            {Object.values(reactionCounts).reduce((a: number, b: number) => a + b, 0)} reactie
-                            {Object.values(reactionCounts).reduce((a: number, b: number) => a + b, 0) !== 1 ? "s" : ""}
+                            {reactionCounts.reduce((acc, { count }) => acc + count, 0)} reactie
+                            {reactionCounts.reduce((acc, { count }) => acc + count, 0) !== 1 ? "s" : ""}
                         </span>
                     </div>
                     <div className="h-px flex-1 bg-linear-to-r from-transparent via-border to-transparent" />
