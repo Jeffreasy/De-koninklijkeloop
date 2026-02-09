@@ -46,7 +46,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
 
     if (!hasContent) {
         return (
-            <section className="py-24 relative overflow-hidden">
+            <section className="py-24 relative overflow-hidden" aria-label="Instagram social media">
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="text-center mb-16 space-y-4">
@@ -84,7 +84,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
     }
 
     return (
-        <section className="py-24 relative overflow-hidden">
+        <section className="py-24 relative overflow-hidden" aria-label="Instagram social media">
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="text-center mb-16 space-y-4">
@@ -145,7 +145,7 @@ export const SocialGridIsland = memo(function SocialGridIsland() {
                                         <span className="text-xs font-medium">Klik om te bekijken</span>
                                     </div>
                                     {featuredPost.postedDate && (
-                                        <span className="text-xs text-white/70">
+                                        <span className="text-xs text-white/60">
                                             {new Date(featuredPost.postedDate).toLocaleDateString("nl-NL", {
                                                 day: "numeric",
                                                 month: "short",

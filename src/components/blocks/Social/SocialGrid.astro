@@ -21,7 +21,10 @@ const thumbnailPosts = await convex.query(api.socialPosts.getThumbnails, {
 const hasContent = !!featuredPost || thumbnailPosts.length > 0;
 ---
 
-<section class="py-24 relative overflow-hidden">
+<section
+    class="py-24 relative overflow-hidden"
+    aria-label="Instagram social media"
+>
     <!-- Background Decor -->
     <div
         class="absolute top-1/4 -right-64 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[128px] pointer-events-none -z-10"
@@ -59,7 +62,7 @@ const hasContent = !!featuredPost || thumbnailPosts.length > 0;
                             href={featuredPost.instagramUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="lg:row-span-2 group relative aspect-square lg:aspect-4/5 overflow-hidden rounded-3xl bg-surface border border-border hover:border-brand-orange/30 transition-all duration-300 shadow-xl"
+                            class="lg:row-span-2 group relative aspect-square lg:aspect-4/5 overflow-hidden rounded-3xl bg-surface border border-glass-border hover:border-brand-orange/30 transition-all duration-300 shadow-xl cursor-pointer"
                         >
                             {/* Image */}
                             <img
@@ -99,7 +102,7 @@ const hasContent = !!featuredPost || thumbnailPosts.length > 0;
                                         </span>
                                     </div>
                                     {featuredPost.postedDate && (
-                                        <span class="text-xs text-white/70">
+                                        <span class="text-xs text-white/60">
                                             {new Date(
                                                 featuredPost.postedDate,
                                             ).toLocaleDateString("nl-NL", {
@@ -131,7 +134,7 @@ const hasContent = !!featuredPost || thumbnailPosts.length > 0;
                                     href={post.instagramUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    class="group relative aspect-square overflow-hidden rounded-2xl bg-surface border border-border hover:border-brand-blue-light/30 transition-all duration-300 shadow-md"
+                                    class="group relative aspect-square overflow-hidden rounded-2xl bg-surface border border-glass-border hover:border-brand-blue-light/30 transition-all duration-300 shadow-md cursor-pointer"
                                 >
                                     {/* Image */}
                                     <img

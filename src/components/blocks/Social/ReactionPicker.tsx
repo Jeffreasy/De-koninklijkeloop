@@ -67,7 +67,7 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
                     Reacties
                 </h3>
                 {!isAuthenticated && (
-                    <p className="text-xs text-muted italic px-2 py-0.5 md:px-3 md:py-1 rounded-lg bg-surface/5 border border-border">
+                    <p className="text-xs text-muted italic px-2 py-0.5 md:px-3 md:py-1 rounded-lg bg-surface/5 border border-glass-border">
                         Log in om te reageren
                     </p>
                 )}
@@ -91,7 +91,7 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
                                 transition-all duration-300 overflow-hidden shrink-0
                                 ${isActive
                                     ? "bg-linear-to-r from-brand-orange to-orange-500 text-white shadow-lg md:shadow-xl shadow-brand-orange/30 scale-105 border border-brand-orange/50 md:border-2"
-                                    : "bg-surface/50 text-primary hover:bg-surface border border-border md:border-2 hover:border-brand-orange/30 shadow-md md:shadow-lg hover:shadow-lg md:hover:shadow-xl"
+                                    : "bg-surface/50 text-primary hover:bg-surface border border-glass-border md:border-2 hover:border-brand-orange/30 shadow-md md:shadow-lg hover:shadow-lg md:hover:shadow-xl"
                                 }
                                 ${!isAuthenticated ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:scale-105 active:scale-95"}
                                 ${isProcessing ? "opacity-70" : ""}
@@ -152,7 +152,7 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
             {reactionCounts && reactionCounts.length > 0 && (
                 <div className="flex items-center gap-2 md:gap-3 pt-1 md:pt-2">
                     <div className="h-px flex-1 bg-linear-to-r from-transparent via-border to-transparent" />
-                    <div className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl bg-white/5 border border-border backdrop-blur-sm">
+                    <div className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl bg-white/5 border border-glass-border backdrop-blur-sm">
                         <span className="text-brand-orange text-xs md:text-sm">🔥</span>
                         <span className="text-xs md:text-sm font-medium text-muted">
                             {reactionCounts.reduce((acc, { count }) => acc + count, 0)} reactie
