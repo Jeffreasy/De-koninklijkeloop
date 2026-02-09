@@ -40,6 +40,13 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         const token = cookies.get("access_token")?.value || cookies.get("dkl_auth_token")?.value;
         const headers = new Headers(request.headers);
 
+        // CRITICAL: Remove browser-specific headers that cause CSRF issues on the Go backend.
+        // The Go CSRF middleware uses Double-Submit Cookie Pattern. Forwarded browser cookies
+        // from a different domain cause a mismatch. Bearer token auth bypasses CSRF,
+        // but only if we don't also forward conflicting Cookie/Origin headers.
+        headers.delete("Cookie");
+        headers.delete("Origin");
+
         // Good practice for some proxies
         headers.set("Host", new URL(API_URL).host);
 
