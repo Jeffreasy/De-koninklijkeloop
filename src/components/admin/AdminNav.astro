@@ -125,8 +125,12 @@ const initials = getInitials(userName);
   <div
     class="p-4 border-t border-glass-border/50 bg-linear-to-t from-glass-bg/30 to-transparent"
   >
-    <div
-      class="flex items-center gap-3 p-3 rounded-xl bg-linear-to-br from-glass-bg/40 to-glass-bg/20 hover:from-glass-bg/60 hover:to-glass-bg/30 border border-glass-border/30 hover:border-glass-border transition-all duration-200 cursor-pointer group"
+    <a
+      href="/admin/profiel"
+      class:list={[
+        "flex items-center gap-3 p-3 rounded-xl bg-linear-to-br from-glass-bg/40 to-glass-bg/20 hover:from-glass-bg/60 hover:to-glass-bg/30 border border-glass-border/30 hover:border-glass-border transition-all duration-200 cursor-pointer group",
+        isActive("/admin/profiel") && "ring-1 ring-brand-orange/30",
+      ]}
     >
       <!-- User Avatar -->
       <div
@@ -145,7 +149,7 @@ const initials = getInitials(userName);
           {userRole}
         </div>
       </div>
-    </div>
+    </a>
   </div>
 </aside>
 
@@ -226,8 +230,12 @@ const initials = getInitials(userName);
   <div
     class="p-4 border-t border-glass-border/50 bg-linear-to-t from-glass-bg/30 to-transparent"
   >
-    <div
-      class="flex items-center gap-3 p-3 rounded-xl bg-linear-to-br from-glass-bg/40 to-glass-bg/20 hover:from-glass-bg/60 hover:to-glass-bg/30 border border-glass-border/30 hover:border-glass-border transition-all duration-200 cursor-pointer group"
+    <a
+      href="/admin/profiel"
+      class:list={[
+        "flex items-center gap-3 p-3 rounded-xl bg-linear-to-br from-glass-bg/40 to-glass-bg/20 hover:from-glass-bg/60 hover:to-glass-bg/30 border border-glass-border/30 hover:border-glass-border transition-all duration-200 cursor-pointer group",
+        isActive("/admin/profiel") && "ring-1 ring-brand-orange/30",
+      ]}
     >
       <!-- User Avatar -->
       <div
@@ -246,7 +254,7 @@ const initials = getInitials(userName);
           {userRole}
         </div>
       </div>
-    </div>
+    </a>
   </div>
 </aside>
 

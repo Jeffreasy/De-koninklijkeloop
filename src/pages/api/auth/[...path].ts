@@ -150,7 +150,7 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
     // FALLBACK: Generic Proxy for other auth routes (e.g. register, forgot-password, token checks)
     // We pass through but ensure we don't leak anything unexpected
     try {
-        const token = cookies.get("dkl_auth_token")?.value;
+        const token = cookies.get("access_token")?.value || cookies.get("dkl_auth_token")?.value;
         const headers = new Headers(request.headers);
 
         // FIX: Remove Origin/Referer to avoid CORS issues on Backend (since we are proxying server-side)
