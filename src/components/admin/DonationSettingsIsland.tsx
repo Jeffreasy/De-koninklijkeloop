@@ -139,7 +139,7 @@ function DonationSettingsContent() {
                             className={`
                                 group relative p-4 rounded-2xl border transition-all duration-300
                                 ${camp.is_active
-                                    ? "bg-gradient-to-br from-brand-orange/10 to-transparent border-brand-orange/30 shadow-lg shadow-brand-orange/5"
+                                    ? "bg-linear-to-br from-brand-orange/10 to-transparent border-brand-orange/30 shadow-lg shadow-brand-orange/5"
                                     : "bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/[0.07]"
                                 }
                             `}
@@ -176,7 +176,7 @@ function DonationSettingsContent() {
                                     disabled={camp.is_active}
                                     title={camp.is_active ? "Dit is de actieve campagne" : "Maak deze campagne actief"}
                                     className={`
-                                        flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all
+                                        shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all
                                         ${camp.is_active
                                             ? "bg-green-500 text-white cursor-default shadow-md shadow-green-500/20"
                                             : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/5"

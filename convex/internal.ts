@@ -61,12 +61,22 @@ export const getRegistrationByEmail = query({
     },
 });
 
-// Internal mutation to update a registration (e.g. status, notes)
+// Internal mutation to update a registration (e.g. status, notes, edit profile)
+// Modified for admin and user self-service
 export const updateRegistration = internalMutation({
     args: {
         id: v.id("registrations"),
         status: v.optional(v.union(v.literal("pending"), v.literal("paid"), v.literal("cancelled"))),
         notes: v.optional(v.string()),
+        // Editable fields
+        name: v.optional(v.string()),
+        email: v.optional(v.string()),
+        role: v.optional(v.union(v.literal("deelnemer"), v.literal("begeleider"), v.literal("vrijwilliger"))),
+        distance: v.optional(v.union(v.literal("2.5"), v.literal("6"), v.literal("10"), v.literal("15"))),
+        iceName: v.optional(v.string()),
+        icePhone: v.optional(v.string()),
+        supportNeeded: v.optional(v.union(v.literal("ja"), v.literal("nee"), v.literal("anders"))),
+        supportDescription: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const { id, ...updates } = args;

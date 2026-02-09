@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { $accessToken, logout } from "../../lib/auth";
-import { useAction } from "convex/react";
+import { useAction, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
 import type { Doc } from "../../../convex/_generated/dataModel";
@@ -54,42 +54,47 @@ export default function ParticipantDashboardWrapper() {
     );
 }
 
+import ParticipantEditModal from "./ParticipantEditModal";
+import { RefreshCw, Edit2, Calendar, MapPin } from "lucide-react";
+
 function DashboardContent({ token }: { token: string }) {
     const getDashboardData = useAction(api.participant.getDashboardData);
-    const [data, setData] = useState<DashboardData | null>(null); // ✅ Type-safe
+    const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
 
-    // ✅ Get tenant from environment (PUBLIC_TENANT_ID in .env)
     const tenantId = import.meta.env.PUBLIC_TENANT_ID ||
         import.meta.env.PUBLIC_DEV_TENANT_ID ||
         "b2727666-7230-4689-b58b-ceab8c2898d5";
 
-    // ✅ Optimized dependency array
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const result = await getDashboardData({ token, tenantId });
-                setData(result);
-            } catch (err: any) {
-                console.error("Dashboard load error:", err);
+    // Fetch event settings
+    const eventSettings = useQuery(api.eventSettings.getActiveSettings);
 
-                if (err.message.includes("Unauthorized") || err.message.includes("Auth verification failed")) {
-                    logout();
-                    setError("Toegang geweigerd. Log opnieuw in.");
-                } else {
-                    setError("Kon gegevens niet ophalen.");
-                }
-            } finally {
-                setLoading(false);
+    const loadData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const result = await getDashboardData({ token, tenantId });
+            setData(result);
+            setError(null);
+        } catch (err: any) {
+            console.error("Dashboard load error:", err);
+            if (err.message.includes("Unauthorized") || err.message.includes("Auth verification failed")) {
+                logout();
+                setError("Toegang geweigerd. Log opnieuw in.");
+            } else {
+                setError("Kon gegevens niet ophalen.");
             }
-        };
+        } finally {
+            setLoading(false);
+        }
+    }, [token, tenantId, getDashboardData]);
 
-        load();
-    }, [token]); // ✅ Removed getDashboardData dependency
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
-    // ✅ Proper logout handler with loading state
     const handleLogout = useCallback(async () => {
         setIsLoggingOut(true);
         try {
@@ -100,7 +105,7 @@ function DashboardContent({ token }: { token: string }) {
         }
     }, []);
 
-    if (loading) {
+    if (loading && !data) {
         return (
             <div
                 className="text-text-body text-center p-10 animate-pulse"
@@ -148,24 +153,26 @@ function DashboardContent({ token }: { token: string }) {
     }
 
     const { registration } = data;
-    // ✅ Basic sanitization
     const safeName = registration.name.trim().substring(0, 100);
+    const eventDate = eventSettings?.event_date_display || "Datum volgt";
 
     return (
-        <div className="space-y-8 animate-fade-in">
+        <div className="space-y-8 animate-fade-in relative z-10">
             {/* Status Card */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
-                    <div>
-                        <h2 className="text-xl md:text-2xl font-bold text-text-body mb-2">
-                            Hallo, {safeName}! 👋
-                        </h2>
-                        <p className="text-text-muted">
-                            Je bent geregistreerd als{" "}
-                            <span className="text-text-body font-medium capitalize">
-                                {registration.role}
-                            </span>.
-                        </p>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <h2 className="text-xl md:text-2xl font-bold text-text-body mb-2">
+                                Hallo, {safeName}!
+                            </h2>
+                            <p className="text-text-muted">
+                                Je bent geregistreerd als{" "}
+                                <span className="text-text-body font-medium capitalize">
+                                    {registration.role}
+                                </span>.
+                            </p>
+                        </div>
                     </div>
 
                     <div className="bg-glass-bg rounded-xl p-4 md:p-6 space-y-4 border border-glass-border">
@@ -182,7 +189,7 @@ function DashboardContent({ token }: { token: string }) {
                         <div className="flex justify-between items-center">
                             <span className="text-text-muted">Ondersteuning</span>
                             <span className="text-text-body capitalize">
-                                {registration.supportNeeded}
+                                {registration.supportNeeded || 'Nee'}
                             </span>
                         </div>
                     </div>
@@ -191,27 +198,56 @@ function DashboardContent({ token }: { token: string }) {
                 {/* Actions / Info */}
                 <div className="space-y-6">
                     <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-xl p-4 md:p-6">
-                        <h3 className="text-lg font-bold text-text-body mb-2">
-                            🗓️ Zondag 26 April 2026
+                        <h3 className="text-lg font-bold text-text-body mb-2 flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-brand-orange" />
+                            {eventDate}
                         </h3>
+                        {eventSettings?.location_city && (
+                            <div className="flex items-center gap-2 text-text-muted text-sm mb-2">
+                                <MapPin className="w-4 h-4 text-brand-orange/80" />
+                                {eventSettings.location_city}
+                            </div>
+                        )}
                         <p className="text-text-muted text-sm">
                             Zet het in je agenda! Meer informatie over starttijden en routes volgt binnenkort via e-mail.
                         </p>
                     </div>
 
-                    <div className="flex justify-center md:justify-end">
+                    <div className="space-y-3">
                         <Button
-                            onClick={handleLogout}
-                            variant="ghost"
-                            disabled={isLoggingOut}
-                            aria-label="Uitloggen van je account"
-                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10 min-h-[44px] w-full md:w-auto"
+                            onClick={() => setShowEditModal(true)}
+                            variant="default"
+                            className="bg-brand-orange text-white hover:bg-orange-400 w-full min-h-[44px] shadow-lg shadow-brand-orange/20 flex items-center justify-center gap-2"
                         >
-                            {isLoggingOut ? "Uitloggen..." : "Uitloggen"}
+                            <Edit2 className="w-4 h-4" />
+                            Wijzig Gegevens
                         </Button>
+
+                        <div className="flex justify-center md:justify-end">
+                            <Button
+                                onClick={handleLogout}
+                                variant="ghost"
+                                disabled={isLoggingOut}
+                                aria-label="Uitloggen van je account"
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 min-h-[44px] w-full md:w-auto"
+                            >
+                                {isLoggingOut ? "Uitloggen..." : "Uitloggen"}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* Edit Modal */}
+            {showEditModal && (
+                <ParticipantEditModal
+                    registration={registration}
+                    token={token}
+                    tenantId={tenantId}
+                    onClose={() => setShowEditModal(false)}
+                    onUpdate={loadData}
+                />
+            )}
         </div>
     );
 }

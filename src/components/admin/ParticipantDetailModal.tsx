@@ -1,4 +1,4 @@
-import { X, User, Mail, Phone, MapPin, Calendar, CreditCard, Shield, StickyNote, Save, Trash2, AlertTriangle } from "lucide-react";
+import { X, User, Mail, Phone, MapPin, StickyNote, Save, Trash2, AlertTriangle, Shield, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -28,14 +28,29 @@ interface Props {
 
 export default function ParticipantDetailModal({ registration, onClose, onUpdate }: Props) {
     const accessToken = useStore($accessToken);
-    const [notes, setNotes] = useState(registration.notes || "");
-    const [status, setStatus] = useState(registration.status);
+
+    // Form State
+    const [formData, setFormData] = useState({
+        name: registration.name,
+        email: registration.email,
+        role: registration.role,
+        distance: registration.distance || "5", // Default fallback
+        status: registration.status,
+        iceName: registration.iceName || "",
+        icePhone: registration.icePhone || "",
+        notes: registration.notes || ""
+    });
+
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const updateRegistration = useAction(api.admin.updateRegistration);
     const deleteRegistration = useAction(api.admin.deleteRegistration);
+
+    const handleChange = (field: string, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
 
     const handleSave = async () => {
         if (!accessToken) return;
@@ -44,8 +59,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
             await updateRegistration({
                 token: accessToken,
                 id: registration._id as Id<"registrations">,
-                status,
-                notes
+                ...formData
             });
             onUpdate();
             onClose();
@@ -124,30 +138,26 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-            {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             />
 
-            {/* Modal Card */}
             <div className="relative w-full max-w-2xl bg-surface/95 dark:bg-surface/90 backdrop-blur-xl rounded-2xl border border-glass-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
 
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-glass-border flex items-center justify-between bg-white/5">
                     <div>
                         <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-                            {registration.name}
+                            Deelnemer Bewerken
                             {registration.userType === 'authenticated' && (
                                 <span className="p-1 rounded-full bg-brand-orange/10 text-brand-orange" title="Geverifieerd Account">
                                     <Shield className="w-4 h-4" />
                                 </span>
                             )}
                         </h2>
-                        <p className="text-sm text-text-muted flex items-center gap-2 mt-1">
-                            <span>ID: <span className="font-mono text-xs">{registration._id.slice(-8)}</span></span>
-                            <span>•</span>
-                            <span>{new Date(registration.createdAt).toLocaleDateString()}</span>
+                        <p className="text-sm text-text-muted mt-0.5">
+                            ID: <span className="font-mono text-xs">{registration._id.slice(-8)}</span>
                         </p>
                     </div>
                     <button
@@ -158,127 +168,149 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                     </button>
                 </div>
 
-                {/* Content - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                {/* Content - Scrollable Form */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
-                    {/* Key Stats / Status Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Status Selection */}
-                        <div className="p-4 rounded-xl bg-white/5 border border-glass-border space-y-3">
-                            <label className="text-xs font-semibold text-text-muted uppercase tracking-wider flex items-center gap-2">
-                                <Shield className="w-4 h-4 text-brand-orange" />
-                                Deelname Status
-                            </label>
-                            <div className="relative">
+                    {/* Primary Info Group */}
+                    <div className="space-y-4">
+                        <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Persoonlijke Gegevens</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Naam</label>
+                                <div className="relative">
+                                    <User className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
+                                    <input
+                                        type="text"
+                                        value={formData.name}
+                                        onChange={(e) => handleChange("name", e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
+                                        placeholder="Volledige naam"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Email</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
+                                    <input
+                                        type="email"
+                                        value={formData.email}
+                                        onChange={(e) => handleChange("email", e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
+                                        placeholder="Email adres"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Participation Details */}
+                    <div className="space-y-4 pt-2 border-t border-white/5">
+                        <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Deelname Details</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Rol</label>
                                 <select
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                    className="w-full bg-app-bg px-4 py-3 rounded-xl border border-glass-border text-text-primary text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 transition-all outline-none appearance-none"
+                                    value={formData.role}
+                                    onChange={(e) => handleChange("role", e.target.value)}
+                                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
+                                >
+                                    <option value="deelnemer" className="bg-slate-900">Deelnemer</option>
+                                    <option value="begeleider" className="bg-slate-900">Begeleider</option>
+                                    <option value="vrijwilliger" className="bg-slate-900">Vrijwilliger</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Afstand</label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
+                                    <select
+                                        value={formData.distance}
+                                        onChange={(e) => handleChange("distance", e.target.value)}
+                                        className="w-full pl-10 pr-8 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
+                                    >
+                                        <option value="2.5" className="bg-slate-900">2.5 km</option>
+                                        <option value="6" className="bg-slate-900">6 km</option>
+                                        <option value="10" className="bg-slate-900">10 km</option>
+                                        <option value="15" className="bg-slate-900">15 km</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Status</label>
+                                <select
+                                    value={formData.status}
+                                    onChange={(e) => handleChange("status", e.target.value)}
+                                    className={`w-full px-3 py-2 rounded-xl border border-glass-border text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none ${formData.status === 'paid' ? 'bg-green-500/10 text-green-400 border-green-500/30' :
+                                            formData.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' :
+                                                'bg-red-500/10 text-red-400 border-red-500/30'
+                                        }`}
                                 >
                                     <option value="paid" className="bg-slate-900 text-gray-100">✅ Geaccepteerd</option>
                                     <option value="pending" className="bg-slate-900 text-gray-100">⏳ In behandeling</option>
                                     <option value="cancelled" className="bg-slate-900 text-gray-100">❌ Geannuleerd</option>
                                 </select>
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Distance Display (Could be editable) */}
-                        <div className="p-4 rounded-xl bg-white/5 border border-glass-border space-y-2">
-                            <label className="text-xs font-semibold text-text-muted uppercase tracking-wider flex items-center gap-2">
-                                <MapPin className="w-4 h-4" />
-                                Afstand & Rol
-                            </label>
-                            <div className="flex items-center gap-2 text-text-primary font-medium">
-                                <div className="px-2.5 py-1 rounded-md bg-brand-orange/10 text-brand-orange text-sm">
-                                    {registration.distance || 'N/A'} km
-                                </div>
-                                <span className="text-text-muted">•</span>
-                                <div className="text-sm capitalize">
-                                    {registration.role}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Contact Info */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-semibold text-text-primary border-b border-glass-border pb-2">
-                            Contactgegevens
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-text-muted text-xs">Email</span>
-                                <div className="flex items-center gap-2 text-text-primary font-medium truncate">
-                                    <Mail className="w-4 h-4 text-text-muted shrink-0" />
-                                    <a href={`mailto:${registration.email}`} className="hover:text-brand-orange hover:underline truncate">
-                                        {registration.email}
-                                    </a>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                                <span className="text-text-muted text-xs">Telefoon (N/A)</span>
-                                <div className="flex items-center gap-2 text-text-muted italic">
-                                    <Phone className="w-4 h-4 shrink-0" />
-                                    <span>Niet opgegeven</span>
-                                </div>
                             </div>
                         </div>
                     </div>
 
                     {/* ICE Contact */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-semibold text-text-primary border-b border-glass-border pb-2">
-                            Noodcontact (ICE)
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-text-muted text-xs">Naam</span>
-                                <div className="flex items-center gap-2 text-text-primary font-medium">
-                                    <User className="w-4 h-4 text-text-muted shrink-0" />
-                                    <span>{registration.iceName || '-'}</span>
-                                </div>
+                    <div className="space-y-4 pt-2 border-t border-white/5">
+                        <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Noodcontact (ICE)</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Naam Contactpersoon</label>
+                                <input
+                                    type="text"
+                                    value={formData.iceName}
+                                    onChange={(e) => handleChange("iceName", e.target.value)}
+                                    className="w-full px-4 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
+                                    placeholder="Naam ICE"
+                                />
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <span className="text-text-muted text-xs">Telefoonnummer</span>
-                                <div className="flex items-center gap-2 text-text-primary font-medium">
-                                    <Phone className="w-4 h-4 text-text-muted shrink-0" />
-                                    <a href={`tel:${registration.icePhone}`} className="hover:text-brand-orange hover:underline">
-                                        {registration.icePhone || '-'}
-                                    </a>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Telefoonnummer</label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
+                                    <input
+                                        type="tel"
+                                        value={formData.icePhone}
+                                        onChange={(e) => handleChange("icePhone", e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
+                                        placeholder="06 12345678"
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Admin Notes */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-semibold text-text-primary border-b border-glass-border pb-2 flex items-center gap-2">
-                            <StickyNote className="w-4 h-4" />
-                            Admin Notities
+                    <div className="space-y-3 pt-2 border-t border-white/5">
+                        <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1 flex items-center gap-2">
+                            <StickyNote className="w-3.5 h-3.5" />
+                            Interne Notities
                         </h3>
                         <textarea
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Voeg interne opmerkingen toe..."
-                            className="w-full min-h-[100px] bg-white/5 border border-glass-border rounded-xl p-3 text-sm text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none resize-none placeholder:text-text-muted/50"
+                            value={formData.notes}
+                            onChange={(e) => handleChange("notes", e.target.value)}
+                            placeholder="Interne notities voor de organisatie..."
+                            className="w-full min-h-[80px] bg-white/5 border border-glass-border rounded-xl p-3 text-sm text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none resize-none placeholder:text-text-muted/30"
                         />
                     </div>
 
                 </div>
 
                 {/* Footer Actions */}
-                <div className="px-6 py-4 border-t border-glass-border bg-white/5 flex items-center justify-between">
+                <div className="px-6 py-4 border-t border-glass-border bg-black/20 flex items-center justify-between backdrop-blur-md">
                     <button
                         onClick={() => setShowDeleteConfirm(true)}
-                        className="px-4 py-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors text-sm font-medium flex items-center gap-2"
+                        className="px-4 py-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors text-sm font-medium flex items-center gap-2 group"
                     >
-                        <Trash2 className="w-4 h-4" />
-                        Verwijderen
+                        <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                        <span className="hidden sm:inline">Verwijderen</span>
                     </button>
                     <div className="flex items-center gap-3">
                         <button
@@ -290,7 +322,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                         <button
                             onClick={handleSave}
                             disabled={isLoading}
-                            className="px-6 py-2 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
                         >
                             {isLoading && !isDeleting ? (
                                 <>
