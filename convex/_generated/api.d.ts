@@ -9,6 +9,7 @@
  */
 
 import type * as admin from "../admin.js";
+import type * as adminTasks from "../adminTasks.js";
 import type * as archive from "../archive.js";
 import type * as auth from "../auth.js";
 import type * as chat from "../chat.js";
@@ -41,6 +42,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
+  adminTasks: typeof adminTasks;
   archive: typeof archive;
   auth: typeof auth;
   chat: typeof chat;

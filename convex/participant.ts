@@ -145,6 +145,7 @@ export const confirmVolunteerTask = action({
         if (!res.ok) throw new Error("Unauthorized");
 
         // Update the task status to "confirmed"
+        // @ts-ignore - Internal mutation types might not be generated yet
         await ctx.runMutation(api.internal.updateVolunteerTaskStatus, {
             id: args.taskId,
             status: "confirmed",

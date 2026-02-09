@@ -178,3 +178,62 @@ export const updateVolunteerTaskStatus = internalMutation({
         await ctx.db.patch(args.id, { status: args.status });
     },
 });
+
+// Admin: create a volunteer task
+export const createVolunteerTask = internalMutation({
+    args: {
+        registrationId: v.id("registrations"),
+        title: v.string(),
+        description: v.optional(v.string()),
+        location: v.optional(v.string()),
+        startTime: v.optional(v.string()),
+        endTime: v.optional(v.string()),
+        assignedBy: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        return await ctx.db.insert("volunteer_tasks", {
+            ...args,
+            status: "assigned",
+            createdAt: Date.now(),
+        });
+    },
+});
+
+// Admin: delete a volunteer task
+export const deleteVolunteerTask = internalMutation({
+    args: { id: v.id("volunteer_tasks") },
+    handler: async (ctx, args) => {
+        await ctx.db.delete(args.id);
+    },
+});
+
+// Admin: list all volunteer tasks with registration info
+export const listVolunteerTasks = query({
+    args: {},
+    handler: async (ctx) => {
+        const tasks = await ctx.db.query("volunteer_tasks").order("desc").collect();
+        const tasksWithNames = await Promise.all(
+            tasks.map(async (task) => {
+                const reg = await ctx.db.get(task.registrationId);
+                return { ...task, volunteerName: reg?.name || "Onbekend", volunteerEmail: reg?.email || "" };
+            })
+        );
+        return tasksWithNames;
+    },
+});
+
+// Admin: list all vrijwilliger registrations (for assignment dropdown)
+export const listVolunteerRegistrations = query({
+    args: {},
+    handler: async (ctx) => {
+        const all = await ctx.db.query("registrations").collect();
+        return all.filter(r => r.role === "vrijwilliger").map(r => ({
+            _id: r._id,
+            name: r.name,
+            email: r.email,
+            distance: r.distance,
+            status: r.status,
+        }));
+    },
+});
+
