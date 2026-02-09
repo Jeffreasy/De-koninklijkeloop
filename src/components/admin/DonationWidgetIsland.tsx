@@ -67,7 +67,7 @@ function DonationWidgetContent() {
                     href={activeCampaign.gofundme_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 group"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-white shadow-lg shadow-brand-orange/20 hover:shadow-brand-orange/40 transform hover:-translate-y-0.5 transition-all bg-linear-to-r from-brand-orange via-brand-orange to-red-500 bg-size-[200%_auto] animate-gradient group"
                 >
                     <span>Bekijk op GoFundMe</span>
                     <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -86,7 +86,7 @@ function DonationWidgetContent() {
                     {/* The Widget Wrapper */}
                     <div className="w-full max-w-[500px] bg-white rounded-2xl shadow-2xl shadow-black/80 overflow-hidden transform transition-transform duration-500 hover:scale-[1.005]">
                         {/* Header Bar simulation for authenticity */}
-                        <div className="h-2 w-full bg-gradient-to-r from-[#00b964] via-[#00b964] to-[#00a055]"></div>
+                        <div className="h-2 w-full bg-linear-to-r from-[#00b964] via-[#00b964] to-[#00a055]"></div>
 
                         <iframe
                             src={activeCampaign.gofundme_url.replace('/widget/large', '/widget/medium')}

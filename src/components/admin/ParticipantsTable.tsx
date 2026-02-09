@@ -1,4 +1,5 @@
-import { Users, Filter, Mail, Phone, MapPin, Search, ChevronLeft, ChevronRight, Download, ChevronsUpDown, ShieldCheck, UserCircle, User, Archive, Calendar } from "lucide-react";
+import { Users, Filter, Mail, Phone, MapPin, Search, ChevronLeft, ChevronRight, Download, ChevronsUpDown, ShieldCheck, UserCircle, User, Archive, Calendar, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { useState, useMemo, useEffect } from "react";
 import { useStore } from "@nanostores/react";
@@ -240,115 +241,109 @@ export default function ParticipantsTable() {
     }
 
     return (
-        <div className="space-y-6">
-            {/* Stats Cards - Compact Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-                <div className="glass-card p-3 md:p-4">
-                    <div className="text-text-muted text-xs uppercase tracking-wider mb-1">Totaal</div>
-                    <div className="text-xl md:text-2xl font-bold text-text-primary">{stats.total}</div>
-                </div>
-                <div className="glass-card p-3 md:p-4">
-                    <div className="text-text-muted text-xs uppercase tracking-wider mb-1">Deelnemers</div>
-                    <div className="text-xl md:text-2xl font-bold text-brand-orange">{stats.deelnemers}</div>
-                </div>
-                <div className="glass-card p-3 md:p-4">
-                    <div className="text-text-muted text-xs uppercase tracking-wider mb-1">Begeleiders</div>
-                    <div className="text-xl md:text-2xl font-bold text-blue-400">{stats.begeleiders}</div>
-                </div>
-                <div className="glass-card p-3 md:p-4">
-                    <div className="text-text-muted text-xs uppercase tracking-wider mb-1">Vrijwilligers</div>
-                    <div className="text-xl md:text-2xl font-bold text-green-400">{stats.vrijwilligers}</div>
-                </div>
-                <div className="glass-card p-3 md:p-4 border-2 border-brand-orange/20">
-                    <div className="text-text-muted text-xs uppercase tracking-wider mb-1 flex items-center gap-1">
-                        Accounts
-                    </div>
-                    <div className="text-xl md:text-2xl font-bold text-brand-orange">{stats.authenticated}</div>
-                </div>
-                <div className="glass-card p-3 md:p-4 border-2 border-purple-500/20">
-                    <div className="text-text-muted text-xs uppercase tracking-wider mb-1 flex items-center gap-1">
-                        Gasten
-                    </div>
-                    <div className="text-xl md:text-2xl font-bold text-purple-400">{stats.guests}</div>
-                </div>
+        <div className="space-y-8 animate-fade-in">
+            {/* Stats Cards - Premium Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {[
+                    { label: "Totaal", value: stats.total, color: "text-white", bg: "bg-white/5", border: "border-white/10" },
+                    { label: "Deelnemers", value: stats.deelnemers, color: "text-brand-orange", bg: "bg-brand-orange/5", border: "border-brand-orange/20" },
+                    { label: "Begeleiders", value: stats.begeleiders, color: "text-blue-400", bg: "bg-blue-500/5", border: "border-blue-500/20" },
+                    { label: "Vrijwilligers", value: stats.vrijwilligers, color: "text-green-400", bg: "bg-green-500/5", border: "border-green-500/20" },
+                    { label: "Accounts", value: stats.authenticated, color: "text-purple-300", bg: "bg-purple-500/5", border: "border-purple-500/20", icon: ShieldCheck },
+                    { label: "Gasten", value: stats.guests, color: "text-pink-300", bg: "bg-pink-500/5", border: "border-pink-500/20", icon: User }
+                ].map((stat, idx) => (
+                    <motion.div
+                        key={stat.label}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className={`glass-card p-4 border ${stat.border} ${stat.bg} relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300`}
+                    >
+                        <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                            {stat.icon ? <stat.icon className="w-8 h-8" /> : <Users className="w-8 h-8" />}
+                        </div>
+                        <div className="text-text-muted text-xs uppercase tracking-wider mb-1 font-medium z-10 relative">{stat.label}</div>
+                        <div className={`text-2xl font-bold font-display ${stat.color} z-10 relative`}>{stat.value}</div>
+                    </motion.div>
+                ))}
             </div>
 
             {/* Main Action Bar */}
-            <div className="glass-card p-4 space-y-4">
-                <div className="flex flex-col xl:flex-row gap-4 justify-between">
+            <div className="glass-card p-5 space-y-5 border border-white/10 shadow-2xl bg-black/40 backdrop-blur-xl rounded-2xl">
+                <div className="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
                     {/* Search & Filters Group */}
-                    <div className="flex flex-col md:flex-row gap-3 flex-1">
+                    <div className="flex flex-col md:flex-row gap-3 flex-1 w-full">
                         {/* Search */}
-                        <div className="relative flex-1 md:max-w-xs">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                        <div className="relative flex-1 group">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Search className="h-4 w-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
+                            </div>
                             <input
                                 type="text"
-                                placeholder="Zoek op naam, email..."
+                                placeholder="Zoek op naam, email of ID..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all"
+                                className="block w-full pl-10 pr-3 py-2.5 border border-white/10 rounded-xl leading-5 bg-white/5 text-text-primary placeholder-text-muted focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-brand-orange/50 focus:border-brand-orange/50 sm:text-sm transition-all"
                             />
                         </div>
 
-                        {/* Edition Toggle */}
-                        <div className="flex bg-glass-border/30 rounded-xl p-1 border border-glass-border">
-                            <button
-                                onClick={() => setEditionFilter("2026")}
-                                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${editionFilter === "2026" ? "bg-brand-orange text-white shadow-lg" : "text-text-muted hover:text-text-primary"}`}
-                            >
-                                2026
-                            </button>
-                            <button
-                                onClick={() => setEditionFilter("2025")}
-                                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${editionFilter === "2025" ? "bg-brand-orange text-white shadow-lg" : "text-text-muted hover:text-text-primary"}`}
-                            >
-                                2025
-                            </button>
-                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {/* Edition Toggle */}
+                            <div className="flex bg-black/20 rounded-xl p-1 border border-white/5">
+                                {["2026", "2025"].map((year) => (
+                                    <button
+                                        key={year}
+                                        onClick={() => setEditionFilter(year)}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${editionFilter === year ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-white hover:bg-white/5"}`}
+                                    >
+                                        {year}
+                                    </button>
+                                ))}
+                            </div>
 
-                        {/* Import Button (Only visible in 2025 view) */}
-                        {editionFilter === "2025" && (
-                            <button
-                                onClick={handleImport2025}
-                                disabled={isImporting}
-                                className="px-3 py-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-sm flex items-center gap-2"
-                            >
-                                <Archive className="w-4 h-4" />
-                                {isImporting ? "Bezig..." : "Importeer Data"}
-                            </button>
-                        )}
-                        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+                            {/* Import Button (2025 only) */}
+                            {editionFilter === "2025" && (
+                                <button
+                                    onClick={handleImport2025}
+                                    disabled={isImporting}
+                                    className="px-3 py-2 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-xs font-medium flex items-center gap-1.5 whitespace-nowrap"
+                                >
+                                    <Archive className="w-3.5 h-3.5" />
+                                    {isImporting ? "Bezig..." : "Importeer"}
+                                </button>
+                            )}
+
+                            {/* Filters */}
                             <select
                                 value={userTypeFilter}
                                 onChange={(e) => setUserTypeFilter(e.target.value as UserType)}
-                                className="px-3 py-2.5 rounded-xl bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer"
+                                className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-white/10 transition-colors"
                             >
-                                <option value="all" className="bg-slate-900 text-gray-100">Alle types</option>
-                                <option value="authenticated" className="bg-slate-900 text-gray-100">Accounts</option>
-                                <option value="guest" className="bg-slate-900 text-gray-100">Gasten</option>
+                                <option value="all" className="bg-slate-900">Alle types</option>
+                                <option value="authenticated" className="bg-slate-900">Accounts</option>
+                                <option value="guest" className="bg-slate-900">Gasten</option>
                             </select>
 
                             <select
                                 value={roleFilter}
                                 onChange={(e) => setRoleFilter(e.target.value as Role)}
-                                className="px-3 py-2.5 rounded-xl bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer"
+                                className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-white/10 transition-colors"
                             >
-                                <option value="all" className="bg-slate-900 text-gray-100">Alle rollen</option>
-                                <option value="deelnemer" className="bg-slate-900 text-gray-100">Deelnemer</option>
-                                <option value="begeleider" className="bg-slate-900 text-gray-100">Begeleider</option>
-                                <option value="vrijwilliger" className="bg-slate-900 text-gray-100">Vrijwilliger</option>
+                                <option value="all" className="bg-slate-900">Alle rollen</option>
+                                <option value="deelnemer" className="bg-slate-900">Deelnemer</option>
+                                <option value="begeleider" className="bg-slate-900">Begeleider</option>
+                                <option value="vrijwilliger" className="bg-slate-900">Vrijwilliger</option>
                             </select>
 
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as Status)}
-                                className="px-3 py-2 rounded-lg bg-glass-border/30 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 min-h-[44px]"
-                                aria-label="Filter deelnemers op status"
+                                className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-white/10 transition-colors"
                             >
-                                <option value="all" className="bg-slate-900 text-gray-100">Alle statussen</option>
-                                <option value="paid" className="bg-slate-900 text-gray-100">Geaccepteerd</option>
-                                <option value="pending" className="bg-slate-900 text-gray-100">In behandeling</option>
-                                <option value="cancelled" className="bg-slate-900 text-gray-100">Geannuleerd</option>
+                                <option value="all" className="bg-slate-900">Alle statussen</option>
+                                <option value="paid" className="bg-slate-900">Geaccepteerd</option>
+                                <option value="pending" className="bg-slate-900">In behandeling</option>
+                                <option value="cancelled" className="bg-slate-900">Geannuleerd</option>
                             </select>
                         </div>
                     </div>
@@ -356,201 +351,227 @@ export default function ParticipantsTable() {
                     {/* Export Button */}
                     <button
                         onClick={handleExportCSV}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-glass-border text-text-primary hover:bg-white/10 transition-colors text-sm font-medium whitespace-nowrap"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-linear-to-r from-brand-orange/10 to-brand-orange/5 border border-brand-orange/20 text-brand-orange hover:from-brand-orange/20 hover:to-brand-orange/10 transition-all text-sm font-medium whitespace-nowrap shadow-lg shadow-brand-orange/5 group"
                     >
-                        <Download className="w-4 h-4" />
+                        <Download className="w-4 h-4 group-hover:scale-110 transition-transform" />
                         Export CSV
                     </button>
                 </div>
             </div>
 
-            {/* Data Table */}
-            <div className="glass-card overflow-hidden">
+            {/* Data Display (Desktop Table / Mobile Cards) */}
+            <div className="glass-card overflow-hidden border border-white/10 shadow-2xl bg-black/40 backdrop-blur-xl rounded-2xl min-h-[400px]">
                 {processedRegistrations.length === 0 ? (
-                    <div className="text-center py-16">
-                        <Filter className="w-12 h-12 text-text-muted mx-auto mb-4 opacity-50" />
-                        <h3 className="text-lg font-medium text-text-primary">Geen resultaten gevonden</h3>
-                        <p className="text-text-muted mt-1">Probeer een andere zoekopdracht of filter.</p>
+                    <div className="flex flex-col items-center justify-center py-24 text-center">
+                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
+                            <Filter className="w-8 h-8 text-text-muted opacity-50" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Geen deelnemers gevonden</h3>
+                        <p className="text-text-muted max-w-md">Geen resultaten voor de huidige filters. Probeer een andere zoekopdracht of pas de filters aan.</p>
                         <button
                             onClick={() => { setSearchQuery(""); setUserTypeFilter("all"); setRoleFilter("all"); setStatusFilter("all"); }}
-                            className="mt-4 px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-lg hover:bg-brand-orange/20 transition-colors text-sm font-medium"
+                            className="mt-6 px-6 py-2 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10 transition-colors text-sm font-medium"
                         >
                             Filters wissen
                         </button>
                     </div>
                 ) : (
                     <>
-                        <div className="overflow-x-auto">
+                        {/* Desktop Table View (Hidden on mobile) */}
+                        <div className="hidden md:block overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="border-b border-glass-border bg-white/5">
-                                        <th
-                                            className="text-left py-3 px-4 text-xs font-semibold text-text-muted uppercase tracking-wider cursor-pointer hover:text-brand-orange transition-colors group"
-                                            onClick={() => handleSort("name")}
-                                        >
-                                            <div className="flex items-center gap-1">
-                                                Naam & Rol
-                                                <ChevronsUpDown className={`w-3 h-3 ${sortField === "name" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-brand-orange/50"}`} />
-                                            </div>
+                                    <tr className="border-b border-white/10 bg-white/5">
+                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-white transition-colors group select-none" onClick={() => handleSort("name")}>
+                                            <div className="flex items-center gap-2">Naam & Rol <ChevronsUpDown className={`w-3 h-3 ${sortField === "name" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-white/50"}`} /></div>
                                         </th>
-                                        <th className="text-left py-3 px-4 text-xs font-semibold text-text-muted uppercase tracking-wider hidden md:table-cell">Contact</th>
-                                        <th
-                                            className="text-left py-3 px-4 text-xs font-semibold text-text-muted uppercase tracking-wider cursor-pointer hover:text-brand-orange transition-colors group hidden lg:table-cell"
-                                            onClick={() => handleSort("distance")}
-                                        >
-                                            <div className="flex items-center gap-1">
-                                                Afstand
-                                                <ChevronsUpDown className={`w-3 h-3 ${sortField === "distance" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-brand-orange/50"}`} />
-                                            </div>
+                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider">Contact</th>
+                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-white transition-colors group select-none hidden lg:table-cell" onClick={() => handleSort("distance")}>
+                                            <div className="flex items-center gap-2">Afstand <ChevronsUpDown className={`w-3 h-3 ${sortField === "distance" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-white/50"}`} /></div>
                                         </th>
-                                        <th
-                                            className="text-left py-3 px-4 text-xs font-semibold text-text-muted uppercase tracking-wider cursor-pointer hover:text-brand-orange transition-colors group"
-                                            onClick={() => handleSort("status")}
-                                        >
-                                            <div className="flex items-center gap-1">
-                                                Status
-                                                <ChevronsUpDown className={`w-3 h-3 ${sortField === "status" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-brand-orange/50"}`} />
-                                            </div>
+                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-white transition-colors group select-none" onClick={() => handleSort("status")}>
+                                            <div className="flex items-center gap-2">Status <ChevronsUpDown className={`w-3 h-3 ${sortField === "status" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-white/50"}`} /></div>
                                         </th>
-                                        <th
-                                            className="text-right py-3 px-4 text-xs font-semibold text-text-muted uppercase tracking-wider cursor-pointer hover:text-brand-orange transition-colors group hidden sm:table-cell"
-                                            onClick={() => handleSort("createdAt")}
-                                        >
-                                            <div className="flex items-center justify-end gap-1">
-                                                Datum
-                                                <ChevronsUpDown className={`w-3 h-3 ${sortField === "createdAt" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-brand-orange/50"}`} />
-                                            </div>
+                                        <th className="text-right py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-white transition-colors group select-none hidden xl:table-cell" onClick={() => handleSort("createdAt")}>
+                                            <div className="flex items-center justify-end gap-2">Datum <ChevronsUpDown className={`w-3 h-3 ${sortField === "createdAt" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-white/50"}`} /></div>
                                         </th>
+                                        <th className="w-10"></th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-glass-border">
-                                    {paginatedRegistrations.map((reg) => {
-                                        const { count, editions } = getLoyaltyInfo(reg.email);
-                                        return (
-                                            <tr
-                                                key={reg._id}
-                                                onClick={() => setSelectedRegistration(reg)}
-                                                className="hover:bg-brand-orange/5 transition-colors cursor-pointer group"
-                                            >
-                                                {/* Name & Role */}
-                                                <td className="py-4 px-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${reg.userType === 'authenticated' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-white/10 text-text-muted'}`}>
-                                                            {reg.userType === 'authenticated' ? <ShieldCheck className="w-5 h-5" /> : <User className="w-5 h-5" />}
-                                                        </div>
-                                                        <div>
-                                                            <div className="font-medium text-text-primary group-hover:text-brand-orange transition-colors flex items-center gap-2">
-                                                                {reg.name}
-                                                                {count > 1 && (
-                                                                    <span
-                                                                        className={`text-[10px] px-1.5 py-0.5 rounded-full border shadow-sm cursor-help font-bold ${count >= 3
-                                                                            ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
-                                                                            : "bg-orange-500/10 text-orange-400 border-orange-500/20"
-                                                                            }`}
-                                                                        title={`Deelnames: ${editions.join(", ")}`}
-                                                                    >
-                                                                        {count}x
-                                                                    </span>
-                                                                )}
+                                <tbody className="divide-y divide-white/5">
+                                    <AnimatePresence mode="popLayout">
+                                        {paginatedRegistrations.map((reg, idx) => {
+                                            const { count, editions } = getLoyaltyInfo(reg.email);
+                                            return (
+                                                <motion.tr
+                                                    key={reg._id}
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: 10 }}
+                                                    transition={{ delay: idx * 0.03 }}
+                                                    onClick={() => setSelectedRegistration(reg)}
+                                                    className="group hover:bg-linear-to-r hover:from-brand-orange/5 hover:to-transparent transition-colors cursor-pointer"
+                                                >
+                                                    <td className="py-4 px-6">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border border-white/5 ${reg.userType === 'authenticated' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-white/5 text-text-muted'}`}>
+                                                                {reg.userType === 'authenticated' ? <ShieldCheck className="w-5 h-5" /> : <User className="w-5 h-5" />}
                                                             </div>
-                                                            <div className="text-xs text-text-muted flex items-center gap-1.5 mt-0.5">
-                                                                <span className={`capitalize ${reg.role === "deelnemer" ? "text-brand-orange" :
-                                                                    reg.role === "begeleider" ? "text-blue-400" : "text-green-400"
-                                                                    }`}>
-                                                                    {reg.role}
-                                                                </span>
-                                                                <span>•</span>
-                                                                <span className="font-mono opacity-60">#{reg._id.slice(-6)}</span>
+                                                            <div>
+                                                                <div className="font-medium text-white group-hover:text-brand-orange transition-colors flex items-center gap-2">
+                                                                    {reg.name}
+                                                                    {count > 1 && (
+                                                                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${count >= 3 ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`} title={`Deelnames: ${editions.join(", ")}`}>
+                                                                            {count}x
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="text-xs text-text-muted flex items-center gap-2 mt-1">
+                                                                    <span className={`capitalize px-2 py-0.5 rounded-md bg-white/5 ${reg.role === "deelnemer" ? "text-brand-orange bg-brand-orange/5" :
+                                                                        reg.role === "begeleider" ? "text-blue-400 bg-blue-500/5" : "text-green-400 bg-green-500/5"
+                                                                        }`}>{reg.role}</span>
+                                                                    <span className="font-mono opacity-40">#{reg._id.slice(-6)}</span>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-
-                                                {/* Contact (Hidden on mobile) */}
-                                                <td className="py-4 px-4 hidden md:table-cell">
-                                                    <div className="flex flex-col gap-1 text-sm">
-                                                        <div className="flex items-center gap-2 text-text-primary">
-                                                            <Mail className="w-3.5 h-3.5 text-text-muted" />
-                                                            <span className="truncate max-w-[180px]">{reg.email}</span>
-                                                        </div>
-                                                        {reg.icePhone && (
-                                                            <div className="flex items-center gap-2 text-text-muted text-xs">
-                                                                <Phone className="w-3 h-3" />
-                                                                <span>ICE: {reg.icePhone}</span>
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        <div className="flex flex-col gap-1 text-sm">
+                                                            <div className="flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
+                                                                <Mail className="w-3.5 h-3.5 text-text-muted" />
+                                                                <span className="truncate max-w-[180px]">{reg.email}</span>
                                                             </div>
-                                                        )}
-                                                    </div>
-                                                </td>
-
-                                                {/* Distance */}
-                                                <td className="py-4 px-4 hidden lg:table-cell">
-                                                    {reg.distance ? (
-                                                        <span className="px-2.5 py-1 rounded-md bg-white/5 border border-glass-border text-sm font-medium">
-                                                            {reg.distance} km
+                                                            {reg.icePhone && (
+                                                                <div className="flex items-center gap-2 text-text-muted text-xs">
+                                                                    <Phone className="w-3 h-3" />
+                                                                    <span>ICE: {reg.icePhone}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-6 hidden lg:table-cell">
+                                                        {reg.distance ? <span className="text-sm font-medium text-white/90">{reg.distance} km</span> : <span className="text-text-muted text-sm">-</span>}
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${reg.status === "paid" ? "bg-green-500/10 text-green-400 border-green-500/20" :
+                                                            reg.status === "pending" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
+                                                                "bg-red-500/10 text-red-500 border-red-500/20"
+                                                            }`}>
+                                                            {reg.status === "paid" ? "Geaccepteerd" : reg.status === "pending" ? "In behandeling" : "Geannuleerd"}
                                                         </span>
-                                                    ) : (
-                                                        <span className="text-text-muted text-sm">-</span>
-                                                    )}
-                                                </td>
-
-                                                {/* Status */}
-                                                <td className="py-4 px-4">
-                                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${reg.status === "paid" ? "bg-green-500/10 text-green-500 border-green-500/20" :
-                                                        reg.status === "pending" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
-                                                            "bg-red-500/10 text-red-500 border-red-500/20"
-                                                        }`}>
-                                                        {reg.status === "paid" ? "Geaccepteerd" :
-                                                            reg.status === "pending" ? "In behandeling" :
-                                                                "Geannuleerd"}
-                                                    </span>
-                                                </td>
-
-                                                {/* Date */}
-                                                <td className="py-4 px-4 text-right text-text-muted text-sm hidden sm:table-cell">
-                                                    {new Date(reg.createdAt).toLocaleDateString()}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
+                                                    </td>
+                                                    <td className="py-4 px-6 text-right text-text-muted text-sm hidden xl:table-cell font-mono">
+                                                        {new Date(reg.createdAt).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="py-4 px-6 text-right">
+                                                        <ChevronRight className="w-5 h-5 text-text-muted group-hover:text-brand-orange opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                                                    </td>
+                                                </motion.tr>
+                                            );
+                                        })}
+                                    </AnimatePresence>
                                 </tbody>
                             </table>
                         </div>
 
-                        {/* Pagination Footer */}
-                        <div className="px-6 py-4 border-t border-glass-border flex items-center justify-between">
-                            <span className="text-sm text-text-muted">
-                                Tonen <span className="font-medium text-text-primary">{(currentPage - 1) * itemsPerPage + 1}</span> tot <span className="font-medium text-text-primary">{Math.min(currentPage * itemsPerPage, processedRegistrations.length)}</span> van <span className="font-medium text-text-primary">{processedRegistrations.length}</span> resultaten
-                            </span>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    disabled={currentPage === 1}
-                                    className="p-2 rounded-lg hover:bg-white/5 text-text-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    <ChevronLeft className="w-5 h-5" />
-                                </button>
-                                <span className="text-sm font-medium px-2">Pagina {currentPage}</span>
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className="p-2 rounded-lg hover:bg-white/5 text-text-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    <ChevronRight className="w-5 h-5" />
-                                </button>
-                            </div>
+                        {/* Mobile Card View (Visible on mobile) */}
+                        <div className="md:hidden p-4 space-y-4">
+                            <AnimatePresence mode="popLayout">
+                                {paginatedRegistrations.map((reg, idx) => {
+                                    const { count } = getLoyaltyInfo(reg.email);
+                                    return (
+                                        <motion.div
+                                            key={reg._id}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ delay: idx * 0.05 }}
+                                            onClick={() => setSelectedRegistration(reg)}
+                                            className="bg-white/5 border border-white/10 rounded-xl p-4 active:scale-[0.98] transition-all"
+                                        >
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border border-white/5 ${reg.userType === 'authenticated' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-white/5 text-text-muted'}`}>
+                                                        {reg.userType === 'authenticated' ? <ShieldCheck className="w-5 h-5" /> : <User className="w-5 h-5" />}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-bold text-white text-base">{reg.name}</div>
+                                                        <div className="text-xs text-text-muted flex gap-2 items-center">
+                                                            <span className="capitalize text-brand-orange">{reg.role}</span>
+                                                            {count > 1 && <span className="bg-white/10 px-1.5 rounded text-[10px]">{count}x</span>}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${reg.status === "paid" ? "bg-green-500/10 text-green-400 border-green-500/20" :
+                                                    reg.status === "pending" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
+                                                        "bg-red-500/10 text-red-500 border-red-500/20"
+                                                    }`}>
+                                                    {reg.status === "paid" ? "OK" : reg.status === "pending" ? "Wacht" : "Nee"}
+                                                </span>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                                                <div className="bg-black/40 rounded-lg p-2.5 border border-white/5">
+                                                    <div className="text-white/60 mb-0.5 text-[10px] uppercase tracking-wider">Email</div>
+                                                    <div className="text-white truncate">{reg.email}</div>
+                                                </div>
+                                                <div className="bg-black/40 rounded-lg p-2.5 border border-white/5">
+                                                    <div className="text-white/60 mb-0.5 text-[10px] uppercase tracking-wider">Afstand</div>
+                                                    <div className="text-white font-medium">{reg.distance ? `${reg.distance} km` : '-'}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                                                <span className="text-[10px] text-text-muted font-mono">{new Date(reg.createdAt).toLocaleDateString()}</span>
+                                                <div className="flex items-center gap-1 text-xs text-brand-orange font-medium">
+                                                    Details <ChevronRight className="w-3 h-3" />
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </AnimatePresence>
                         </div>
                     </>
                 )}
+
+                {/* Pagination Footer */}
+                <div className="px-6 py-4 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 bg-white/2">
+                    <span className="text-xs text-text-muted text-center md:text-left">
+                        Tonen <span className="font-bold text-white">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="font-bold text-white">{Math.min(currentPage * itemsPerPage, processedRegistrations.length)}</span> van <span className="font-bold text-white">{processedRegistrations.length}</span>
+                    </span>
+                    <div className="flex items-center gap-2 bg-black/20 p-1 rounded-xl border border-white/5">
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded-lg hover:bg-white/10 text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <span className="text-xs font-medium px-3 text-white min-w-12 text-center">
+                            {currentPage} / {totalPages || 1}
+                        </span>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 rounded-lg hover:bg-white/10 text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* Detail Modal */}
-            {selectedRegistration && (
-                <ParticipantDetailModal
-                    registration={selectedRegistration}
-                    onClose={() => setSelectedRegistration(null)}
-                    onUpdate={fetchRegistrations}
-                />
-            )}
+            <AnimatePresence>
+                {selectedRegistration && (
+                    <ParticipantDetailModal
+                        registration={selectedRegistration}
+                        onClose={() => setSelectedRegistration(null)}
+                        onUpdate={fetchRegistrations}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 }
