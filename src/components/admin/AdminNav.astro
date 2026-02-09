@@ -3,7 +3,48 @@
 // Get user data from auth context
 const user = Astro.locals.user;
 const userName = user?.name || "Admin User";
-const userRole = user?.role || "Beheerder";
+const userRole = user?.role || "admin";
+
+// Role display configuration
+const roleConfig: Record<
+  string,
+  { label: string; color: string; bg: string; border: string; icon: string }
+> = {
+  admin: {
+    label: "Administrator",
+    color: "text-red-400",
+    bg: "bg-red-500/10",
+    border: "border-red-500/20",
+    icon: "lucide:shield-check",
+  },
+  editor: {
+    label: "Editor",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    icon: "lucide:pencil-ruler",
+  },
+  viewer: {
+    label: "Viewer",
+    color: "text-sky-400",
+    bg: "bg-sky-500/10",
+    border: "border-sky-500/20",
+    icon: "lucide:eye",
+  },
+  user: {
+    label: "Gebruiker",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/20",
+    icon: "lucide:user",
+  },
+};
+const role = roleConfig[userRole] || roleConfig.viewer;
+
+// Time-based greeting
+const hour = new Date().getHours();
+const greeting =
+  hour < 12 ? "Goedemorgen" : hour < 18 ? "Goedemiddag" : "Goedenavond";
 
 // Sidebar Navigation Links
 const allNavItems = [
@@ -49,6 +90,7 @@ const getInitials = (name: string) => {
   );
 };
 const initials = getInitials(userName);
+const firstName = userName.split(" ")[0];
 ---
 
 <!-- Mobile Backdrop Overlay -->
@@ -121,32 +163,79 @@ const initials = getInitials(userName);
     }
   </nav>
 
-  <!-- User Profile (Desktop) - Enhanced -->
-  <div
-    class="p-4 border-t border-glass-border/50 bg-linear-to-t from-glass-bg/30 to-transparent"
-  >
+  <!-- User Profile (Desktop) - Premium -->
+  <div class="p-4 border-t border-glass-border/50">
     <a
       href="/admin/profiel"
       class:list={[
-        "flex items-center gap-3 p-3 rounded-xl bg-linear-to-br from-glass-bg/40 to-glass-bg/20 hover:from-glass-bg/60 hover:to-glass-bg/30 border border-glass-border/30 hover:border-glass-border transition-all duration-200 cursor-pointer group",
-        isActive("/admin/profiel") && "ring-1 ring-brand-orange/30",
+        "block rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer",
+        isActive("/admin/profiel")
+          ? "ring-1 ring-brand-orange/40 shadow-lg shadow-brand-orange/10"
+          : "hover:shadow-lg hover:shadow-black/20",
       ]}
     >
-      <!-- User Avatar -->
+      <!-- Gradient top accent -->
       <div
-        class="w-10 h-10 shrink-0 rounded-xl bg-linear-to-br from-brand-orange via-brand-orange/80 to-brand-orange/60 flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:shadow-xl group-hover:shadow-brand-orange/30 group-hover:scale-105 transition-all"
+        class="h-12 bg-linear-to-br from-brand-orange/30 via-brand-orange/15 to-amber-500/10 relative"
       >
-        {initials}
-      </div>
-      <!-- User Info -->
-      <div class="flex-1 min-w-0">
         <div
-          class="text-sm font-semibold text-text-primary truncate group-hover:text-brand-orange transition-colors"
+          class="absolute inset-0 bg-[url('/noise.png')] opacity-[0.05] mix-blend-overlay"
         >
-          {userName}
         </div>
-        <div class="text-[11px] text-text-muted uppercase tracking-wider">
-          {userRole}
+      </div>
+
+      <!-- Content -->
+      <div class="bg-glass-bg/60 backdrop-blur-sm px-4 pb-4 -mt-6 relative">
+        <!-- Avatar -->
+        <div class="relative inline-block mb-3">
+          <div
+            class="w-12 h-12 rounded-xl bg-linear-to-br from-brand-orange via-brand-orange/90 to-amber-500 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-brand-orange/30 ring-2 ring-glass-bg/80 group-hover:shadow-xl group-hover:shadow-brand-orange/40 transition-all duration-300"
+          >
+            {initials}
+          </div>
+          <!-- Online indicator -->
+          <div
+            class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-glass-bg/80"
+          >
+            <div
+              class="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-50"
+            >
+            </div>
+          </div>
+        </div>
+
+        <!-- Greeting + Name -->
+        <p
+          class="text-[10px] text-text-muted/70 font-medium tracking-wide uppercase mb-0.5"
+        >
+          {greeting}
+        </p>
+        <h3
+          class="text-sm font-bold text-text-primary truncate group-hover:text-brand-orange transition-colors leading-tight"
+        >
+          {firstName}
+        </h3>
+
+        <!-- Role Badge -->
+        <div class="mt-2 flex items-center justify-between">
+          <span
+            class:list={[
+              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold tracking-wide border",
+              role.color,
+              role.bg,
+              role.border,
+            ]}
+          >
+            <iconify-icon icon={role.icon} width="12" height="12"
+            ></iconify-icon>
+            {role.label}
+          </span>
+          <iconify-icon
+            icon="lucide:chevron-right"
+            width="14"
+            height="14"
+            class="text-text-muted/40 group-hover:text-brand-orange group-hover:translate-x-0.5 transition-all duration-200"
+          ></iconify-icon>
         </div>
       </div>
     </a>
@@ -226,32 +315,79 @@ const initials = getInitials(userName);
     }
   </nav>
 
-  <!-- Mobile User Profile - Enhanced -->
-  <div
-    class="p-4 border-t border-glass-border/50 bg-linear-to-t from-glass-bg/30 to-transparent"
-  >
+  <!-- Mobile User Profile - Premium -->
+  <div class="p-4 border-t border-glass-border/50">
     <a
       href="/admin/profiel"
       class:list={[
-        "flex items-center gap-3 p-3 rounded-xl bg-linear-to-br from-glass-bg/40 to-glass-bg/20 hover:from-glass-bg/60 hover:to-glass-bg/30 border border-glass-border/30 hover:border-glass-border transition-all duration-200 cursor-pointer group",
-        isActive("/admin/profiel") && "ring-1 ring-brand-orange/30",
+        "block rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer",
+        isActive("/admin/profiel")
+          ? "ring-1 ring-brand-orange/40 shadow-lg shadow-brand-orange/10"
+          : "hover:shadow-lg hover:shadow-black/20",
       ]}
     >
-      <!-- User Avatar -->
+      <!-- Gradient top accent -->
       <div
-        class="w-10 h-10 shrink-0 rounded-xl bg-linear-to-br from-brand-orange via-brand-orange/80 to-brand-orange/60 flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:shadow-xl group-hover:shadow-brand-orange/30 group-hover:scale-105 transition-all"
+        class="h-12 bg-linear-to-br from-brand-orange/30 via-brand-orange/15 to-amber-500/10 relative"
       >
-        {initials}
-      </div>
-      <!-- User Info -->
-      <div class="flex-1 min-w-0">
         <div
-          class="text-sm font-semibold text-text-primary truncate group-hover:text-brand-orange transition-colors"
+          class="absolute inset-0 bg-[url('/noise.png')] opacity-[0.05] mix-blend-overlay"
         >
-          {userName}
         </div>
-        <div class="text-[11px] text-text-muted uppercase tracking-wider">
-          {userRole}
+      </div>
+
+      <!-- Content -->
+      <div class="bg-glass-bg/60 backdrop-blur-sm px-4 pb-4 -mt-6 relative">
+        <!-- Avatar -->
+        <div class="relative inline-block mb-3">
+          <div
+            class="w-12 h-12 rounded-xl bg-linear-to-br from-brand-orange via-brand-orange/90 to-amber-500 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-brand-orange/30 ring-2 ring-glass-bg/80 group-hover:shadow-xl group-hover:shadow-brand-orange/40 transition-all duration-300"
+          >
+            {initials}
+          </div>
+          <!-- Online indicator -->
+          <div
+            class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-glass-bg/80"
+          >
+            <div
+              class="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-50"
+            >
+            </div>
+          </div>
+        </div>
+
+        <!-- Greeting + Name -->
+        <p
+          class="text-[10px] text-text-muted/70 font-medium tracking-wide uppercase mb-0.5"
+        >
+          {greeting}
+        </p>
+        <h3
+          class="text-sm font-bold text-text-primary truncate group-hover:text-brand-orange transition-colors leading-tight"
+        >
+          {firstName}
+        </h3>
+
+        <!-- Role Badge -->
+        <div class="mt-2 flex items-center justify-between">
+          <span
+            class:list={[
+              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold tracking-wide border",
+              role.color,
+              role.bg,
+              role.border,
+            ]}
+          >
+            <iconify-icon icon={role.icon} width="12" height="12"
+            ></iconify-icon>
+            {role.label}
+          </span>
+          <iconify-icon
+            icon="lucide:chevron-right"
+            width="14"
+            height="14"
+            class="text-text-muted/40 group-hover:text-brand-orange group-hover:translate-x-0.5 transition-all duration-200"
+          ></iconify-icon>
         </div>
       </div>
     </a>
