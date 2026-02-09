@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, Suspense } from "react";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { $accessToken, logout } from "../../lib/auth";
 import { useAction, useQuery } from "convex/react";
@@ -53,8 +53,10 @@ export default function ParticipantDashboardWrapper() {
 }
 
 import ParticipantEditModal from "./ParticipantEditModal";
-import { RefreshCw, Edit2, Calendar, MapPin, Footprints, Users, HeartHandshake, Camera, Clock, Navigation, ExternalLink, Shield } from "lucide-react";
+import { RefreshCw, Edit2, Calendar, MapPin, Footprints, Users, HeartHandshake, Camera, Clock, Navigation, ExternalLink, Shield, Loader2 } from "lucide-react";
 import { routes } from "../../lib/routeData";
+
+const RouteMapInner = React.lazy(() => import("./RouteMapInner"));
 
 function DashboardContent({ token }: { token: string }) {
     const getDashboardData = useAction(api.participant.getDashboardData);
@@ -355,16 +357,15 @@ function DashboardContent({ token }: { token: string }) {
                         <p className="text-text-muted text-sm">{matchedRoute.description}</p>
                     </div>
 
-                    {/* Route Preview Map */}
-                    <div className="rounded-xl overflow-hidden border border-glass-border bg-black/20 aspect-[16/7]">
-                        <iframe
-                            title={`Route kaart: ${matchedRoute.name}`}
-                            width="100%"
-                            height="100%"
-                            style={{ border: 0 }}
-                            loading="lazy"
-                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${Math.min(...matchedRoute.points.map(p => p.lng)) - 0.01}%2C${Math.min(...matchedRoute.points.map(p => p.lat)) - 0.005}%2C${Math.max(...matchedRoute.points.map(p => p.lng)) + 0.01}%2C${Math.max(...matchedRoute.points.map(p => p.lat)) + 0.005}&layer=mapnik&marker=${matchedRoute.points[0].lat}%2C${matchedRoute.points[0].lng}`}
-                        />
+                    {/* Route Preview Map (Leaflet) */}
+                    <div className="rounded-xl overflow-hidden border border-glass-border bg-black/20 h-[280px] md:h-[350px]">
+                        <Suspense fallback={
+                            <div className="flex items-center justify-center h-full text-brand-orange bg-surface/50">
+                                <Loader2 className="w-8 h-8 animate-spin" />
+                            </div>
+                        }>
+                            <RouteMapInner route={matchedRoute} />
+                        </Suspense>
                     </div>
 
                     {googleMapsUrl && (
