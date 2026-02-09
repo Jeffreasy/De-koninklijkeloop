@@ -4,8 +4,12 @@ import { $user, $accessToken } from "../../lib/auth";
 import { useStore } from "@nanostores/react";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { Loader2, Map, UserCheck, Search, TrendingUp, Mail, ShieldCheck, UserCircle, Globe, ArrowRight } from "lucide-react";
-import { useDashboardStats } from "./DashboardStats";
+import {
+    Loader2, Map, UserCheck, Search, TrendingUp, Mail, ShieldCheck,
+    UserCircle, Globe, ArrowRight, Users, Euro, Clock, Settings,
+    Heart, UserPlus, ChevronRight, Zap, CalendarDays, Award
+} from "lucide-react";
+import { useDashboardStats, formatCurrency } from "./DashboardStats";
 
 // Types
 interface Registration {
@@ -104,7 +108,7 @@ export default function DashboardTable() {
 
         let matchesType = true;
         if (typeFilter === "authenticated") matchesType = reg.userType === "authenticated";
-        if (typeFilter === "guest") matchesType = reg.userType !== "authenticated"; // Guest is default/null
+        if (typeFilter === "guest") matchesType = reg.userType !== "authenticated";
 
         return matchesSearch && matchesType;
     });
@@ -116,29 +120,151 @@ export default function DashboardTable() {
         currentPage * itemsPerPage
     );
 
-    return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+    // Calculate days until event (May 16, 2026)
+    const eventDate = new Date('2026-05-16');
+    const today = new Date();
+    const daysUntilEvent = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-            {/* Header / Toolbar */}
-            <div className="flex justify-end items-center gap-4">
+    // Role labels
+    const roleLabels: Record<string, string> = {
+        deelnemer: "Deelnemers",
+        begeleider: "Begeleiders",
+        vrijwilliger: "Vrijwilligers"
+    };
+
+    return (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+
+            {/* ═══════ 0. Edition Toolbar ═══════ */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 className="text-2xl font-display font-bold text-text-primary tracking-tight">
+                        Overzicht {editionFilter}
+                    </h2>
+                    {editionFilter === "2026" && daysUntilEvent > 0 && (
+                        <div className="flex items-center gap-2 mt-1.5">
+                            <CalendarDays className="w-3.5 h-3.5 text-brand-orange" />
+                            <span className="text-xs text-text-muted">
+                                Nog <strong className="text-text-primary">{daysUntilEvent}</strong> dagen tot het evenement
+                            </span>
+                        </div>
+                    )}
+                </div>
                 <div className="flex bg-glass-border/30 rounded-xl p-1 border border-glass-border">
                     <button
                         onClick={() => setEditionFilter("2026")}
-                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${editionFilter === "2026" ? "bg-brand-orange text-white shadow-lg" : "text-text-muted hover:text-text-primary"}`}
+                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${editionFilter === "2026" ? "bg-brand-orange text-white shadow-lg" : "text-text-muted hover:text-text-primary"}`}
                     >
                         2026
                     </button>
                     <button
                         onClick={() => setEditionFilter("2025")}
-                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${editionFilter === "2025" ? "bg-brand-orange text-white shadow-lg" : "text-text-muted hover:text-text-primary"}`}
+                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${editionFilter === "2025" ? "bg-brand-orange text-white shadow-lg" : "text-text-muted hover:text-text-primary"}`}
                     >
                         2025
                     </button>
                 </div>
             </div>
 
-            {/* 1. KPi Bento Grid - Pro Max Edition */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+            {/* ═══════ 1. Hero Stats Row ═══════ */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                {/* Totaal Deelnemers */}
+                <div className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-2xl p-4 md:p-5 group hover:border-brand-orange/30 transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange/8 blur-2xl rounded-full -mr-6 -mt-6 pointer-events-none group-hover:bg-brand-orange/15 transition-all duration-500"></div>
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="p-2 bg-brand-orange/10 rounded-xl text-brand-orange border border-brand-orange/20">
+                                <Users className="w-4 h-4" />
+                            </div>
+                            {stats.newToday > 0 && (
+                                <span className="text-[10px] font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                                    +{stats.newToday} vandaag
+                                </span>
+                            )}
+                        </div>
+                        <div className="text-3xl md:text-4xl font-display font-bold text-text-primary tracking-tight">
+                            {stats.totalParticipants}
+                        </div>
+                        <p className="text-xs text-text-muted mt-1 font-medium">Totaal Deelnemers</p>
+                    </div>
+                </div>
+
+                {/* Nieuw Vandaag */}
+                <div className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-2xl p-4 md:p-5 group hover:border-green-500/30 transition-all duration-300">
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-green-500/8 blur-2xl rounded-full -ml-6 -mb-6 pointer-events-none group-hover:bg-green-500/15 transition-all duration-500"></div>
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="p-2 bg-green-500/10 rounded-xl text-green-400 border border-green-500/20">
+                                <UserPlus className="w-4 h-4" />
+                            </div>
+                        </div>
+                        <div className="text-3xl md:text-4xl font-display font-bold text-text-primary tracking-tight">
+                            {stats.newToday}
+                        </div>
+                        <p className="text-xs text-text-muted mt-1 font-medium">Nieuw Vandaag</p>
+                    </div>
+                </div>
+
+                {/* Geschatte Opbrengst */}
+                <div className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-2xl p-4 md:p-5 group hover:border-emerald-500/30 transition-all duration-300">
+                    <div className="absolute top-0 left-0 w-24 h-24 bg-emerald-500/8 blur-2xl rounded-full -ml-6 -mt-6 pointer-events-none group-hover:bg-emerald-500/15 transition-all duration-500"></div>
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-400 border border-emerald-500/20">
+                                <Euro className="w-4 h-4" />
+                            </div>
+                        </div>
+                        <div className="text-2xl md:text-3xl font-display font-bold text-text-primary tracking-tight">
+                            {formatCurrency(stats.totalRevenue)}
+                        </div>
+                        <p className="text-xs text-text-muted mt-1 font-medium">Geschatte Opbrengst</p>
+                    </div>
+                </div>
+
+                {/* Rolverdeling Compact */}
+                <div className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-2xl p-4 md:p-5 group hover:border-sky-500/30 transition-all duration-300">
+                    <div className="absolute bottom-0 right-0 w-24 h-24 bg-sky-500/8 blur-2xl rounded-full -mr-6 -mb-6 pointer-events-none group-hover:bg-sky-500/15 transition-all duration-500"></div>
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="p-2 bg-sky-500/10 rounded-xl text-sky-400 border border-sky-500/20">
+                                <Award className="w-4 h-4" />
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            {Object.entries(stats.participantsByRole).map(([role, count]) => (
+                                <div key={role} className="flex items-center justify-between">
+                                    <span className="text-[11px] text-text-muted capitalize">{roleLabels[role] || role}</span>
+                                    <span className="text-sm font-bold text-text-primary font-mono">{count}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <p className="text-xs text-text-muted mt-2 font-medium">Rolverdeling</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* ═══════ 2. Quick Actions ═══════ */}
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+                {[
+                    { href: "/admin/registrations", label: "Registraties", icon: Users, color: "brand-orange" },
+                    { href: "/admin/donaties", label: "Donaties", icon: Heart, color: "pink-500" },
+                    { href: "/admin/email", label: "E-mail", icon: Mail, color: "blue-500" },
+                    { href: "/admin/settings", label: "Instellingen", icon: Settings, color: "gray-400" },
+                ].map((action) => (
+                    <a
+                        key={action.href}
+                        href={action.href}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-glass-bg/30 border border-glass-border rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary hover:border-glass-border/80 hover:bg-glass-bg/60 transition-all duration-200 whitespace-nowrap cursor-pointer group"
+                    >
+                        <action.icon className={`w-3.5 h-3.5 text-${action.color} group-hover:scale-110 transition-transform`} />
+                        {action.label}
+                        <ChevronRight className="w-3 h-3 text-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </a>
+                ))}
+            </div>
+
+            {/* ═══════ 3. KPI Bento Grid ═══════ */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 md:gap-6">
 
                 {/* A. Audience Reach (Unique Emails) - 4 cols */}
                 <div className="lg:col-span-4 relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-6 group shadow-xl hover:shadow-2xl transition-all duration-500 hover:border-brand-orange/30">
@@ -177,12 +303,12 @@ export default function DashboardTable() {
                 </div>
 
                 {/* B. Account Health (Auth vs Guest) - 4 cols */}
-                <div className="lg:col-span-4 relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-6 group shadow-xl hover:shadow-2xl transition-all duration-500 hover:border-purple-500/30">
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-linear-to-tr from-purple-500/10 to-transparent blur-3xl rounded-full -ml-16 -mb-16 pointer-events-none group-hover:bg-purple-500/20 transition-all duration-700"></div>
+                <div className="lg:col-span-4 relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-6 group shadow-xl hover:shadow-2xl transition-all duration-500 hover:border-teal-500/30">
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-linear-to-tr from-teal-500/10 to-transparent blur-3xl rounded-full -ml-16 -mb-16 pointer-events-none group-hover:bg-teal-500/20 transition-all duration-700"></div>
 
                     <div className="relative z-10 h-full flex flex-col justify-between">
                         <div className="flex items-center justify-between mb-6">
-                            <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-400 border border-purple-500/20">
+                            <div className="p-3 bg-teal-500/10 rounded-2xl text-teal-400 border border-teal-500/20">
                                 <ShieldCheck className="w-6 h-6" />
                             </div>
                             <span className="text-xs font-medium text-text-muted uppercase tracking-wider">Gebruikers types</span>
@@ -254,11 +380,11 @@ export default function DashboardTable() {
                 </div>
             </div>
 
-            {/* 2. Main Dashboard Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* ═══════ 4. Main Dashboard Content ═══════ */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
 
-                {/* Left Column: Recent Registrations Feed */}
-                <div className="lg:col-span-1 space-y-6">
+                {/* Left Column: Recent Registrations Feed + Distance */}
+                <div className="lg:col-span-1 space-y-4 md:space-y-6">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-display font-semibold text-text-primary px-1">Live Activiteit</h3>
                         <div className="flex items-center gap-2 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
@@ -294,62 +420,71 @@ export default function DashboardTable() {
                                 </div>
                             ))}
                             {stats.recentRegistrations.length === 0 && (
-                                <div className="py-8 text-center text-sm text-text-muted">Nog geen activiteit vandaag</div>
+                                <div className="py-8 text-center text-sm text-text-muted">Nog geen recente activiteit</div>
                             )}
                         </div>
                         <div className="p-2 border-t border-glass-border/40 bg-white/5">
-                            <button className="w-full py-2 text-xs font-semibold text-text-secondary hover:text-brand-orange transition-colors flex items-center justify-center gap-2 rounded-xl hover:bg-white/5">
-                                Toon volledige historie <ArrowRight className="w-3 h-3" />
-                            </button>
+                            <a href="/admin/registrations" className="w-full py-2 text-xs font-semibold text-text-secondary hover:text-brand-orange transition-colors flex items-center justify-center gap-2 rounded-xl hover:bg-white/5 cursor-pointer">
+                                Alle registraties bekijken <ArrowRight className="w-3 h-3" />
+                            </a>
                         </div>
                     </div>
 
                     {/* Distance Distribution Mini-Card */}
                     <div className="bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-6 shadow-lg">
                         <div className="flex items-center gap-2 mb-4">
-                            <Map className="w-4 h-4 text-purple-400" />
+                            <Map className="w-4 h-4 text-sky-400" />
                             <span className="text-sm font-bold text-text-primary">Afstand Populariteit</span>
                         </div>
                         <div className="space-y-4">
-                            {Object.entries(stats.participantsByDistance).map(([dist, count]) => (
-                                <div key={dist} className="space-y-1.5">
-                                    <div className="flex justify-between text-xs">
-                                        <span className="font-medium text-text-secondary">{dist} km</span>
-                                        <span className="text-text-muted">{count} lopers</span>
+                            {Object.entries(stats.participantsByDistance).map(([dist, count]) => {
+                                const percentage = Math.round((count / (stats.totalParticipants || 1)) * 100);
+                                const isLeading = count === Math.max(...Object.values(stats.participantsByDistance));
+                                return (
+                                    <div key={dist} className="space-y-1.5">
+                                        <div className="flex justify-between text-xs">
+                                            <span className="font-medium text-text-secondary">
+                                                {dist} km
+                                                {isLeading && count > 0 && (
+                                                    <span className="ml-1.5 text-[9px] text-brand-orange font-bold uppercase">populair</span>
+                                                )}
+                                            </span>
+                                            <span className="text-text-muted font-mono">{count} <span className="opacity-60">({percentage}%)</span></span>
+                                        </div>
+                                        <div className="h-2 w-full bg-glass-border/30 rounded-full overflow-hidden">
+                                            <div
+                                                style={{ width: `${percentage}%` }}
+                                                className={`h-full rounded-full transition-all duration-1000 ${isLeading && count > 0 ? 'bg-linear-to-r from-brand-orange to-red-500' : 'bg-sky-400/60'}`}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="h-2 w-full bg-glass-border/30 rounded-full overflow-hidden">
-                                        <div
-                                            style={{ width: `${(count / (stats.totalParticipants || 1)) * 100}%` }}
-                                            className={`h-full rounded-full transition-all duration-1000 ${dist === "10" ? 'bg-linear-to-r from-brand-orange to-red-500' : 'bg-purple-400/60'}`}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
 
                 {/* Right Column: Full Table */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 space-y-4 md:space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <h3 className="text-lg font-display font-semibold text-text-primary px-1">Deelnemerslijst</h3>
 
                         <div className="flex items-center bg-glass-bg/50 border border-glass-border p-1 rounded-full w-full sm:w-auto shadow-sm backdrop-blur-md">
                             <button
                                 onClick={() => setTypeFilter("all")}
-                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${typeFilter === "all" ? "bg-white text-black shadow-md" : "text-text-muted hover:text-text-primary"}`}
+                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 cursor-pointer ${typeFilter === "all" ? "bg-white text-black shadow-md" : "text-text-muted hover:text-text-primary"}`}
                             >
                                 Alles
                             </button>
                             <button
                                 onClick={() => setTypeFilter("authenticated")}
-                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${typeFilter === "authenticated" ? "bg-brand-orange text-white shadow-md shadow-brand-orange/20" : "text-text-muted hover:text-text-primary"}`}
+                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 cursor-pointer ${typeFilter === "authenticated" ? "bg-brand-orange text-white shadow-md shadow-brand-orange/20" : "text-text-muted hover:text-text-primary"}`}
                             >
                                 Accounts
                             </button>
                             <button
                                 onClick={() => setTypeFilter("guest")}
-                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${typeFilter === "guest" ? "bg-gray-500 text-white shadow-md" : "text-text-muted hover:text-text-primary"}`}
+                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 cursor-pointer ${typeFilter === "guest" ? "bg-gray-500 text-white shadow-md" : "text-text-muted hover:text-text-primary"}`}
                             >
                                 Gasten
                             </button>
@@ -371,6 +506,9 @@ export default function DashboardTable() {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="block w-full pl-9 pr-3 py-2.5 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 transition-all font-medium backdrop-blur-sm"
                                 />
+                            </div>
+                            <div className="hidden sm:flex items-center text-xs text-text-muted bg-glass-bg/30 px-3 rounded-xl border border-glass-border">
+                                {filteredRegistrations.length} resultaten
                             </div>
                         </div>
 
@@ -407,7 +545,9 @@ export default function DashboardTable() {
                                                     <div className="flex items-center gap-2">
                                                         <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded
                                                             ${reg.role === 'admin' ? 'bg-red-500/10 text-red-500' :
-                                                                reg.role === 'vrijwilliger' ? 'bg-blue-500/10 text-blue-500' : 'bg-glass-border/40 text-text-primary'}
+                                                                reg.role === 'vrijwilliger' ? 'bg-blue-500/10 text-blue-500' :
+                                                                    reg.role === 'begeleider' ? 'bg-amber-500/10 text-amber-500' :
+                                                                        'bg-glass-border/40 text-text-primary'}
                                                         `}>
                                                             {reg.role}
                                                         </span>
@@ -423,7 +563,7 @@ export default function DashboardTable() {
                                                 <AccountTypeBadge type={reg.userType} />
                                             </td>
                                             <td className="py-3 px-5 text-right">
-                                                <button className="text-xs text-text-muted hover:text-brand-orange font-medium transition-colors px-3 py-1.5 rounded-lg hover:bg-brand-orange/5 border border-transparent hover:border-brand-orange/20">
+                                                <button className="text-xs text-text-muted hover:text-brand-orange font-medium transition-colors px-3 py-1.5 rounded-lg hover:bg-brand-orange/5 border border-transparent hover:border-brand-orange/20 cursor-pointer">
                                                     Details
                                                 </button>
                                             </td>
@@ -432,10 +572,12 @@ export default function DashboardTable() {
 
                                     {filteredRegistrations.length === 0 && (
                                         <tr>
-                                            <td colSpan={4} className="py-20 text-center text-text-muted flex flex-col items-center justify-center gap-3">
-                                                <Search className="w-8 h-8 opacity-20" />
-                                                <p>Geen deelnemers gevonden die aan de criteria voldoen.</p>
-                                                <button onClick={() => { setSearchTerm(""); setTypeFilter("all") }} className="text-xs text-brand-orange hover:underline">Filters wissen</button>
+                                            <td colSpan={4} className="py-20 text-center text-text-muted">
+                                                <div className="flex flex-col items-center justify-center gap-3">
+                                                    <Search className="w-8 h-8 opacity-20" />
+                                                    <p>Geen deelnemers gevonden die aan de criteria voldoen.</p>
+                                                    <button onClick={() => { setSearchTerm(""); setTypeFilter("all") }} className="text-xs text-brand-orange hover:underline cursor-pointer">Filters wissen</button>
+                                                </div>
                                             </td>
                                         </tr>
                                     )}
@@ -447,19 +589,20 @@ export default function DashboardTable() {
                         <div className="p-3 border-t border-glass-border bg-white/5 flex items-center justify-between text-xs text-text-muted backdrop-blur-md z-10">
                             <span className="pl-2">
                                 Pagina <strong>{currentPage}</strong> van {Math.max(1, totalPages)}
+                                <span className="hidden sm:inline ml-2 opacity-60">• {filteredRegistrations.length} deelnemers</span>
                             </span>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-3 py-1.5 rounded-lg border border-glass-border hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                                    className="px-3 py-1.5 rounded-lg border border-glass-border hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer disabled:cursor-not-allowed"
                                 >
                                     Vorige
                                 </button>
                                 <button
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className="px-3 py-1.5 rounded-lg border border-glass-border hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                                    disabled={currentPage === totalPages || totalPages === 0}
+                                    className="px-3 py-1.5 rounded-lg border border-glass-border hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer disabled:cursor-not-allowed"
                                 >
                                     Volgende
                                 </button>
