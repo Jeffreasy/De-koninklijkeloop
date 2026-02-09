@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { apiRequest } from "../../lib/api";
 import { setAuth } from "../../lib/auth";
 import { Button } from "../ui/button";
@@ -9,12 +9,30 @@ export default function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const registered = params.get("registered") === "true";
+        const emailError = params.get("email_error") === "true";
+
+        if (registered) {
+            if (emailError) {
+                // Account created, but email failed
+                setSuccess("Account aangemaakt, maar de verificatie-email kon niet worden verzonden. Log in of neem contact op.");
+            } else {
+                // Success
+                setSuccess("Account aangemaakt! Controleer je e-mail om je wachtwoord in te stellen.");
+            }
+        }
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
         setError(null);
+        setSuccess(null); // Clear success on submit
 
         try {
             // 1. Authenticate with LaventeCare
@@ -82,6 +100,16 @@ export default function LoginForm() {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
+            {success && (
+                <div className={`${success.includes("niet") ? "bg-yellow-500/10 border-yellow-500/20 text-yellow-500" : "bg-green-500/10 border-green-500/20 text-green-400"} border p-3 rounded-lg text-sm text-center flex items-center justify-center gap-2`}>
+                    {success.includes("niet") ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                    ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M22 17a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h2a2 2 0 0 1 2 2Z" /><path d="M15 22a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2Z" /><path d="M13.5 8.5V11a5 5 0 1 0-10 0v2.5" /><path d="M7 17a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h2a2 2 0 0 1 2 2Z" /></svg>
+                    )}
+                    {success}
+                </div>
+            )}
             {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm text-center">
                     {error}

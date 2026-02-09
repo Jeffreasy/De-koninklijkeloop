@@ -1,9 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
 export default function RegistrationSuccessIsland() {
+    const [emailError, setEmailError] = useState(false);
+
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("email_error") === "true") {
+            setEmailError(true);
+        }
+
         // Trigger confetti on mount
         const duration = 3000;
         const end = Date.now() + duration;
@@ -66,47 +73,56 @@ export default function RegistrationSuccessIsland() {
                 initial="hidden"
                 animate="visible"
             >
-                {/* Decorative Elements */}
-                <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-brand-orange to-red-500" />
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-brand-orange/20 rounded-full blur-3xl pointer-events-none" />
+                {/* Decorative Elements - Dynamic Colors */}
+                <div className={`absolute top-0 left-0 w-full h-2 bg-linear-to-r ${emailError ? "from-yellow-500 to-orange-500" : "from-brand-orange to-red-500"}`} />
+                <div className={`absolute -top-24 -right-24 w-48 h-48 ${emailError ? "bg-yellow-500/20" : "bg-brand-orange/20"} rounded-full blur-3xl pointer-events-none`} />
                 <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative p-8 md:p-10 text-center space-y-8">
                     {/* Icon */}
                     <div className="flex justify-center">
                         <motion.div
-                            className="w-24 h-24 rounded-full bg-linear-to-br from-brand-orange to-red-500 flex items-center justify-center shadow-lg shadow-brand-orange/30"
+                            className={`w-24 h-24 rounded-full bg-linear-to-br ${emailError ? "from-yellow-500 to-orange-500" : "from-brand-orange to-red-500"} flex items-center justify-center shadow-lg shadow-brand-orange/30`}
                             initial={{ scale: 0, rotate: -180 }}
                             animate={{ scale: 1, rotate: 0 }}
                             transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
                         >
-                            <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <motion.path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={3}
-                                    d="M5 13l4 4L19 7"
-                                    initial={{ pathLength: 0, opacity: 0 }}
-                                    animate={{ pathLength: 1, opacity: 1 }}
-                                    transition={{ duration: 0.5, delay: 0.5 }}
-                                />
-                            </svg>
+                            {emailError ? (
+                                <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            ) : (
+                                <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <motion.path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={3}
+                                        d="M5 13l4 4L19 7"
+                                        initial={{ pathLength: 0, opacity: 0 }}
+                                        animate={{ pathLength: 1, opacity: 1 }}
+                                        transition={{ duration: 0.5, delay: 0.5 }}
+                                    />
+                                </svg>
+                            )}
                         </motion.div>
                     </div>
 
                     {/* Text */}
                     <div className="space-y-3">
                         <motion.h1
-                            className="text-3xl md:text-4xl font-display font-bold text-transparent bg-clip-text bg-linear-to-r from-brand-orange to-red-500"
+                            className={`text-3xl md:text-4xl font-display font-bold text-transparent bg-clip-text bg-linear-to-r ${emailError ? "from-yellow-500 to-orange-500" : "from-brand-orange to-red-500"}`}
                             variants={itemVariants}
                         >
-                            Registratie Gelukt!
+                            {emailError ? "Registratie Gelukt (Email Mislukt)" : "Registratie Gelukt!"}
                         </motion.h1>
                         <motion.p
                             className="text-text-muted text-lg leading-relaxed"
                             variants={itemVariants}
                         >
-                            Bedankt voor je inschrijving. Je staat in de startblokken!
+                            {emailError
+                                ? "Je bent ingeschreven, maar de bevestigingsmail kon niet worden verzonden. Noteer de datum en tijd zelf even!"
+                                : "Bedankt voor je inschrijving. Je staat in de startblokken!"
+                            }
                         </motion.p>
                     </div>
 
@@ -118,7 +134,7 @@ export default function RegistrationSuccessIsland() {
                         <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wider">Volgende Stappen</h3>
                         <ul className="space-y-3">
                             {[
-                                "Bevestigingsmail checken",
+                                emailError ? "Kijk of je spam box de mail heeft" : "Bevestigingsmail checken",
                                 "Datum in agenda zetten",
                                 "Trainen voor de loop!"
                             ].map((item, index) => (
@@ -129,10 +145,14 @@ export default function RegistrationSuccessIsland() {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.8 + (index * 0.1) }}
                                 >
-                                    <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center shrink-0 text-green-500">
-                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                        </svg>
+                                    <div className={`w-5 h-5 rounded-full ${emailError ? "bg-yellow-500/10 text-yellow-500" : "bg-green-500/10 text-green-500"} flex items-center justify-center shrink-0`}>
+                                        {emailError && index === 0 ? (
+                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        ) : (
+                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        )}
                                     </div>
                                     <span>{item}</span>
                                 </motion.li>

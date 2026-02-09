@@ -93,17 +93,21 @@ export default function RegisterForm() {
 
                 // Trigger Password Reset Email (To set initial password)
                 try {
-                    await fetch('/api/v1/auth/password/forgot', {
+                    const emailRes = await fetch('/api/auth/password/forgot', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: data.email })
                     });
+
+                    if (!emailRes.ok) throw new Error("Email sending failed");
+
+                    // Redirect to login (Success)
+                    window.location.href = "/login?registered=true";
                 } catch (e) {
                     console.error("Failed to send password reset email", e);
+                    // Redirect to login (Email Failed)
+                    window.location.href = "/login?registered=true&email_error=true";
                 }
-
-                // Redirect to login
-                window.location.href = "/login?registered=true";
             } else {
                 // Guest flow: no account, direct registration
                 await registerGuest({
@@ -121,17 +125,18 @@ export default function RegisterForm() {
 
                 // Trigger Welcome Email
                 try {
-                    await fetch('/api/v1/auth/register-confirmation', {
+                    const emailRes = await fetch('/api/auth/register-confirmation', { // Use Proxied Endpoint
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ name: data.name, email: data.email })
                     });
+
+                    if (!emailRes.ok) throw new Error("Email sending failed");
+                    window.location.href = "/registratie-succes";
                 } catch (e) {
                     console.error("Failed to send welcome email", e);
+                    window.location.href = "/registratie-succes?email_error=true";
                 }
-
-                // Redirect to success page (no login)
-                window.location.href = "/registratie-succes";
             }
         } catch (err: any) {
             console.error(err);
