@@ -4,7 +4,7 @@ import { Button } from "../../ui/button";
 import { Users, Trees, HeartHandshake, Crown } from "lucide-react";
 ---
 
-<section class="relative py-24 overflow-hidden border-y border-border">
+<section class="relative py-24 overflow-hidden border-y border-glass-border">
     {/* Dark Mode: Deep Royal Glow */}
     <div
         class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-brand-blue-light/20 rounded-full blur-[128px] pointer-events-none mix-blend-screen"
@@ -46,7 +46,7 @@ import { Users, Trees, HeartHandshake, Crown } from "lucide-react";
                     <a href="/register">
                         <Button
                             size="lg"
-                            className="rounded-xl px-8 bg-brand-orange hover:bg-orange-400 shadow-lg shadow-brand-orange/20 text-white font-bold border-none transition-transform hover:scale-105"
+                            className="rounded-xl px-8 bg-brand-orange hover:bg-orange-400 shadow-lg shadow-brand-orange/20 text-white font-bold border-none transition-transform hover:scale-105 cursor-pointer"
                         >
                             Doe mee & Beweeg
                         </Button>
@@ -55,7 +55,7 @@ import { Users, Trees, HeartHandshake, Crown } from "lucide-react";
                         <Button
                             variant="glass"
                             size="lg"
-                            className="rounded-xl px-8 text-primary hover:text-brand-orange transition-colors"
+                            className="rounded-xl px-8 text-primary hover:text-brand-orange transition-colors cursor-pointer"
                         >
                             Onze maatschappelijke rol
                         </Button>
@@ -65,7 +65,7 @@ import { Users, Trees, HeartHandshake, Crown } from "lucide-react";
 
             <div class="grid gap-6">
                 <div
-                    class="premium-glass p-8 rounded-3xl relative overflow-hidden group hover:shadow-2xl transition-all duration-500 border border-white/10 dark:border-white/5"
+                    class="premium-glass p-8 rounded-3xl relative overflow-hidden group hover:shadow-2xl transition-all duration-500 border border-glass-border"
                 >
                     <div
                         class="absolute inset-0 bg-linear-to-br from-brand-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
@@ -92,7 +92,7 @@ import { Users, Trees, HeartHandshake, Crown } from "lucide-react";
 
                 <div class="grid sm:grid-cols-2 gap-6">
                     <div
-                        class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 border border-white/10 dark:border-white/5"
+                        class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 border border-glass-border"
                     >
                         <div
                             class="mb-4 text-action-blue bg-action-blue/10 w-12 h-12 rounded-lg flex items-center justify-center"
@@ -112,7 +112,7 @@ import { Users, Trees, HeartHandshake, Crown } from "lucide-react";
                     </div>
 
                     <div
-                        class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 border border-white/10 dark:border-white/5"
+                        class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 border border-glass-border"
                     >
                         <div
                             class="mb-4 text-action-blue bg-action-blue/10 w-12 h-12 rounded-lg flex items-center justify-center"
@@ -133,7 +133,7 @@ import { Users, Trees, HeartHandshake, Crown } from "lucide-react";
                 </div>
 
                 <div
-                    class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 sm:col-span-2 lg:col-span-1 lg:hidden border border-white/10 dark:border-white/5"
+                    class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300 sm:col-span-2 lg:col-span-1 lg:hidden border border-glass-border"
                 >
                     <div
                         class="mb-4 text-brand-orange bg-brand-orange/10 w-12 h-12 rounded-lg flex items-center justify-center"

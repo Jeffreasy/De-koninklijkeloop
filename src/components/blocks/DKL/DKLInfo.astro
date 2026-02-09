@@ -54,7 +54,7 @@ const finishLocation = settings?.finish_location || "Apeldoorn";
             </div>
             <div class="relative z-10">
                 <div
-                    class="w-12 h-12 bg-surface/50 rounded-xl flex items-center justify-center mb-6 text-brand-orange border border-border"
+                    class="w-12 h-12 bg-surface/50 rounded-xl flex items-center justify-center mb-6 text-brand-orange border border-glass-border"
                 >
                     <Crown className="w-6 h-6" />
                 </div>
@@ -70,11 +70,13 @@ const finishLocation = settings?.finish_location || "Apeldoorn";
                 </p>
 
                 <figure
-                    class="relative rounded-2xl overflow-hidden border border-border shadow-lg group-hover:shadow-brand-orange/20 transition-all duration-500"
+                    class="relative rounded-2xl overflow-hidden border border-glass-border shadow-lg group-hover:shadow-brand-orange/20 transition-all duration-500"
                 >
                     <img
                         src="https://res.cloudinary.com/dgfuv7wif/image/upload/v1769727923/671ff32e5e9bec64a207e3b2_route_Koninklijke_weg_qawkhc.jpg"
                         alt="Illustratie Koninklijke Weg"
+                        loading="lazy"
+                        decoding="async"
                         class="w-full h-auto object-cover"
                     />
                     <div
@@ -101,7 +103,7 @@ const finishLocation = settings?.finish_location || "Apeldoorn";
             </div>
             <div class="relative z-10">
                 <div
-                    class="w-12 h-12 bg-surface/50 rounded-xl flex items-center justify-center mb-6 text-brand-orange border border-border"
+                    class="w-12 h-12 bg-surface/50 rounded-xl flex items-center justify-center mb-6 text-brand-orange border border-glass-border"
                 >
                     <MapPin className="w-6 h-6" />
                 </div>
@@ -143,7 +145,7 @@ const finishLocation = settings?.finish_location || "Apeldoorn";
                     <p class="text-sm text-muted">Iedereen doet mee</p>
                 </div>
                 <div
-                    class="prose prose-invert prose-p:text-secondary prose-strong:text-primary max-w-none"
+                    class="prose prose-p:text-secondary prose-strong:text-primary max-w-none"
                 >
                     <p>
                         Het pad is voor iedereen toegankelijk, ook voor mensen
