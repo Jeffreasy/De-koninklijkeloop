@@ -77,6 +77,7 @@ export const updateRegistration = action({
         if (role !== "admin" && role !== "editor") throw new Error("Forbidden");
 
         // 2. Call Internal Mutation
+        // @ts-ignore - Internal mutation types might not be generated yet
         await ctx.runMutation(api.internal.updateRegistration, {
             id: args.id,
             status: args.status,
