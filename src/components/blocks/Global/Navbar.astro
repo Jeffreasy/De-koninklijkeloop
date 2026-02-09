@@ -40,7 +40,7 @@ const isActive = (href: string) => {
 
         <div class="hidden md:flex items-center gap-1">
             <div
-                class="flex items-center gap-1 p-1.5 bg-surface/80 backdrop-blur-md border border-border rounded-full px-4 shadow-xl"
+                class="flex items-center gap-1 p-1.5 bg-surface/80 backdrop-blur-md border border-glass-border rounded-full px-4 shadow-xl"
             >
                 {
                     navItems.map((item) => {
@@ -65,7 +65,7 @@ const isActive = (href: string) => {
             </div>
 
             <div
-                class="pl-4 ml-4 border-l border-border h-8 flex items-center opacity-70 hover:opacity-100 transition-opacity"
+                class="pl-4 ml-4 border-l border-glass-border h-8 flex items-center opacity-70 hover:opacity-100 transition-opacity"
             >
                 <ThemeToggle client:idle />
             </div>
@@ -75,7 +75,7 @@ const isActive = (href: string) => {
             <ThemeToggle client:idle />
             <button
                 id="mobile-menu-btn"
-                class="p-3.5 bg-surface border border-border hover:border-brand-orange rounded-xl transition-all hover:scale-105 shadow-lg hover:shadow-xl active:scale-95 group"
+                class="p-3.5 bg-surface border border-glass-border hover:border-brand-orange rounded-xl transition-all hover:scale-105 shadow-lg hover:shadow-xl active:scale-95 group"
                 aria-label="Toggle Menu"
             >
                 <Menu
@@ -130,7 +130,7 @@ const isActive = (href: string) => {
         </div>
         <button
             id="mobile-close-btn"
-            class="p-3 bg-surface/50 hover:bg-brand-orange backdrop-blur-md transition-all rounded-xl border border-border hover:border-brand-orange shadow-lg hover:scale-110 active:scale-95 group"
+            class="p-3 bg-surface/50 hover:bg-brand-orange backdrop-blur-md transition-all rounded-xl border border-glass-border hover:border-brand-orange shadow-lg hover:scale-110 active:scale-95 group"
             aria-label="Close Menu"
         >
             <X
