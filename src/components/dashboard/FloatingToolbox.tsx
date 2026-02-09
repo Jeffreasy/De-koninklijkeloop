@@ -15,9 +15,10 @@ function FloatingToolboxContent() {
     const settings = useQuery(api.eventSettings.getActiveSettings);
 
     useEffect(() => {
-        // Show toolbox only if user is logged in with valid role
-        // Case-insensitive check for robustness
-        if (user && user.role && ['deelnemer', 'begeleider', 'vrijwilliger'].includes(user.role.toLowerCase())) {
+        // Show toolbox for ALL logged-in users
+        // Note: Auth system returns roles like 'admin', 'user', 'viewer'
+        // Registration roles ('deelnemer', etc.) are stored in Convex, not the auth user object
+        if (user && user.email) {
             setIsVisible(true);
         } else {
             setIsVisible(false);
