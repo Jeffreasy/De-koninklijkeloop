@@ -12,7 +12,6 @@ import {
     Search,
     Download,
     ChevronLeft,
-    Filter,
     Clock,
     Tag,
     Plus,
@@ -66,7 +65,7 @@ const TeamHubContent = () => {
                 <div className="flex p-1 bg-glass-surface/50 rounded-xl border border-glass-border/50 backdrop-blur-md">
                     <button
                         onClick={() => setActiveTab('minutes')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'minutes'
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${activeTab === 'minutes'
                             ? 'bg-brand-orange text-white shadow-md'
                             : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
                             }`}
@@ -75,7 +74,7 @@ const TeamHubContent = () => {
                     </button>
                     <button
                         onClick={() => setActiveTab('schedule')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'schedule'
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${activeTab === 'schedule'
                             ? 'bg-brand-orange text-white shadow-md'
                             : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
                             }`}
@@ -105,12 +104,9 @@ const TeamHubContent = () => {
                                         className="w-full pl-10 pr-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50 transition-all"
                                     />
                                 </div>
-                                <button className="p-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-muted hover:text-brand-orange hover:bg-glass-surface transition-colors">
-                                    <Filter className="w-4 h-4" />
-                                </button>
                                 <button
                                     onClick={() => handleOpenMinuteModal()}
-                                    className="p-2.5 bg-brand-orange text-white rounded-xl shadow-lg shadow-brand-orange/20 hover:bg-brand-orange-dark transition-colors"
+                                    className="p-2.5 bg-brand-orange text-white rounded-xl shadow-lg shadow-brand-orange/20 hover:bg-brand-orange-dark transition-colors cursor-pointer"
                                     title="Nieuwe Notule"
                                 >
                                     <Plus className="w-4 h-4" />
@@ -175,7 +171,7 @@ const TeamHubContent = () => {
                                             {/* Mobile Back Button */}
                                             <button
                                                 onClick={() => setSelectedMinute(null)}
-                                                className="lg:hidden mb-4 flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors text-sm font-medium"
+                                                className="lg:hidden mb-4 flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors text-sm font-medium cursor-pointer"
                                             >
                                                 <ChevronLeft className="w-4 h-4" /> Terug naar overzicht
                                             </button>
@@ -205,19 +201,19 @@ const TeamHubContent = () => {
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => handleOpenMinuteModal(selectedMinute)}
-                                                        className="p-2 hover:bg-glass-surface rounded-lg text-text-muted hover:text-brand-orange transition-colors"
+                                                        className="p-2 hover:bg-glass-surface rounded-lg text-text-muted hover:text-brand-orange transition-colors cursor-pointer"
                                                         title="Bewerken"
                                                     >
                                                         <Edit3 className="w-5 h-5" />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeleteMinute(selectedMinute._id)}
-                                                        className="p-2 hover:bg-glass-surface rounded-lg text-text-muted hover:text-red-500 transition-colors"
+                                                        className="p-2 hover:bg-glass-surface rounded-lg text-text-muted hover:text-red-500 transition-colors cursor-pointer"
                                                         title="Verwijderen"
                                                     >
                                                         <Trash2 className="w-5 h-5" />
                                                     </button>
-                                                    <button className="p-2 hover:bg-glass-surface rounded-lg text-text-muted hover:text-brand-orange transition-colors" title="Download PDF (Mock)">
+                                                    <button className="p-2 hover:bg-glass-surface rounded-lg text-text-muted hover:text-brand-orange transition-colors cursor-pointer" title="Download PDF (Mock)">
                                                         <Download className="w-5 h-5" />
                                                     </button>
                                                 </div>
@@ -262,7 +258,7 @@ const TeamHubContent = () => {
                                         <p className="max-w-xs mx-auto">Klik in de lijst hiernaast om de details te bekijken of gebruik de zoekfunctie. Of maak een nieuwe aan.</p>
                                         <button
                                             onClick={() => handleOpenMinuteModal()}
-                                            className="mt-6 px-6 py-2 bg-brand-orange text-white rounded-xl shadow-lg shadow-brand-orange/20 hover:bg-brand-orange-dark transition-colors font-medium flex items-center gap-2"
+                                            className="mt-6 px-6 py-2 bg-brand-orange text-white rounded-xl shadow-lg shadow-brand-orange/20 hover:bg-brand-orange-dark transition-colors font-medium flex items-center gap-2 cursor-pointer"
                                         >
                                             <Plus className="w-4 h-4" /> Nieuwe Notule
                                         </button>
