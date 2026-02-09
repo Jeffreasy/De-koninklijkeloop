@@ -109,7 +109,13 @@ export default function RegisterForm() {
                     await fetch('/api/v1/auth/register-confirmation', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: data.name, email: data.email })
+                        body: JSON.stringify({
+                            name: data.name,
+                            email: data.email,
+                            role: data.role,
+                            distance: data.distance || '',
+                            support_needed: !!data.supportNeeded
+                        })
                     });
                 } catch (e) {
                     console.error("Failed to send welcome/notification", e);
@@ -137,7 +143,13 @@ export default function RegisterForm() {
                     const emailRes = await fetch('/api/v1/auth/register-confirmation', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: data.name, email: data.email })
+                        body: JSON.stringify({
+                            name: data.name,
+                            email: data.email,
+                            role: data.role,
+                            distance: data.distance || '',
+                            support_needed: !!data.supportNeeded
+                        })
                     });
 
                     if (!emailRes.ok) throw new Error("Email sending failed");
