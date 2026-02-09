@@ -9,7 +9,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { cn } from "../../lib/utils";
-import { User, Mail, MapPin, Users, HeartHandshake, CheckCircle2, ChevronRight, Phone, Contact, Camera, Lock, UserPlus, Footprints, Route, Medal, Trophy, XCircle, HelpCircle } from "lucide-react";
+import { User, Mail, MapPin, Users, HeartHandshake, CheckCircle2, ChevronRight, Phone, Contact, Camera, Lock, UserPlus, Footprints, Route, Medal, Trophy, XCircle, HelpCircle, AlertTriangle } from "lucide-react";
 
 // Zod Schema (Password removed)
 const schema = z.object({
@@ -180,7 +180,7 @@ export default function RegisterForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto">
             {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm text-center animate-fade-in flex items-center justify-center gap-2">
-                    <span className="text-lg">⚠️</span> {error}
+                    <AlertTriangle className="w-5 h-5 shrink-0" /> {error}
                 </div>
             )}
 
@@ -242,7 +242,7 @@ export default function RegisterForm() {
                                 "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[120px]",
                                 selectedRole === role.id
                                     ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
-                                    : "border-border glass-card hover:border-brand-orange/50"
+                                    : "border-glass-border glass-card hover:border-brand-orange/50"
                             )}
                         >
                             {selectedRole === role.id && (
@@ -269,7 +269,7 @@ export default function RegisterForm() {
             {/* 3. Kies je afstand */}
             <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-500">
+                    <div className="p-2.5 bg-action-blue/10 rounded-xl text-action-blue">
                         <MapPin className="w-6 h-6" />
                     </div>
                     <div>
@@ -292,7 +292,7 @@ export default function RegisterForm() {
                                 "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[100px]",
                                 selectedDistance === dist.id
                                     ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
-                                    : "border-border glass-card hover:border-brand-orange/50"
+                                    : "border-glass-border glass-card hover:border-brand-orange/50"
                             )}
                         >
                             {selectedDistance === dist.id && (
@@ -340,7 +340,7 @@ export default function RegisterForm() {
                                 "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[100px]",
                                 selectedSupport === opt.id
                                     ? "border-brand-primary bg-brand-primary/5 shadow-lg scale-[1.05]"
-                                    : "border-border glass-card hover:border-brand-orange/50"
+                                    : "border-glass-border glass-card hover:border-brand-orange/50"
                             )}
                         >
                             {selectedSupport === opt.id && (
@@ -421,7 +421,7 @@ export default function RegisterForm() {
                 </div>
 
                 <div className="space-y-4">
-                    <div className="flex items-start gap-4 p-4 glass-card border border-border hover:border-brand-orange/30 transition-all cursor-pointer" onClick={() => setWantsAccount(!wantsAccount)}>
+                    <div className="flex items-start gap-4 p-4 glass-card border border-glass-border hover:border-brand-orange/30 transition-all cursor-pointer" onClick={() => setWantsAccount(!wantsAccount)}>
                         <div className="pt-1">
                             <input
                                 type="checkbox"
@@ -437,7 +437,7 @@ export default function RegisterForm() {
                             </Label>
                             {wantsAccount && (
                                 <div className="text-sm space-y-1 p-3 bg-brand-orange/5 rounded-lg border border-brand-orange/20 animate-fade-in">
-                                    <p className="text-text-muted font-medium">✅ Voordelen van een account:</p>
+                                    <p className="text-text-muted font-medium flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-brand-orange" /> Voordelen van een account:</p>
                                     <ul className="text-text-muted text-xs space-y-1 pl-4">
                                         <li>• Toegang tot je persoonlijke dashboard</li>
                                         <li>• Beheer inschrijvingen voor meerdere jaren</li>
