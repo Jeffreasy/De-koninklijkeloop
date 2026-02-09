@@ -28,6 +28,9 @@ export const createRegistration = internalMutation({
         userType: v.union(v.literal("authenticated"), v.literal("guest")),
         authUserId: v.optional(v.string()), // Link to Auth System ID (only for authenticated)
         edition: v.optional(v.string()), // Current edition (e.g. "2026")
+        // Begeleider companion linking
+        companionName: v.optional(v.string()),
+        companionEmail: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const currentEdition = args.edition || "2026";
@@ -77,6 +80,9 @@ export const updateRegistration = internalMutation({
         icePhone: v.optional(v.string()),
         supportNeeded: v.optional(v.union(v.literal("ja"), v.literal("nee"), v.literal("anders"))),
         supportDescription: v.optional(v.string()),
+        // Begeleider companion linking
+        companionName: v.optional(v.string()),
+        companionEmail: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const { id, ...updates } = args;
@@ -125,5 +131,50 @@ export const deleteRegistration = internalMutation({
     args: { id: v.id("registrations") },
     handler: async (ctx, args) => {
         await ctx.db.delete(args.id);
+    },
+});
+
+// Get linked companion registrations (for begeleiders)
+export const getCompanionRegistrations = query({
+    args: { email: v.string() },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("registrations")
+            .withIndex("by_companion_email", (q) => q.eq("companionEmail", args.email))
+            .collect();
+    },
+});
+
+// Get the registration a begeleider is companion of
+export const getLinkedDeelnemer = query({
+    args: { companionEmail: v.string() },
+    handler: async (ctx, args) => {
+        if (!args.companionEmail) return null;
+        return await ctx.db
+            .query("registrations")
+            .withIndex("by_email", (q) => q.eq("email", args.companionEmail))
+            .first();
+    },
+});
+
+// Get volunteer tasks for a registration
+export const getVolunteerTasks = query({
+    args: { registrationId: v.id("registrations") },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("volunteer_tasks")
+            .withIndex("by_registration", (q) => q.eq("registrationId", args.registrationId))
+            .collect();
+    },
+});
+
+// Update volunteer task status (confirm/complete)
+export const updateVolunteerTaskStatus = internalMutation({
+    args: {
+        id: v.id("volunteer_tasks"),
+        status: v.union(v.literal("assigned"), v.literal("confirmed"), v.literal("completed")),
+    },
+    handler: async (ctx, args) => {
+        await ctx.db.patch(args.id, { status: args.status });
     },
 });

@@ -39,6 +39,10 @@ export default defineSchema({
         )),
         authUserId: v.optional(v.string()), // Linked Auth ID (only for authenticated)
 
+        // Begeleider Companion Linking
+        companionName: v.optional(v.string()),   // Who are they accompanying?
+        companionEmail: v.optional(v.string()),  // Links to another registration
+
         // Admin Notes
         notes: v.optional(v.string()),
 
@@ -53,7 +57,8 @@ export default defineSchema({
         .index("by_email", ["email"])
         .index("by_auth_user_id", ["authUserId"]) // Scalability: Fast lookup by user
         .index("by_status", ["status"])
-        .index("by_edition", ["edition"]),
+        .index("by_edition", ["edition"])
+        .index("by_companion_email", ["companionEmail"]),
 
     // Donations
     donations: defineTable({
@@ -95,6 +100,24 @@ export default defineSchema({
     })
         .index("by_email", ["donorEmail"])
         .index("by_status", ["status"])
+        .index("by_registration", ["registrationId"]),
+
+    // Volunteer Tasks (Admin-assigned tasks for vrijwilligers)
+    volunteer_tasks: defineTable({
+        registrationId: v.id("registrations"),
+        title: v.string(),
+        description: v.optional(v.string()),
+        location: v.optional(v.string()),
+        startTime: v.optional(v.string()),
+        endTime: v.optional(v.string()),
+        status: v.union(
+            v.literal("assigned"),
+            v.literal("confirmed"),
+            v.literal("completed")
+        ),
+        createdAt: v.number(),
+        assignedBy: v.optional(v.string()),
+    })
         .index("by_registration", ["registrationId"]),
 
     // Media (Photos/Videos from Cloudinary/Streamable)

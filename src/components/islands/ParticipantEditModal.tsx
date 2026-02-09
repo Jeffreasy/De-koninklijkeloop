@@ -1,4 +1,4 @@
-import { X, User, Phone, AlertCircle, Save } from "lucide-react";
+import { X, User, Phone, AlertCircle, Save, Users, Mail } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useAction } from "convex/react";
@@ -9,6 +9,9 @@ interface Registration {
     icePhone?: string;
     supportNeeded?: string;
     supportDescription?: string;
+    role?: string;
+    companionName?: string;
+    companionEmail?: string;
 }
 
 interface Props {
@@ -24,7 +27,9 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
         iceName: registration.iceName || "",
         icePhone: registration.icePhone || "",
         supportNeeded: registration.supportNeeded || "nee",
-        supportDescription: registration.supportDescription || ""
+        supportDescription: registration.supportDescription || "",
+        companionName: registration.companionName || "",
+        companionEmail: registration.companionEmail || "",
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +38,8 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
 
     const updateProfile = useAction(api.participant.updateProfile);
 
+    const isBegeleider = registration.role === "begeleider";
+
     // Escape key + scroll lock
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
@@ -40,8 +47,6 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
         };
         document.addEventListener("keydown", handleEscape);
         document.body.style.overflow = "hidden";
-
-        // Focus trap: focus the modal on mount
         modalRef.current?.focus();
 
         return () => {
@@ -64,7 +69,11 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
                 iceName: formData.iceName,
                 icePhone: formData.icePhone,
                 supportNeeded: formData.supportNeeded as "ja" | "nee" | "anders",
-                supportDescription: formData.supportDescription
+                supportDescription: formData.supportDescription,
+                ...(isBegeleider ? {
+                    companionName: formData.companionName,
+                    companionEmail: formData.companionEmail,
+                } : {}),
             });
             onUpdate();
             onClose();
@@ -94,7 +103,6 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
                 tabIndex={-1}
                 className="relative w-full max-w-lg bg-surface/95 dark:bg-surface/90 backdrop-blur-xl rounded-2xl border border-glass-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200 outline-none"
             >
-
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-glass-border flex items-center justify-between bg-glass-bg">
                     <h2 id="edit-modal-title" className="text-xl font-bold text-text-primary">Gegevens Wijzigen</h2>
@@ -113,6 +121,47 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
                         <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3 text-red-400 text-sm">
                             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                             <p>{error}</p>
+                        </div>
+                    )}
+
+                    {/* Begeleider: Companion Section */}
+                    {isBegeleider && (
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-bold text-blue-400 uppercase tracking-wider border-b border-blue-500/20 pb-2 flex items-center gap-2">
+                                <Users className="w-4 h-4" />
+                                Mijn Deelnemer
+                            </h3>
+                            <div className="space-y-4">
+                                <div className="space-y-1.5">
+                                    <label htmlFor="edit-companionName" className="text-sm font-medium text-text-primary">Naam deelnemer</label>
+                                    <div className="relative">
+                                        <User className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
+                                        <input
+                                            id="edit-companionName"
+                                            type="text"
+                                            value={formData.companionName}
+                                            onChange={(e) => handleChange("companionName", e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-glass-bg border border-glass-border text-text-primary focus:ring-2 focus:ring-blue-400/50 outline-none transition-all placeholder:text-text-muted/30"
+                                            placeholder="Naam van de deelnemer"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label htmlFor="edit-companionEmail" className="text-sm font-medium text-text-primary">E-mailadres deelnemer</label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
+                                        <input
+                                            id="edit-companionEmail"
+                                            type="email"
+                                            value={formData.companionEmail}
+                                            onChange={(e) => handleChange("companionEmail", e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-glass-bg border border-glass-border text-text-primary focus:ring-2 focus:ring-blue-400/50 outline-none transition-all placeholder:text-text-muted/30"
+                                            placeholder="email@voorbeeld.nl"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-text-muted/60">Dit koppelt automatisch aan hun registratie</p>
+                                </div>
+                            </div>
                         </div>
                     )}
 
@@ -174,7 +223,7 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
                                 </select>
                             </div>
 
-                            {(formData.supportNeeded === 'ja' || formData.supportNeeded === 'anders') && (
+                            {(formData.supportNeeded === "ja" || formData.supportNeeded === "anders") && (
                                 <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2">
                                     <label htmlFor="edit-supportDesc" className="text-sm font-medium text-text-primary">Toelichting</label>
                                     <textarea
@@ -216,7 +265,6 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
                         )}
                     </button>
                 </div>
-
             </div>
         </div>
     );

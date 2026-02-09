@@ -7,14 +7,15 @@ import type { Doc } from "./_generated/dataModel";
 export const getDashboardData = action({
     args: {
         token: v.string(),
-        tenantId: v.string() // ✅ Not hardcoded anymore
+        tenantId: v.string()
     },
     handler: async (ctx, args): Promise<{
         user: { email: string; id: string };
         registration: Doc<"registrations"> | null;
+        linkedDeelnemer: Doc<"registrations"> | null;
+        volunteerTasks: Doc<"volunteer_tasks">[];
     }> => {
         try {
-            // ✅ Removed Cookie header injection - only use Authorization header
             const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
             const res = await fetch(
                 `${API_URL}/auth/me`,
@@ -45,9 +46,33 @@ export const getDashboardData = action({
                 { email }
             );
 
+            // Role-specific data
+            let linkedDeelnemer: Doc<"registrations"> | null = null;
+            let volunteerTasks: Doc<"volunteer_tasks">[] = [];
+
+            if (registration) {
+                // Begeleider: fetch the deelnemer they're accompanying
+                if (registration.role === "begeleider" && registration.companionEmail) {
+                    linkedDeelnemer = await ctx.runQuery(
+                        api.internal.getLinkedDeelnemer,
+                        { companionEmail: registration.companionEmail }
+                    );
+                }
+
+                // Vrijwilliger: fetch assigned tasks
+                if (registration.role === "vrijwilliger") {
+                    volunteerTasks = await ctx.runQuery(
+                        api.internal.getVolunteerTasks,
+                        { registrationId: registration._id }
+                    );
+                }
+            }
+
             return {
                 user: { email, id: user.ID || user.id },
-                registration
+                registration,
+                linkedDeelnemer,
+                volunteerTasks
             };
         } catch (e: any) {
             console.error("[Convex] Dashboard data error:", e.message);
@@ -64,9 +89,11 @@ export const updateProfile = action({
         icePhone: v.optional(v.string()),
         supportNeeded: v.optional(v.union(v.literal("ja"), v.literal("nee"), v.literal("anders"))),
         supportDescription: v.optional(v.string()),
+        // Begeleider companion fields
+        companionName: v.optional(v.string()),
+        companionEmail: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        // 1. Verify Token (Reusing logic from getDashboardData for consistency)
         const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
         const res = await fetch(`${API_URL}/auth/me`, {
             headers: {
@@ -82,19 +109,45 @@ export const updateProfile = action({
 
         if (!email) throw new Error("Email not found in token");
 
-        // 2. Get Registration ID
         const registration = await ctx.runQuery(api.internal.getRegistrationByEmail, { email });
 
         if (!registration) throw new Error("Registration not found");
 
-        // 3. Update Registration
         // @ts-ignore - Internal mutation types might not be generated yet
         await ctx.runMutation(api.internal.updateRegistration, {
             id: registration._id,
             iceName: args.iceName,
             icePhone: args.icePhone,
             supportNeeded: args.supportNeeded,
-            supportDescription: args.supportDescription
+            supportDescription: args.supportDescription,
+            companionName: args.companionName,
+            companionEmail: args.companionEmail,
+        });
+    },
+});
+
+// Vrijwilliger: confirm a task assignment
+export const confirmVolunteerTask = action({
+    args: {
+        token: v.string(),
+        tenantId: v.string(),
+        taskId: v.id("volunteer_tasks"),
+    },
+    handler: async (ctx, args) => {
+        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
+        const res = await fetch(`${API_URL}/auth/me`, {
+            headers: {
+                "Authorization": `Bearer ${args.token}`,
+                "X-Tenant-ID": args.tenantId
+            }
+        });
+
+        if (!res.ok) throw new Error("Unauthorized");
+
+        // Update the task status to "confirmed"
+        await ctx.runMutation(api.internal.updateVolunteerTaskStatus, {
+            id: args.taskId,
+            status: "confirmed",
         });
     },
 });
