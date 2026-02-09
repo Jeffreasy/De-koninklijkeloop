@@ -93,9 +93,8 @@ export default function RegisterForm() {
 
                 // Trigger Password Reset Email (To set initial password)
                 try {
-                    // Use General Proxy (/api/v1/...) instead of Auth Proxy (/api/auth/...)
-                    // This routes through src/pages/api/[...all].ts which is confirmed working for ContactForm
-                    const emailRes = await fetch('/api/v1/auth/password/forgot', {
+                    // Use Debug Endpoint to bypass proxy issues
+                    const emailRes = await fetch('/api/debug-reset', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: data.email })
