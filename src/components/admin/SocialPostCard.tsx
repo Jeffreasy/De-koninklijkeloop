@@ -69,7 +69,7 @@ export function SocialPostCard({
                 <div className="absolute inset-0 bg-brand-orange/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 p-4">
                     <button
                         onClick={() => onEdit(post._id)}
-                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px]"
+                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px] cursor-pointer"
                         title="Bewerken"
                         aria-label="Post bewerken"
                     >
@@ -77,7 +77,7 @@ export function SocialPostCard({
                     </button>
                     <button
                         onClick={() => onToggleVisibility(post._id)}
-                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px]"
+                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px] cursor-pointer"
                         title={post.isVisible ? "Verbergen" : "Tonen"}
                         aria-label={post.isVisible ? "Post verbergen" : "Post tonen"}
                     >
@@ -85,7 +85,7 @@ export function SocialPostCard({
                     </button>
                     <button
                         onClick={() => onToggleFeatured(post._id)}
-                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px]"
+                        className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px] cursor-pointer"
                         title={post.isFeatured ? "Unfeatured" : "Maak Featured"}
                         aria-label={post.isFeatured ? "Featured status verwijderen" : "Als featured markeren"}
                     >
@@ -93,7 +93,7 @@ export function SocialPostCard({
                     </button>
                     <button
                         onClick={() => onDelete(post._id)}
-                        className="p-3 rounded-xl bg-red-500/40 hover:bg-red-500/60 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px]"
+                        className="p-3 rounded-xl bg-red-500/40 hover:bg-red-500/60 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px] cursor-pointer"
                         title="Verwijderen"
                         aria-label="Post verwijderen"
                     >
@@ -111,7 +111,7 @@ export function SocialPostCard({
                     href={post.instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-brand-orange hover:text-orange-400 transition-colors"
+                    className="inline-flex items-center gap-1 text-xs text-brand-orange hover:text-orange-400 transition-colors cursor-pointer"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <iconify-icon icon="lucide:external-link" width="12" />

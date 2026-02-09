@@ -353,18 +353,18 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                 </div>
 
                 {/* Footer - Sticky on mobile, fixed on desktop */}
-                <div className="sticky bottom-0 lg:relative shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 mt-6 pt-6 border-t border-border">
+                <div className="sticky bottom-0 lg:relative shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 mt-6 pt-6 border-t border-glass-border">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-all duration-200 text-sm md:text-base font-medium"
+                        className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-all duration-200 text-sm md:text-base font-medium cursor-pointer"
                         disabled={isSaving || isUploading}
                     >
                         Annuleren
                     </button>
                     <button
                         type="submit"
-                        className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all duration-200 shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
+                        className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all duration-200 shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base cursor-pointer"
                         disabled={isSaving || isUploading}
                     >
                         {isUploading ? (

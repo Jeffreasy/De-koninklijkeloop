@@ -302,7 +302,7 @@ export default function DashboardTable() {
 
                         <div className="space-y-4">
                             {/* Authenticated */}
-                            <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                            <div className="flex items-center justify-between p-3 rounded-2xl bg-glass-surface/50 border border-glass-border/30 hover:bg-glass-surface transition-colors">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-full bg-brand-orange/20 flex items-center justify-center text-brand-orange">
                                         <UserCheck className="w-4 h-4" />
@@ -316,7 +316,7 @@ export default function DashboardTable() {
                             </div>
 
                             {/* Guest */}
-                            <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                            <div className="flex items-center justify-between p-3 rounded-2xl bg-glass-surface/50 border border-glass-border/30 hover:bg-glass-surface transition-colors">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-full bg-glass-border flex items-center justify-center text-text-muted">
                                         <UserCircle className="w-4 h-4" />
@@ -385,7 +385,7 @@ export default function DashboardTable() {
                     <div className="bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-1 overflow-hidden shadow-lg">
                         <div className="divide-y divide-glass-border/40">
                             {stats.recentRegistrations.map((reg) => (
-                                <div key={reg._id} className="p-4 hover:bg-white/5 transition-colors flex items-center gap-4 group cursor-default">
+                                <div key={reg._id} className="p-4 hover:bg-glass-surface/50 transition-colors flex items-center gap-4 group cursor-default">
                                     <div className="w-10 h-10 rounded-full bg-linear-to-br from-glass-border to-transparent border border-glass-border flex items-center justify-center text-text-primary font-bold text-xs shadow-sm group-hover:scale-105 transition-transform">
                                         {reg.name.charAt(0).toUpperCase()}
                                     </div>
@@ -409,8 +409,8 @@ export default function DashboardTable() {
                                 <div className="py-8 text-center text-sm text-text-muted">Nog geen recente activiteit</div>
                             )}
                         </div>
-                        <div className="p-2 border-t border-glass-border/40 bg-white/5">
-                            <a href="/admin/deelnemers" className="w-full py-2 text-xs font-semibold text-text-secondary hover:text-brand-orange transition-colors flex items-center justify-center gap-2 rounded-xl hover:bg-white/5 cursor-pointer">
+                        <div className="p-2 border-t border-glass-border/40 bg-glass-surface/50">
+                            <a href="/admin/deelnemers" className="w-full py-2 text-xs font-semibold text-text-secondary hover:text-brand-orange transition-colors flex items-center justify-center gap-2 rounded-xl hover:bg-glass-surface/50 cursor-pointer">
                                 Alle inschrijvingen bekijken <ArrowRight className="w-3 h-3" />
                             </a>
                         </div>
@@ -458,7 +458,7 @@ export default function DashboardTable() {
                         <div className="flex items-center bg-glass-bg/50 border border-glass-border p-1 rounded-full w-full sm:w-auto shadow-sm backdrop-blur-md">
                             <button
                                 onClick={() => setTypeFilter("all")}
-                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 cursor-pointer ${typeFilter === "all" ? "bg-white text-black shadow-md" : "text-text-muted hover:text-text-primary"}`}
+                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 cursor-pointer ${typeFilter === "all" ? "bg-glass-surface text-text-primary shadow-md" : "text-text-muted hover:text-text-primary"}`}
                             >
                                 Alles
                             </button>
@@ -482,7 +482,7 @@ export default function DashboardTable() {
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-brand-orange/5 blur-3xl pointer-events-none"></div>
 
                         {/* Toolbar */}
-                        <div className="p-4 border-b border-glass-border bg-white/5 flex gap-4 z-10 relative">
+                        <div className="p-4 border-b border-glass-border bg-glass-surface/50 flex gap-4 z-10 relative">
                             <div className="relative flex-1 group">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
                                 <input
@@ -511,7 +511,7 @@ export default function DashboardTable() {
                                 </thead>
                                 <tbody className="divide-y divide-glass-border/40 text-text-secondary">
                                     {paginatedRegistrations.map((reg) => (
-                                        <tr key={reg._id} className="group hover:bg-white/5 transition-colors">
+                                        <tr key={reg._id} className="group hover:bg-glass-surface/50 transition-colors">
                                             <td className="py-3 px-5">
                                                 <div className="flex items-center gap-3">
                                                     <div className={`
@@ -575,7 +575,7 @@ export default function DashboardTable() {
                         </div>
 
                         {/* Footer Pagination */}
-                        <div className="p-3 border-t border-glass-border bg-white/5 flex items-center justify-between text-xs text-text-muted backdrop-blur-md z-10">
+                        <div className="p-3 border-t border-glass-border bg-glass-surface/50 flex items-center justify-between text-xs text-text-muted backdrop-blur-md z-10">
                             <span className="pl-2">
                                 Pagina <strong>{currentPage}</strong> van {Math.max(1, totalPages)}
                                 <span className="hidden sm:inline ml-2 opacity-60">• {filteredRegistrations.length} deelnemers</span>
@@ -584,14 +584,14 @@ export default function DashboardTable() {
                                 <button
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-3 py-1.5 rounded-lg border border-glass-border hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer disabled:cursor-not-allowed"
+                                    className="px-3 py-1.5 rounded-lg border border-glass-border hover:bg-glass-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer disabled:cursor-not-allowed"
                                 >
                                     Vorige
                                 </button>
                                 <button
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages || totalPages === 0}
-                                    className="px-3 py-1.5 rounded-lg border border-glass-border hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer disabled:cursor-not-allowed"
+                                    className="px-3 py-1.5 rounded-lg border border-glass-border hover:bg-glass-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer disabled:cursor-not-allowed"
                                 >
                                     Volgende
                                 </button>
