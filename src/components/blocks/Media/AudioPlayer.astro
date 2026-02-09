@@ -2,12 +2,12 @@
 import { audioTracks } from "../../../data/audio";
 ---
 
-<div class="relative bg-surface border border-border rounded-3xl overflow-hidden shadow-2xl group">
+<div class="relative bg-surface border border-glass-border rounded-3xl overflow-hidden shadow-2xl group">
     <div class="absolute inset-0 bg-brand-orange/5 group-hover:bg-brand-orange/10 transition-colors duration-500"></div>
     
     <div class="relative z-10 grid lg:grid-cols-3 gap-0">
         <!-- Visual / Player Header -->
-        <div class="lg:col-span-1 bg-surface/50 backdrop-blur-sm p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-border">
+        <div class="lg:col-span-1 bg-surface/50 backdrop-blur-sm p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-glass-border">
             <div class="space-y-4">
                 <div class="w-16 h-16 rounded-2xl bg-brand-orange/10 flex items-center justify-center text-brand-orange">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -22,10 +22,10 @@ import { audioTracks } from "../../../data/audio";
                 </div>
             </div>
 
-            <div class="mt-8 lg:mt-0 p-4 rounded-xl bg-black/20 border border-border">
+            <div class="mt-8 lg:mt-0 p-4 rounded-xl bg-black/20 border border-glass-border">
                 <div class="flex items-center gap-3">
                      <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                     <span class="text-xs font-mono text-white/70 tracking-widest uppercase">Live Opnames</span>
+                     <span class="text-xs font-mono text-muted tracking-widest uppercase">Live Opnames</span>
                 </div>
             </div>
         </div>
@@ -34,12 +34,12 @@ import { audioTracks } from "../../../data/audio";
         <div class="lg:col-span-2 p-0">
             <div class="flex flex-col h-full">
                 {audioTracks.map((track, index) => (
-                    <div class="group/track relative p-6 border-b border-border last:border-0 hover:bg-white/5 transition-colors cursor-pointer audio-track-item" data-url={track.url}>
+                    <div class="group/track relative p-6 border-b border-glass-border last:border-0 hover:bg-glass-surface/50 transition-colors cursor-pointer audio-track-item" data-url={track.url}>
                         <div class="flex items-center justify-between gap-4">
                             <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center group-hover/track:bg-brand-orange group-hover/track:text-white transition-colors">
-                                     <span class="text-sm font-bold icon-play">▶</span>
-                                     <span class="hidden icon-pause">❚❚</span>
+                                <div class="w-10 h-10 rounded-full bg-surface border border-glass-border flex items-center justify-center group-hover/track:bg-brand-orange group-hover/track:text-white transition-colors">
+                                     <svg class="w-4 h-4 icon-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                                     <svg class="w-4 h-4 hidden icon-pause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
                                 </div>
                                 <div>
                                     <h4 class="font-bold text-primary text-lg">{track.title}</h4>
@@ -51,7 +51,7 @@ import { audioTracks } from "../../../data/audio";
                                 </div>
                             </div>
                             <!-- Waveform Animation (Hidden by default) -->
-                             <div class="active-indicator flex gap-1 items-end h-4" style="display: none;">
+                             <div class="active-indicator hidden gap-1 items-end h-4">
                                 <span class="w-1 bg-brand-orange h-full animate-music-bar-1"></span>
                                 <span class="w-1 bg-brand-orange h-2/3 animate-music-bar-2"></span>
                                 <span class="w-1 bg-brand-orange h-full animate-music-bar-3"></span>
@@ -128,6 +128,10 @@ import { audioTracks } from "../../../data/audio";
 </script>
 
 <style>
+    .active-indicator {
+        display: flex;
+    }
+
     @keyframes music-bar-1 { 0%, 100% { height: 40%; } 50% { height: 100%; } }
     @keyframes music-bar-2 { 0%, 100% { height: 80%; } 50% { height: 30%; } }
     @keyframes music-bar-3 { 0%, 100% { height: 100%; } 50% { height: 60%; } }
@@ -135,4 +139,12 @@ import { audioTracks } from "../../../data/audio";
     .animate-music-bar-1 { animation: music-bar-1 0.8s ease-in-out infinite; }
     .animate-music-bar-2 { animation: music-bar-2 0.6s ease-in-out infinite; }
     .animate-music-bar-3 { animation: music-bar-3 1.0s ease-in-out infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .animate-music-bar-1,
+        .animate-music-bar-2,
+        .animate-music-bar-3 {
+            animation: none;
+        }
+    }
 </style>

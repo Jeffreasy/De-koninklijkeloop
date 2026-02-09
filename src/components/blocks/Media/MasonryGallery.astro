@@ -45,7 +45,7 @@ const mediaItems: MediaItem[] = images.map((img) => ({
                 >
                     {/* Image Container with Aspect Ratio */}
                     <div
-                        class={`relative bg-surface border border-border overflow-hidden ${img.aspect === "vertical" ? "aspect-3/4" : "aspect-4/3"}`}
+                        class={`relative bg-surface border border-glass-border overflow-hidden ${img.aspect === "vertical" ? "aspect-3/4" : "aspect-4/3"}`}
                     >
                         {/* Gradient Overlay on Hover */}
                         <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 flex flex-col justify-end p-6">
