@@ -86,7 +86,7 @@ export function MediaToolbar({
                             </span>
                             <button
                                 onClick={onBulkEdit}
-                                className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20"
+                                className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 cursor-pointer"
                                 aria-label="Bulk bewerken geselecteerde afbeeldingen"
                             >
                                 <iconify-icon icon="lucide:edit-3" width="16" />
@@ -94,7 +94,7 @@ export function MediaToolbar({
                             </button>
                             <button
                                 onClick={onDelete}
-                                className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-colors font-medium"
+                                className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-colors font-medium cursor-pointer"
                                 aria-label="Verwijder geselecteerde afbeeldingen"
                             >
                                 <iconify-icon icon="lucide:trash-2" width="16" />
@@ -102,7 +102,7 @@ export function MediaToolbar({
                             </button>
                             <button
                                 onClick={onDeselectAll}
-                                className="px-4 py-2 min-h-[44px] rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-colors"
+                                className="px-4 py-2 min-h-[44px] rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-colors cursor-pointer"
                                 aria-label="Deselecteer alle afbeeldingen"
                             >
                                 Deselecteer

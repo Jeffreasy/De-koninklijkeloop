@@ -133,7 +133,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                             href={image.secure_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1 px-4 py-2 rounded-xl bg-glass-border/30 text-text-primary hover:bg-glass-border/50 transition-colors text-center text-sm font-medium"
+                            className="flex-1 px-4 py-2 rounded-xl bg-glass-border/30 text-text-primary hover:bg-glass-border/50 transition-colors text-center text-sm font-medium cursor-pointer"
                         >
                             <div className="flex items-center justify-center gap-2">
                                 <iconify-icon icon="lucide:external-link" width="16" />
@@ -142,7 +142,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                         </a>
                         <button
                             onClick={() => navigator.clipboard.writeText(image.secure_url)}
-                            className="flex-1 px-4 py-2 rounded-xl bg-glass-border/30 text-text-primary hover:bg-glass-border/50 transition-colors text-center text-sm font-medium"
+                            className="flex-1 px-4 py-2 rounded-xl bg-glass-border/30 text-text-primary hover:bg-glass-border/50 transition-colors text-center text-sm font-medium cursor-pointer"
                         >
                             <div className="flex items-center justify-center gap-2">
                                 <iconify-icon icon="lucide:copy" width="16" />
@@ -244,7 +244,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
             </div>
 
             {/* Footer Actions */}
-            <div className="sticky bottom-0 lg:relative mt-6 pt-6 border-t border-border flex items-center justify-between">
+            <div className="sticky bottom-0 lg:relative mt-6 pt-6 border-t border-glass-border flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-text-muted">
                     {image.hasAltText ? (
                         <>
