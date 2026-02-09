@@ -3,13 +3,15 @@
 // Pattern consistent with existing /api/auth/[...path].ts proxy
 import type { APIRoute } from 'astro';
 
+export const prerender = false;
+
 export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
     const { path } = params;
     // PUBLIC_API_URL already includes /api/v1 suffix
     const API_URL = import.meta.env.PUBLIC_API_URL || 'https://laventecareauthsystems.onrender.com/api/v1';
 
-    // Get auth token from cookie
-    const token = cookies.get('access_token')?.value;
+    // Get auth token from cookie (check both cookie names)
+    const token = cookies.get('access_token')?.value || cookies.get('dkl_auth_token')?.value;
 
     if (!token) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -38,8 +40,11 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
 
         headers.set('Authorization', `Bearer ${token}`);
         headers.set('X-Tenant-ID', tenantID);
+        headers.set('X-Requested-With', 'XMLHttpRequest'); // CSRF bypass signal
         headers.set('Host', new URL(API_URL).host);
         headers.set('Content-Type', 'application/json');
+
+        console.log(`[Email Proxy] Token present: ${!!token}, length: ${token?.length}`);
 
         const response = await fetch(backendUrl, {
             method: request.method,
