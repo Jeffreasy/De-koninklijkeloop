@@ -6,7 +6,6 @@ import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
 import type { Doc } from "../../../convex/_generated/dataModel";
 
-// ✅ Type-safe interface
 interface DashboardData {
     user: { email: string; id: string };
     registration: Doc<"registrations"> | null;
@@ -32,7 +31,6 @@ export default function ParticipantDashboardWrapper() {
                 }
             }
 
-            // ✅ Prevent infinite loop
             if (!t) {
                 if (window.location.pathname !== "/login") {
                     window.location.href = "/login";
@@ -55,7 +53,8 @@ export default function ParticipantDashboardWrapper() {
 }
 
 import ParticipantEditModal from "./ParticipantEditModal";
-import { RefreshCw, Edit2, Calendar, MapPin } from "lucide-react";
+import { RefreshCw, Edit2, Calendar, MapPin, Footprints, Users, HeartHandshake, Camera, Clock, Navigation, ExternalLink, Shield } from "lucide-react";
+import { routes } from "../../lib/routeData";
 
 function DashboardContent({ token }: { token: string }) {
     const getDashboardData = useAction(api.participant.getDashboardData);
@@ -69,7 +68,6 @@ function DashboardContent({ token }: { token: string }) {
         import.meta.env.PUBLIC_DEV_TENANT_ID ||
         "b2727666-7230-4689-b58b-ceab8c2898d5";
 
-    // Fetch event settings
     const eventSettings = useQuery(api.eventSettings.getActiveSettings);
 
     const loadData = useCallback(async () => {
@@ -105,14 +103,35 @@ function DashboardContent({ token }: { token: string }) {
         }
     }, []);
 
+    // Skeleton loader
     if (loading && !data) {
         return (
-            <div
-                className="text-text-body text-center p-10 animate-pulse"
-                role="status"
-                aria-live="polite"
-            >
-                Gegevens laden...
+            <div className="space-y-8 animate-pulse" role="status" aria-live="polite" aria-label="Dashboard laden">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                        <div className="h-8 w-48 bg-glass-bg rounded-lg" />
+                        <div className="h-5 w-64 bg-glass-bg rounded-lg" />
+                        <div className="bg-glass-bg rounded-xl p-6 space-y-4 border border-glass-border">
+                            <div className="flex justify-between items-center border-b border-glass-border pb-4">
+                                <div className="h-4 w-20 bg-glass-surface/50 rounded" />
+                                <div className="h-7 w-16 bg-glass-surface/50 rounded" />
+                            </div>
+                            <div className="flex justify-between items-center border-b border-glass-border pb-4">
+                                <div className="h-4 w-16 bg-glass-surface/50 rounded" />
+                                <div className="h-6 w-24 bg-glass-surface/50 rounded-full" />
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <div className="h-4 w-28 bg-glass-surface/50 rounded" />
+                                <div className="h-4 w-12 bg-glass-surface/50 rounded" />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="space-y-6">
+                        <div className="bg-glass-bg rounded-xl p-6 border border-glass-border h-32" />
+                        <div className="h-11 bg-glass-bg rounded-xl" />
+                    </div>
+                </div>
+                <span className="sr-only">Dashboard wordt geladen...</span>
             </div>
         );
     }
@@ -125,7 +144,7 @@ function DashboardContent({ token }: { token: string }) {
                     onClick={() => window.location.reload()}
                     variant="outline"
                     aria-label="Probeer opnieuw om gegevens te laden"
-                    className="min-h-[44px]"
+                    className="min-h-[44px] cursor-pointer"
                 >
                     Opnieuw proberen
                 </Button>
@@ -144,7 +163,7 @@ function DashboardContent({ token }: { token: string }) {
                     variant="outline"
                     disabled={isLoggingOut}
                     aria-label="Uitloggen van je account"
-                    className="min-h-[44px]"
+                    className="min-h-[44px] cursor-pointer"
                 >
                     {isLoggingOut ? "Uitloggen..." : "Uitloggen"}
                 </Button>
@@ -156,25 +175,59 @@ function DashboardContent({ token }: { token: string }) {
     const safeName = registration.name.trim().substring(0, 100);
     const eventDate = eventSettings?.event_date_display || "Datum volgt";
 
+    // Match route data to registration distance
+    const matchedRoute = routes.find(r => {
+        const dist = registration.distance;
+        if (dist === "2.5") return r.id === "2.5km";
+        if (dist === "6") return r.id === "6km";
+        if (dist === "10") return r.id === "10km";
+        if (dist === "15") return r.id === "15km";
+        return false;
+    });
+
+    const roleLabels: Record<string, { label: string; icon: typeof Users }> = {
+        deelnemer: { label: "Deelnemer", icon: Footprints },
+        begeleider: { label: "Begeleider", icon: Users },
+        vrijwilliger: { label: "Vrijwilliger", icon: HeartHandshake },
+    };
+
+    const roleInfo = roleLabels[registration.role] || roleLabels.deelnemer;
+    const RoleIcon = roleInfo.icon;
+
+    const registrationDate = new Date(registration.createdAt).toLocaleDateString("nl-NL", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+
+    // Google Maps directions link using first waypoint
+    const googleMapsUrl = matchedRoute
+        ? `https://www.google.com/maps/dir/?api=1&destination=${matchedRoute.points[0].lat},${matchedRoute.points[0].lng}&travelmode=walking`
+        : null;
+
     return (
-        <div className="space-y-8 animate-fade-in relative z-10">
-            {/* Status Card */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-8 animate-fade-in relative z-10" aria-label="Deelnemer dashboard">
+            {/* Welcome + Status */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-6">
                     <div className="flex justify-between items-start">
                         <div>
                             <h2 className="text-xl md:text-2xl font-bold text-text-body mb-2">
                                 Hallo, {safeName}!
                             </h2>
-                            <p className="text-text-muted">
-                                Je bent geregistreerd als{" "}
-                                <span className="text-text-body font-medium capitalize">
-                                    {registration.role}
-                                </span>.
-                            </p>
+                            <div className="flex items-center gap-2 text-text-muted">
+                                <RoleIcon className="w-4 h-4 text-brand-orange" />
+                                <span>
+                                    Geregistreerd als{" "}
+                                    <span className="text-text-body font-medium capitalize">
+                                        {roleInfo.label}
+                                    </span>
+                                </span>
+                            </div>
                         </div>
                     </div>
 
+                    {/* Registration Details Card */}
                     <div className="bg-glass-bg rounded-xl p-4 md:p-6 space-y-4 border border-glass-border">
                         <div className="flex justify-between items-center border-b border-glass-border pb-4">
                             <span className="text-text-muted">Afstand</span>
@@ -186,17 +239,34 @@ function DashboardContent({ token }: { token: string }) {
                             <span className="text-text-muted">Status</span>
                             <StatusBadge status={registration.status} />
                         </div>
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center border-b border-glass-border pb-4">
                             <span className="text-text-muted">Ondersteuning</span>
                             <span className="text-text-body capitalize">
                                 {registration.supportNeeded || 'Nee'}
                             </span>
                         </div>
+                        <div className="flex justify-between items-center border-b border-glass-border pb-4">
+                            <span className="text-text-muted flex items-center gap-1.5">
+                                <Clock className="w-3.5 h-3.5" /> Ingeschreven
+                            </span>
+                            <span className="text-text-body text-sm">
+                                {registrationDate}
+                            </span>
+                        </div>
+                        {registration.agreedToMedia && (
+                            <div className="flex justify-between items-center">
+                                <span className="text-text-muted flex items-center gap-1.5">
+                                    <Camera className="w-3.5 h-3.5" /> Media toestemming
+                                </span>
+                                <span className="text-green-400 text-sm font-medium">Ja</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Actions / Info */}
+                {/* Right Column: Event Info + Actions */}
                 <div className="space-y-6">
+                    {/* Event Date Card */}
                     <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-xl p-4 md:p-6">
                         <h3 className="text-lg font-bold text-text-body mb-2 flex items-center gap-2">
                             <Calendar className="w-5 h-5 text-brand-orange" />
@@ -213,11 +283,37 @@ function DashboardContent({ token }: { token: string }) {
                         </p>
                     </div>
 
+                    {/* Emergency Contact Quick View */}
+                    {registration.iceName && (
+                        <div className="bg-glass-bg border border-glass-border rounded-xl p-4 md:p-6">
+                            <h3 className="text-sm font-bold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <Shield className="w-4 h-4 text-brand-orange" />
+                                Noodcontact
+                            </h3>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-text-body font-medium">{registration.iceName}</p>
+                                    {registration.icePhone && (
+                                        <p className="text-text-muted text-sm">{registration.icePhone}</p>
+                                    )}
+                                </div>
+                                <Button
+                                    onClick={() => setShowEditModal(true)}
+                                    variant="ghost"
+                                    className="text-text-muted hover:text-brand-orange text-xs cursor-pointer"
+                                >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Actions */}
                     <div className="space-y-3">
                         <Button
                             onClick={() => setShowEditModal(true)}
                             variant="default"
-                            className="bg-brand-orange text-white hover:bg-orange-400 w-full min-h-[44px] shadow-lg shadow-brand-orange/20 flex items-center justify-center gap-2"
+                            className="bg-brand-orange text-white hover:bg-orange-400 w-full min-h-[44px] shadow-lg shadow-brand-orange/20 flex items-center justify-center gap-2 cursor-pointer"
                         >
                             <Edit2 className="w-4 h-4" />
                             Wijzig Gegevens
@@ -229,7 +325,7 @@ function DashboardContent({ token }: { token: string }) {
                                 variant="ghost"
                                 disabled={isLoggingOut}
                                 aria-label="Uitloggen van je account"
-                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 min-h-[44px] w-full md:w-auto"
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 min-h-[44px] w-full md:w-auto cursor-pointer"
                             >
                                 {isLoggingOut ? "Uitloggen..." : "Uitloggen"}
                             </Button>
@@ -237,6 +333,53 @@ function DashboardContent({ token }: { token: string }) {
                     </div>
                 </div>
             </div>
+
+            {/* Route Card */}
+            {matchedRoute && (
+                <div className="bg-glass-bg border border-glass-border rounded-xl p-4 md:p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-text-body flex items-center gap-2">
+                            <Navigation className="w-5 h-5 text-brand-orange" />
+                            Jouw Route
+                        </h3>
+                        <span
+                            className="px-3 py-1 rounded-full text-xs font-bold text-white"
+                            style={{ backgroundColor: matchedRoute.color }}
+                        >
+                            {matchedRoute.distance}
+                        </span>
+                    </div>
+
+                    <div className="space-y-2">
+                        <p className="text-text-body font-medium">{matchedRoute.name}</p>
+                        <p className="text-text-muted text-sm">{matchedRoute.description}</p>
+                    </div>
+
+                    {/* Route Preview Map */}
+                    <div className="rounded-xl overflow-hidden border border-glass-border bg-black/20 aspect-[16/7]">
+                        <iframe
+                            title={`Route kaart: ${matchedRoute.name}`}
+                            width="100%"
+                            height="100%"
+                            style={{ border: 0 }}
+                            loading="lazy"
+                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${Math.min(...matchedRoute.points.map(p => p.lng)) - 0.01}%2C${Math.min(...matchedRoute.points.map(p => p.lat)) - 0.005}%2C${Math.max(...matchedRoute.points.map(p => p.lng)) + 0.01}%2C${Math.max(...matchedRoute.points.map(p => p.lat)) + 0.005}&layer=mapnik&marker=${matchedRoute.points[0].lat}%2C${matchedRoute.points[0].lng}`}
+                        />
+                    </div>
+
+                    {googleMapsUrl && (
+                        <a
+                            href={googleMapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-sm text-brand-orange hover:text-orange-400 transition-colors font-medium cursor-pointer"
+                        >
+                            <ExternalLink className="w-4 h-4" />
+                            Open startpunt in Google Maps
+                        </a>
+                    )}
+                </div>
+            )}
 
             {/* Edit Modal */}
             {showEditModal && (
