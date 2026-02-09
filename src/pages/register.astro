@@ -6,11 +6,23 @@ import RegisterPageWrapper from "../components/islands/RegisterPageWrapper";
 ---
 
 <BaseLayout title="Registreren | De Koninklijke Loop">
+    <div class="fixed inset-0 bg-surface -z-10">
+        <div class="absolute inset-0 bg-brand-primary/5"></div>
+        <div
+            class="absolute top-0 left-1/4 w-96 h-96 bg-brand-orange/10 rounded-full blur-[128px]"
+        >
+        </div>
+        <div
+            class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[128px]"
+        >
+        </div>
+    </div>
+
     <Navbar />
     <main
-        class="pt-32 pb-20 px-6 min-h-screen flex items-center justify-center"
+        class="pt-32 pb-20 px-6 min-h-screen flex items-center justify-center relative"
     >
-        <div class="w-full max-w-lg space-y-8">
+        <div class="w-full max-w-lg space-y-8 z-10">
             <div class="text-center space-y-2">
                 <h1 class="text-3xl md:text-4xl font-display font-bold">
                     Inschrijven voor De Koninklijke Loop

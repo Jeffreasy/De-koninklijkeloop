@@ -4,6 +4,8 @@ import { setAuth } from "../../lib/auth";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, Mail, Lock, ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function LoginForm() {
     const [email, setEmail] = useState("");
@@ -11,6 +13,7 @@ export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [view, setView] = useState<'login' | 'forgot'>('login');
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -19,70 +22,57 @@ export default function LoginForm() {
 
         if (registered) {
             if (emailError) {
-                // Account created, but email failed
-                setSuccess("Account aangemaakt, maar de verificatie-email kon niet worden verzonden. Log in of neem contact op.");
+                setSuccess("Account aangemaakt, maar de verificatie-email kon niet worden verzonden.");
             } else {
-                // Success
-                setSuccess("Account aangemaakt! Controleer je e-mail om je wachtwoord in te stellen.");
+                setSuccess("Account aangemaakt! Controleer je e-mail.");
             }
         }
     }, []);
 
+    const clearState = () => {
+        setError(null);
+        setSuccess(null);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        setError(null);
-        setSuccess(null); // Clear success on submit
+        clearState();
 
         try {
-            // 1. Authenticate with LaventeCare
             const data = await apiRequest("/auth/login", {
                 method: "POST",
                 body: JSON.stringify({ email, password }),
             });
 
-
-
-            // API returns PascalCase (Go structs), Frontend expects normalized keys
-            // Cookie-based Auth: Token is in HttpOnly cookie, not in body.
             const rawUser = data.User || data.user;
+            if (!rawUser) throw new Error("Ongeldige server reactie.");
 
-            if (!rawUser) {
-                console.error("[LoginForm] 'User' or 'user' key missing in data:", Object.keys(data));
-                throw new Error("Ongeldige server reactie (Geen user data)");
-            }
-
-            // Normalize User object
             const user = {
                 id: rawUser.ID || rawUser.id,
                 email: rawUser.Email || rawUser.email,
                 role: (rawUser.Role || rawUser.role || "").toLowerCase()
             };
 
-            // 2. If Role is missing (Backend issue), fetch profile
-            // This implicitly tests if the HttpOnly cookie was set correctly
+            // Fetch profile if role missing (Backend might have failed to set role initially or token in cookie)
+            // Or if role is "viewer" but should check again?
+            // The previous logic was: if (!user.role) fetch profile.
+            // If API returns no role, it is "".
             if (!user.role) {
                 try {
-
                     const meData = await apiRequest("/auth/me");
-                    if (meData.user && meData.user.role) {
-                        user.role = meData.user.role.toLowerCase();
-
-                    }
+                    if (meData.user?.role) user.role = meData.user.role.toLowerCase();
                 } catch (e) {
-                    console.error("[LoginForm] Could not fetch profile (Cookie missing?):", e);
+                    console.error("Profile fetch failed:", e);
                 }
             }
 
-            // Fallback
+            // Fallback to viewer if still no role found
             if (!user.role) user.role = "viewer";
 
-            // 3. Store user state (Token is in Cookie)
             setAuth(null, user);
 
-            // 4. Redirect based on Role
-            console.log("[LoginForm] Login successful, redirecting based on role:", user.role);
-
+            // Redirect
             if (user.role === "admin" || user.role === "editor") {
                 window.location.href = "/admin/dashboard";
             } else {
@@ -90,146 +80,212 @@ export default function LoginForm() {
             }
 
         } catch (err: any) {
-            console.error("[LoginForm] Error:", err);
-            // Show real error for debugging if possible, else generic
-            setError(err.message || "Ongeldige inloggegevens. Probeer het opnieuw.");
+            console.error("Login error:", err);
+            setError(err.message || "Ongeldige inloggegevens.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const [view, setView] = useState<'login' | 'forgot'>('login');
-
     const handleForgotSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        setError(null);
-        setSuccess(null);
+        clearState();
 
         try {
-            // Use apiRequest for consistent headers (Tenant-ID) and validation
             await apiRequest('/auth/password/forgot', {
                 method: 'POST',
                 body: JSON.stringify({ email })
             });
 
-            setSuccess("We hebben een email gestuurd met instructies om je wachtwoord te resetten.");
-            setView('login');
+            setSuccess("Check je email voor de reset-link.");
+            setTimeout(() => setView('login'), 3000);
         } catch (err: any) {
-            console.error(err);
-            setError(err.message || "Er ging iets mis. Controleer je emailadres.");
+            setError(err.message || "Kon geen reset-link versturen.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    if (view === 'forgot') {
-        return (
-            <form onSubmit={handleForgotSubmit} className="space-y-4">
-                <div className="text-center mb-4">
-                    <h3 className="text-lg font-semibold text-white">Wachtwoord Herstellen</h3>
-                    <p className="text-sm text-white/60">Vul je emailadres in om een reset-link te ontvangen.</p>
-                </div>
-
-                {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm text-center">
-                        {error}
-                    </div>
-                )}
-
-                <div className="space-y-2">
-                    <Label htmlFor="reset-email">Email</Label>
-                    <Input
-                        id="reset-email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="jouw@email.nl"
-                        required
-                    />
-                </div>
-
-                <Button
-                    type="submit"
-                    variant="default"
-                    className="w-full shadow-lg shadow-brand-primary/20"
-                    disabled={isSubmitting}
-                >
-                    {isSubmitting ? "Versturen..." : "Reset Link Sturen"}
-                </Button>
-
-                <div className="text-center mt-4">
-                    <button
-                        type="button"
-                        onClick={() => { setView('login'); setError(null); setSuccess(null); }}
-                        className="text-sm text-brand-orange hover:underline focus:outline-none"
-                    >
-                        Terug naar Inloggen
-                    </button>
-                </div>
-            </form>
-        );
-    }
-
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            {success && (
-                <div className={`${success.includes("niet") ? "bg-yellow-500/10 border-yellow-500/20 text-yellow-500" : "bg-green-500/10 border-green-500/20 text-green-400"} border p-3 rounded-lg text-sm text-center flex items-center justify-center gap-2`}>
-                    {success.includes("niet") ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        <div className="w-full max-w-md mx-auto relative perspective-1000">
+            <div className="relative z-10 bg-surface/50 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-8 overflow-hidden">
+                {/* Decorative gradients */}
+                <div className="absolute -top-20 -left-20 w-40 h-40 bg-brand-orange/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                <AnimatePresence mode="wait">
+                    {view === 'login' ? (
+                        <motion.form
+                            key="login"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            transition={{ duration: 0.3 }}
+                            onSubmit={handleSubmit}
+                            className="space-y-6"
+                        >
+                            <div className="text-center space-y-2 mb-8">
+                                <h1 className="text-2xl font-bold text-white tracking-tight">Welkom terug</h1>
+                                <p className="text-sm text-text-muted">Log in om je dashboard te beheren</p>
+                            </div>
+
+                            {/* Status Messages */}
+                            <AnimatePresence>
+                                {error && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0 }}
+                                        className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-sm flex items-center gap-3"
+                                    >
+                                        <AlertCircle className="w-4 h-4 shrink-0" />
+                                        {error}
+                                    </motion.div>
+                                )}
+                                {success && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0 }}
+                                        className="bg-green-500/10 border border-green-500/20 text-green-400 p-3 rounded-xl text-sm flex items-center gap-3"
+                                    >
+                                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                                        {success}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="email" className="text-xs uppercase tracking-wider text-text-muted font-semibold ml-1">Email</Label>
+                                    <div className="relative group">
+                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="naam@voorbeeld.nl"
+                                            className="pl-10 bg-black/20 border-white/10 focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-white placeholder:text-white/20 transition-all"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between ml-1">
+                                        <Label htmlFor="password" className="text-xs uppercase tracking-wider text-text-muted font-semibold">Wachtwoord</Label>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setView('forgot'); clearState(); }}
+                                            className="text-xs text-brand-orange hover:text-orange-400 transition-colors bg-transparent border-none p-0 cursor-pointer"
+                                        >
+                                            Wachtwoord vergeten?
+                                        </button>
+                                    </div>
+                                    <div className="relative group">
+                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
+                                        <Input
+                                            id="password"
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="••••••••"
+                                            className="pl-10 bg-black/20 border-white/10 focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-white placeholder:text-white/20 transition-all"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full h-12 bg-linear-to-r from-brand-orange to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/25 hover:shadow-brand-orange/40 hover:-translate-y-0.5 transition-all duration-300"
+                            >
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Inloggen"}
+                            </Button>
+                        </motion.form>
                     ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M22 17a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h2a2 2 0 0 1 2 2Z" /><path d="M15 22a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2Z" /><path d="M13.5 8.5V11a5 5 0 1 0-10 0v2.5" /><path d="M7 17a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h2a2 2 0 0 1 2 2Z" /></svg>
+                        <motion.form
+                            key="forgot"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.3 }}
+                            onSubmit={handleForgotSubmit}
+                            className="space-y-6"
+                        >
+                            <div className="text-center space-y-2 mb-8">
+                                <h1 className="text-2xl font-bold text-white tracking-tight">Herstel toegang</h1>
+                                <p className="text-sm text-text-muted">Vul je email in voor een reset-link</p>
+                            </div>
+
+                            {/* Status Messages */}
+                            <AnimatePresence>
+                                {error && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0 }}
+                                        className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-sm flex items-center gap-3"
+                                    >
+                                        <AlertCircle className="w-4 h-4 shrink-0" />
+                                        {error}
+                                    </motion.div>
+                                )}
+                                {success && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0 }}
+                                        className="bg-green-500/10 border border-green-500/20 text-green-400 p-3 rounded-xl text-sm flex items-center gap-3"
+                                    >
+                                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                                        {success}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="reset-email" className="text-xs uppercase tracking-wider text-text-muted font-semibold ml-1">Email</Label>
+                                <div className="relative group">
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
+                                    <Input
+                                        id="reset-email"
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="naam@voorbeeld.nl"
+                                        className="pl-10 bg-black/20 border-white/10 focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-white placeholder:text-white/20 transition-all text-base"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full h-12 bg-white text-black hover:bg-white/90 font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                            >
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verstuur Reset Link"}
+                            </Button>
+
+                            <div className="text-center pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => { setView('login'); clearState(); }}
+                                    className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-white transition-colors group"
+                                >
+                                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                                    Terug naar inloggen
+                                </button>
+                            </div>
+                        </motion.form>
                     )}
-                    {success}
-                </div>
-            )}
-            {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm text-center">
-                    {error}
-                </div>
-            )}
-
-            <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@dekoninklijkeloop.nl"
-                    required
-                />
+                </AnimatePresence>
             </div>
-
-            <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Wachtwoord</Label>
-                    <button
-                        type="button"
-                        onClick={() => { setView('forgot'); setError(null); setSuccess(null); }}
-                        className="text-xs text-brand-orange hover:underline focus:outline-none"
-                    >
-                        Wachtwoord vergeten?
-                    </button>
-                </div>
-                <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                />
-            </div>
-
-            <Button
-                type="submit"
-                variant="default"
-                className="w-full shadow-lg shadow-brand-primary/20"
-                disabled={isSubmitting}
-            >
-                {isSubmitting ? "Inloggen..." : "Inloggen"}
-            </Button>
-        </form>
+        </div>
     );
 }
