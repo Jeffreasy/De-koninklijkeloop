@@ -1,0 +1,39 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/blocks/Global/Navbar.astro";
+import Footer from "../../components/blocks/Global/Footer.astro";
+import ResetPasswordIsland from "../../components/islands/ResetPasswordIsland";
+---
+
+<BaseLayout title="Wachtwoord Resetten - De Koninklijke Loop">
+    <div class="relative min-h-screen bg-app-bg overflow-hidden flex flex-col">
+        <!-- Navbar -->
+        <Navbar />
+
+        <!-- Main Content -->
+        <main
+            class="flex-1 flex items-center justify-center relative z-10 py-20 px-4"
+        >
+            <!-- Background Elements -->
+            <div
+                class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0"
+            >
+                <div
+                    class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-orange/10 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow"
+                >
+                </div>
+                <div
+                    class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] mix-blend-screen animate-pulse-slow delay-1000"
+                >
+                </div>
+            </div>
+
+            <div class="relative z-10 w-full">
+                <ResetPasswordIsland client:load />
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <Footer />
+    </div>
+</BaseLayout>
