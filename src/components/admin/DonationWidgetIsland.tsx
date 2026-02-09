@@ -1,7 +1,53 @@
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { ConvexClientProvider } from "../islands/ConvexClientProvider";
-import { Heart, Calendar, ArrowDown, ExternalLink } from "lucide-react";
+import { Heart, Calendar, ArrowDown, ExternalLink, AlertTriangle } from "lucide-react";
+
+/**
+ * Normalize any GoFundMe URL into a proper widget embed URL.
+ * 
+ * Accepts:
+ *   - Page URL: https://www.gofundme.com/f/samen-in-actie-2025
+ *   - Widget URL: https://www.gofundme.com/f/samen-in-actie-2025/widget/medium
+ *   - Sharesheet URL: https://www.gofundme.com/f/samen-in-actie-2025?sharesheet=...
+ *   - Full embed URL with attribution: https://www.gofundme.com/f/.../widget/medium?attribution_id=...
+ * 
+ * Returns: https://www.gofundme.com/f/{slug}/widget/medium
+ */
+function buildWidgetUrl(rawUrl: string): string | null {
+    try {
+        const url = new URL(rawUrl);
+
+        // Extract the campaign slug from the pathname
+        // Pattern: /f/{slug} or /f/{slug}/widget/... or /f/{slug}/...
+        const pathMatch = url.pathname.match(/^\/f\/([^/]+)/);
+        if (!pathMatch) return null;
+
+        const slug = pathMatch[1];
+        return `https://www.gofundme.com/f/${slug}/widget/medium`;
+    } catch {
+        // If URL parsing fails, try a regex fallback
+        const match = rawUrl.match(/gofundme\.com\/f\/([^/?#]+)/);
+        if (match) {
+            return `https://www.gofundme.com/f/${match[1]}/widget/medium`;
+        }
+        return null;
+    }
+}
+
+/**
+ * Extract the clean GoFundMe page URL for the "Bekijk op GoFundMe" link.
+ */
+function buildPageUrl(rawUrl: string): string {
+    try {
+        const url = new URL(rawUrl);
+        const pathMatch = url.pathname.match(/^\/f\/([^/]+)/);
+        if (pathMatch) {
+            return `https://www.gofundme.com/f/${pathMatch[1]}`;
+        }
+    } catch { /* fallback */ }
+    return rawUrl; // Return as-is if we can't parse
+}
 
 function DonationWidgetContent() {
     const activeCampaign = useQuery(api.donations.getActiveCampaign);
@@ -42,6 +88,9 @@ function DonationWidgetContent() {
         );
     }
 
+    const widgetUrl = buildWidgetUrl(activeCampaign.gofundme_url);
+    const pageUrl = buildPageUrl(activeCampaign.gofundme_url);
+
     return (
         <div className="w-full h-full flex flex-col">
             <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -64,7 +113,7 @@ function DonationWidgetContent() {
                 </div>
 
                 <a
-                    href={activeCampaign.gofundme_url}
+                    href={pageUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-white shadow-lg shadow-brand-orange/20 hover:shadow-brand-orange/40 transform hover:-translate-y-0.5 transition-all bg-linear-to-r from-brand-orange via-brand-orange to-red-500 bg-size-[200%_auto] animate-gradient group"
@@ -83,21 +132,38 @@ function DonationWidgetContent() {
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none opacity-30"></div>
 
                 <div className="relative h-full min-h-[550px] p-4 md:p-8 flex justify-center items-start overflow-hidden rounded-3xl">
-                    {/* The Widget Wrapper */}
-                    <div className="w-full max-w-[500px] bg-white rounded-2xl shadow-2xl shadow-black/80 overflow-hidden transform transition-transform duration-500 hover:scale-[1.005]">
-                        {/* Header Bar simulation for authenticity */}
-                        <div className="h-2 w-full bg-linear-to-r from-[#00b964] via-[#00b964] to-[#00a055]"></div>
+                    {widgetUrl ? (
+                        <div className="w-full max-w-[500px] bg-white rounded-2xl shadow-2xl shadow-black/80 overflow-hidden transform transition-transform duration-500 hover:scale-[1.005]">
+                            {/* Header Bar simulation for authenticity */}
+                            <div className="h-2 w-full bg-linear-to-r from-[#00b964] via-[#00b964] to-[#00a055]"></div>
 
-                        <iframe
-                            src={activeCampaign.gofundme_url.replace('/widget/large', '/widget/medium')}
-                            width="100%"
-                            height="550px"
-                            frameBorder="0"
-                            title="GoFundMe Donatie Widget"
-                            className="w-full bg-white"
-                            scrolling="no"
-                        />
-                    </div>
+                            <iframe
+                                src={widgetUrl}
+                                width="100%"
+                                height="550px"
+                                frameBorder="0"
+                                title="GoFundMe Donatie Widget"
+                                className="w-full bg-white"
+                                scrolling="no"
+                            />
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+                            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4">
+                                <AlertTriangle className="w-8 h-8 text-amber-400" />
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-2">Ongeldige GoFundMe URL</h3>
+                            <p className="text-gray-400 max-w-sm text-sm leading-relaxed mb-4">
+                                De opgeslagen URL kon niet worden geparsed als een geldige GoFundMe campagne.
+                            </p>
+                            <div className="text-xs text-gray-500 bg-black/20 rounded-lg px-4 py-2 font-mono break-all max-w-md">
+                                {activeCampaign.gofundme_url}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-3">
+                                Verwacht formaat: https://www.gofundme.com/f/campagne-naam
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
