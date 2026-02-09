@@ -7,13 +7,15 @@ import { internalMutation } from "./_generated/server";
 export const syncParticipantCount = internalMutation({
     args: {},
     handler: async (ctx) => {
-        // Count active registrations (not cancelled) for the current edition
+        // Count active registrations (not cancelled) for the CURRENT edition only
         const allRegistrations = await ctx.db
             .query("registrations")
             .collect();
 
-        // Filter: non-cancelled registrations
-        const count = allRegistrations.filter(r => r.status !== "cancelled").length;
+        // Filter: non-cancelled registrations for edition 2026 (exclude 2025 archive)
+        const count = allRegistrations.filter(
+            r => r.status !== "cancelled" && r.edition !== "2025"
+        ).length;
 
         // Get active settings
         const settings = await ctx.db

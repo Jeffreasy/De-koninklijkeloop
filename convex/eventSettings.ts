@@ -121,9 +121,11 @@ export const updateParticipantCount = internalMutation({
             return;
         }
 
-        // Count active registrations (not cancelled)
+        // Count active registrations (not cancelled, excluding 2025 archive)
         const registrations = await ctx.db.query("registrations").collect();
-        const count = registrations.filter(r => r.status !== "cancelled").length;
+        const count = registrations.filter(
+            r => r.status !== "cancelled" && r.edition !== "2025"
+        ).length;
 
         await ctx.db.patch(settings._id, {
             current_participants: count,
