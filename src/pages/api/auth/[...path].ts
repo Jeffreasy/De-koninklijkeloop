@@ -158,6 +158,32 @@ export const ALL: APIRoute = async ({ request, params, cookies }) => {
         newHeaders.delete('content-encoding');
         newHeaders.delete('content-length');
 
+        // CRITICAL FIX: Explicitly forward Set-Cookie headers
+        // Node's fetch/Headers sometimes hides Set-Cookie or merges them.
+        let cookiesToSet: string[] = [];
+        if (typeof response.headers.getSetCookie === 'function') {
+            cookiesToSet = response.headers.getSetCookie();
+        } else {
+            const sc = response.headers.get('set-cookie');
+            if (sc) cookiesToSet = [sc];
+        }
+
+        // We can't easily append multiple Set-Cookie headers to a standard Headers object in some environments
+        // But Astro's Response constructor should handle it if passed correctly.
+        // Or we use the cookie helper if needed, but we are in a raw Response here.
+
+        // WORKAROUND: Delete the merged header and re-append individually if supported
+        newHeaders.delete('set-cookie');
+        cookiesToSet.forEach(cookie => {
+            // Apply same sanitization as Login proxy (SameSite=Lax, Secure dev check)
+            let adjusted = cookie.replace(/SameSite=[a-zA-Z]+/gi, 'SameSite=Lax');
+            adjusted = adjusted.replace(/; Partitioned/gi, '');
+            if (!import.meta.env.PROD) {
+                adjusted = adjusted.replace(/; Secure/gi, '');
+            }
+            newHeaders.append('set-cookie', adjusted);
+        });
+
         return new Response(response.body, {
             status: response.status,
             statusText: response.statusText,

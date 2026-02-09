@@ -18,7 +18,8 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     });
 
     // 401 Interceptor: Token likely expired
-    if (res.status === 401) {
+    // EXCEPTION: Don't refresh if we're trying to login (401 means wrong password)
+    if (res.status === 401 && !endpoint.includes("/auth/login")) {
         console.warn("[API] 401 Unauthorized - Attempting Refresh...");
 
         try {
