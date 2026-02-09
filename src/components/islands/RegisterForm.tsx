@@ -93,7 +93,9 @@ export default function RegisterForm() {
 
                 // Trigger Password Reset Email (To set initial password)
                 try {
-                    const emailRes = await fetch('/api/auth/password/forgot', {
+                    // Use General Proxy (/api/v1/...) instead of Auth Proxy (/api/auth/...)
+                    // This routes through src/pages/api/[...all].ts which is confirmed working for ContactForm
+                    const emailRes = await fetch('/api/v1/auth/password/forgot', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: data.email })
@@ -125,7 +127,8 @@ export default function RegisterForm() {
 
                 // Trigger Welcome Email
                 try {
-                    const emailRes = await fetch('/api/auth/register-confirmation', { // Use Proxied Endpoint
+                    // Use General Proxy (/api/v1/...) for consistency
+                    const emailRes = await fetch('/api/v1/auth/register-confirmation', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ name: data.name, email: data.email })
