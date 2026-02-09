@@ -14,11 +14,6 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         return new Response("API Root", { status: 404 });
     }
 
-    // CRITICAL: Exclude /email/* routes - they have their own proxy
-    if (path.startsWith('email/')) {
-        return new Response("Use specific email proxy", { status: 404 });
-    }
-
     // Clean up path to avoid double /v1/v1
     let cleanPath = path;
     if (API_URL.endsWith('/v1') && cleanPath.startsWith('v1/')) {
