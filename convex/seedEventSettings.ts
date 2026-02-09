@@ -63,6 +63,11 @@ export const seed = mutation({
             payment_provider: undefined,
             payment_api_key: undefined,
 
+            // Mobile App
+            mobile_app_enabled: false,
+            mobile_app_url: undefined,
+            mobile_app_status: "coming_soon",
+
             // Meta
             created_at: Date.now(),
             updated_at: Date.now(),

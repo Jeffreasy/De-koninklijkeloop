@@ -204,7 +204,7 @@ export default defineSchema({
         payment_api_key: v.optional(v.string()),
 
         // Mobile App Integration
-        mobile_app_enabled: v.boolean(),
+        mobile_app_enabled: v.optional(v.boolean()),
         mobile_app_url: v.optional(v.string()),
         mobile_app_status: v.optional(v.union(v.literal("coming_soon"), v.literal("live"), v.literal("beta"))),
 
