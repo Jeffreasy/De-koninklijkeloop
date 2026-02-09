@@ -12,6 +12,8 @@ const {
     title,
     description = "De Koninklijke Loop 2026 - Wandel mee voor het Liliane Fonds",
 } = Astro.props;
+
+import FloatingDashboardButton from "../components/dashboard/FloatingDashboardButton";
 ---
 
 <!doctype html>
@@ -147,6 +149,7 @@ const {
                 }
             });
         </script>
+        <FloatingDashboardButton client:only="react" />
         <SpeedInsights />
     </body>
 </html>
