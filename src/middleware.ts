@@ -43,6 +43,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
                 if (user.data) user = user.data;
                 // If backend returns { user: ... } wrapper
                 if (user.user) user = user.user;
+
+                // Normalize Role (Critical for consistent checks)
+                if (user && user.role) {
+                    user.role = user.role.toLowerCase();
+                    // Map legacy 'participant' to 'deelnemer' if needed (though backend should handle this)
+                }
             } else {
                 console.warn(`[Middleware] Token validation failed: ${verifyReq.status}`);
             }

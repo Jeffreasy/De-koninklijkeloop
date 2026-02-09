@@ -11,7 +11,7 @@ export default function FloatingDashboardButton() {
     useEffect(() => {
         // Show button only if user is logged in and is a participant type
         // Admins/Editors usually have their own navigation or don't need this quick link
-        if (user && ['deelnemer', 'begeleider', 'vrijwilliger'].includes(user.role)) {
+        if (user && user.role && ['deelnemer', 'begeleider', 'vrijwilliger'].includes(user.role.toLowerCase())) {
             setIsVisible(true);
         } else {
             setIsVisible(false);
