@@ -3,7 +3,6 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { $accessToken } from "../../lib/auth";
 import { useStore } from "@nanostores/react";
-import type { CloudinaryImageAdmin } from "../../lib/cloudinary";
 import { MediaCard } from "./MediaCard.tsx";
 import { MediaToolbar } from "./MediaToolbar.tsx";
 import { PaginationControls } from "./PaginationControls.tsx";
@@ -12,6 +11,19 @@ import { MediaDetailModal } from "./MediaDetailModal.tsx";
 import { Loader2 } from "lucide-react";
 import { ToastContainer } from "../ui/ToastContainer.tsx";
 import { addToast } from "../../lib/toast.ts";
+
+/** Image structure used across the media manager */
+interface CloudinaryImageAdmin {
+    public_id: string;
+    secure_url: string;
+    format: string;
+    resource_type: string;
+    folder?: string;
+    created_at: string;
+    bytes: number;
+    width?: number;
+    height?: number;
+}
 
 /**
  * Merged interface combining ImageKit data with Convex metadata
