@@ -377,6 +377,9 @@ export default defineSchema({
         lastActive: v.number(), // Timestamp of last heartbeat
         status: v.union(v.literal("online"), v.literal("offline")), // Explicit status override
         currentPath: v.optional(v.string()), // Optional: Where are they?
+        role: v.optional(v.union(v.literal("admin"), v.literal("editor"))), // User role badge
+        typingTo: v.optional(v.string()), // Who they're typing to (email/groupId)
+        typingUpdatedAt: v.optional(v.number()), // Auto-expire after 3s
     })
         .index("by_user", ["user"])
         .index("by_last_active", ["lastActive"]),
@@ -392,12 +395,53 @@ export default defineSchema({
         isRead: v.boolean(), // Read status
         type: v.union(v.literal("text"), v.literal("image"), v.literal("system")), // Message type
 
-        // Threading/Context (Optional)
-        conversationId: v.optional(v.string()), // optimize listing
+        // Threading/Context
+        conversationId: v.optional(v.string()), // Deterministic: [min(a,b), max(a,b)].join(":")
+
+        // Reactions
+        reactions: v.optional(v.array(v.object({
+            emoji: v.string(),
+            user: v.string(),
+            name: v.string(),
+        }))),
 
         createdAt: v.number(),
     })
         .index("by_recipient_read", ["recipient", "isRead"]) // Fast "Unread Count"
         .index("by_participants", ["sender", "recipient"]) // Fetch conversation
         .index("by_conversation", ["conversationId", "createdAt"]), // Fetch thread
+
+    /**
+     * Group Conversations
+     * Admin/Editor group chats.
+     */
+    group_conversations: defineTable({
+        name: v.string(),
+        members: v.array(v.string()),       // Array of user emails
+        createdBy: v.string(),
+        avatarEmoji: v.optional(v.string()), // Group emoji avatar
+        lastMessageAt: v.optional(v.number()),
+        lastMessagePreview: v.optional(v.string()),
+        createdAt: v.number(),
+    })
+        .index("by_last_message", ["lastMessageAt"]),
+
+    /**
+     * Group Messages
+     * Messages within group conversations.
+     */
+    group_messages: defineTable({
+        groupId: v.id("group_conversations"),
+        sender: v.string(),
+        senderName: v.string(),
+        content: v.string(),
+        type: v.union(v.literal("text"), v.literal("image"), v.literal("system")),
+        reactions: v.optional(v.array(v.object({
+            emoji: v.string(),
+            user: v.string(),
+            name: v.string(),
+        }))),
+        createdAt: v.number(),
+    })
+        .index("by_group", ["groupId", "createdAt"]),
 });
