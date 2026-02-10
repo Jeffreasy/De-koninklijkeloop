@@ -65,10 +65,6 @@
         {
             "source": "/api/v1/(.*)",
             "destination": "https://laventecareauthsystems.onrender.com/api/v1/$1"
-        },
-        {
-            "source": "/api/email/(.*)",
-            "destination": "https://laventecareauthsystems.onrender.com/api/v1/admin/email/$1"
         }
     ]
 }
