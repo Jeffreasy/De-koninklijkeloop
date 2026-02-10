@@ -15,13 +15,14 @@ import ParticipantDetailModal from "./ParticipantDetailModal";
 // Types
 type ParticipantRole = "deelnemer" | "begeleider" | "vrijwilliger";
 type ParticipantStatus = "pending" | "paid" | "cancelled";
+type RouteDistance = "2.5" | "6" | "10" | "15";
 
 interface Registration {
     _id: string;
     name: string;
     email: string;
     role: ParticipantRole;
-    distance?: string;
+    distance?: RouteDistance;
     status: ParticipantStatus;
     userType?: string;
     iceName?: string;
@@ -539,10 +540,7 @@ export default function DashboardTable() {
                                         <tr key={reg._id} className="group hover:bg-glass-surface/50 transition-colors">
                                             <td className="py-3 px-5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`
-                                                        w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border shadow-sm transition-transform group-hover:scale-105
-                                                        ${reg.role === 'admin' ? 'border-red-500/30 bg-red-500/10 text-red-500' : 'border-glass-border bg-linear-to-br from-white/10 to-transparent text-text-primary'}
-                                                    `}>
+                                                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border shadow-sm transition-transform group-hover:scale-105 border-glass-border bg-linear-to-br from-white/10 to-transparent text-text-primary">
                                                         {reg.name.charAt(0).toUpperCase()}
                                                     </div>
                                                     <div>
@@ -555,10 +553,9 @@ export default function DashboardTable() {
                                                 <div className="flex flex-col gap-1">
                                                     <div className="flex items-center gap-2">
                                                         <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded
-                                                            ${reg.role === 'admin' ? 'bg-red-500/10 text-red-500' :
-                                                                reg.role === 'vrijwilliger' ? 'bg-blue-500/10 text-blue-500' :
-                                                                    reg.role === 'begeleider' ? 'bg-amber-500/10 text-amber-500' :
-                                                                        'bg-glass-border/40 text-text-primary'}
+                                                            ${reg.role === 'vrijwilliger' ? 'bg-blue-500/10 text-blue-500' :
+                                                                reg.role === 'begeleider' ? 'bg-amber-500/10 text-amber-500' :
+                                                                    'bg-glass-border/40 text-text-primary'}
                                                         `}>
                                                             {reg.role}
                                                         </span>
