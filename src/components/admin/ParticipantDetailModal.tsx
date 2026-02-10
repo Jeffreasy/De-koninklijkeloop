@@ -38,7 +38,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
         name: registration.name,
         email: registration.email,
         role: registration.role,
-        distance: registration.distance || "5", // Default fallback
+        distance: registration.distance || "6", // Default to 6km
         status: registration.status,
         iceName: registration.iceName || "",
         icePhone: registration.icePhone || "",
