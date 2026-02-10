@@ -7,6 +7,7 @@ type NavItem = {
     name: string;
     href: string;
     highlight?: boolean;
+    badge?: string;
 };
 
 export const siteConfig = {
@@ -29,7 +30,7 @@ export const siteConfig = {
     navigation: [
         { name: "Home", href: "/" },
         { name: "Routes", href: "/routes" },
-        { name: "Programma", href: "/programma" },
+        { name: "Programma", href: "/programma", badge: "'25" },
         { name: "Media", href: "/media" },
         { name: "DKL", href: "/dkl" },
         { name: "Inschrijven", href: "/register", highlight: true },
