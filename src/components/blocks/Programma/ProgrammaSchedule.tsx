@@ -1,10 +1,12 @@
+import { useState, useMemo } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { routes } from '../../../lib/routeData';
 import {
     Flag, Play, Bus, MapPin, Coffee, Trophy, PartyPopper,
     Circle, Clock, Sparkles, Timer, CalendarDays, Route, Info,
-    MapPinned, Users, ArrowRight, ChevronRight
+    MapPinned, Users, ArrowRight, ChevronRight, AlertTriangle,
+    Utensils, Heart, Accessibility, Phone
 } from 'lucide-react';
 import { ConvexClientProvider } from '../../islands/ConvexClientProvider';
 
@@ -22,14 +24,40 @@ const getIcon = (iconName: string, className: string = "w-5 h-5") => {
     }
 };
 
+type RouteFilter = 'all' | '15km' | '10km' | '6km' | '2.5km';
+
+const FILTER_TABS: { id: RouteFilter; label: string; color: string }[] = [
+    { id: 'all', label: 'Alles', color: '#f97316' },
+    { id: '15km', label: '15 KM', color: '#ef4444' },
+    { id: '10km', label: '10 KM', color: '#8b5cf6' },
+    { id: '6km', label: '6 KM', color: '#3b82f6' },
+    { id: '2.5km', label: '2,5 KM', color: '#10b981' },
+];
+
+const MELDTIJDEN: { route: string; time: string; color: string }[] = [
+    { route: '15 KM', time: '10:15', color: '#ef4444' },
+    { route: '10 KM', time: '12:00', color: '#8b5cf6' },
+    { route: '6 KM', time: '13:15', color: '#3b82f6' },
+    { route: '2,5 KM', time: '14:30', color: '#10b981' },
+];
+
 function ProgrammaContent() {
     const schedule = useQuery(api.team.getSchedule);
     const settings = useQuery(api.eventSettings.getActiveSettings);
+    const [activeFilter, setActiveFilter] = useState<RouteFilter>('all');
 
     const eventDate = settings?.event_date_display || settings?.event_date || '2026';
     const locationName = settings?.location_name || 'Paleis Het Loo';
     const locationCity = settings?.location_city || 'Apeldoorn';
     const currentParticipants = (settings as any)?.current_participants ?? 0;
+
+    const filteredSchedule = useMemo(() => {
+        if (!schedule) return null;
+        if (activeFilter === 'all') return schedule;
+        return schedule.filter(item =>
+            item.routeId === activeFilter || !item.routeId
+        );
+    }, [schedule, activeFilter]);
 
     return (
         <div className="space-y-8 md:space-y-12">
@@ -63,6 +91,97 @@ function ProgrammaContent() {
                             <span className="text-text-primary font-medium tabular-nums">{currentParticipants} deelnemers</span>
                         </div>
                     )}
+                </div>
+            </section>
+
+            {/* ── Meldtijden Quick Reference ── */}
+            <section>
+                <div className="text-center mb-5">
+                    <h2 className="text-xl md:text-2xl font-bold text-text-primary tracking-tight font-display">
+                        Meldtijden
+                    </h2>
+                    <p className="text-text-muted text-sm mt-1">Meld je op tijd bij het coördinatiepunt (Grote Kerk)</p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {MELDTIJDEN.map(m => (
+                        <div
+                            key={m.route}
+                            className="relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md p-4 text-center group hover:shadow-lg transition-all duration-300"
+                        >
+                            <div
+                                className="absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-[0.06] group-hover:opacity-[0.12] transition-opacity pointer-events-none"
+                                style={{ backgroundColor: m.color }}
+                            />
+                            <div className="text-2xl md:text-3xl font-bold font-mono tabular-nums mb-1" style={{ color: m.color }}>
+                                {m.time}
+                            </div>
+                            <div className="text-xs font-bold uppercase tracking-wider" style={{ color: m.color }}>
+                                {m.route}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* ── Praktische Informatie ── */}
+            <section className="relative rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md p-6 md:p-8 overflow-hidden">
+                <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-brand-orange/3 rounded-full blur-3xl -z-10 -translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+
+                <h2 className="text-xl md:text-2xl font-bold text-text-primary tracking-tight font-display mb-5">
+                    Praktische Informatie
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                        {
+                            icon: MapPinned,
+                            title: "Coördinatiepunt",
+                            desc: "Grote Kerk, Loolaan 16, 7315 AB Apeldoorn. Hier meld je je aan en vertrekken de pendelbussen.",
+                            color: "#f97316"
+                        },
+                        {
+                            icon: Utensils,
+                            title: "Eten & Drinken",
+                            desc: "Je krijgt een lunchpakketje mee. Bij rustpunten is fruit & drinken aanwezig. Neem zelf voldoende water mee!",
+                            color: "#10b981"
+                        },
+                        {
+                            icon: AlertTriangle,
+                            title: "Toiletten",
+                            desc: "Bij de Grote Kerk zijn toiletten beschikbaar (incl. invalidetoilet). Let op: op de route zijn GEEN toiletten!",
+                            color: "#eab308"
+                        },
+                        {
+                            icon: Heart,
+                            title: "EHBO & Begeleiding",
+                            desc: "Er zijn routebegeleiders en EHBO'ers onderweg. Bij hun kun je altijd terecht voor vragen.",
+                            color: "#ef4444"
+                        },
+                        {
+                            icon: Bus,
+                            title: "Vervoer",
+                            desc: "Pendelbussen brengen je naar de startpunten. Er is een rolstoelbus beschikbaar.",
+                            color: "#3b82f6"
+                        },
+                        {
+                            icon: Phone,
+                            title: "Vragen of info?",
+                            desc: "Neem contact op via onze contactpagina of spreek een routebegeleider aan.",
+                            color: "#8b5cf6"
+                        },
+                    ].map(item => (
+                        <div key={item.title} className="flex gap-4 p-4 rounded-xl bg-glass-surface/40 border border-glass-border/50 group hover:bg-glass-surface/60 transition-all">
+                            <div
+                                className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border"
+                                style={{ backgroundColor: `${item.color}10`, borderColor: `${item.color}20` }}
+                            >
+                                <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-bold text-text-primary mb-0.5">{item.title}</h3>
+                                <p className="text-xs text-text-muted leading-relaxed">{item.desc}</p>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </section>
 
@@ -101,7 +220,6 @@ function ProgrammaContent() {
                             const padding = 0.15;
                             const rangeLat = (maxLat - minLat) || 0.001;
                             const rangeLng = (maxLng - minLng) || 0.001;
-
                             return route.points.map((p, idx) => {
                                 const x = ((p.lng - minLng) / rangeLng) * (1 - 2 * padding) + padding;
                                 const y = 1 - (((p.lat - minLat) / rangeLat) * (1 - 2 * padding) + padding);
@@ -112,70 +230,29 @@ function ProgrammaContent() {
                         return (
                             <div
                                 key={route.id}
-                                className="relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md group hover:shadow-xl hover:border-opacity-60 transition-all duration-300"
+                                className="relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md group hover:shadow-xl transition-all duration-300"
                             >
-                                {/* Background Accent */}
                                 <div
                                     className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-[0.06] group-hover:opacity-[0.12] transition-opacity pointer-events-none"
                                     style={{ backgroundColor: route.color }}
                                 />
-
                                 <div className="flex flex-col sm:flex-row">
                                     {/* SVG Route Preview */}
                                     <div className="relative w-full sm:w-48 h-32 sm:h-auto shrink-0 bg-glass-surface/30 flex items-center justify-center overflow-hidden border-b sm:border-b-0 sm:border-r border-glass-border/50">
-                                        <svg
-                                            viewBox="0 0 200 120"
-                                            className="w-full h-full p-3 opacity-70 group-hover:opacity-100 transition-opacity"
-                                            fill="none"
-                                            preserveAspectRatio="xMidYMid meet"
-                                        >
+                                        <svg viewBox="0 0 200 120" className="w-full h-full p-3 opacity-70 group-hover:opacity-100 transition-opacity" fill="none" preserveAspectRatio="xMidYMid meet">
                                             {svgPath && (
                                                 <>
-                                                    <path
-                                                        d={svgPath}
-                                                        stroke={route.color}
-                                                        strokeWidth="2.5"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        opacity="0.15"
-                                                        fill="none"
-                                                    />
-                                                    <path
-                                                        d={svgPath}
-                                                        stroke={route.color}
-                                                        strokeWidth="1.5"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        fill="none"
-                                                        className="drop-shadow-sm"
-                                                    />
-                                                    {/* Start dot */}
-                                                    <circle
-                                                        cx={svgPath.split(' ')[1]}
-                                                        cy={svgPath.split(' ')[2]}
-                                                        r="4"
-                                                        fill={route.color}
-                                                        opacity="0.8"
-                                                    />
-                                                    {/* End dot */}
+                                                    <path d={svgPath} stroke={route.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.15" fill="none" />
+                                                    <path d={svgPath} stroke={route.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" className="drop-shadow-sm" />
+                                                    <circle cx={svgPath.split(' ')[1]} cy={svgPath.split(' ')[2]} r="4" fill={route.color} opacity="0.8" />
                                                     {(() => {
                                                         const parts = svgPath.trim().split(/\s+/);
-                                                        const ey = parts[parts.length - 1];
-                                                        const ex = parts[parts.length - 2];
-                                                        return <circle cx={ex} cy={ey} r="4" fill={route.color} stroke="white" strokeWidth="1.5" />;
+                                                        return <circle cx={parts[parts.length - 2]} cy={parts[parts.length - 1]} r="4" fill={route.color} stroke="white" strokeWidth="1.5" />;
                                                     })()}
                                                 </>
                                             )}
                                         </svg>
-                                        {/* Distance overlay */}
-                                        <div
-                                            className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider border"
-                                            style={{
-                                                color: route.color,
-                                                borderColor: `${route.color}30`,
-                                                backgroundColor: `${route.color}10`,
-                                            }}
-                                        >
+                                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider border" style={{ color: route.color, borderColor: `${route.color}30`, backgroundColor: `${route.color}10` }}>
                                             {route.distance}
                                         </div>
                                     </div>
@@ -183,16 +260,10 @@ function ProgrammaContent() {
                                     {/* Content */}
                                     <div className="flex-1 p-5 md:p-6">
                                         <div className="flex items-center gap-2.5 mb-2">
-                                            <div
-                                                className="w-3 h-3 rounded-full shrink-0 shadow-sm"
-                                                style={{ backgroundColor: route.color }}
-                                            />
+                                            <div className="w-3 h-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: route.color }} />
                                             <h3 className="text-base font-bold text-text-primary">{route.name}</h3>
                                         </div>
-
                                         <p className="text-sm text-text-muted leading-relaxed mb-4">{route.description}</p>
-
-                                        {/* Meta Row */}
                                         <div className="flex items-center gap-4 mb-3">
                                             <div className="flex items-center gap-1.5 text-xs text-text-muted">
                                                 <Timer className="w-3.5 h-3.5" style={{ color: route.color }} />
@@ -203,19 +274,9 @@ function ProgrammaContent() {
                                                 <span className="font-medium tabular-nums">{route.points.length} punten</span>
                                             </div>
                                         </div>
-
-                                        {/* Terrain Labels */}
                                         <div className="flex flex-wrap gap-1.5">
                                             {labels.map(label => (
-                                                <span
-                                                    key={label}
-                                                    className="px-2 py-0.5 rounded-md text-[10px] font-medium border"
-                                                    style={{
-                                                        color: route.color,
-                                                        borderColor: `${route.color}20`,
-                                                        backgroundColor: `${route.color}08`,
-                                                    }}
-                                                >
+                                                <span key={label} className="px-2 py-0.5 rounded-md text-[10px] font-medium border" style={{ color: route.color, borderColor: `${route.color}20`, backgroundColor: `${route.color}08` }}>
                                                     {label}
                                                 </span>
                                             ))}
@@ -228,20 +289,19 @@ function ProgrammaContent() {
                 </div>
             </section>
 
-            {/* ── Timeline ── */}
+            {/* ── Timeline with Route Filters ── */}
             <section className="relative bg-glass-bg border border-glass-border rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden backdrop-blur-xl">
-                {/* Ambient Glows */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2 opacity-40 pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-3xl -z-10 translate-y-1/2 -translate-x-1/2 opacity-25 pointer-events-none" />
 
                 <div className="max-w-3xl mx-auto">
                     {/* Section Header */}
-                    <div className="text-center mb-10">
+                    <div className="text-center mb-8">
                         <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-2 tracking-tight font-display">
                             Dagprogramma
                         </h2>
                         <p className="text-text-muted text-sm md:text-base max-w-lg mx-auto">
-                            De officiële planning voor evenementdag.
+                            Filter op jouw route of bekijk het volledige programma.
                         </p>
                         <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-400 text-xs font-medium">
                             <Info className="w-3 h-3" />
@@ -249,18 +309,62 @@ function ProgrammaContent() {
                         </div>
                     </div>
 
+                    {/* Route Filter Tabs */}
+                    <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
+                        {FILTER_TABS.map(tab => {
+                            const isActive = activeFilter === tab.id;
+                            const routeMatch = routes.find(r => r.id === tab.id);
+                            const tabColor = routeMatch?.color || tab.color;
+
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveFilter(tab.id)}
+                                    className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 cursor-pointer
+                                        ${isActive
+                                            ? 'text-white shadow-lg scale-105'
+                                            : 'bg-glass-surface/50 text-text-muted border-glass-border hover:border-opacity-60 hover:text-text-primary'
+                                        }`}
+                                    style={isActive ? {
+                                        backgroundColor: tabColor,
+                                        borderColor: tabColor,
+                                        boxShadow: `0 4px 14px ${tabColor}30`,
+                                    } : undefined}
+                                >
+                                    {tab.id !== 'all' && (
+                                        <span
+                                            className="inline-block w-2 h-2 rounded-full mr-1.5"
+                                            style={{ backgroundColor: isActive ? 'white' : tabColor }}
+                                        />
+                                    )}
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Item Count Indicator */}
+                    {filteredSchedule && (
+                        <div className="text-center mb-6">
+                            <span className="text-xs text-text-muted">
+                                {filteredSchedule.length} {filteredSchedule.length === 1 ? 'moment' : 'momenten'}
+                                {activeFilter !== 'all' && ' voor deze route'}
+                            </span>
+                        </div>
+                    )}
+
                     {/* Timeline Items */}
                     <div className="relative space-y-0">
                         <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-glass-border to-transparent md:-translate-x-px pointer-events-none" />
 
-                        {!schedule ? (
+                        {!filteredSchedule ? (
                             [1, 2, 3, 4, 5].map(i => (
                                 <div key={i} className="relative flex items-start gap-4 py-6">
                                     <div className="w-12 h-12 rounded-full bg-glass-surface animate-pulse shrink-0" />
                                     <div className="flex-1 h-28 bg-glass-surface rounded-2xl animate-pulse" />
                                 </div>
                             ))
-                        ) : schedule.length === 0 ? (
+                        ) : filteredSchedule.length === 0 ? (
                             <div className="text-center py-16">
                                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-glass-surface flex items-center justify-center border border-glass-border">
                                     <CalendarDays className="w-7 h-7 text-text-muted opacity-50" />
@@ -268,7 +372,7 @@ function ProgrammaContent() {
                                 <p className="text-text-muted">Het programma wordt binnenkort bekendgemaakt.</p>
                             </div>
                         ) : (
-                            schedule.map((item, i) => {
+                            filteredSchedule.map((item, i) => {
                                 const isEvent = item.type === 'event';
                                 const isBreak = item.type === 'break';
                                 const route = item.routeId ? routes.find(r => r.id === item.routeId) : null;
@@ -304,10 +408,7 @@ function ProgrammaContent() {
                                                     }`}>
 
                                                     {route && (
-                                                        <div
-                                                            className="absolute top-0 right-0 w-28 h-28 opacity-[0.06] rounded-bl-full -mr-6 -mt-6 pointer-events-none"
-                                                            style={{ backgroundColor: route.color }}
-                                                        />
+                                                        <div className="absolute top-0 right-0 w-28 h-28 opacity-[0.06] rounded-bl-full -mr-6 -mt-6 pointer-events-none" style={{ backgroundColor: route.color }} />
                                                     )}
 
                                                     <div className="flex items-center justify-between gap-3 mb-3">
@@ -318,10 +419,7 @@ function ProgrammaContent() {
                                                             </span>
                                                         </div>
                                                         {route && (
-                                                            <span
-                                                                className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border"
-                                                                style={{ color: route.color, borderColor: `${route.color}25`, backgroundColor: `${route.color}08` }}
-                                                            >
+                                                            <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border" style={{ color: route.color, borderColor: `${route.color}25`, backgroundColor: `${route.color}08` }}>
                                                                 {route.distance}
                                                             </span>
                                                         )}
@@ -351,17 +449,17 @@ function ProgrammaContent() {
                     </div>
 
                     {/* Duration Footer */}
-                    {schedule && schedule.length > 1 && (
+                    {filteredSchedule && filteredSchedule.length > 1 && (
                         <div className="mt-10 pt-6 border-t border-glass-border/30">
                             <div className="flex items-center justify-center gap-6 text-sm text-text-muted">
                                 <span className="flex items-center gap-1.5">
                                     <Timer className="w-4 h-4 text-brand-orange" />
-                                    <span className="font-medium">{schedule[0]?.time} — {schedule[schedule.length - 1]?.time}</span>
+                                    <span className="font-medium">{filteredSchedule[0]?.time} — {filteredSchedule[filteredSchedule.length - 1]?.time}</span>
                                 </span>
                                 <span className="w-px h-4 bg-glass-border" />
                                 <span className="flex items-center gap-1.5">
                                     <CalendarDays className="w-4 h-4" />
-                                    <span className="tabular-nums">{schedule.length} momenten</span>
+                                    <span className="tabular-nums">{filteredSchedule.length} momenten</span>
                                 </span>
                             </div>
                         </div>
