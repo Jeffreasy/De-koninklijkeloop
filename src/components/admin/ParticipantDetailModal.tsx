@@ -6,13 +6,17 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { useStore } from "@nanostores/react";
 import { $accessToken } from "../../lib/auth";
 
+type ParticipantRole = "deelnemer" | "begeleider" | "vrijwilliger";
+type ParticipantStatus = "pending" | "paid" | "cancelled";
+type RouteDistance = "2.5" | "6" | "10" | "15";
+
 interface Registration {
     _id: string;
     name: string;
     email: string;
-    role: string;
-    distance?: string;
-    status: string;
+    role: ParticipantRole;
+    distance?: RouteDistance;
+    status: ParticipantStatus;
     userType?: string;
     iceName?: string;
     icePhone?: string;
@@ -245,8 +249,8 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                     value={formData.status}
                                     onChange={(e) => handleChange("status", e.target.value)}
                                     className={`w-full px-3 py-2 rounded-xl border border-glass-border text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none ${formData.status === 'paid' ? 'bg-green-500/10 text-green-400 border-green-500/30' :
-                                            formData.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' :
-                                                'bg-red-500/10 text-red-400 border-red-500/30'
+                                        formData.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' :
+                                            'bg-red-500/10 text-red-400 border-red-500/30'
                                         }`}
                                 >
                                     <option value="paid" className="bg-slate-900 text-gray-100">✅ Geaccepteerd</option>
