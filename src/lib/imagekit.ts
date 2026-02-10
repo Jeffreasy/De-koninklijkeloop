@@ -224,24 +224,19 @@ export async function uploadImage(
     file: string,
     fileName: string,
     folder: string
-): Promise<{ url: string; fileId: string; filePath: string } | null> {
-    try {
-        const result = await imagekit.files.upload({
-            file: file as any,
-            fileName,
-            folder,
-            useUniqueFileName: true,
-        });
+): Promise<{ url: string; fileId: string; filePath: string }> {
+    const result = await imagekit.files.upload({
+        file: file as any,
+        fileName,
+        folder,
+        useUniqueFileName: true,
+    });
 
-        return {
-            url: result.url || '',
-            fileId: result.fileId || '',
-            filePath: result.filePath || '',
-        };
-    } catch (e) {
-        console.error(`[ImageKit] Upload error:`, e);
-        return null;
-    }
+    return {
+        url: result.url || '',
+        fileId: result.fileId || '',
+        filePath: result.filePath || '',
+    };
 }
 
 // ─── Auth params for client-side uploads ───────────────────────

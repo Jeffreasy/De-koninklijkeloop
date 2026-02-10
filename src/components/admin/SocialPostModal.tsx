@@ -107,11 +107,11 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
             if (selectedFile) {
                 setIsUploading(true);
                 try {
-                    console.log('📤 Uploading file before saving...');
+                    if (import.meta.env.DEV) console.log('📤 Uploading file before saving...');
                     finalImageUrl = await uploadFileToImageKit(selectedFile);
-                    console.log('✅ File uploaded:', finalImageUrl);
+                    if (import.meta.env.DEV) console.log('✅ File uploaded:', finalImageUrl);
                 } catch (uploadError) {
-                    console.error('❌ Upload failed:', uploadError);
+                    if (import.meta.env.DEV) console.error('❌ Upload failed:', uploadError);
                     alert('Upload mislukt. Probeer opnieuw.');
                     setIsUploading(false);
                     setIsSaving(false);

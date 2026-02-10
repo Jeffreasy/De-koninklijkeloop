@@ -56,7 +56,7 @@ export function SocialPostCard({
                         ? "bg-[rgb(var(--success))]/90 text-white dark:bg-[rgb(var(--success))]/80"
                         : "bg-[rgb(var(--muted))]/90 text-white dark:bg-[rgb(var(--muted))]/70"
                         }`}>
-                        {post.isVisible ? "Visible" : "Hidden"}
+                        {post.isVisible ? "Zichtbaar" : "Verborgen"}
                     </div>
                 </div>
 
@@ -65,8 +65,8 @@ export function SocialPostCard({
                     #{post.displayOrder}
                 </div>
 
-                {/* Hover Actions Overlay */}
-                <div className="absolute inset-0 bg-brand-orange/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 p-4">
+                {/* Desktop: Hover Actions Overlay (hidden on mobile) */}
+                <div className="absolute inset-0 bg-brand-orange/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex items-center justify-center gap-2 p-4">
                     <button
                         onClick={() => onEdit(post._id)}
                         className="p-3 rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-200 shadow-lg min-w-[44px] min-h-[44px] cursor-pointer"
@@ -100,6 +100,20 @@ export function SocialPostCard({
                         <iconify-icon icon="lucide:trash-2" width="20" />
                     </button>
                 </div>
+
+                {/* Mobile: Tap-to-edit overlay on image (visible on touch devices) */}
+                <button
+                    onClick={() => onEdit(post._id)}
+                    className="absolute inset-0 md:hidden cursor-pointer"
+                    aria-label="Post bewerken"
+                >
+                    <div className="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/70 via-black/20 to-transparent p-3 pt-8">
+                        <span className="text-white text-xs font-medium flex items-center gap-1.5 justify-center opacity-80">
+                            <iconify-icon icon="lucide:tap" width="14" />
+                            Tik om te bewerken
+                        </span>
+                    </div>
+                </button>
             </div>
 
             {/* Caption Preview */}
@@ -117,6 +131,51 @@ export function SocialPostCard({
                     <iconify-icon icon="lucide:external-link" width="12" />
                     Bekijk op Instagram
                 </a>
+            </div>
+
+            {/* Mobile: Always-visible action bar (hidden on desktop) */}
+            <div className="md:hidden flex items-center border-t border-glass-border bg-glass-bg/50">
+                <button
+                    onClick={() => onEdit(post._id)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-3 text-text-muted active:bg-brand-orange/10 active:text-brand-orange active:scale-95 transition-all cursor-pointer min-h-[48px]"
+                    aria-label="Post bewerken"
+                >
+                    <iconify-icon icon="lucide:edit-3" width="16" />
+                    <span className="text-xs font-medium">Bewerk</span>
+                </button>
+                <div className="w-px h-6 bg-glass-border" />
+                <button
+                    onClick={() => onToggleVisibility(post._id)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-3 active:scale-95 transition-all cursor-pointer min-h-[48px] ${post.isVisible
+                        ? "text-text-muted active:bg-yellow-500/10 active:text-yellow-500"
+                        : "text-green-400 active:bg-green-500/10"
+                        }`}
+                    aria-label={post.isVisible ? "Post verbergen" : "Post tonen"}
+                >
+                    <iconify-icon icon={post.isVisible ? "lucide:eye-off" : "lucide:eye"} width="16" />
+                    <span className="text-xs font-medium">{post.isVisible ? "Verberg" : "Toon"}</span>
+                </button>
+                <div className="w-px h-6 bg-glass-border" />
+                <button
+                    onClick={() => onToggleFeatured(post._id)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-3 active:scale-95 transition-all cursor-pointer min-h-[48px] ${post.isFeatured
+                        ? "text-brand-orange active:bg-brand-orange/10"
+                        : "text-text-muted active:bg-brand-orange/10 active:text-brand-orange"
+                        }`}
+                    aria-label={post.isFeatured ? "Featured status verwijderen" : "Als featured markeren"}
+                >
+                    <iconify-icon icon={post.isFeatured ? "lucide:star-off" : "lucide:star"} width="16" />
+                    <span className="text-xs font-medium">{post.isFeatured ? "Unfeature" : "Feature"}</span>
+                </button>
+                <div className="w-px h-6 bg-glass-border" />
+                <button
+                    onClick={() => onDelete(post._id)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-3 text-red-400 active:bg-red-500/10 active:scale-95 transition-all cursor-pointer min-h-[48px]"
+                    aria-label="Post verwijderen"
+                >
+                    <iconify-icon icon="lucide:trash-2" width="16" />
+                    <span className="text-xs font-medium">Wis</span>
+                </button>
             </div>
         </div>
     );

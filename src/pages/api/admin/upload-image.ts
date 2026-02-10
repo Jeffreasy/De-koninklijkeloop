@@ -40,10 +40,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
         const result = await uploadImage(dataURI, file.name, '/De Koninklijkeloop/SocialmediaPosts');
 
-        if (!result) {
-            throw new Error('Upload returned null');
-        }
-
         if (import.meta.env.DEV) console.log('✅ Upload successful:', result.url);
 
         return new Response(

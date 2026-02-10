@@ -133,6 +133,7 @@ export async function uploadFileToImageKit(file: File): Promise<string> {
     const response = await fetch('/api/admin/upload-image', {
         method: 'POST',
         body: formData,
+        credentials: 'include',
     });
 
     const data = await response.json();
