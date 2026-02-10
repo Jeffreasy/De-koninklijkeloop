@@ -65,15 +65,25 @@ function ProgrammaContent() {
             <section className="text-center">
                 <div className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-brand-orange/10 text-brand-orange text-xs font-bold uppercase tracking-widest mb-6 border border-brand-orange/20 shadow-sm">
                     <Sparkles className="w-3 h-3" />
-                    2026 Editie
+                    Editie 2025
                 </div>
 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary tracking-tight font-display mb-4">
-                    Het Programma
+                    Programma 2025
                 </h1>
-                <p className="text-text-muted text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed mb-8">
-                    Bekijk de volledige dagplanning voor De Koninklijke Loop. Van de eerste stappen tot de finish bij het paleis.
+                <p className="text-text-muted text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed mb-6">
+                    Bekijk het volledige dagprogramma van De Koninklijke Loop 2025. Van de eerste stappen tot de finish bij het paleis.
                 </p>
+
+                {/* 2026 Announcement Banner */}
+                <div className="max-w-xl mx-auto mb-8 p-4 rounded-2xl bg-glass-bg border border-brand-orange/20 backdrop-blur-md">
+                    <p className="text-sm font-semibold text-text-primary mb-1">
+                        Het programma van 2026 volgt binnenkort!
+                    </p>
+                    <p className="text-xs text-text-muted">
+                        Het definitieve programma voor de editie 2026 wordt tijdig aangekondigd. Onderstaand programma is van de succesvolle editie 2025 en dient als referentie.
+                    </p>
+                </div>
 
                 {/* Quick Info Badges */}
                 <div className="flex flex-wrap items-center justify-center gap-3">
@@ -303,9 +313,9 @@ function ProgrammaContent() {
                         <p className="text-text-muted text-sm md:text-base max-w-lg mx-auto">
                             Filter op jouw route of bekijk het volledige programma.
                         </p>
-                        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-400 text-xs font-medium">
+                        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-medium">
                             <Info className="w-3 h-3" />
-                            Concept — Tijden onder voorbehoud
+                            Programma 2025 — Programma 2026 wordt binnenkort aangekondigd
                         </div>
                     </div>
 
