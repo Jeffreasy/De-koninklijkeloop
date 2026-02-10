@@ -2,13 +2,77 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/blocks/Global/Navbar.astro";
 import Footer from "../components/blocks/Global/Footer.astro";
+import ProgrammaSchedule from "../components/blocks/Programma/ProgrammaSchedule";
+
+const title = "Programma — De Koninklijke Loop 2026";
+const description =
+    "Bekijk het volledige dagprogramma voor De Koninklijke Loop 2026 in Apeldoorn. Routes van 2,5 tot 15 km langs Paleis Het Loo. Ontdek start- en finishtijden, rustpunten en meer.";
+const canonicalUrl = "https://dekoninklijkeloop.nl/programma";
+
+const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: "De Koninklijke Loop 2026",
+    description: description,
+    startDate: "2026-06-14T08:00:00+02:00",
+    endDate: "2026-06-14T17:00:00+02:00",
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    location: {
+        "@type": "Place",
+        name: "Paleis Het Loo",
+        address: {
+            "@type": "PostalAddress",
+            addressLocality: "Apeldoorn",
+            addressRegion: "Gelderland",
+            addressCountry: "NL",
+        },
+    },
+    organizer: {
+        "@type": "Organization",
+        name: "De Koninklijke Loop",
+        url: "https://dekoninklijkeloop.nl",
+    },
+    offers: {
+        "@type": "Offer",
+        url: "https://dekoninklijkeloop.nl/register",
+        availability: "https://schema.org/InStock",
+        priceCurrency: "EUR",
+        price: "0",
+        validFrom: "2026-01-01",
+    },
+    image: "https://dekoninklijkeloop.nl/og-programma.jpg",
+    url: canonicalUrl,
+};
 ---
 
-<BaseLayout title="Coming Soon">
+<BaseLayout title={title} description={description}>
+    <Fragment slot="head">
+        {/* Canonical */}
+        <link rel="canonical" href={canonicalUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:locale" content="nl_NL" />
+        <meta property="og:site_name" content="De Koninklijke Loop" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+
+        {/* JSON-LD Structured Data */}
+        <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    </Fragment>
+
     <Navbar />
-    <main class="pt-32 pb-20 px-6 min-h-screen text-center">
-        <h1 class="text-4xl font-bold">Coming Soon</h1>
-        <p class="text-text-muted mt-4">Deze pagina is nog in ontwikkeling.</p>
+    <main
+        class="pt-28 md:pt-32 pb-16 md:pb-20 px-4 md:px-6 min-h-screen max-w-6xl mx-auto"
+    >
+        <ProgrammaSchedule client:load />
     </main>
     <Footer />
 </BaseLayout>

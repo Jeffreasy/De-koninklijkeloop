@@ -1,0 +1,410 @@
+import { useQuery } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { routes } from '../../../lib/routeData';
+import {
+    Flag, Play, Bus, MapPin, Coffee, Trophy, PartyPopper,
+    Circle, Clock, Sparkles, Timer, CalendarDays, Route, Info,
+    MapPinned, Users, ArrowRight, ChevronRight
+} from 'lucide-react';
+import { ConvexClientProvider } from '../../islands/ConvexClientProvider';
+
+const getIcon = (iconName: string, className: string = "w-5 h-5") => {
+    switch (iconName) {
+        case 'aanvang': return <Flag className={className} />;
+        case 'start': return <Play className={className} />;
+        case 'vertrek': return <Bus className={className} />;
+        case 'aanwezig': return <MapPin className={className} />;
+        case 'rustpunt': return <Coffee className={className} />;
+        case 'aankomst': return <Flag className={className} />;
+        case 'finish': return <Trophy className={className} />;
+        case 'feest': return <PartyPopper className={className} />;
+        default: return <Circle className={className} />;
+    }
+};
+
+function ProgrammaContent() {
+    const schedule = useQuery(api.team.getSchedule);
+    const settings = useQuery(api.eventSettings.getActiveSettings);
+
+    const eventDate = settings?.event_date_display || settings?.event_date || '2026';
+    const locationName = settings?.location_name || 'Paleis Het Loo';
+    const locationCity = settings?.location_city || 'Apeldoorn';
+    const currentParticipants = (settings as any)?.current_participants ?? 0;
+
+    return (
+        <div className="space-y-8 md:space-y-12">
+            {/* ── Hero Header ── */}
+            <section className="text-center">
+                <div className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-brand-orange/10 text-brand-orange text-xs font-bold uppercase tracking-widest mb-6 border border-brand-orange/20 shadow-sm">
+                    <Sparkles className="w-3 h-3" />
+                    2026 Editie
+                </div>
+
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary tracking-tight font-display mb-4">
+                    Het Programma
+                </h1>
+                <p className="text-text-muted text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed mb-8">
+                    Bekijk de volledige dagplanning voor De Koninklijke Loop. Van de eerste stappen tot de finish bij het paleis.
+                </p>
+
+                {/* Quick Info Badges */}
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-glass-bg border border-glass-border backdrop-blur-md text-sm">
+                        <CalendarDays className="w-4 h-4 text-brand-orange" />
+                        <span className="text-text-primary font-medium">{eventDate}</span>
+                    </div>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-glass-bg border border-glass-border backdrop-blur-md text-sm">
+                        <MapPinned className="w-4 h-4 text-brand-orange" />
+                        <span className="text-text-primary font-medium">{locationName}, {locationCity}</span>
+                    </div>
+                    {currentParticipants > 0 && (
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-glass-bg border border-glass-border backdrop-blur-md text-sm">
+                            <Users className="w-4 h-4 text-green-500" />
+                            <span className="text-text-primary font-medium tabular-nums">{currentParticipants} deelnemers</span>
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* ── Route Detail Cards ── */}
+            <section>
+                <div className="text-center mb-6">
+                    <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight font-display mb-2">
+                        Kies je route
+                    </h2>
+                    <p className="text-text-muted text-sm md:text-base max-w-lg mx-auto">
+                        Vier unieke routes door de bossen rond Paleis Het Loo.
+                    </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {routes.map(route => {
+                        const distNum = parseFloat(route.distance);
+                        const walkMinutes = Math.round((distNum / 4.5) * 60);
+                        const walkHours = Math.floor(walkMinutes / 60);
+                        const walkMins = walkMinutes % 60;
+                        const walkTime = walkHours > 0 ? `${walkHours}u ${walkMins}m` : `${walkMins} min`;
+
+                        const terrainLabels: Record<string, string[]> = {
+                            '2.5km': ['Verhard', 'Toegankelijk', 'Rolstoelvriendelijk'],
+                            '6km': ['Bospaden', 'Licht heuvelachtig', 'Gezinsvriendelijk'],
+                            '10km': ['Bospaden', 'Onverhard', 'Heuvelachtig'],
+                            '15km': ['Bospaden', 'Onverhard', 'Sportief'],
+                        };
+                        const labels = terrainLabels[route.id] || ['Natuur'];
+
+                        const svgPath = (() => {
+                            if (route.points.length < 2) return '';
+                            const lats = route.points.map(p => p.lat);
+                            const lngs = route.points.map(p => p.lng);
+                            const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+                            const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+                            const padding = 0.15;
+                            const rangeLat = (maxLat - minLat) || 0.001;
+                            const rangeLng = (maxLng - minLng) || 0.001;
+
+                            return route.points.map((p, idx) => {
+                                const x = ((p.lng - minLng) / rangeLng) * (1 - 2 * padding) + padding;
+                                const y = 1 - (((p.lat - minLat) / rangeLat) * (1 - 2 * padding) + padding);
+                                return `${idx === 0 ? 'M' : 'L'} ${(x * 200).toFixed(1)} ${(y * 120).toFixed(1)}`;
+                            }).join(' ');
+                        })();
+
+                        return (
+                            <div
+                                key={route.id}
+                                className="relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md group hover:shadow-xl hover:border-opacity-60 transition-all duration-300"
+                            >
+                                {/* Background Accent */}
+                                <div
+                                    className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-[0.06] group-hover:opacity-[0.12] transition-opacity pointer-events-none"
+                                    style={{ backgroundColor: route.color }}
+                                />
+
+                                <div className="flex flex-col sm:flex-row">
+                                    {/* SVG Route Preview */}
+                                    <div className="relative w-full sm:w-48 h-32 sm:h-auto shrink-0 bg-glass-surface/30 flex items-center justify-center overflow-hidden border-b sm:border-b-0 sm:border-r border-glass-border/50">
+                                        <svg
+                                            viewBox="0 0 200 120"
+                                            className="w-full h-full p-3 opacity-70 group-hover:opacity-100 transition-opacity"
+                                            fill="none"
+                                            preserveAspectRatio="xMidYMid meet"
+                                        >
+                                            {svgPath && (
+                                                <>
+                                                    <path
+                                                        d={svgPath}
+                                                        stroke={route.color}
+                                                        strokeWidth="2.5"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        opacity="0.15"
+                                                        fill="none"
+                                                    />
+                                                    <path
+                                                        d={svgPath}
+                                                        stroke={route.color}
+                                                        strokeWidth="1.5"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        fill="none"
+                                                        className="drop-shadow-sm"
+                                                    />
+                                                    {/* Start dot */}
+                                                    <circle
+                                                        cx={svgPath.split(' ')[1]}
+                                                        cy={svgPath.split(' ')[2]}
+                                                        r="4"
+                                                        fill={route.color}
+                                                        opacity="0.8"
+                                                    />
+                                                    {/* End dot */}
+                                                    {(() => {
+                                                        const parts = svgPath.trim().split(/\s+/);
+                                                        const ey = parts[parts.length - 1];
+                                                        const ex = parts[parts.length - 2];
+                                                        return <circle cx={ex} cy={ey} r="4" fill={route.color} stroke="white" strokeWidth="1.5" />;
+                                                    })()}
+                                                </>
+                                            )}
+                                        </svg>
+                                        {/* Distance overlay */}
+                                        <div
+                                            className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider border"
+                                            style={{
+                                                color: route.color,
+                                                borderColor: `${route.color}30`,
+                                                backgroundColor: `${route.color}10`,
+                                            }}
+                                        >
+                                            {route.distance}
+                                        </div>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex-1 p-5 md:p-6">
+                                        <div className="flex items-center gap-2.5 mb-2">
+                                            <div
+                                                className="w-3 h-3 rounded-full shrink-0 shadow-sm"
+                                                style={{ backgroundColor: route.color }}
+                                            />
+                                            <h3 className="text-base font-bold text-text-primary">{route.name}</h3>
+                                        </div>
+
+                                        <p className="text-sm text-text-muted leading-relaxed mb-4">{route.description}</p>
+
+                                        {/* Meta Row */}
+                                        <div className="flex items-center gap-4 mb-3">
+                                            <div className="flex items-center gap-1.5 text-xs text-text-muted">
+                                                <Timer className="w-3.5 h-3.5" style={{ color: route.color }} />
+                                                <span className="font-medium">~{walkTime}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-xs text-text-muted">
+                                                <Route className="w-3.5 h-3.5" style={{ color: route.color }} />
+                                                <span className="font-medium tabular-nums">{route.points.length} punten</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Terrain Labels */}
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {labels.map(label => (
+                                                <span
+                                                    key={label}
+                                                    className="px-2 py-0.5 rounded-md text-[10px] font-medium border"
+                                                    style={{
+                                                        color: route.color,
+                                                        borderColor: `${route.color}20`,
+                                                        backgroundColor: `${route.color}08`,
+                                                    }}
+                                                >
+                                                    {label}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
+
+            {/* ── Timeline ── */}
+            <section className="relative bg-glass-bg border border-glass-border rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden backdrop-blur-xl">
+                {/* Ambient Glows */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2 opacity-40 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-3xl -z-10 translate-y-1/2 -translate-x-1/2 opacity-25 pointer-events-none" />
+
+                <div className="max-w-3xl mx-auto">
+                    {/* Section Header */}
+                    <div className="text-center mb-10">
+                        <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-2 tracking-tight font-display">
+                            Dagprogramma
+                        </h2>
+                        <p className="text-text-muted text-sm md:text-base max-w-lg mx-auto">
+                            De officiële planning voor evenementdag.
+                        </p>
+                        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-400 text-xs font-medium">
+                            <Info className="w-3 h-3" />
+                            Concept — Tijden onder voorbehoud
+                        </div>
+                    </div>
+
+                    {/* Timeline Items */}
+                    <div className="relative space-y-0">
+                        <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-glass-border to-transparent md:-translate-x-px pointer-events-none" />
+
+                        {!schedule ? (
+                            [1, 2, 3, 4, 5].map(i => (
+                                <div key={i} className="relative flex items-start gap-4 py-6">
+                                    <div className="w-12 h-12 rounded-full bg-glass-surface animate-pulse shrink-0" />
+                                    <div className="flex-1 h-28 bg-glass-surface rounded-2xl animate-pulse" />
+                                </div>
+                            ))
+                        ) : schedule.length === 0 ? (
+                            <div className="text-center py-16">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-glass-surface flex items-center justify-center border border-glass-border">
+                                    <CalendarDays className="w-7 h-7 text-text-muted opacity-50" />
+                                </div>
+                                <p className="text-text-muted">Het programma wordt binnenkort bekendgemaakt.</p>
+                            </div>
+                        ) : (
+                            schedule.map((item, i) => {
+                                const isEvent = item.type === 'event';
+                                const isBreak = item.type === 'break';
+                                const route = item.routeId ? routes.find(r => r.id === item.routeId) : null;
+                                const isLeft = i % 2 === 0;
+
+                                return (
+                                    <div key={item._id} className="relative group/item">
+                                        <div className={`flex items-start py-4 md:py-6 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+                                            {/* Node */}
+                                            <div className="absolute left-6 md:left-1/2 md:-translate-x-1/2 z-10">
+                                                <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 shadow-lg transition-all duration-300 group-hover/item:scale-110
+                                                    ${isEvent
+                                                        ? 'bg-linear-to-br from-brand-orange to-red-500 text-white border-white/20 shadow-brand-orange/30'
+                                                        : isBreak
+                                                            ? 'bg-linear-to-br from-blue-500 to-indigo-600 text-white border-white/20 shadow-blue-500/25'
+                                                            : 'bg-glass-surface text-text-muted border-glass-border shadow-sm'
+                                                    }`}>
+                                                    {getIcon(item.icon, "w-5 h-5")}
+                                                </div>
+                                            </div>
+
+                                            <div className="w-18 shrink-0 md:hidden" />
+                                            <div className={`hidden md:block md:w-[calc(50%-1.5rem)] ${isLeft ? 'order-last' : ''}`} />
+
+                                            {/* Card */}
+                                            <div className={`flex-1 md:w-[calc(50%-1.5rem)] ${isLeft ? 'md:pr-8' : 'md:pl-8'}`}>
+                                                <div className={`relative p-5 md:p-6 rounded-2xl border backdrop-blur-md transition-all duration-300 group-hover/item:-translate-y-0.5 group-hover/item:shadow-xl overflow-hidden
+                                                    ${isEvent
+                                                        ? 'bg-glass-surface/90 border-brand-orange/15 hover:border-brand-orange/40 shadow-md shadow-brand-orange/5'
+                                                        : isBreak
+                                                            ? 'bg-glass-surface/70 border-blue-500/15 hover:border-blue-500/30 shadow-sm'
+                                                            : 'bg-glass-surface/40 border-glass-border hover:bg-glass-surface/60 shadow-sm'
+                                                    }`}>
+
+                                                    {route && (
+                                                        <div
+                                                            className="absolute top-0 right-0 w-28 h-28 opacity-[0.06] rounded-bl-full -mr-6 -mt-6 pointer-events-none"
+                                                            style={{ backgroundColor: route.color }}
+                                                        />
+                                                    )}
+
+                                                    <div className="flex items-center justify-between gap-3 mb-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <Clock className={`w-3.5 h-3.5 ${isEvent ? 'text-brand-orange' : 'text-text-muted'}`} />
+                                                            <span className={`font-mono text-sm font-bold tracking-wide ${isEvent ? 'text-brand-orange' : 'text-text-muted'}`}>
+                                                                {item.time}
+                                                            </span>
+                                                        </div>
+                                                        {route && (
+                                                            <span
+                                                                className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border"
+                                                                style={{ color: route.color, borderColor: `${route.color}25`, backgroundColor: `${route.color}08` }}
+                                                            >
+                                                                {route.distance}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <h3 className={`text-base md:text-lg font-bold mb-2 leading-snug ${isEvent ? 'text-text-primary' : 'text-text-secondary'}`}>
+                                                        {item.title}
+                                                    </h3>
+
+                                                    <p className={`text-sm leading-relaxed ${isEvent ? 'text-text-secondary' : 'text-text-muted'}`}>
+                                                        {item.description}
+                                                    </p>
+
+                                                    {route && (
+                                                        <div className="mt-4 pt-3 border-t border-glass-border/50 flex items-center gap-2">
+                                                            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: route.color }} />
+                                                            <span className="text-xs font-medium text-text-muted">{route.name}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+
+                    {/* Duration Footer */}
+                    {schedule && schedule.length > 1 && (
+                        <div className="mt-10 pt-6 border-t border-glass-border/30">
+                            <div className="flex items-center justify-center gap-6 text-sm text-text-muted">
+                                <span className="flex items-center gap-1.5">
+                                    <Timer className="w-4 h-4 text-brand-orange" />
+                                    <span className="font-medium">{schedule[0]?.time} — {schedule[schedule.length - 1]?.time}</span>
+                                </span>
+                                <span className="w-px h-4 bg-glass-border" />
+                                <span className="flex items-center gap-1.5">
+                                    <CalendarDays className="w-4 h-4" />
+                                    <span className="tabular-nums">{schedule.length} momenten</span>
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* ── CTA Section ── */}
+            <section className="text-center py-4">
+                <div className="relative overflow-hidden rounded-3xl bg-glass-bg border border-glass-border p-8 md:p-12 backdrop-blur-xl">
+                    <div className="absolute inset-0 bg-linear-to-br from-brand-orange/5 via-transparent to-blue-500/5 pointer-events-none" />
+                    <div className="relative">
+                        <h2 className="text-2xl md:text-3xl font-bold text-text-primary font-display mb-3">
+                            Doe mee aan De Koninklijke Loop
+                        </h2>
+                        <p className="text-text-muted text-base md:text-lg max-w-lg mx-auto mb-6">
+                            Wandel mee door de prachtige bossen van Apeldoorn. Kies je afstand en schrijf je in.
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                            <a
+                                href="/register"
+                                className="inline-flex items-center gap-2 px-8 py-3.5 bg-brand-orange text-white rounded-xl font-semibold shadow-lg shadow-brand-orange/25 hover:shadow-xl hover:shadow-brand-orange/30 hover:bg-brand-orange-dark transition-all duration-300 text-base cursor-pointer"
+                            >
+                                Schrijf je in <ArrowRight className="w-4 h-4" />
+                            </a>
+                            <a
+                                href="/routes"
+                                className="inline-flex items-center gap-2 px-6 py-3.5 bg-glass-surface border border-glass-border text-text-primary rounded-xl font-medium hover:bg-glass-surface/80 hover:border-brand-orange/30 transition-all duration-300 text-sm cursor-pointer"
+                            >
+                                Bekijk routes <ChevronRight className="w-4 h-4" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    );
+}
+
+export default function ProgrammaSchedule() {
+    return (
+        <ConvexClientProvider>
+            <ProgrammaContent />
+        </ConvexClientProvider>
+    );
+}
