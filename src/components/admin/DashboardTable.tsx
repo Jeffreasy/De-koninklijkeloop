@@ -13,13 +13,16 @@ import { useDashboardStats } from "./DashboardStats";
 import ParticipantDetailModal from "./ParticipantDetailModal";
 
 // Types
+type ParticipantRole = "deelnemer" | "begeleider" | "vrijwilliger";
+type ParticipantStatus = "pending" | "paid" | "cancelled";
+
 interface Registration {
     _id: string;
     name: string;
     email: string;
-    role: string;
+    role: ParticipantRole;
     distance?: string;
-    status: string;
+    status: ParticipantStatus;
     userType?: string;
     iceName?: string;
     icePhone?: string;
@@ -65,7 +68,29 @@ export default function DashboardTable() {
         }
     }, [accessToken, getRegistrations]);
 
-    if (!isMounted) return null;
+    if (!isMounted) return (
+        <div className="space-y-6 pb-12" aria-hidden="true">
+            {/* CLS skeleton matching final layout */}
+            <div className="flex justify-between items-center">
+                <div className="space-y-2">
+                    <div className="h-7 w-48 bg-glass-border/30 rounded-lg animate-pulse" />
+                    <div className="h-4 w-32 bg-glass-border/20 rounded animate-pulse" />
+                </div>
+                <div className="h-9 w-32 bg-glass-border/30 rounded-xl animate-pulse" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                <div className="bg-glass-bg/40 border border-glass-border rounded-2xl p-5 h-28 animate-pulse" />
+                <div className="bg-glass-bg/40 border border-glass-border rounded-2xl p-5 h-28 animate-pulse" />
+                <div className="bg-glass-bg/40 border border-glass-border rounded-2xl p-5 h-28 animate-pulse" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                <div className="bg-glass-bg/40 border border-glass-border rounded-3xl p-6 h-56 animate-pulse" />
+                <div className="bg-glass-bg/40 border border-glass-border rounded-3xl p-6 h-56 animate-pulse" />
+                <div className="bg-glass-bg/40 border border-glass-border rounded-3xl p-6 h-56 animate-pulse" />
+            </div>
+            <div className="bg-glass-bg/40 border border-glass-border rounded-3xl h-[600px] animate-pulse" />
+        </div>
+    );
 
     if (!user) {
         return (
@@ -135,7 +160,7 @@ export default function DashboardTable() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+        <div className="space-y-6 animate-in fade-in duration-500 pb-12">
 
             {/* ═══════ 0. Edition Toolbar ═══════ */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

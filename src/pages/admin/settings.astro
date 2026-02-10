@@ -16,9 +16,11 @@ import EventSettingsIsland from "../../components/admin/EventSettingsIsland";
         </div>
 
         <!-- Event Settings Form (React Island) -->
-        <EventSettingsIsland
-            client:only="react"
-            convexUrl={import.meta.env.PUBLIC_CONVEX_URL}
-        />
+        <div class="min-h-[600px]">
+            <EventSettingsIsland
+                client:only="react"
+                convexUrl={import.meta.env.PUBLIC_CONVEX_URL}
+            />
+        </div>
     </div>
 </AdminLayout>

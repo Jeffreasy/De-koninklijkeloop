@@ -26,13 +26,13 @@ const appUrl = `https://www.komoot.com/tour/${tourId}?share_token=${shareToken}`
     >
         <iframe
             src={embedUrl}
-            width="100%"
-            height={parseInt(height)}
-            style={`border:none; border-radius: 1rem; min-height: ${height};`}
+            width="800"
+            height="600"
+            style={`border:none; border-radius: 1rem; min-height: ${height}; aspect-ratio: 4/3;`}
             title={title}
             loading="lazy"
             allow="geolocation"
-            class="w-full bg-surface/50"></iframe>
+            class="w-full h-auto bg-surface/50"></iframe>
     </div>
 
     {/* Decorative Glow */}
