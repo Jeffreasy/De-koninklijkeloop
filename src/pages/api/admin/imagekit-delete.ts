@@ -1,7 +1,15 @@
 import type { APIRoute } from "astro";
 import { deleteImage } from "../../../lib/imagekit";
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
+    const { user } = locals as any;
+    if (!user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
     try {
         const body = await request.json();
         const { fileIds } = body;
@@ -10,7 +18,7 @@ export const POST: APIRoute = async ({ request }) => {
             return new Response(JSON.stringify({ error: "Invalid fileIds" }), { status: 400 });
         }
 
-        console.log(`[API] Deleting ${fileIds.length} images...`);
+        if (import.meta.env.DEV) console.log(`[API] Deleting ${fileIds.length} images...`);
 
         const results = await Promise.all(
             fileIds.map(async (id: string) => {

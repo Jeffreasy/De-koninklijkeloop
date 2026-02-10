@@ -37,7 +37,7 @@ export default function PhotoUploadWidget({ userEmail }: PhotoUploadWidgetProps)
                 formData.append("fileName", file.name);
                 formData.append("folder", "/Uploads");
                 formData.append("tags", `community_upload,user_${userEmail || "guest"}`);
-                formData.append("publicKey", import.meta.env.PUBLIC_IMAGEKIT_PUBLIC_KEY || "public_6pyu1Z7r8UYjhkMJXo1L35fsuKI=");
+                formData.append("publicKey", import.meta.env.PUBLIC_IMAGEKIT_PUBLIC_KEY || "");
                 formData.append("signature", authParams.signature);
                 formData.append("expire", String(authParams.expire));
                 formData.append("token", authParams.token);
@@ -50,7 +50,7 @@ export default function PhotoUploadWidget({ userEmail }: PhotoUploadWidgetProps)
 
                 if (uploadResponse.ok) {
                     successCount++;
-                    console.log(`✅ Uploaded: ${file.name}`);
+                    if (import.meta.env.DEV) console.log(`✅ Uploaded: ${file.name}`);
                 }
             } catch (error) {
                 console.error("Upload failed:", file.name, error);
@@ -117,8 +117,8 @@ export default function PhotoUploadWidget({ userEmail }: PhotoUploadWidgetProps)
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     className={`relative group cursor-pointer transition-all duration-300 ${dragActive
-                            ? "scale-105"
-                            : ""
+                        ? "scale-105"
+                        : ""
                         }`}
                 >
                     {dragActive && (

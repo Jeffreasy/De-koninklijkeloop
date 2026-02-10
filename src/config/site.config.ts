@@ -14,7 +14,7 @@ export const siteConfig = {
     // Brand & Identity
     brand: {
         name: "De Koninklijke Loop",
-        logo: "https://ik.imagekit.io/a0oim4e3e/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp",
+        logo: "https://ik.imagekit.io/a0oim4e3e/tr:w-200,f-auto,q-80/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp",
         description:
             "De Koninklijke Loop is een initiatief voor en door mensen met een beperking. Samen wandelen we voor een inclusieve wereld.",
     },

@@ -40,7 +40,7 @@ let mappedImages = cloudImages.map((img) => ({
 }));
 
 // Fallback/Augmentation: If we have fewer than 16 images, mix in the curated local gallery
-// This prevents the "3x same photo" issue if the Cloudinary folder is nearly empty.
+// This prevents the "3x same photo" issue if the ImageKit folder is nearly empty.
 if (mappedImages.length < 16) {
     console.log(
         `[MediaMosaic] Only found ${mappedImages.length} images. Augmenting with local gallery.`,

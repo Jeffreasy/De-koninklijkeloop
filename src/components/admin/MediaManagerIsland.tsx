@@ -12,8 +12,8 @@ import { Loader2 } from "lucide-react";
 import { ToastContainer } from "../ui/ToastContainer.tsx";
 import { addToast } from "../../lib/toast.ts";
 
-/** Image structure used across the media manager */
-interface CloudinaryImageAdmin {
+/** Image structure from ImageKit used across the media manager */
+interface ImageKitFileBase {
     public_id: string;
     secure_url: string;
     format: string;
@@ -28,7 +28,7 @@ interface CloudinaryImageAdmin {
 /**
  * Merged interface combining ImageKit data with Convex metadata
  */
-export interface MergedImage extends CloudinaryImageAdmin {
+export interface MergedImage extends ImageKitFileBase {
     alt_text?: string; // From Convex
     title?: string; // From Convex
     tags?: string[]; // From Convex
@@ -96,8 +96,8 @@ export default function MediaManagerIsland() {
 
     // Handle Upload Success
     const handleUploadSuccess = (url: string) => {
-        console.log("Upload successful, refreshing images...", url);
-        // Add a small delay to allow Cloudinary API to update
+        if (import.meta.env.DEV) console.log("Upload successful, refreshing images...", url);
+        // Add a small delay to allow ImageKit API to update
         setTimeout(() => {
             loadImages();
         }, 1000);

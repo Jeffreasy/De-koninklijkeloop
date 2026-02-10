@@ -5,7 +5,15 @@ import { getAllImagesForAdmin } from "../../../lib/imagekit";
  * API endpoint to fetch all ImageKit images for admin panel
  * GET /api/admin/imagekit-images
  */
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ locals }) => {
+    const { user } = locals as any;
+    if (!user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
     try {
         const images = await getAllImagesForAdmin();
 
@@ -13,6 +21,7 @@ export const GET: APIRoute = async () => {
             status: 200,
             headers: {
                 "Content-Type": "application/json",
+                "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
             },
         });
     } catch (error) {

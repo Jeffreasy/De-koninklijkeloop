@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { IMAGEKIT_URL_ENDPOINT } from '../../lib/imagekit';
 
 export type MediaItem = {
     type: 'image' | 'video';
@@ -37,9 +38,11 @@ export default function MediaLightboxModal({
     // Listen to global lightbox events from Astro
     useEffect(() => {
         const handleLightboxChange = (e: CustomEvent<{ index: number; isOpen: boolean }>) => {
-            console.log('Lightbox event:', e.detail);
-            console.log('Current items:', items);
-            console.log('Item to show:', items[e.detail.index]);
+            if (import.meta.env.DEV) {
+                console.log('Lightbox event:', e.detail);
+                console.log('Current items:', items);
+                console.log('Item to show:', items[e.detail.index]);
+            }
 
             setCurrentIndex(e.detail.index);
             setIsOpen(e.detail.isOpen);
@@ -266,14 +269,16 @@ export default function MediaLightboxModal({
                                         // Otherwise, use src as file path for ImageKit
                                         currentItem.src.startsWith('https://')
                                             ? currentItem.src
-                                            : `https://ik.imagekit.io/a0oim4e3e/tr:f-auto,q-80,w-1920/${currentItem.src}`
+                                            : `${IMAGEKIT_URL_ENDPOINT}/tr:f-auto,q-80,w-1920/${currentItem.src}`
                                     }
                                     alt={currentItem.alt || currentItem.title || 'Afbeelding'}
                                     className="max-w-full max-h-full object-contain select-none"
                                     draggable={false}
                                     onError={(e) => {
-                                        console.error('Image failed to load:', currentItem.src);
-                                        console.log('Full item:', currentItem);
+                                        if (import.meta.env.DEV) {
+                                            console.error('Image failed to load:', currentItem.src);
+                                            console.log('Full item:', currentItem);
+                                        }
                                     }}
                                 />
                             ) : (

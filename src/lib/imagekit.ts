@@ -1,27 +1,24 @@
-import ImageKit from 'imagekit';
+import ImageKit from '@imagekit/nodejs';
 
 // ─── ImageKit Server-Side SDK (Lazy Singleton) ─────────────────
 let _imagekit: InstanceType<typeof ImageKit> | null = null;
 
 function getImageKit(): InstanceType<typeof ImageKit> {
     if (!_imagekit) {
-        const publicKey = import.meta.env.IMAGEKIT_PUBLIC_KEY || process.env.IMAGEKIT_PUBLIC_KEY;
         const privateKey = import.meta.env.IMAGEKIT_PRIVATE_KEY || process.env.IMAGEKIT_PRIVATE_KEY;
-        const urlEndpoint = import.meta.env.PUBLIC_IMAGEKIT_URL_ENDPOINT || process.env.PUBLIC_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/a0oim4e3e';
 
-        if (!publicKey || !privateKey) {
-            console.warn('[ImageKit] Missing publicKey or privateKey — SDK calls will fail.');
+        if (!privateKey) {
+            console.warn('[ImageKit] Missing privateKey — SDK calls will fail.');
         }
-        console.log('[ImageKit] Init with:', {
-            publicKey: publicKey ? `${publicKey.substring(0, 10)}...` : 'MISSING',
-            privateKey: privateKey ? `${privateKey.substring(0, 10)}...` : 'MISSING',
-            urlEndpoint,
-        });
+
+        if (import.meta.env.DEV) {
+            console.log('[ImageKit] Init with:', {
+                privateKey: privateKey ? `${privateKey.substring(0, 10)}...` : 'MISSING',
+            });
+        }
 
         _imagekit = new ImageKit({
-            publicKey: publicKey || 'missing',
             privateKey: privateKey || 'missing',
-            urlEndpoint,
         });
     }
     return _imagekit;
@@ -88,29 +85,33 @@ export async function getImagesFromFolder(folderPath: string, year: string): Pro
     const cached = cache.get(cacheKey);
 
     if (cached && (now - cached.timestamp < CACHE_TTL)) {
-        console.log(`[Cache] Serving images for ${folderPath} from memory`);
+        if (import.meta.env.DEV) console.log(`[Cache] Serving images for ${folderPath} from memory`);
         return cached.data;
     }
 
     try {
-        console.log(`[ImageKit] Fetching images for ${folderPath}`);
-        const result = await imagekit.listFiles({
+        if (import.meta.env.DEV) console.log(`[ImageKit] Fetching images for ${folderPath}`);
+
+        const result = await imagekit.assets.list({
             path: folderPath,
             fileType: 'image',
             limit: 500,
+            type: 'file',
         });
 
         if (!result || !Array.isArray(result) || result.length === 0) {
             return [];
         }
 
-        const processedImages: GalleryImage[] = result.map((file: any) => ({
-            src: file.filePath,
-            secureUrl: file.url,
-            alt: file.customMetadata?.alt || `Foto uit ${year}`,
-            aspect: (file.width && file.height && file.width > file.height) ? 'horizontal' as const : 'vertical' as const,
-            year,
-        }));
+        const processedImages: GalleryImage[] = result
+            .filter((item): item is import('@imagekit/nodejs').ImageKit.File => item.type === 'file' || item.type === 'file-version')
+            .map((file) => ({
+                src: file.filePath || '',
+                secureUrl: file.url,
+                alt: (file.customMetadata as any)?.alt || `Foto uit ${year}`,
+                aspect: (file.width && file.height && file.width > file.height) ? 'horizontal' as const : 'vertical' as const,
+                year,
+            }));
 
         cache.set(cacheKey, { data: processedImages, timestamp: now });
         return processedImages;
@@ -155,40 +156,43 @@ export async function getAllImagesForAdmin(): Promise<ImageKitFileAdmin[]> {
     const cached = cache.get(CACHE_KEY);
 
     if (cached && (now - cached.timestamp < CACHE_TTL)) {
-        console.log(`[Cache] Serving admin images from memory`);
+        if (import.meta.env.DEV) console.log(`[Cache] Serving admin images from memory`);
         return cached.data;
     }
 
     try {
-        console.log(`[ImageKit] Fetching all images for admin panel`);
+        if (import.meta.env.DEV) console.log(`[ImageKit] Fetching all images for admin panel`);
         const allImages: ImageKitFileAdmin[] = [];
 
         for (const folder of FOLDERS) {
-            const result = await imagekit.listFiles({
+            const result = await imagekit.assets.list({
                 path: folder,
                 fileType: 'image',
                 limit: 500,
+                type: 'file',
             });
 
             if (result && Array.isArray(result) && result.length > 0) {
-                const folderImages = result.map((file: any) => ({
-                    fileId: file.fileId,
-                    name: file.name,
-                    filePath: file.filePath,
-                    url: file.url,
-                    width: file.width || 0,
-                    height: file.height || 0,
-                    fileType: file.fileType,
-                    size: file.size,
-                    createdAt: file.createdAt,
-                    customMetadata: file.customMetadata,
-                }));
+                const folderImages = result
+                    .filter((item): item is import('@imagekit/nodejs').ImageKit.File => item.type === 'file' || item.type === 'file-version')
+                    .map((file) => ({
+                        fileId: file.fileId || '',
+                        name: file.name || '',
+                        filePath: file.filePath || '',
+                        url: file.url || '',
+                        width: file.width || 0,
+                        height: file.height || 0,
+                        fileType: file.fileType || 'image',
+                        size: file.size || 0,
+                        createdAt: file.createdAt || '',
+                        customMetadata: file.customMetadata as { alt?: string },
+                    }));
                 allImages.push(...folderImages);
             }
         }
 
         cache.set(CACHE_KEY, { data: allImages, timestamp: now });
-        console.log(`[ImageKit] Fetched ${allImages.length} images for admin panel`);
+        if (import.meta.env.DEV) console.log(`[ImageKit] Fetched ${allImages.length} images for admin panel`);
         return allImages;
     } catch (e: unknown) {
         console.error(`[ImageKit] Error fetching admin images:`, e);
@@ -205,8 +209,8 @@ export async function getAllImagesForAdmin(): Promise<ImageKitFileAdmin[]> {
 // ─── Delete image ──────────────────────────────────────────────
 export async function deleteImage(fileId: string): Promise<boolean> {
     try {
-        console.log(`[ImageKit] Deleting image: ${fileId}`);
-        await imagekit.deleteFile(fileId);
+        if (import.meta.env.DEV) console.log(`[ImageKit] Deleting image: ${fileId}`);
+        await imagekit.files.delete(fileId);
         cache.clear();
         return true;
     } catch (e) {
@@ -217,22 +221,22 @@ export async function deleteImage(fileId: string): Promise<boolean> {
 
 // ─── Upload image ──────────────────────────────────────────────
 export async function uploadImage(
-    file: string | Buffer,
+    file: string,
     fileName: string,
     folder: string
 ): Promise<{ url: string; fileId: string; filePath: string } | null> {
     try {
-        const result = await imagekit.upload({
-            file,
+        const result = await imagekit.files.upload({
+            file: file as any,
             fileName,
             folder,
             useUniqueFileName: true,
         });
 
         return {
-            url: result.url,
-            fileId: result.fileId,
-            filePath: result.filePath,
+            url: result.url || '',
+            fileId: result.fileId || '',
+            filePath: result.filePath || '',
         };
     } catch (e) {
         console.error(`[ImageKit] Upload error:`, e);
@@ -242,5 +246,5 @@ export async function uploadImage(
 
 // ─── Auth params for client-side uploads ───────────────────────
 export function getAuthenticationParameters() {
-    return imagekit.getAuthenticationParameters();
+    return imagekit.helper.getAuthenticationParameters();
 }

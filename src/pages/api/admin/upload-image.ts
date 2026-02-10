@@ -1,9 +1,17 @@
 import type { APIRoute } from 'astro';
 import { uploadImage } from '../../../lib/imagekit';
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
+    const { user } = locals as any;
+    if (!user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
     try {
-        console.log('📤 Upload request received');
+        if (import.meta.env.DEV) console.log('📤 Upload request received');
 
         const formData = await request.formData();
         const file = formData.get('file') as File;
@@ -16,7 +24,7 @@ export const POST: APIRoute = async ({ request }) => {
             });
         }
 
-        console.log('📁 File received:', file.name, file.type, file.size);
+        if (import.meta.env.DEV) console.log('📁 File received:', file.name, file.type, file.size);
 
         // Convert file to base64
         const arrayBuffer = await file.arrayBuffer();
@@ -28,7 +36,7 @@ export const POST: APIRoute = async ({ request }) => {
         const base64 = btoa(binary);
         const dataURI = `data:${file.type};base64,${base64}`;
 
-        console.log('⬆️ Uploading to ImageKit...');
+        if (import.meta.env.DEV) console.log('⬆️ Uploading to ImageKit...');
 
         const result = await uploadImage(dataURI, file.name, '/De Koninklijkeloop/SocialmediaPosts');
 
@@ -36,7 +44,7 @@ export const POST: APIRoute = async ({ request }) => {
             throw new Error('Upload returned null');
         }
 
-        console.log('✅ Upload successful:', result.url);
+        if (import.meta.env.DEV) console.log('✅ Upload successful:', result.url);
 
         return new Response(
             JSON.stringify({

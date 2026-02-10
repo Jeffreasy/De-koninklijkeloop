@@ -13,14 +13,17 @@ type Status = "all" | "pending" | "paid" | "cancelled";
 type SortField = "name" | "createdAt" | "distance" | "status";
 type SortDirection = "asc" | "desc";
 
-// Mimic the type from DashboardTable or define it
+type ParticipantRole = "deelnemer" | "begeleider" | "vrijwilliger";
+type ParticipantStatus = "pending" | "paid" | "cancelled";
+type RouteDistance = "2.5" | "6" | "10" | "15";
+
 interface Registration {
     _id: string;
     name: string;
     email: string;
-    role: string;
-    distance?: string;
-    status: string;
+    role: ParticipantRole;
+    distance?: RouteDistance;
+    status: ParticipantStatus;
     userType?: string;
     iceName?: string;
     icePhone?: string;

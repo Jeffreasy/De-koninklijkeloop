@@ -4,11 +4,7 @@
 
 // Note: Vercel Speed Insights injects the track() function globally via the adapter
 // We'll access it via window to avoid import issues
-declare global {
-    interface Window {
-        si?: (event: string, data?: Record<string, any>) => void;
-    }
-}
+// Note: Window.si is declared globally by @vercel/speed-insights
 
 /**
  * Custom Event Types
@@ -106,7 +102,7 @@ class Analytics {
         // Vercel adapter injects this function globally
         try {
             if (typeof window !== 'undefined' && window.si) {
-                window.si(event, metadata);
+                (window.si as any)(event, metadata);
             }
         } catch (error) {
             if (this.debugMode) {

@@ -41,7 +41,7 @@ export function ImageKitUploadButton({ onUploadSuccess, currentUrl }: Props) {
                 throw new Error(data.error || 'Upload mislukt');
             }
 
-            console.log('✅ Upload SUCCESS! URL:', data.url);
+            if (import.meta.env.DEV) console.log('✅ Upload SUCCESS! URL:', data.url);
             onUploadSuccess(data.url);
         } catch (error) {
             console.error('❌ Upload failed:', error);
