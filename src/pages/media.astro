@@ -227,7 +227,12 @@ const totalVideos = videos.length;
 
                     <!-- Photo Gallery Per Year -->
                     {photoYears.map(year => (
-                        <div class="photo-year-group" data-year={year}>
+                        <div class="photo-year-group space-y-4" data-year={year}>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl font-bold font-display text-primary">{year}</span>
+                                <span class="text-sm text-muted">({imagesByYear[year].length} foto's)</span>
+                                <div class="h-px bg-border flex-1"></div>
+                            </div>
                             <MasonryGallery images={imagesByYear[year]} />
                         </div>
                     ))}
