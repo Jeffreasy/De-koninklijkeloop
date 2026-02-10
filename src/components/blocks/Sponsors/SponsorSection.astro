@@ -1,6 +1,6 @@
 ---
 import { siteConfig } from "../../../config/site.config";
-import CloudinaryImage from "../../ui/CloudinaryImage.astro";
+import OptimizedImage from "../../ui/OptimizedImage.astro";
 
 const sponsors = siteConfig.sponsors.map((s) => ({
   src: s.src,
@@ -54,7 +54,7 @@ const sponsors = siteConfig.sponsors.map((s) => ({
               {/* Hover Glow Effect */}
               <div class="absolute inset-0 bg-linear-to-br from-brand-orange/5 to-action-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
 
-              <CloudinaryImage
+              <OptimizedImage
                 src={sponsor.src}
                 widths={[400, 600, 800]}
                 sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"

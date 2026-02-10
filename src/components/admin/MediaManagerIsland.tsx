@@ -14,7 +14,7 @@ import { ToastContainer } from "../ui/ToastContainer.tsx";
 import { addToast } from "../../lib/toast.ts";
 
 /**
- * Merged interface combining Cloudinary data with Convex metadata
+ * Merged interface combining ImageKit data with Convex metadata
  */
 export interface MergedImage extends CloudinaryImageAdmin {
     alt_text?: string; // From Convex
@@ -42,28 +42,36 @@ export default function MediaManagerIsland() {
     const metadata = useQuery(api.mediaMetadata.getAll);
     const saveAltTextMutation = useMutation(api.mediaMetadata.saveAltText);
 
-    // Fetch Cloudinary images
+    // Fetch ImageKit images
     const loadImages = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch('/api/admin/cloudinary-images');
-            const cloudinaryImages: CloudinaryImageAdmin[] = await response.json();
+            const response = await fetch('/api/admin/imagekit-images');
+            const imagekitImages = await response.json();
 
             // Merge with Convex metadata
-            const merged: MergedImage[] = cloudinaryImages.map(img => {
-                const meta = metadata?.find((m: any) => m.cloudinary_public_id === img.public_id);
+            const merged: MergedImage[] = imagekitImages.map((img: any) => {
+                const meta = metadata?.find((m: any) => m.cloudinary_public_id === img.filePath);
                 return {
                     ...img,
-                    alt_text: meta?.alt_text || img.context?.custom?.alt,
+                    // Map ImageKit fields to expected structure
+                    public_id: img.filePath,
+                    secure_url: img.url,
+                    format: img.fileType,
+                    resource_type: 'image',
+                    folder: img.filePath?.split('/').slice(0, -1).join('/'),
+                    created_at: img.createdAt,
+                    bytes: img.size,
+                    alt_text: meta?.alt_text || img.customMetadata?.alt,
                     title: meta?.title,
                     tags: meta?.tags,
-                    hasAltText: !!(meta?.alt_text || img.context?.custom?.alt)
+                    hasAltText: !!(meta?.alt_text || img.customMetadata?.alt)
                 };
             });
 
             setImages(merged);
         } catch (error) {
-            console.error("Failed to fetch Cloudinary images", error);
+            console.error("Failed to fetch ImageKit images", error);
         } finally {
             setIsLoading(false);
         }
@@ -200,13 +208,19 @@ export default function MediaManagerIsland() {
             return;
         }
 
-        setIsLoading(true); // Show loading state
+        setIsLoading(true);
         try {
-            // 1. Delete from Cloudinary via API
-            const response = await fetch('/api/admin/cloudinary-delete', {
+            // 1. Delete from ImageKit via API
+            // Map filePaths to fileIds for deletion
+            const fileIdsToDelete = images
+                .filter(img => selectedIds.has(img.public_id))
+                .map(img => (img as any).fileId)
+                .filter(Boolean);
+
+            const response = await fetch('/api/admin/imagekit-delete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ publicIds: Array.from(selectedIds) })
+                body: JSON.stringify({ fileIds: fileIdsToDelete })
             });
 
             const result = await response.json();
@@ -215,14 +229,7 @@ export default function MediaManagerIsland() {
                 throw new Error(result.error || 'Delete failed');
             }
 
-            // 2. Delete metadata from Convex (Optimistic update is enough, but accurate is better)
-            // We can do this in the background or just rely on the fact that if image is gone, metadata doesn't matter much
-            // But let's keep it clean
-            // TODO: Ideally we'd have a bulkDeleteMetadata mutation, but for now we'll just skip it 
-            // as the mediaMetadata table cleans up or just stays as orphan records which is fine for now
-            // or we could loop deleteMetadata logic here if strictly needed.
-
-            // 3. Update local state
+            // 2. Update local state
             setImages(prev => prev.filter(img => !selectedIds.has(img.public_id)));
             setSelectedIds(new Set());
             addToast(`${result.deleted} afbeeldingen verwijderd`, "success");

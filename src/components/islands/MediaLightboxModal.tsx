@@ -3,7 +3,7 @@ import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 
 export type MediaItem = {
     type: 'image' | 'video';
-    src: string;              // Cloudinary public_id or Streamable shortcode
+    src: string;              // ImageKit file path or Streamable shortcode
     alt?: string;
     title?: string;
     year?: string;
@@ -263,10 +263,10 @@ export default function MediaLightboxModal({
                                 <img
                                     src={
                                         // If src contains https://, use it directly (secure_url)
-                                        // Otherwise, use src as public_id (already includes folder from Cloudinary API)
+                                        // Otherwise, use src as file path for ImageKit
                                         currentItem.src.startsWith('https://')
                                             ? currentItem.src
-                                            : `https://res.cloudinary.com/dtlhpx4kj/image/upload/f_auto,q_auto:good,w_1920/${currentItem.src}`
+                                            : `https://ik.imagekit.io/a0oim4e3e/tr:f-auto,q-80,w-1920/${currentItem.src}`
                                     }
                                     alt={currentItem.alt || currentItem.title || 'Afbeelding'}
                                     className="max-w-full max-h-full object-contain select-none"

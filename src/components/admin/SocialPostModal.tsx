@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { AdminModal } from "./AdminModal";
-import { ServerSideUploadButton, uploadFileToCloudinary } from "./ServerSideUploadButton";
+import { ServerSideUploadButton, uploadFileToImageKit } from "./ServerSideUploadButton";
 
 interface Props {
     isOpen: boolean;
@@ -108,7 +108,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                 setIsUploading(true);
                 try {
                     console.log('📤 Uploading file before saving...');
-                    finalImageUrl = await uploadFileToCloudinary(selectedFile);
+                    finalImageUrl = await uploadFileToImageKit(selectedFile);
                     console.log('✅ File uploaded:', finalImageUrl);
                 } catch (uploadError) {
                     console.error('❌ Upload failed:', uploadError);

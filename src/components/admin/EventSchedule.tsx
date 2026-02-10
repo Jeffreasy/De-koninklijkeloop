@@ -36,6 +36,14 @@ const getIcon = (iconName: string, className: string = "w-5 h-5") => {
     }
 };
 
+// Static color mapping for JIT-safe Tailwind classes
+const STAT_COLORS: Record<string, { bg: string; border: string; text: string; glow: string }> = {
+    'brand-orange': { bg: 'bg-brand-orange/10', border: 'border-brand-orange/20', text: 'text-brand-orange', glow: 'bg-brand-orange/5' },
+    'blue-500': { bg: 'bg-blue-500/10', border: 'border-blue-500/20', text: 'text-blue-500', glow: 'bg-blue-500/5' },
+    'text-muted': { bg: 'bg-glass-surface', border: 'border-glass-border', text: 'text-text-muted', glow: 'bg-glass-surface' },
+    'green-500': { bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-500', glow: 'bg-green-500/5' },
+};
+
 const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, onEditClick?: (item: any) => void }) => {
     const schedule = useQuery(api.team.getSchedule);
     const volunteerTasks = useQuery(api.internal.listVolunteerTasks);
@@ -67,20 +75,23 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                     { label: 'Rustpunten', value: totalBreaks, icon: Coffee, color: 'blue-500' },
                     { label: 'Logistiek', value: totalLogistics, icon: Timer, color: 'text-muted' },
                     { label: 'Vrijwilligers', value: totalVolunteers, icon: Users, color: 'green-500' },
-                ].map((stat) => (
-                    <div key={stat.label} className="relative overflow-hidden p-4 rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md group hover:border-glass-border/80 transition-all duration-300">
-                        <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full bg-${stat.color}/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                        <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-xl bg-${stat.color}/10 border border-${stat.color}/20`}>
-                                <stat.icon className={`w-4 h-4 text-${stat.color}`} />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-text-primary font-display tabular-nums">{stat.value}</p>
-                                <p className="text-[11px] text-text-muted font-medium uppercase tracking-wider">{stat.label}</p>
+                ].map((stat) => {
+                    const colors = STAT_COLORS[stat.color];
+                    return (
+                        <div key={stat.label} className="relative overflow-hidden p-4 rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md group hover:border-glass-border/80 transition-all duration-300">
+                            <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full ${colors.glow} blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-xl ${colors.bg} ${colors.border} border`}>
+                                    <stat.icon className={`w-4 h-4 ${colors.text}`} />
+                                </div>
+                                <div>
+                                    <p className="text-2xl font-bold text-text-primary font-display tabular-nums">{stat.value}</p>
+                                    <p className="text-[11px] text-text-muted font-medium uppercase tracking-wider">{stat.label}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Route Legend */}
@@ -105,7 +116,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
             </div>
 
             {/* Main Timeline Container */}
-            <div className="relative bg-glass-bg border border-glass-border rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden backdrop-blur-xl group/container">
+            <div className="relative bg-glass-bg border border-glass-border rounded-3xl p-4 sm:p-6 md:p-10 shadow-2xl overflow-hidden backdrop-blur-xl group/container">
                 {/* Ambient Background Glows */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2 opacity-40 group-hover/container:opacity-60 transition-opacity duration-700 pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-3xl -z-10 translate-y-1/2 -translate-x-1/2 opacity-25 pointer-events-none" />
@@ -134,7 +145,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                         {onAddClick && (
                             <button
                                 onClick={onAddClick}
-                                className="absolute right-0 top-0 p-2.5 bg-glass-surface border border-glass-border rounded-xl text-text-muted hover:text-brand-orange hover:border-brand-orange/30 hover:bg-brand-orange/5 transition-all opacity-0 group-hover/container:opacity-100 shadow-sm cursor-pointer"
+                                className="absolute right-0 top-0 p-2.5 bg-glass-surface border border-glass-border rounded-xl text-text-muted hover:text-brand-orange hover:border-brand-orange/30 hover:bg-brand-orange/5 transition-all md:opacity-0 md:group-hover/container:opacity-100 shadow-sm cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                                 title="Item toevoegen"
                             >
                                 <Plus className="w-5 h-5" />
@@ -213,7 +224,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                                     }`}
                                                 >
                                                     {/* Admin Actions */}
-                                                    <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity z-20">
+                                                    <div className="absolute top-3 right-3 flex gap-1 md:opacity-0 md:group-hover/item:opacity-100 transition-opacity z-20">
                                                         {onEditClick && (
                                                             <button
                                                                 onClick={(e) => { e.stopPropagation(); onEditClick(item); }}

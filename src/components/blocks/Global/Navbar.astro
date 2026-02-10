@@ -2,7 +2,7 @@
 // src/components/blocks/Navbar.astro
 import ThemeToggle from "../../islands/ThemeToggle";
 import { siteConfig } from "../../../config/site.config";
-import CloudinaryImage from "../../ui/CloudinaryImage.astro";
+import OptimizedImage from "../../ui/OptimizedImage.astro";
 import { Menu, X, ChevronRight, ArrowRight } from "lucide-react";
 
 const pathname = Astro.url.pathname;
@@ -26,8 +26,8 @@ const isActive = (href: string) => {
             <div
                 class="p-2 bg-white/70 dark:bg-white/20 border border-white/40 dark:border-white/20 rounded-xl group-hover:bg-white/80 dark:group-hover:bg-white/30 transition-all duration-300"
             >
-                <CloudinaryImage
-                    src="DKLLogoV1_kx60i9"
+                <OptimizedImage
+                    src="/De Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
                     alt={siteConfig.brand.name}
                     widths={[228, 456]}
                     sizes="228px"
@@ -124,8 +124,8 @@ const isActive = (href: string) => {
             <div
                 class="p-2 bg-linear-to-br from-white/15 to-white/5 rounded-2xl border border-white/20 shadow-xl backdrop-blur-sm"
             >
-                <CloudinaryImage
-                    src="DKLLogoV1_kx60i9"
+                <OptimizedImage
+                    src="/De Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
                     alt={siteConfig.brand.name}
                     widths={[228, 456]}
                     sizes="228px"

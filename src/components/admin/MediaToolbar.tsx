@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import { CloudinaryUploadButton } from "./CloudinaryUploadButton.tsx";
+import { ImageKitUploadButton } from "./ImageKitUploadButton.tsx";
 
 interface Props {
     searchTerm: string;
@@ -113,7 +113,7 @@ export function MediaToolbar({
 
                     {/* Upload Button */}
                     <div className="w-full sm:w-auto">
-                        <CloudinaryUploadButton onUploadSuccess={onUploadSuccess} />
+                        <ImageKitUploadButton onUploadSuccess={onUploadSuccess} />
                     </div>
                 </div>
             </div>

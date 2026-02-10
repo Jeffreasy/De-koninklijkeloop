@@ -1,19 +1,10 @@
 import type { APIRoute } from 'astro';
-import { v2 as cloudinary } from 'cloudinary';
-
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: import.meta.env.CLOUDINARY_CLOUD_NAME,
-    api_key: import.meta.env.CLOUDINARY_API_KEY,
-    api_secret: import.meta.env.CLOUDINARY_API_SECRET,
-});
+import { uploadImage } from '../../../lib/imagekit';
 
 export const POST: APIRoute = async ({ request }) => {
     try {
         console.log('📤 Upload request received');
-        console.log('☁️ Cloud name:', import.meta.env.CLOUDINARY_CLOUD_NAME);
 
-        // Get the form data
         const formData = await request.formData();
         const file = formData.get('file') as File;
 
@@ -27,11 +18,9 @@ export const POST: APIRoute = async ({ request }) => {
 
         console.log('📁 File received:', file.name, file.type, file.size);
 
-        // Convert file to array buffer then to base64
+        // Convert file to base64
         const arrayBuffer = await file.arrayBuffer();
         const bytes = new Uint8Array(arrayBuffer);
-
-        // Convert bytes to base64
         let binary = '';
         for (let i = 0; i < bytes.byteLength; i++) {
             binary += String.fromCharCode(bytes[i]);
@@ -39,23 +28,22 @@ export const POST: APIRoute = async ({ request }) => {
         const base64 = btoa(binary);
         const dataURI = `data:${file.type};base64,${base64}`;
 
-        console.log('🔄 Converting to base64... Done');
-        console.log('⬆️ Uploading to Cloudinary...');
+        console.log('⬆️ Uploading to ImageKit...');
 
-        // Upload to Cloudinary
-        const result = await cloudinary.uploader.upload(dataURI, {
-            folder: 'De Koninklijkeloop/SocialMediaPosts',
-            resource_type: 'auto',
-            allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        });
+        const result = await uploadImage(dataURI, file.name, '/De Koninklijkeloop/SocialmediaPosts');
 
-        console.log('✅ Upload successful:', result.secure_url);
+        if (!result) {
+            throw new Error('Upload returned null');
+        }
+
+        console.log('✅ Upload successful:', result.url);
 
         return new Response(
             JSON.stringify({
                 success: true,
-                url: result.secure_url,
-                public_id: result.public_id,
+                url: result.url,
+                fileId: result.fileId,
+                filePath: result.filePath,
             }),
             {
                 status: 200,
@@ -63,11 +51,7 @@ export const POST: APIRoute = async ({ request }) => {
             }
         );
     } catch (error) {
-        console.error('❌ Cloudinary upload error:', error);
-        console.error('Error details:', {
-            message: error instanceof Error ? error.message : 'Unknown',
-            stack: error instanceof Error ? error.stack : undefined,
-        });
+        console.error('❌ ImageKit upload error:', error);
 
         return new Response(
             JSON.stringify({

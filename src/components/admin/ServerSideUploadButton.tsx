@@ -126,7 +126,7 @@ export function ServerSideUploadButton({ onFileSelect, onClearFile, currentUrl, 
 }
 
 // Export upload function for use in modal
-export async function uploadFileToCloudinary(file: File): Promise<string> {
+export async function uploadFileToImageKit(file: File): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
 

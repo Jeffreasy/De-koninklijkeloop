@@ -168,7 +168,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                             <div className="flex items-center gap-3 min-w-0">
                                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-brand-orange/10 flex items-center justify-center border border-brand-orange/20 shrink-0">
                                     <img
-                                        src="https://res.cloudinary.com/dgfuv7wif/image/upload/v1769451085/DKLLogoV1_kx60i9.webp"
+                                        src="https://ik.imagekit.io/a0oim4e3e/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
                                         alt="DKL"
                                         className="w-6 h-6 md:w-8 md:h-8 object-contain"
                                     />

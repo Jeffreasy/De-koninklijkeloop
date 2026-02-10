@@ -1,6 +1,6 @@
 ---
 // src/components/blocks/MasonryGallery.astro
-import CloudinaryImage from "../../ui/CloudinaryImage.astro";
+import OptimizedImage from "../../ui/OptimizedImage.astro";
 import MediaLightboxModal from "../../islands/MediaLightboxModal";
 import type { MediaItem } from "../../islands/MediaLightboxModal";
 
@@ -94,15 +94,12 @@ const mediaItems: MediaItem[] = images.map((img) => ({
                             </div>
                         </div>
 
-                        <CloudinaryImage
+                        <OptimizedImage
                             src={img.src}
                             alt={img.alt}
                             widths={[400, 600, 800, 1000]}
                             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                            crop="fill"
-                            aspectRatio={
-                                img.aspect === "vertical" ? "3:4" : "4:3"
-                            }
+                            crop="maintain_ratio"
                             loading={
                                 index < initialLoadCount ? "eager" : "lazy"
                             }

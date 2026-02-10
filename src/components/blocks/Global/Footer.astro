@@ -2,7 +2,7 @@
 // src/components/blocks/Footer.astro
 import { siteConfig } from "../../../config/site.config";
 import { Facebook, Instagram, Linkedin } from "lucide-react";
-import CloudinaryImage from "../../ui/CloudinaryImage.astro";
+import OptimizedImage from "../../ui/OptimizedImage.astro";
 
 const currentYear = new Date().getFullYear();
 ---
@@ -28,8 +28,8 @@ const currentYear = new Date().getFullYear();
                     <div
                         class="p-2 bg-surface/50 border border-glass-border rounded-2xl group-hover:bg-surface transition-all duration-300"
                     >
-                        <CloudinaryImage
-                            src="DKLLogoV1_kx60i9"
+                        <OptimizedImage
+                            src="/De Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
                             alt={siteConfig.brand.name}
                             widths={[96, 192]}
                             sizes="96px"

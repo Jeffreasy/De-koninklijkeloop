@@ -1,6 +1,6 @@
 ---
 // src/components/ui/LogoCarousel.astro
-import CloudinaryImage from "./CloudinaryImage.astro";
+import OptimizedImage from "./OptimizedImage.astro";
 
 interface Props {
     items: ReadonlyArray<{
@@ -46,12 +46,12 @@ const itemLabel = type === "partner" ? "Partner" : "Sponsor";
                         role="listitem"
                         aria-label={`${itemLabel}: ${item.alt || item.name || `Logo ${index + 1}`}`}
                     >
-                        <CloudinaryImage
+                        <OptimizedImage
                             src={item.src}
                             alt={item.alt || item.name || `${itemLabel} logo`}
                             widths={[180, 360]}
                             sizes="(max-width: 768px) 120px, 180px"
-                            crop="pad"
+                            crop="at_max"
                             class="carousel-logo"
                         />
                     </div>

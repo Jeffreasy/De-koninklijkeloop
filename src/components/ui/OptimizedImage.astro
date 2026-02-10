@@ -1,0 +1,72 @@
+---
+// src/components/ui/OptimizedImage.astro
+// High-performance responsive ImageKit image component
+// Generates proper srcsets with auto format, quality, and DPR optimization
+
+interface Props {
+    src: string; // ImageKit file path (e.g. "/De Koninklijkeloop/DKL25/photo.jpg")
+    alt: string;
+    widths: number[]; // Breakpoints array, e.g. [400, 640, 768, 1024, 1280]
+    sizes: string; // Responsive sizes attribute, e.g. "(max-width: 768px) 100vw, 50vw"
+    class?: string;
+    loading?: "lazy" | "eager";
+    fetchpriority?: "high" | "low" | "auto";
+    crop?: "at_max" | "maintain_ratio" | "force" | "at_least";
+    quality?: number;
+}
+
+const {
+    src,
+    alt,
+    widths,
+    sizes,
+    class: className = "",
+    loading = "lazy",
+    fetchpriority = "auto",
+    crop = "at_max",
+    quality = 80,
+} = Astro.props;
+
+// Validation
+if (!src) {
+    throw new Error(`[OptimizedImage] Missing required prop: src`);
+}
+if (!widths || widths.length === 0) {
+    throw new Error(
+        `[OptimizedImage] Missing or empty required prop: widths (got: ${JSON.stringify(widths)})`,
+    );
+}
+if (!sizes) {
+    throw new Error(`[OptimizedImage] Missing required prop: sizes`);
+}
+if (!alt) {
+    console.warn(`[OptimizedImage] Missing alt text for image: ${src}`);
+}
+
+const URL_ENDPOINT =
+    import.meta.env.PUBLIC_IMAGEKIT_URL_ENDPOINT ||
+    "https://ik.imagekit.io/a0oim4e3e";
+
+// Generate ImageKit URL with transformations
+function buildUrl(width: number): string {
+    const normalizedPath = src.startsWith("/") ? src : `/${src}`;
+    return `${URL_ENDPOINT}/tr:w-${width},c-${crop},q-${quality},f-auto${normalizedPath}`;
+}
+
+// Generate srcset string
+const srcset = widths.map((width) => `${buildUrl(width)} ${width}w`).join(", ");
+
+// Default src (largest width)
+const defaultSrc = buildUrl(widths[widths.length - 1]);
+---
+
+<img
+    src={defaultSrc}
+    srcset={srcset}
+    sizes={sizes}
+    alt={alt}
+    loading={loading}
+    fetchpriority={fetchpriority}
+    class={className}
+    decoding="async"
+/>

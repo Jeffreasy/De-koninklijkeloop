@@ -83,7 +83,7 @@ export function BulkEditModal({ isOpen, selectedImages, onClose, onBulkUpdate, a
                 const tags = tagsString.split(',').map(t => t.trim()).filter(Boolean);
 
                 return {
-                    cloudinary_public_id: img.public_id,
+                    cloudinary_public_id: img.public_id, // Maps to filePath in ImageKit
                     alt_text: altText,
                     title: title,
                     tags: tags,

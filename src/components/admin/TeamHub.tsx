@@ -56,43 +56,35 @@ const TeamHubContent = () => {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-glass-bg border border-glass-border shadow-sm">
-                <div>
-                    <h1 className="text-2xl font-display font-bold text-text-primary">Team Hub</h1>
-                    <p className="text-text-muted text-sm mt-1">Beheer notulen, agenda's en de dagplanning.</p>
-                </div>
-
-                {/* Tabs */}
-                <div className="flex p-1 bg-glass-surface/50 rounded-xl border border-glass-border/50 backdrop-blur-md">
-                    <button
-                        onClick={() => setActiveTab('minutes')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${activeTab === 'minutes'
-                            ? 'bg-brand-orange text-white shadow-md'
-                            : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
-                            }`}
-                    >
-                        <FileText className="w-4 h-4" /> Notulen
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('schedule')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${activeTab === 'schedule'
-                            ? 'bg-brand-orange text-white shadow-md'
-                            : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
-                            }`}
-                    >
-                        <Calendar className="w-4 h-4" /> Programma
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('volunteers')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${activeTab === 'volunteers'
-                            ? 'bg-green-500 text-white shadow-md'
-                            : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
-                            }`}
-                    >
-                        <ClipboardList className="w-4 h-4" /> Vrijwilligers
-                    </button>
-                </div>
+            {/* Tab Navigation */}
+            <div className="flex p-1 bg-glass-surface/50 rounded-xl border border-glass-border/50 backdrop-blur-md overflow-x-auto no-scrollbar">
+                <button
+                    onClick={() => setActiveTab('minutes')}
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap min-h-[44px] ${activeTab === 'minutes'
+                        ? 'bg-brand-orange text-white shadow-md'
+                        : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
+                        }`}
+                >
+                    <FileText className="w-4 h-4 shrink-0" /><span className="hidden sm:inline">Notulen</span>
+                </button>
+                <button
+                    onClick={() => setActiveTab('schedule')}
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap min-h-[44px] ${activeTab === 'schedule'
+                        ? 'bg-brand-orange text-white shadow-md'
+                        : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
+                        }`}
+                >
+                    <Calendar className="w-4 h-4 shrink-0" /><span className="hidden sm:inline">Programma</span>
+                </button>
+                <button
+                    onClick={() => setActiveTab('volunteers')}
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap min-h-[44px] ${activeTab === 'volunteers'
+                        ? 'bg-green-500 text-white shadow-md'
+                        : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
+                        }`}
+                >
+                    <ClipboardList className="w-4 h-4 shrink-0" /><span className="hidden sm:inline">Vrijwilligers</span>
+                </button>
             </div>
 
             {/* Content Area */}
@@ -175,7 +167,7 @@ const TeamHubContent = () => {
 
                         {/* Detail View */}
                         <div className={`lg:col-span-2 ${selectedMinute ? 'block' : 'hidden lg:block'}`}>
-                            <div className="bg-glass-bg border border-glass-border rounded-2xl h-[700px] flex flex-col overflow-hidden shadow-sm relative">
+                            <div className="bg-glass-bg border border-glass-border rounded-2xl min-h-[400px] h-[calc(100dvh-14rem)] flex flex-col overflow-hidden shadow-sm relative">
                                 {selectedMinute ? (
                                     <>
                                         <div className="p-6 border-b border-glass-border bg-glass-surface/30 backdrop-blur-sm sticky top-0 z-10">

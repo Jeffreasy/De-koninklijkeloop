@@ -110,8 +110,8 @@ export default function VolunteerTasksManager() {
                             key={s}
                             onClick={() => setStatusFilter(s)}
                             className={`px-3 py-2 rounded-xl text-xs font-medium border transition-all cursor-pointer ${statusFilter === s
-                                    ? "bg-brand-orange/15 text-brand-orange border-brand-orange/30"
-                                    : "bg-glass-bg text-text-muted border-glass-border hover:border-glass-border/80"
+                                ? "bg-brand-orange/15 text-brand-orange border-brand-orange/30"
+                                : "bg-glass-bg text-text-muted border-glass-border hover:border-glass-border/80"
                                 }`}
                         >
                             {s === "all" ? "Alle" : statusConfig[s].label}
@@ -218,7 +218,7 @@ export default function VolunteerTasksManager() {
                                     <button
                                         onClick={() => handleDelete(task._id)}
                                         disabled={isDeleting}
-                                        className="p-2 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100 cursor-pointer disabled:opacity-30"
+                                        className="p-2 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all md:opacity-0 md:group-hover:opacity-100 cursor-pointer disabled:opacity-30 min-h-[44px] min-w-[44px] flex items-center justify-center"
                                         aria-label="Verwijder taak"
                                     >
                                         {isDeleting ? (

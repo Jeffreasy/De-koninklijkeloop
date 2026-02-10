@@ -32,9 +32,9 @@ export function SocialPostCard({
             {/* Image Preview */}
             <div className="relative aspect-square overflow-hidden bg-glass-bg/50">
                 <img
-                    srcSet={`${post.imageUrl}?w=400 400w,
-                             ${post.imageUrl}?w=800 800w,
-                             ${post.imageUrl}?w=1200 1200w`}
+                    srcSet={`${post.imageUrl.replace('/De%20Koninklijkeloop/', '/tr:w-400,q-80,f-auto/De%20Koninklijkeloop/')} 400w,
+                             ${post.imageUrl.replace('/De%20Koninklijkeloop/', '/tr:w-800,q-80,f-auto/De%20Koninklijkeloop/')} 800w,
+                             ${post.imageUrl.replace('/De%20Koninklijkeloop/', '/tr:w-1200,q-80,f-auto/De%20Koninklijkeloop/')} 1200w`}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     src={post.imageUrl}
                     alt={truncatedCaption}

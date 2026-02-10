@@ -185,8 +185,8 @@ export const MinuteModal = ({ isOpen, onClose, initialData }: MinuteModalProps) 
                     <textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        rows={12}
-                        className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none font-mono text-sm"
+                        rows={8}
+                        className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none font-mono text-sm md:min-h-[300px]"
                         placeholder="# Agenda Puten\n\n1. Opening\n2. Mededelingen..."
                     />
                 </div>
@@ -343,8 +343,8 @@ export const ScheduleModal = ({ isOpen, onClose, initialData }: ScheduleModalPro
                                 type="button"
                                 onClick={() => setIcon(opt.value)}
                                 className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all ${icon === opt.value
-                                        ? 'bg-brand-orange/20 border-brand-orange text-brand-orange'
-                                        : 'bg-glass-bg border-glass-border text-text-muted hover:bg-glass-surface hover:text-text-primary'
+                                    ? 'bg-brand-orange/20 border-brand-orange text-brand-orange'
+                                    : 'bg-glass-bg border-glass-border text-text-muted hover:bg-glass-surface hover:text-text-primary'
                                     }`}
                                 title={opt.label}
                             >

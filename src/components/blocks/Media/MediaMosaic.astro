@@ -6,7 +6,10 @@ import { videos } from "../../../data/videos";
 import { Button } from "../../ui/button";
 import { Play, ArrowRight } from "lucide-react";
 import { gallery } from "../../../data/gallery";
-import { getImagesFromFolder } from "../../../lib/cloudinary";
+import {
+    getImagesFromFolder,
+    IMAGEKIT_URL_ENDPOINT,
+} from "../../../lib/imagekit";
 
 // Featured content config
 const featuredVideo = videos.find((v) => v.featured) || videos[0];
@@ -23,15 +26,15 @@ function shuffleArray<T>(array: T[]): T[] {
 
 // Fetch 2024 & 2025 images usage cached function
 const [images2024, images2025] = await Promise.all([
-    getImagesFromFolder("De Koninklijkeloop/DKLFoto's 2024", "2024"),
-    getImagesFromFolder("De Koninklijkeloop/DKLFoto's 2025", "2025"),
+    getImagesFromFolder("/De Koninklijkeloop/DKL24", "2024"),
+    getImagesFromFolder("/De Koninklijkeloop/DKL25", "2025"),
 ]);
 
 const cloudImages = [...images2025, ...images2024];
 
-// Prepare the base images from Cloudinary
+// Prepare the base images from ImageKit
 let mappedImages = cloudImages.map((img) => ({
-    src: `https://res.cloudinary.com/${import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${img.src}`,
+    src: img.secureUrl || `${IMAGEKIT_URL_ENDPOINT}${img.src}`,
     alt: img.alt || `Sfeerimpressie DKL ${img.year}`,
     class: "h-full w-full object-cover",
 }));
@@ -43,7 +46,7 @@ if (mappedImages.length < 16) {
         `[MediaMosaic] Only found ${mappedImages.length} images. Augmenting with local gallery.`,
     );
     const localFallback = gallery.map((img) => ({
-        src: `https://res.cloudinary.com/dgfuv7wif/image/upload/${img.src}`,
+        src: `${IMAGEKIT_URL_ENDPOINT}/${img.src}`,
         alt: img.alt,
         class: "h-full w-full object-cover",
     }));

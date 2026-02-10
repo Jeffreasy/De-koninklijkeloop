@@ -14,7 +14,7 @@ export const siteConfig = {
     // Brand & Identity
     brand: {
         name: "De Koninklijke Loop",
-        logo: "https://res.cloudinary.com/dgfuv7wif/image/upload/v1748030388/DKLLogoV1_kx60i9.webp",
+        logo: "https://ik.imagekit.io/a0oim4e3e/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp",
         description:
             "De Koninklijke Loop is een initiatief voor en door mensen met een beperking. Samen wandelen we voor een inclusieve wereld.",
     },
@@ -63,11 +63,11 @@ export const siteConfig = {
 
     // Sponsors
     sponsors: [
-        { name: "3x3 Anders", src: "3x3anderslogo_itwm3g", url: "https://3x3anders.nl" },
-        { name: "Beeld Pakker", src: "BeeldpakkerLogo_wijjmq", url: "https://beeldpakker.nl/" },
-        { name: "Mojo Dojo", src: "LogoLayout_1_iphclc", url: "https://mojodojo.studio/" },
-        { name: "Sterk In Vloeren", src: "SterkinVloerenLOGO_zrdofb", url: "https://sterkinvloeren.nl/" },
-        { name: "Bas Visual Storytelling", src: "vrookpkj9aghvyc28ix5_i2dwx0", url: "https://basvisualstorytelling.nl" },
+        { name: "3x3 Anders", src: "/De Koninklijkeloop/Sponsors/3x3anderslogo_itwm3g.webp", url: "https://3x3anders.nl" },
+        { name: "Beeld Pakker", src: "/De Koninklijkeloop/Sponsors/BeeldpakkerLogo_wijjmq.webp", url: "https://beeldpakker.nl/" },
+        { name: "Mojo Dojo", src: "/De Koninklijkeloop/Sponsors/LogoLayout_1_iphclc.webp", url: "https://mojodojo.studio/" },
+        { name: "Sterk In Vloeren", src: "/De Koninklijkeloop/Sponsors/SterkinVloerenLOGO_zrdofb.webp", url: "https://sterkinvloeren.nl/" },
+        { name: "Bas Visual Storytelling", src: "/De Koninklijkeloop/Sponsors/vrookpkj9aghvyc28ix5_i2dwx0.webp", url: "https://basvisualstorytelling.nl" },
     ],
 
     // Featured Media
@@ -75,17 +75,17 @@ export const siteConfig = {
 
         images: [
             {
-                src: "WhatsApp_Image_2025-05-17_at_19.21.14_3f7fd59e_gme3eo",
+                src: "/De Koninklijkeloop/DKL25/WhatsApp_Image_2025-05-17_at_19.21.14_3f7fd59e_gme3eo.jpg",
                 alt: "Sfeer aan de start",
                 class: "row-span-2 col-span-2 md:col-span-1 h-full",
             },
             {
-                src: "WhatsApp_Image_2025-05-17_at_19.12.14_8ab77c07_gs2zsy",
+                src: "/De Koninklijkeloop/DKL25/WhatsApp_Image_2025-05-17_at_19.12.14_8ab77c07_gs2zsy.jpg",
                 alt: "Feestelijke finish",
                 class: "col-span-1 h-48 md:h-auto",
             },
             {
-                src: "WhatsApp_Image_2025-05-17_at_19.21.15_5468f944_go97uz",
+                src: "/De Koninklijkeloop/DKL25/WhatsApp_Image_2025-05-17_at_19.21.15_5468f944_go97uz.jpg",
                 alt: "Wandelaars in het groen",
                 class: "col-span-1 h-48 md:h-auto",
             },

@@ -79,12 +79,12 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                 <div className="space-y-4">
                     <div className="aspect-4/3 rounded-2xl overflow-hidden bg-surface/50 dark:bg-surface/30">
                         <img
-                            src={`https://res.cloudinary.com/${import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dgfuv7wif'}/image/upload/w_800,h_600,c_fit,f_auto,q_auto/${image.public_id}`}
+                            src={`${image.secure_url}?tr=w-800,h-600,c-at_max,f-auto,q-80`}
                             alt={image.alt_text || "Preview"}
                             className="w-full h-full object-contain"
                             onError={(e) => {
                                 const target = e.target as HTMLImageElement;
-                                if (!target.src.includes(image.secure_url)) {
+                                if (!target.src.includes('?tr=')) {
                                     target.src = image.secure_url;
                                 }
                             }}

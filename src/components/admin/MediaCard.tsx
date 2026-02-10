@@ -25,18 +25,17 @@ export function MediaCard({ image, isSelected, onToggleSelect, onCardClick }: Pr
             {/* Image Container */}
             <div className="aspect-4/3 relative overflow-hidden bg-surface/50 dark:bg-surface/30">
                 <img
-                    srcSet={`https://res.cloudinary.com/${import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dgfuv7wif'}/image/upload/w_400,h_300,c_fill,f_auto,q_auto/${image.public_id} 400w,
-                             https://res.cloudinary.com/${import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dgfuv7wif'}/image/upload/w_800,h_600,c_fill,f_auto,q_auto/${image.public_id} 800w,
-                             https://res.cloudinary.com/${import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dgfuv7wif'}/image/upload/w_1200,h_900,c_fill,f_auto,q_auto/${image.public_id} 1200w`}
+                    srcSet={`${image.secure_url}?tr=w-400,h-300,c-maintain_ratio,f-auto,q-80 400w,
+                             ${image.secure_url}?tr=w-800,h-600,c-maintain_ratio,f-auto,q-80 800w,
+                             ${image.secure_url}?tr=w-1200,h-900,c-maintain_ratio,f-auto,q-80 1200w`}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    src={`https://res.cloudinary.com/${import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dgfuv7wif'}/image/upload/w_400,h_300,c_fill,f_auto,q_auto/${image.public_id}`}
+                    src={`${image.secure_url}?tr=w-400,h-300,c-maintain_ratio,f-auto,q-80`}
                     alt={image.alt_text || "Geen alt text"}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                     onError={(e) => {
-                        // Fallback to secure_url if transformation fails
                         const target = e.target as HTMLImageElement;
-                        if (!target.src.includes(image.secure_url)) {
+                        if (!target.src.includes('?tr=')) {
                             target.src = image.secure_url;
                         }
                     }}
