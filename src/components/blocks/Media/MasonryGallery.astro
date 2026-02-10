@@ -7,32 +7,33 @@ import type { MediaItem } from "../../islands/MediaLightboxModal";
 interface Props {
     images: {
         src: string;
-        secureUrl?: string; // Full Cloudinary URL
+        secureUrl?: string;
         alt: string;
         aspect?: "vertical" | "horizontal" | string;
         year?: string;
     }[];
-    enableLightbox?: boolean; // Default: true
+    enableLightbox?: boolean;
 }
 
 const { images, enableLightbox = true } = Astro.props;
-const initialLoadCount = 12; // Show 12 images initially
+const initialLoadCount = 12;
 
-// Convert images to MediaItem format for lightbox
+// Unique instance ID for scoping multiple galleries on one page
+const galleryId = `gallery-${Math.random().toString(36).slice(2, 9)}`;
+
 const mediaItems: MediaItem[] = images.map((img) => ({
     type: "image" as const,
-    src: img.secureUrl || img.src, // Use secureUrl (full https URL) if available, otherwise src
+    src: img.secureUrl || img.src,
     alt: img.alt,
     title: img.alt,
     year: img.year,
 }));
 ---
 
-<div class="space-y-12" id="masonry-gallery-container">
-    <!-- Gallery Grid with Enhanced Spacing -->
+<div class="space-y-12 masonry-gallery-root" data-gallery-id={galleryId}>
+    <!-- Gallery Grid -->
     <div
-        id="gallery-container"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        class="gallery-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
     >
         {
             images.map((img, index) => (
@@ -43,7 +44,6 @@ const mediaItems: MediaItem[] = images.map((img) => ({
                     class={`gallery-item media-item group relative overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 ${enableLightbox ? "cursor-pointer" : ""} ${index >= initialLoadCount ? "hidden" : ""}`}
                     style="opacity: 0; transform: translateY(20px);"
                 >
-                    {/* Image Container with Aspect Ratio */}
                     <div
                         class={`relative bg-surface border border-glass-border overflow-hidden ${img.aspect === "vertical" ? "aspect-3/4" : "aspect-4/3"}`}
                     >
@@ -65,24 +65,35 @@ const mediaItems: MediaItem[] = images.map((img) => ({
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                     >
-                                        <rect
-                                            width="18"
-                                            height="18"
-                                            x="3"
-                                            y="4"
-                                            rx="2"
-                                            ry="2"
-                                        />
-                                        <line x1="16" x2="16" y1="2" y2="6" />
-                                        <line x1="8" x2="8" y1="2" y2="6" />
-                                        <line x1="3" x2="21" y1="10" y2="10" />
+                                        <>
+                                            <rect
+                                                width="18"
+                                                height="18"
+                                                x="3"
+                                                y="4"
+                                                rx="2"
+                                                ry="2"
+                                            />
+                                            <line
+                                                x1="16"
+                                                x2="16"
+                                                y1="2"
+                                                y2="6"
+                                            />
+                                            <line x1="8" x2="8" y1="2" y2="6" />
+                                            <line
+                                                x1="3"
+                                                x2="21"
+                                                y1="10"
+                                                y2="10"
+                                            />
+                                        </>
                                     </svg>
                                     <span>{img.year}</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Image with Zoom Effect */}
                         <CloudinaryImage
                             src={img.src}
                             alt={img.alt}
@@ -98,7 +109,6 @@ const mediaItems: MediaItem[] = images.map((img) => ({
                             class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                         />
 
-                        {/* Subtle Border Highlight on Hover */}
                         <div class="absolute inset-0 border-2 border-brand-orange/0 group-hover:border-brand-orange/30 transition-colors duration-500 rounded-2xl pointer-events-none" />
                     </div>
                 </div>
@@ -106,38 +116,36 @@ const mediaItems: MediaItem[] = images.map((img) => ({
         }
     </div>
 
-    <!-- Load More Button with Premium Styling -->
-    <div class="flex justify-center pt-8" id="load-more-container">
-        <button
-            id="load-more-btn"
-            class="group relative px-10 py-4 rounded-2xl bg-surface border-2 border-brand-orange/30 hover:border-brand-orange text-primary font-bold transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-brand-orange/20 hover:-translate-y-1 overflow-hidden"
-        >
-            {/* Animated Background Gradient */}
-            <div
-                class="absolute inset-0 bg-linear-to-r from-brand-orange/0 via-brand-orange/5 to-brand-orange/0 group-hover:from-brand-orange/5 group-hover:via-brand-orange/10 group-hover:to-brand-orange/5 transition-all duration-500"
-            >
+    <!-- Load More Button -->
+    {
+        images.length > initialLoadCount && (
+            <div class="flex justify-center pt-8 load-more-wrap">
+                <button class="load-more-btn group relative px-10 py-4 rounded-2xl bg-surface border-2 border-brand-orange/30 hover:border-brand-orange text-primary font-bold transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-brand-orange/20 hover:-translate-y-1 overflow-hidden cursor-pointer">
+                    <div class="absolute inset-0 bg-linear-to-r from-brand-orange/0 via-brand-orange/5 to-brand-orange/0 group-hover:from-brand-orange/5 group-hover:via-brand-orange/10 group-hover:to-brand-orange/5 transition-all duration-500" />
+                    <span class="relative flex items-center gap-3">
+                        <span class="text-lg">Meer foto's laden</span>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="group-hover:translate-y-1 transition-transform"
+                        >
+                            <>
+                                <path d="M12 5v14" />
+                                <path d="m19 12-7 7-7-7" />
+                            </>
+                        </svg>
+                    </span>
+                </button>
             </div>
-
-            <span class="relative flex items-center gap-3">
-                <span class="text-lg">Meer foto's laden</span>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="group-hover:translate-y-1 transition-transform"
-                >
-                    <path d="M12 5v14"></path>
-                    <path d="m19 12-7 7-7-7"></path>
-                </svg>
-            </span>
-        </button>
-    </div>
+        )
+    }
 
     <!-- Media Lightbox Modal -->
     {
@@ -154,116 +162,86 @@ const mediaItems: MediaItem[] = images.map((img) => ({
 </div>
 
 <script>
-    const LOAD_INCREMENT = 12; // Load 12 more images each time
-    let currentlyShown = 12; // Track how many are currently visible
+    const LOAD_INCREMENT = 12;
 
-    function initLoadMore() {
-        const loadMoreBtn = document.getElementById("load-more-btn");
-        const loadMoreContainer = document.getElementById(
-            "load-more-container",
-        );
-        const allItems = document.querySelectorAll(".gallery-item");
+    function initAllGalleries() {
+        const galleries = document.querySelectorAll(".masonry-gallery-root");
+        galleries.forEach(initGallery);
+    }
 
-        if (!loadMoreBtn || !loadMoreContainer) return;
+    function initGallery(root: Element) {
+        const galleryId = root.getAttribute("data-gallery-id");
+        if (!galleryId || root.hasAttribute("data-initialized")) return;
+        root.setAttribute("data-initialized", "true");
 
-        // Stagger animation for initial gallery items
+        const allItems = root.querySelectorAll(".gallery-item");
+        const loadMoreBtn = root.querySelector(".load-more-btn");
+        const loadMoreWrap = root.querySelector(".load-more-wrap");
+
+        let currentlyShown = 12;
+
+        // Stagger animation for initial items
         allItems.forEach((item, index) => {
             if (index < currentlyShown) {
                 setTimeout(() => {
                     (item as HTMLElement).style.opacity = "1";
                     (item as HTMLElement).style.transform = "translateY(0)";
-                }, index * 50); // 50ms delay between each item
+                }, index * 50);
             }
         });
 
-        // Hide button if all images are already shown
-        if (allItems.length <= currentlyShown) {
-            loadMoreContainer.classList.add("hidden");
+        // Hide button if all images already shown
+        if (allItems.length <= currentlyShown && loadMoreWrap) {
+            (loadMoreWrap as HTMLElement).style.display = "none";
         }
 
-        loadMoreBtn.addEventListener("click", () => {
-            const hiddenItems = Array.from(allItems).filter(
-                (item) =>
-                    item.classList.contains("hidden") &&
-                    !item.classList.contains("filter-hidden"),
-            );
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener("click", () => {
+                const hiddenItems = Array.from(allItems).filter((item) =>
+                    item.classList.contains("hidden"),
+                );
 
-            // Show next batch with stagger animation
-            const itemsToShow = hiddenItems.slice(0, LOAD_INCREMENT);
-            itemsToShow.forEach((item, index) => {
-                item.classList.remove("hidden");
-                setTimeout(() => {
-                    (item as HTMLElement).style.opacity = "1";
-                    (item as HTMLElement).style.transform = "translateY(0)";
-                }, index * 50);
-            });
-
-            currentlyShown += itemsToShow.length;
-
-            // Track gallery engagement via Vercel Speed Insights
-            if (typeof window !== "undefined" && (window as any).si) {
-                (window as any).si("gallery_load_more", {
-                    images_loaded: currentlyShown,
-                    user_type:
-                        (window as any).DKL_USER_CONTEXT?.type || "anonymous",
+                const itemsToShow = hiddenItems.slice(0, LOAD_INCREMENT);
+                itemsToShow.forEach((item, index) => {
+                    item.classList.remove("hidden");
+                    setTimeout(() => {
+                        (item as HTMLElement).style.opacity = "1";
+                        (item as HTMLElement).style.transform = "translateY(0)";
+                    }, index * 50);
                 });
-            }
 
-            // Hide button if no more hidden items
-            const remainingHidden = Array.from(allItems).filter(
-                (item) =>
-                    item.classList.contains("hidden") &&
-                    !item.classList.contains("filter-hidden"),
-            );
+                currentlyShown += itemsToShow.length;
 
-            if (remainingHidden.length === 0) {
-                loadMoreContainer.classList.add("hidden");
-            }
-        });
-    }
-
-    // Lightbox functionality
-    function initLightbox() {
-        const container = document.getElementById("masonry-gallery-container");
-        if (!container) return;
-
-        // Global state for lightbox
-        let lightboxState = {
-            isOpen: false,
-            currentIndex: 0,
-        };
-
-        // Find the React root and trigger state update
-        const updateLightbox = (index: number, isOpen: boolean) => {
-            const event = new CustomEvent("lightbox-state-change", {
-                detail: { index, isOpen },
+                // Hide button if no more
+                const remaining = Array.from(allItems).filter((item) =>
+                    item.classList.contains("hidden"),
+                );
+                if (remaining.length === 0 && loadMoreWrap) {
+                    (loadMoreWrap as HTMLElement).style.display = "none";
+                }
             });
-            window.dispatchEvent(event);
-        };
+        }
 
-        // Add click handlers to gallery items
-        const galleryItems = container.querySelectorAll(
+        // Lightbox click handlers
+        const clickableItems = root.querySelectorAll(
             ".gallery-item[data-lightbox-index]",
         );
-        galleryItems.forEach((item) => {
+        clickableItems.forEach((item) => {
             item.addEventListener("click", () => {
                 const index = parseInt(
                     (item as HTMLElement).dataset.lightboxIndex || "0",
                 );
-                updateLightbox(index, true);
+                window.dispatchEvent(
+                    new CustomEvent("lightbox-state-change", {
+                        detail: { index, isOpen: true },
+                    }),
+                );
             });
         });
     }
 
-    // Initialize on page load
-    document.addEventListener("DOMContentLoaded", () => {
-        initLoadMore();
-        initLightbox();
-    });
-    document.addEventListener("astro:page-load", () => {
-        initLoadMore();
-        initLightbox();
-    });
+    document.addEventListener("DOMContentLoaded", initAllGalleries);
+    document.addEventListener("astro:page-load", initAllGalleries);
 </script>
 
 <style>
@@ -274,7 +252,6 @@ const mediaItems: MediaItem[] = images.map((img) => ({
             box-shadow 0.3s ease;
     }
 
-    /* Ensure grid items maintain their space even when hidden */
     .gallery-item.hidden {
         display: none;
     }

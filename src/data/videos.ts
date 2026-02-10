@@ -18,15 +18,10 @@ export const videos: VideoItem[] = [
         year: "2025",
     },
     {
-        shortcode: "tt6k80",
+        shortcode: "opjpma",
         title: "Aftermovie 2024",
         year: "2024",
         featured: true,
-    },
-    {
-        shortcode: "opjpma",
-        title: "De Route", // Placeholder
-        year: "2024",
     },
     {
         shortcode: "cvfrpi",
