@@ -111,8 +111,9 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                     finalImageUrl = await uploadFileToImageKit(selectedFile);
                     if (import.meta.env.DEV) console.log('✅ File uploaded:', finalImageUrl);
                 } catch (uploadError) {
-                    if (import.meta.env.DEV) console.error('❌ Upload failed:', uploadError);
-                    alert('Upload mislukt. Probeer opnieuw.');
+                    const msg = uploadError instanceof Error ? uploadError.message : 'Onbekend';
+                    console.error('❌ Upload failed:', msg);
+                    alert(`Upload mislukt: ${msg}`);
                     setIsUploading(false);
                     setIsSaving(false);
                     return;

@@ -2,29 +2,33 @@ import type { APIRoute } from 'astro';
 import { uploadImage } from '../../../lib/imagekit';
 
 export const POST: APIRoute = async ({ request, locals }) => {
-    const { user } = locals as any;
-    if (!user) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
-
     try {
-        if (import.meta.env.DEV) console.log('📤 Upload request received');
+        // Auth check — locals.user is set by middleware from cookie
+        const { user } = locals as any;
+        if (!user) {
+            return new Response(JSON.stringify({
+                error: "Niet ingelogd — herlaad de pagina en probeer opnieuw",
+                code: "AUTH_REQUIRED"
+            }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
 
         const formData = await request.formData();
         const file = formData.get('file') as File;
 
         if (!file) {
-            console.error('❌ No file in request');
-            return new Response(JSON.stringify({ error: 'No file provided' }), {
+            return new Response(JSON.stringify({
+                error: 'Geen bestand geselecteerd',
+                code: 'NO_FILE'
+            }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
 
-        if (import.meta.env.DEV) console.log('📁 File received:', file.name, file.type, file.size);
+        if (import.meta.env.DEV) console.log('📁 File:', file.name, file.type, file.size);
 
         // Convert file to base64
         const arrayBuffer = await file.arrayBuffer();
@@ -36,11 +40,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
         const base64 = btoa(binary);
         const dataURI = `data:${file.type};base64,${base64}`;
 
-        if (import.meta.env.DEV) console.log('⬆️ Uploading to ImageKit...');
-
+        // Upload to ImageKit
         const result = await uploadImage(dataURI, file.name, '/De Koninklijkeloop/SocialmediaPosts');
-
-        if (import.meta.env.DEV) console.log('✅ Upload successful:', result.url);
 
         return new Response(
             JSON.stringify({
@@ -55,12 +56,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
             }
         );
     } catch (error) {
-        console.error('❌ ImageKit upload error:', error);
+        const message = error instanceof Error ? error.message : 'Onbekende fout';
+        console.error('❌ Upload error:', message, error);
 
         return new Response(
             JSON.stringify({
-                error: 'Upload failed',
-                details: error instanceof Error ? error.message : 'Unknown error',
+                error: `Upload mislukt: ${message}`,
+                code: 'UPLOAD_FAILED',
             }),
             {
                 status: 500,
