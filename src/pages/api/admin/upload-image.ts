@@ -41,7 +41,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         const dataURI = `data:${file.type};base64,${base64}`;
 
         // Upload to ImageKit
-        const result = await uploadImage(dataURI, file.name, '/De Koninklijkeloop/SocialmediaPosts');
+        const result = await uploadImage(dataURI, file.name, '/De%20Koninklijkeloop/SocialmediaPosts');
 
         return new Response(
             JSON.stringify({
