@@ -158,7 +158,10 @@ class Analytics {
 
         fetch('/api/v1/analytics', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Tenant-ID': this.tenantId,
+            },
             body: payload,
             keepalive: true,
         }).catch(() => { /* fire-and-forget */ });

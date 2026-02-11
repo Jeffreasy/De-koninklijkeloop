@@ -87,5 +87,10 @@
             ]
         }
     ],
-    "rewrites": []
+    "rewrites": [
+        {
+            "source": "/api/v1/(.*)",
+            "destination": "https://laventecareauthsystems.onrender.com/api/v1/$1"
+        }
+    ]
 }
