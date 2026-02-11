@@ -93,14 +93,14 @@ export default function FeedbackList() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {filteredFeedback.map((item) => (
-                            <div key={item._id} className="group relative bg-[#0F172A]/40 backdrop-blur-md border border-white/5 hover:border-brand-orange/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-xl hover:shadow-black/20 hover:-translate-y-1 overflow-hidden">
+                            <div key={item._id} className="group relative bg-glass-bg/40 backdrop-blur-md border border-glass-border hover:border-brand-orange/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden">
                                 {/* Gradient Glow */}
-                                <div className="absolute inset-0 bg-linear-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                <div className="absolute inset-0 bg-linear-to-br from-glass-border/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
                                 <div className="relative space-y-4">
                                     {/* Header: Icon & Status */}
                                     <div className="flex items-start justify-between">
-                                        <div className={`p-3 rounded-xl bg-black/20 border border-white/5 ${item.type === 'bug' ? 'text-red-400' : item.type === 'feature' ? 'text-yellow-400' : 'text-pink-400'}`}>
+                                        <div className={`p-3 rounded-xl bg-glass-bg/50 border border-glass-border ${item.type === 'bug' ? 'text-red-400' : item.type === 'feature' ? 'text-yellow-400' : 'text-pink-400'}`}>
                                             {getTypeIcon(item.type)}
                                         </div>
                                         {getStatusBadge(item.status)}
@@ -114,13 +114,13 @@ export default function FeedbackList() {
                                     </div>
 
                                     {/* Metadata Footer */}
-                                    <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-text-muted">
+                                    <div className="pt-4 border-t border-glass-border flex items-center justify-between text-xs text-text-muted">
                                         <span className="flex items-center gap-1.5">
                                             <Clock className="w-3.5 h-3.5" />
                                             {new Date(item.createdAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
                                         </span>
                                         {item.metadata?.url && (
-                                            <span className="px-2 py-0.5 rounded-full bg-white/5 font-mono text-[10px] truncate max-w-[100px]">
+                                            <span className="px-2 py-0.5 rounded-full bg-glass-bg/50 font-mono text-[10px] truncate max-w-[100px]">
                                                 {item.metadata.url}
                                             </span>
                                         )}
