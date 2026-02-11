@@ -30,7 +30,7 @@ export function ConversationList({
     const allTeamMembers = [...onlineUsers, ...offlineUsers];
 
     return (
-        <div className="flex-1 overflow-y-auto p-3 space-y-5 scrollbar-thin scrollbar-thumb-white/10">
+        <div className="flex-1 overflow-y-auto p-3 space-y-5 scrollbar-thin scrollbar-thumb-white/10 overscroll-contain">
             {/* Group Chats */}
             {groupConversations.length > 0 && (
                 <div className="space-y-1.5">
@@ -43,7 +43,7 @@ export function ConversationList({
                         <button
                             key={group._id}
                             onClick={() => onOpenGroup(group)}
-                            className="w-full flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-left transition-colors group/item"
+                            className="w-full flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-left transition-colors group/item cursor-pointer touch-action-manipulation"
                         >
                             <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center text-lg border border-white/10">
                                 {group.avatarEmoji || '👥'}
@@ -65,7 +65,7 @@ export function ConversationList({
                     <h4 className="text-xs font-bold text-text-muted uppercase tracking-wider">
                         Online ({onlineUsers.length})
                     </h4>
-                    <button onClick={onCreateGroup} className="p-1 rounded-md hover:bg-white/10 text-text-muted hover:text-white transition-colors" title="Nieuwe groep">
+                    <button onClick={onCreateGroup} className="p-1.5 rounded-md hover:bg-white/10 text-text-muted hover:text-white transition-colors cursor-pointer touch-action-manipulation" title="Nieuwe groep">
                         <Plus className="w-3.5 h-3.5" />
                     </button>
                 </div>
@@ -150,7 +150,7 @@ const UserListItem = memo(function UserListItem({ user, unreadCount, onClick, is
     return (
         <button
             onClick={onClick}
-            className="w-full flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-left transition-colors border border-transparent hover:border-white/5 group/item relative overflow-hidden"
+            className="w-full flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-left transition-colors border border-transparent hover:border-white/5 group/item relative overflow-hidden cursor-pointer touch-action-manipulation"
         >
             <div className="absolute inset-0 bg-brand-orange/5 opacity-0 group-hover/item:opacity-100 transition-opacity" />
             <div className="relative">

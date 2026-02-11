@@ -20,7 +20,7 @@ export const ReactionDisplay = memo(function ReactionDisplay({ reactions, onReac
                 <button
                     key={emoji}
                     onClick={() => onReact(emoji)}
-                    className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs transition-colors border ${users.some(u => u.user === currentUser)
+                    className={`flex items-center gap-1 px-2 py-1 min-h-[36px] rounded-full text-xs transition-colors border cursor-pointer touch-action-manipulation ${users.some(u => u.user === currentUser)
                         ? 'bg-brand-orange/20 border-brand-orange/40 text-white'
                         : 'bg-white/5 border-white/10 text-text-muted hover:bg-white/10'
                         }`}

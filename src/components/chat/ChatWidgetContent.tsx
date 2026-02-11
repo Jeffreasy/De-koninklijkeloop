@@ -89,7 +89,7 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
         return (
             <button
                 onClick={() => { setIsOpen(true); if (!notificationsEnabled) requestNotifications(); }}
-                className="fixed bottom-24 right-6 group p-0 rounded-full shadow-lg shadow-brand-orange/20 z-50 hover:scale-110 transition-transform duration-300"
+                className="fixed bottom-20 right-4 md:bottom-24 md:right-6 group p-0 rounded-full shadow-lg shadow-brand-orange/20 z-50 hover:scale-110 transition-transform duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 focus-visible:ring-offset-surface touch-action-manipulation"
             >
                 <div className="relative w-14 h-14 bg-brand-orange rounded-full flex items-center justify-center overflow-hidden border-2 border-white/20">
                     <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -109,7 +109,7 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
 
     // ─── Open State ───────────────────────────────────────────
     return (
-        <div className="fixed bottom-24 right-6 w-[380px] h-[600px] bg-surface/95 backdrop-blur-xl border border-glass-border rounded-2xl shadow-2xl flex flex-col overflow-hidden z-50 animate-in slide-in-from-bottom-5 zoom-in-95 duration-300 origin-bottom-right">
+        <div className="fixed inset-0 md:inset-auto md:bottom-4 md:right-4 lg:bottom-24 lg:right-6 md:w-[380px] md:h-[70vh] lg:h-[600px] bg-surface/95 backdrop-blur-xl border-0 md:border md:border-glass-border rounded-none md:rounded-2xl shadow-2xl flex flex-col overflow-hidden z-50 animate-in slide-in-from-bottom-5 zoom-in-95 duration-300 motion-reduce:animate-none origin-bottom-right overscroll-contain pb-[env(safe-area-inset-bottom)]">
             {/* Header */}
             <div className="p-4 border-b border-glass-border bg-white/5 flex justify-between items-center relative overflow-hidden shrink-0">
                 <div className="absolute inset-0 bg-linear-to-r from-brand-orange/10 to-transparent pointer-events-none" />

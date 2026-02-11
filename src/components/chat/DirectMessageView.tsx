@@ -76,7 +76,7 @@ export function DirectMessageView({ currentUser, otherUser }: DirectMessageViewP
 
     return (
         <div className="flex-1 flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" ref={scrollRef}>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent overscroll-contain" ref={scrollRef}>
                 {messageList.map((msg) => (
                     <MessageBubble
                         key={msg._id}
