@@ -1,0 +1,23 @@
+/* TEAM */
+Organization: De Koninklijke Loop
+Contact: info@dekoninklijkeloop.nl
+Location: Apeldoorn, Gelderland, Nederland
+
+/* SITE */
+Last update: 2026-02-11
+Language: Nederlands (nl)
+Standards: HTML5, CSS3, ES2024
+Framework: Astro 5
+Styling: Tailwind CSS v4
+Hosting: Vercel
+Data: Convex
+Analytics: Vercel Speed Insights
+
+/* THANKS */
+Charity Partner 2026: Only Friends
+Previous Charity: Liliane Fonds (2024, 2025)
+Sponsor: 3x3 Anders (https://3x3anders.nl)
+Sponsor: Beeld Pakker (https://beeldpakker.nl)
+Sponsor: Mojo Dojo (https://mojodojo.studio)
+Sponsor: Sterk In Vloeren (https://sterkinvloeren.nl)
+Sponsor: Bas Visual Storytelling (https://basvisualstorytelling.nl)

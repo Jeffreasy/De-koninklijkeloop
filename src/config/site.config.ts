@@ -56,9 +56,9 @@ export const siteConfig = {
 
     // Social Media
     social: {
-        facebook: "#", // TODO: Add real URLs
-        instagram: "#",
-        linkedin: "#",
+        facebook: "https://www.facebook.com/p/De-Koninklijke-Loop-61556315443279/",
+        instagram: "https://www.instagram.com/koninklijkeloop/",
+        linkedin: "https://www.linkedin.com/company/de-koninklijke-loop/",
     },
 
     // Sponsors
@@ -108,6 +108,6 @@ export const siteConfig = {
     meta: {
         titleSuffix: " | De Koninklijke Loop",
         defaultDescription:
-            "De Koninklijke Loop - Inclusief wandelevenement op 16 mei 2026",
+            "De Koninklijke Loop - Inclusief wandelevenement op 16 mei 2026. Goede doel: Only Friends.",
     },
 } as const;

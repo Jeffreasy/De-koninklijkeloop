@@ -7,22 +7,22 @@ import ProgrammaSchedule from "../components/blocks/Programma/ProgrammaSchedule"
 const title = "Programma — De Koninklijke Loop 2026";
 const description =
     "Bekijk het volledige dagprogramma voor De Koninklijke Loop 2026 in Apeldoorn. Routes van 2,5 tot 15 km langs Paleis Het Loo. Ontdek start- en finishtijden, rustpunten en meer.";
-const canonicalUrl = "https://dekoninklijkeloop.nl/programma";
 
-const jsonLd = {
+const eventJsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
     name: "De Koninklijke Loop 2026",
     description: description,
-    startDate: "2026-06-14T08:00:00+02:00",
-    endDate: "2026-06-14T17:00:00+02:00",
+    startDate: "2026-05-16T08:00:00+02:00",
+    endDate: "2026-05-16T17:00:00+02:00",
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location: {
         "@type": "Place",
-        name: "Paleis Het Loo",
+        name: "Koninklijke Weg – Paleis Het Loo",
         address: {
             "@type": "PostalAddress",
+            streetAddress: "Koninklijke Weg",
             addressLocality: "Apeldoorn",
             addressRegion: "Gelderland",
             addressCountry: "NL",
@@ -41,32 +41,13 @@ const jsonLd = {
         price: "0",
         validFrom: "2026-01-01",
     },
-    image: "https://dekoninklijkeloop.nl/og-programma.jpg",
-    url: canonicalUrl,
+    maximumAttendeeCapacity: 75,
+    isAccessibleForFree: true,
+    url: "https://dekoninklijkeloop.nl/programma",
 };
 ---
 
-<BaseLayout title={title} description={description}>
-    <Fragment slot="head">
-        {/* Canonical */}
-        <link rel="canonical" href={canonicalUrl} />
-
-        {/* Open Graph */}
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:locale" content="nl_NL" />
-        <meta property="og:site_name" content="De Koninklijke Loop" />
-
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-
-        {/* JSON-LD Structured Data */}
-        <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-    </Fragment>
+<BaseLayout title={title} description={description} jsonLd={eventJsonLd}>
 
     <Navbar />
     <main

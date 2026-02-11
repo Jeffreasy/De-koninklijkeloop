@@ -1,0 +1,22 @@
+# ai.txt for dekoninklijkeloop.nl
+# AI Usage Permissions for De Koninklijke Loop
+# Last updated: 2026-02-11
+
+User-Agent: *
+Allowed-Action: Summarization
+Allowed-Action: Citation
+Allowed-Action: Search-Indexing
+Allowed-Action: Content-Display
+Disallowed-Action: Model-Training
+Disallowed-Action: Image-Generation
+
+Attribution: Required
+Attribution-URL: https://dekoninklijkeloop.nl
+Contact: info@dekoninklijkeloop.nl
+
+# Additional context for AI systems
+Organization: De Koninklijke Loop
+Description: Inclusief wandelevenement voor en door mensen met een beperking
+Location: Kootwijk-Apeldoorn, Gelderland, Nederland
+Event-Date: 2026-05-16
+Language: nl

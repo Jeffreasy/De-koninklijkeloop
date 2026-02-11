@@ -2,15 +2,24 @@
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import SpeedInsights from "@vercel/speed-insights/astro";
+import SEOHead from "../components/seo/SEOHead.astro";
 
 interface Props {
     title: string;
     description?: string;
+    ogImage?: string;
+    ogType?: string;
+    jsonLd?: object | object[];
+    noindex?: boolean;
 }
 
 const {
     title,
-    description = "De Koninklijke Loop 2026 - Wandel mee voor het Liliane Fonds",
+    description = "De Koninklijke Loop 2026 - Wandel mee voor Only Friends",
+    ogImage,
+    ogType,
+    jsonLd,
+    noindex,
 } = Astro.props;
 
 import FloatingToolbox from "../components/dashboard/FloatingToolbox";
@@ -29,6 +38,20 @@ import FloatingToolbox from "../components/dashboard/FloatingToolbox";
         <link rel="icon" type="image/webp" href="/favicon.webp" />
         <meta name="generator" content={Astro.generator} />
         <title>{title}</title>
+        <SEOHead
+            title={title}
+            description={description}
+            ogImage={ogImage}
+            ogType={ogType}
+            jsonLd={jsonLd}
+            noindex={noindex}
+        />
+        <link
+            rel="alternate"
+            type="application/rss+xml"
+            title="De Koninklijke Loop"
+            href="/rss.xml"
+        />
         <ClientRouter />
         <script is:inline>
             // Anti-Flicker & Theme Initialization Script

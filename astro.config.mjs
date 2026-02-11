@@ -2,9 +2,11 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwind from '@tailwindcss/vite';
 import vercel from '@astrojs/vercel';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://dekoninklijkeloop.nl',
   output: 'server',
   adapter: vercel({
     webAnalytics: { enabled: true },
@@ -15,7 +17,18 @@ export default defineConfig({
       domains: ["ik.imagekit.io"],
     },
   }),
-  integrations: [react()],
+  integrations: [
+    react(),
+    sitemap({
+      filter: (page) =>
+        !page.includes('/admin/') &&
+        !page.includes('/auth/') &&
+        !page.includes('/login') &&
+        !page.includes('/dashboard') &&
+        !page.includes('/profiel') &&
+        !page.includes('/registratie-succes'),
+    }),
+  ],
 
   vite: {
     plugins: [tailwind()],

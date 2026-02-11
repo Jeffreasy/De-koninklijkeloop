@@ -1,0 +1,75 @@
+# robots.txt - De Koninklijke Loop
+# https://dekoninklijkeloop.nl
+
+# Default: allow all crawlers
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+Disallow: /auth/
+Disallow: /dashboard
+Disallow: /profiel
+
+# === AI Search Crawlers (Explicitly Allowed) ===
+
+# OpenAI / ChatGPT
+User-agent: GPTBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Anthropic / Claude
+User-agent: Claude-Web
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Google AI (Gemini)
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Common Crawl (used by many AI models)
+User-agent: CCBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Meta AI
+User-agent: FacebookBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Apple AI (Applebot-Extended for Apple Intelligence)
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# === Blocked Crawlers ===
+
+# ByteDance / TikTok scraper (aggressive, no value)
+User-agent: Bytespider
+Disallow: /
+
+# === Discovery Files ===
+Sitemap: https://dekoninklijkeloop.nl/sitemap-index.xml

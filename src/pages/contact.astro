@@ -4,9 +4,29 @@ import Navbar from "../components/blocks/Global/Navbar.astro";
 import Footer from "../components/blocks/Global/Footer.astro";
 import ContactSection from "../components/blocks/Contact/ContactSection.astro";
 import FAQSection from "../components/blocks/Contact/FAQSection.astro";
+import { faqData } from "../data/faqData";
+
+const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqData.flatMap(category =>
+        category.questions.map(q => ({
+            "@type": "Question",
+            name: q.question,
+            acceptedAnswer: {
+                "@type": "Answer",
+                text: q.answer,
+            },
+        }))
+    ),
+};
 ---
 
-<BaseLayout title="Contact | De Koninklijke Loop 2026">
+<BaseLayout
+    title="Contact & FAQ | De Koninklijke Loop 2026"
+    description="Neem contact op met De Koninklijke Loop of bekijk de veelgestelde vragen over het wandelevenement op 16 mei 2026 in Apeldoorn."
+    jsonLd={faqJsonLd}
+>
     <Navbar />
 
     <main class="pt-32 pb-20 relative overflow-hidden">

@@ -3,12 +3,12 @@ import { v } from "convex/values";
 
 /**
  * Media Metadata Functions
- * For managing alt-text and metadata for Cloudinary images
+ * For managing alt-text and metadata for ImageKit images (legacy field names from Cloudinary)
  */
 
 /**
  * Get all media metadata
- * Used to merge with Cloudinary images in admin panel
+ * Used to merge with ImageKit images in admin panel
  */
 export const getAll = query({
     handler: async (ctx) => {

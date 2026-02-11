@@ -120,15 +120,15 @@ export default defineSchema({
     })
         .index("by_registration", ["registrationId"]),
 
-    // Media (Photos/Videos from Cloudinary/Streamable)
+    // Media (Photos/Videos from ImageKit/Streamable)
     media: defineTable({
         // Media Source
-        source: v.union(v.literal("cloudinary"), v.literal("streamable")),
+        source: v.union(v.literal("cloudinary"), v.literal("streamable")), // "cloudinary" kept for backward compat (now ImageKit)
 
-        // Cloudinary Fields (for photos)
-        cloudinaryPublicId: v.optional(v.string()),
-        cloudinaryUrl: v.optional(v.string()),
-        cloudinarySecureUrl: v.optional(v.string()),
+        // ImageKit Fields (legacy names from Cloudinary migration)
+        cloudinaryPublicId: v.optional(v.string()), // Now stores ImageKit filePath
+        cloudinaryUrl: v.optional(v.string()), // Now stores ImageKit URL
+        cloudinarySecureUrl: v.optional(v.string()), // Now stores ImageKit secure URL
 
         // Streamable Fields (for videos)
         streamableShortcode: v.optional(v.string()),
@@ -162,9 +162,9 @@ export default defineSchema({
         .index("by_uploader", ["uploaderEmail"])
         .index("by_registration", ["registrationId"]),
 
-    // Media Metadata (Cloudinary Integration)
+    // Media Metadata (ImageKit Integration - legacy field names from Cloudinary migration)
     media_metadata: defineTable({
-        cloudinary_public_id: v.string(), // Cloudinary public_id (unique identifier)
+        cloudinary_public_id: v.string(), // Stores ImageKit filePath (legacy name for backward compat)
         alt_text: v.string(),            // User-defined alt text for accessibility
         title: v.optional(v.string()),   // Optional title/caption for the image
         folder: v.optional(v.string()),  // e.g., "De Koninklijkeloop/DKLFoto's 2024"

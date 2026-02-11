@@ -1,0 +1,103 @@
+---
+import { siteConfig } from "../../config/site.config";
+
+interface Props {
+    title: string;
+    description?: string;
+    canonicalUrl?: string;
+    ogImage?: string;
+    ogType?: string;
+    jsonLd?: object | object[];
+    noindex?: boolean;
+}
+
+const {
+    title,
+    description = siteConfig.meta.defaultDescription,
+    canonicalUrl,
+    ogImage = "https://dekoninklijkeloop.nl/og-image.svg",
+    ogType = "website",
+    jsonLd,
+    noindex = false,
+} = Astro.props;
+
+const resolvedCanonical =
+    canonicalUrl ||
+    new URL(Astro.url.pathname, "https://dekoninklijkeloop.nl").href;
+
+const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "De Koninklijke Loop",
+    url: "https://dekoninklijkeloop.nl",
+    logo: siteConfig.brand.logo,
+    description: siteConfig.brand.description,
+    email: siteConfig.contact.email,
+    address: {
+        "@type": "PostalAddress",
+        addressLocality: "Apeldoorn",
+        addressRegion: "Gelderland",
+        addressCountry: "NL",
+    },
+    sameAs: [
+        siteConfig.social.facebook,
+        siteConfig.social.instagram,
+        siteConfig.social.linkedin,
+    ].filter((url) => url !== "#"),
+};
+
+const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "De Koninklijke Loop",
+    url: "https://dekoninklijkeloop.nl",
+    description: siteConfig.brand.description,
+    inLanguage: "nl-NL",
+    publisher: {
+        "@type": "Organization",
+        name: "De Koninklijke Loop",
+    },
+};
+
+const allSchemas = [
+    organizationSchema,
+    websiteSchema,
+    ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []),
+];
+---
+
+<Fragment>
+    {/* Canonical */}
+    <link rel="canonical" href={resolvedCanonical} />
+
+    {/* Robots */}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    {/* Open Graph */}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={resolvedCanonical} />
+    <meta property="og:locale" content="nl_NL" />
+    <meta property="og:site_name" content="De Koninklijke Loop" />
+    <meta property="og:image" content={ogImage} />
+
+    {/* Twitter Card */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {/* Additional Discovery */}
+    <link rel="author" href="/humans.txt" />
+
+    {/* JSON-LD Structured Data */}
+    {
+        allSchemas.map((schema) => (
+            <script
+                type="application/ld+json"
+                set:html={JSON.stringify(schema)}
+            />
+        ))
+    }
+</Fragment>

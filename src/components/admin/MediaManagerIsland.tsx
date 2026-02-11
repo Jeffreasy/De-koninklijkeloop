@@ -12,7 +12,7 @@ import { Loader2 } from "lucide-react";
 import { ToastContainer } from "../ui/ToastContainer.tsx";
 import { addToast } from "../../lib/toast.ts";
 
-/** Image structure from ImageKit used across the media manager */
+/** Image structure from ImageKit used across the media manager (fully migrated from Cloudinary) */
 interface ImageKitFileBase {
     public_id: string;
     secure_url: string;
@@ -63,7 +63,7 @@ export default function MediaManagerIsland() {
 
             // Merge with Convex metadata
             const merged: MergedImage[] = imagekitImages.map((img: any) => {
-                const meta = metadata?.find((m: any) => m.cloudinary_public_id === img.filePath);
+                const meta = metadata?.find((m: any) => m.cloudinary_public_id === img.filePath); // Legacy field name in Convex schema
                 return {
                     ...img,
                     // Map ImageKit fields to expected structure
@@ -154,7 +154,7 @@ export default function MediaManagerIsland() {
 
         try {
             await saveAltTextMutation({
-                cloudinary_public_id: publicId,
+                cloudinary_public_id: publicId, // Legacy Convex field name (maps to ImageKit filePath)
                 alt_text: altText,
                 title,
                 tags,
