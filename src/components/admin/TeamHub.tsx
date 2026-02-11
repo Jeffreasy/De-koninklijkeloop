@@ -223,7 +223,7 @@ const TeamHubContent = () => {
                                             </div>
                                         </div>
                                         <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
-                                            <div className="prose prose-sm md:prose-base prose-invert max-w-none text-text-secondary">
+                                            <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-text-secondary">
                                                 <div className="whitespace-pre-wrap font-sans leading-relaxed">
                                                     {/* Simple rendering for now, could use a markdown parser later */}
                                                     {selectedMinute.content.split('\n').map((line: string, i: number) => (

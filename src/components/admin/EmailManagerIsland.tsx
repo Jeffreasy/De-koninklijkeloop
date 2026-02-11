@@ -527,7 +527,7 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
                 )}
 
                 {!loading && fullEmail && (
-                    <div className="prose prose-invert max-w-none">
+                    <div className="prose dark:prose-invert max-w-none">
                         {fullEmail.body_html ? (
                             <iframe
                                 srcDoc={fullEmail.body_html}
