@@ -1,0 +1,8 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AnalyticsWrapper from "../../components/admin/AnalyticsWrapper";
+---
+
+<AdminLayout title="Analytics | De Koninklijke Loop Admin">
+    <AnalyticsWrapper client:only="react" />
+</AdminLayout>

@@ -444,4 +444,20 @@ export default defineSchema({
         createdAt: v.number(),
     })
         .index("by_group", ["groupId", "createdAt"]),
+
+    /**
+     * Analytics Events
+     * Business-critical events for custom dashboard.
+     * Dual-write: also sent to Vercel Speed Insights.
+     */
+    analytics_events: defineTable({
+        event: v.string(),
+        metadata: v.optional(v.any()),
+        sessionId: v.string(),
+        path: v.string(),
+        timestamp: v.number(),
+    })
+        .index("by_event", ["event"])
+        .index("by_timestamp", ["timestamp"])
+        .index("by_path", ["path"]),
 });
