@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Mail, Inbox, Star, Archive, Plus, Paperclip, Download } from 'lucide-react';
+import { Loader2, Mail, Inbox, Star, Plus, Paperclip, Download } from 'lucide-react';
 import ReplyModal from './ReplyModal';
 import ComposeModal from './ComposeModal';
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, ConvexProvider, ConvexReactClient } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { MessageSquare, X, Send, Smile, ArrowLeft, Users, Plus, Search, Hash } from 'lucide-react';
