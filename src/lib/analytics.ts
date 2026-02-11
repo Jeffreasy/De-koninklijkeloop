@@ -233,18 +233,17 @@ class Analytics {
 
 export const analytics = new Analytics();
 
-export const {
-    track: trackEvent,
-    trackPageView,
-    trackRegistrationStarted,
-    trackRegistrationCompleted,
-    trackRegistrationFailed,
-    trackGalleryViewed,
-    trackGalleryFilterApplied,
-    trackGalleryLoadMore,
-    trackVideoPlayed,
-    trackImageExpanded,
-    trackRouteChange,
-    trackDonationIntent,
-    trackPerformanceBudgetExceeded,
-} = analytics;
+export const trackEvent = analytics.track.bind(analytics);
+export const trackPageView = analytics.trackPageView.bind(analytics);
+export const trackRegistrationStarted = analytics.trackRegistrationStarted.bind(analytics);
+export const trackRegistrationCompleted = analytics.trackRegistrationCompleted.bind(analytics);
+export const trackRegistrationFailed = analytics.trackRegistrationFailed.bind(analytics);
+export const trackGalleryViewed = analytics.trackGalleryViewed.bind(analytics);
+export const trackGalleryFilterApplied = analytics.trackGalleryFilterApplied.bind(analytics);
+export const trackGalleryLoadMore = analytics.trackGalleryLoadMore.bind(analytics);
+export const trackVideoPlayed = analytics.trackVideoPlayed.bind(analytics);
+export const trackImageExpanded = analytics.trackImageExpanded.bind(analytics);
+export const trackRouteChange = analytics.trackRouteChange.bind(analytics);
+export const trackDonationIntent = analytics.trackDonationIntent.bind(analytics);
+export const trackPerformanceBudgetExceeded = analytics.trackPerformanceBudgetExceeded.bind(analytics);
+
