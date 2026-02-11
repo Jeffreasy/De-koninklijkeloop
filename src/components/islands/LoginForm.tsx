@@ -267,7 +267,7 @@ export default function LoginForm() {
                             <Button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full h-12 bg-white text-black hover:bg-white/90 font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                                className="w-full h-12 bg-linear-to-r from-brand-orange to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/25 hover:shadow-brand-orange/40 hover:-translate-y-0.5 transition-all duration-300"
                             >
                                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verstuur Reset Link"}
                             </Button>
