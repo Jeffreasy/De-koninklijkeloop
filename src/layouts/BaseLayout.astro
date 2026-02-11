@@ -170,6 +170,25 @@ import FloatingToolbox from "../components/dashboard/FloatingToolbox";
                 }
             });
         </script>
+        <script>
+            // Analytics Tracking: Go Backend via Astro BFF Proxy
+            // sendBeacon -> /api/v1/analytics -> [...all].ts proxy -> Go (X-Tenant-ID injected server-side)
+            import { trackPageView, trackRouteChange } from "../lib/analytics";
+
+            // Track initial page view
+            trackPageView();
+
+            // Track subsequent navigations via View Transitions
+            let previousPath = window.location.pathname;
+            document.addEventListener("astro:page-load", () => {
+                const currentPath = window.location.pathname;
+                if (currentPath !== previousPath) {
+                    trackRouteChange(previousPath, currentPath);
+                    previousPath = currentPath;
+                }
+                trackPageView();
+            });
+        </script>
         <FloatingToolbox client:only="react" />
         <SpeedInsights />
     </body>
