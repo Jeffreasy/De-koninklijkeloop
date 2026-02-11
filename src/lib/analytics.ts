@@ -142,14 +142,12 @@ class Analytics {
     }
 
     /**
-     * Send event to Go backend using fetch with keepalive (fire-and-forget).
-     * keepalive: true survives page navigation, same as sendBeacon, but allows custom headers.
-     * We send directly to the Go backend (not the proxy) for reliability.
+     * Send event to Go backend via Astro BFF Proxy (same-origin, no CORS).
+     * Route: fetch /api/v1/analytics → [...all].ts proxy → Go backend
+     * The proxy injects X-Tenant-ID server-side.
+     * Using fetch with keepalive (survives page navigation, like sendBeacon).
      */
     private sendToGo(event: string, metadata?: EventMetadata): void {
-        const API_URL = (typeof import.meta !== 'undefined' && import.meta.env?.PUBLIC_API_URL)
-            || 'https://laventecareauthsystems.onrender.com/api/v1';
-
         const payload = JSON.stringify({
             event,
             path: window.location.pathname,
@@ -158,34 +156,14 @@ class Analytics {
             metadata: metadata || {},
         });
 
-        fetch(`${API_URL}/analytics`, {
+        fetch('/api/v1/analytics', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Tenant-ID': this.tenantId,
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: payload,
             keepalive: true,
         }).catch(() => { /* fire-and-forget */ });
     }
 
-    /** Fetch fallback for sendBeacon */
-    private sendToGoFetch(event: string, metadata?: EventMetadata): void {
-        fetch('/api/v1/analytics', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Tenant-ID': this.tenantId,
-            },
-            body: JSON.stringify({
-                event,
-                path: window.location.pathname,
-                referrer: document.referrer || undefined,
-                metadata: metadata || {},
-            }),
-            keepalive: true,
-        }).catch(() => { });
-    }
 
     private getUserContext(): { user_type: EventMetadata['user_type'] } {
         if (typeof window === 'undefined') return { user_type: 'anonymous' };
