@@ -109,7 +109,7 @@ export default function LoginForm() {
 
     return (
         <div className="w-full max-w-md mx-auto relative perspective-1000">
-            <div className="relative z-10 bg-surface/50 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-8 overflow-hidden">
+            <div className="relative z-10 bg-surface/50 backdrop-blur-xl border border-glass-border shadow-2xl rounded-2xl p-8 overflow-hidden">
                 {/* Decorative gradients */}
                 <div className="absolute -top-20 -left-20 w-40 h-40 bg-brand-orange/20 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -126,7 +126,7 @@ export default function LoginForm() {
                             className="space-y-6"
                         >
                             <div className="text-center space-y-2 mb-8">
-                                <h1 className="text-2xl font-bold text-white tracking-tight">Welkom terug</h1>
+                                <h1 className="text-2xl font-bold text-text-primary tracking-tight">Welkom terug</h1>
                                 <p className="text-sm text-text-muted">Log in om je dashboard te beheren</p>
                             </div>
 
@@ -167,7 +167,7 @@ export default function LoginForm() {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="naam@voorbeeld.nl"
-                                            className="pl-10 bg-black/20 border-white/10 focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-white placeholder:text-white/20 transition-all"
+                                            className="pl-10 bg-glass-bg border-glass-border focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-text-primary placeholder:text-text-muted/50 transition-all"
                                             required
                                         />
                                     </div>
@@ -192,7 +192,7 @@ export default function LoginForm() {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="pl-10 bg-black/20 border-white/10 focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-white placeholder:text-white/20 transition-all"
+                                            className="pl-10 bg-glass-bg border-glass-border focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-text-primary placeholder:text-text-muted/50 transition-all"
                                             required
                                         />
                                     </div>
@@ -218,7 +218,7 @@ export default function LoginForm() {
                             className="space-y-6"
                         >
                             <div className="text-center space-y-2 mb-8">
-                                <h1 className="text-2xl font-bold text-white tracking-tight">Herstel toegang</h1>
+                                <h1 className="text-2xl font-bold text-text-primary tracking-tight">Herstel toegang</h1>
                                 <p className="text-sm text-text-muted">Vul je email in voor een reset-link</p>
                             </div>
 
@@ -258,7 +258,7 @@ export default function LoginForm() {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="naam@voorbeeld.nl"
-                                        className="pl-10 bg-black/20 border-white/10 focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-white placeholder:text-white/20 transition-all text-base"
+                                        className="pl-10 bg-glass-bg border-glass-border focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-text-primary placeholder:text-text-muted/50 transition-all text-base"
                                         required
                                     />
                                 </div>
@@ -276,7 +276,7 @@ export default function LoginForm() {
                                 <button
                                     type="button"
                                     onClick={() => { setView('login'); clearState(); }}
-                                    className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-white transition-colors group"
+                                    className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors group"
                                 >
                                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                                     Terug naar inloggen
