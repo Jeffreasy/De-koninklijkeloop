@@ -245,7 +245,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
             />
 
             {/* Modal */}
-            <div className="relative w-full h-full md:max-h-[96vh] md:max-w-7xl flex flex-col md:flex-row bg-surface md:bg-transparent md:rounded-4xl overflow-hidden shadow-2xl">
+            <div className="relative w-full h-full md:max-h-[96vh] md:max-w-7xl flex flex-col md:flex-row bg-surface md:rounded-4xl overflow-hidden shadow-2xl">
 
                 {/* Close */}
                 <button
@@ -319,10 +319,10 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                 </div>
 
                 {/* Info Section */}
-                <div className={`relative w-full md:w-1/2 flex-col flex-1 bg-surface md:bg-surface/95 md:backdrop-blur-2xl border-t md:border-t-0 md:border-l border-glass-border overflow-hidden ${isExpanded ? 'hidden md:flex' : 'flex'}`}>
+                <div className={`relative w-full md:w-1/2 flex-col flex-1 bg-surface border-t md:border-t-0 md:border-l border-glass-border overflow-hidden ${isExpanded ? 'hidden md:flex' : 'flex'}`}>
 
                     {/* Header */}
-                    <div className="p-5 pr-20 border-b border-glass-border shrink-0 bg-surface/50 backdrop-blur-sm sticky top-0 z-10">
+                    <div className="p-5 pr-20 border-b border-glass-border shrink-0 bg-surface sticky top-0 z-10">
                         <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
                                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-brand-orange/10 flex items-center justify-center border border-brand-orange/20 shrink-0">
@@ -359,7 +359,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
 
                     {/* Scrollable Content */}
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
-                        <div className="p-4 rounded-2xl bg-surface/50 border border-glass-border/50">
+                        <div className="p-4 rounded-2xl bg-surface border border-glass-border">
                             <ReactionPicker
                                 postId={post._id}
                                 userId={userId}
@@ -376,7 +376,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     </div>
 
                     {/* Footer */}
-                    <div className="p-4 border-t border-glass-border bg-surface/50 text-center md:text-left">
+                    <div className="p-4 border-t border-glass-border bg-surface text-center md:text-left">
                         <span className="text-xs font-mono text-muted uppercase tracking-wider">
                             Post {currentIndex + 1} / {allPosts.length}
                         </span>
