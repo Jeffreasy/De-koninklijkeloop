@@ -197,12 +197,17 @@ export const sendMessage = mutation({
         type: v.optional(v.union(v.literal("text"), v.literal("image"), v.literal("system")))
     },
     handler: async (ctx, args) => {
+        const content = args.content.trim();
+        if (!content) throw new Error("Message content cannot be empty");
+        if (content.length > 2000) throw new Error("Message too long (max 2000 characters)");
+        if (args.sender === args.recipient) throw new Error("Cannot send message to yourself");
+
         const conversationId = makeConversationId(args.sender, args.recipient);
 
         await ctx.db.insert("direct_messages", {
             sender: args.sender,
             recipient: args.recipient,
-            content: args.content,
+            content,
             isRead: false,
             type: args.type || "text",
             conversationId,
@@ -380,11 +385,20 @@ export const sendGroupMessage = mutation({
         type: v.optional(v.union(v.literal("text"), v.literal("image"), v.literal("system"))),
     },
     handler: async (ctx, args) => {
+        const content = args.content.trim();
+        if (!content) throw new Error("Message content cannot be empty");
+        if (content.length > 2000) throw new Error("Message too long (max 2000 characters)");
+
+        // Verify sender is a member of the group
+        const group = await ctx.db.get(args.groupId);
+        if (!group) throw new Error("Group not found");
+        if (!group.members.includes(args.sender)) throw new Error("Not a member of this group");
+
         await ctx.db.insert("group_messages", {
             groupId: args.groupId,
             sender: args.sender,
             senderName: args.senderName,
-            content: args.content,
+            content,
             type: args.type || "text",
             createdAt: Date.now(),
         });
@@ -392,7 +406,7 @@ export const sendGroupMessage = mutation({
         // Update group's last message info
         await ctx.db.patch(args.groupId, {
             lastMessageAt: Date.now(),
-            lastMessagePreview: args.content.substring(0, 60),
+            lastMessagePreview: content.substring(0, 60),
         });
 
         // Clear typing indicator
