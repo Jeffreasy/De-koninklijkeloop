@@ -7,7 +7,7 @@ import CharitySpotlight from "../components/blocks/DKL/CharitySpotlight.astro";
 import PartnerCarousel from "../components/blocks/Sponsors/PartnerCarousel.astro";
 import SponsorSection from "../components/blocks/Sponsors/SponsorSection.astro";
 import MediaMosaic from "../components/blocks/Media/MediaMosaic.astro";
-import SocialGridWrapper from "../components/blocks/Social/SocialGridWrapper";
+import SocialSection from "../components/blocks/Social/SocialSection.astro";
 import RouteHighlights from "../components/blocks/Home/RouteHighlights.astro";
 import Footer from "../components/blocks/Global/Footer.astro";
 
@@ -89,7 +89,7 @@ const eventJsonLd = {
 		<SponsorSection />
 		<CharitySpotlight />
 		<MediaMosaic />
-		<SocialGridWrapper client:only="react" />
+		<SocialSection />
 	</main>
 	<Footer />
 </BaseLayout>

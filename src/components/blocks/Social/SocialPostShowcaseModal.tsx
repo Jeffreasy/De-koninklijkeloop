@@ -1,5 +1,5 @@
-import { X, ChevronLeft, ChevronRight, ExternalLink, Calendar, Maximize2, Minimize2 } from "lucide-react";
-import { useEffect, useMemo, useCallback, memo, useState } from "react";
+import { X, ChevronLeft, ChevronRight, ExternalLink, Calendar, Maximize2, Minimize2, Share2, Copy, Check } from "lucide-react";
+import { useEffect, useMemo, useCallback, memo, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { ReactionPicker } from "./ReactionPicker";
 import type { Id } from "../../../../convex/_generated/dataModel";
@@ -23,15 +23,162 @@ interface Props {
     isAuthenticated: boolean;
 }
 
+// ─── Touch Swipe Hook ───
+
+function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
+    const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
+    const [swipeOffset, setSwipeOffset] = useState(0);
+
+    const handleTouchStart = useCallback((e: React.TouchEvent) => {
+        const touch = e.touches[0];
+        touchStart.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+        setSwipeOffset(0);
+    }, []);
+
+    const handleTouchMove = useCallback((e: React.TouchEvent) => {
+        if (!touchStart.current) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - touchStart.current.x;
+        const dy = touch.clientY - touchStart.current.y;
+
+        // Only track horizontal swipes
+        if (Math.abs(dx) > Math.abs(dy) * 1.5) {
+            setSwipeOffset(dx * 0.4); // Dampened drag
+        }
+    }, []);
+
+    const handleTouchEnd = useCallback(() => {
+        if (!touchStart.current) return;
+        const velocity = Math.abs(swipeOffset) / (Date.now() - touchStart.current.time);
+
+        if (Math.abs(swipeOffset) > 60 || velocity > 0.3) {
+            if (swipeOffset < 0) onSwipeLeft();
+            else onSwipeRight();
+        }
+
+        touchStart.current = null;
+        setSwipeOffset(0);
+    }, [swipeOffset, onSwipeLeft, onSwipeRight]);
+
+    return { swipeOffset, handleTouchStart, handleTouchMove, handleTouchEnd };
+}
+
+// ─── Share Button ───
+
+function ShareButton({ post }: { post: SocialPost }) {
+    const [copied, setCopied] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
+
+    const shareData = {
+        title: "De Koninklijke Loop — Instagram",
+        text: post.caption.slice(0, 100),
+        url: post.instagramUrl,
+    };
+
+    const handleShare = useCallback(async () => {
+        // Try native Web Share API first (mobile)
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+                return;
+            } catch {
+                // User cancelled or API failed — fall through to menu
+            }
+        }
+        setShowMenu((prev) => !prev);
+    }, [shareData]);
+
+    const handleCopy = useCallback(async () => {
+        try {
+            await navigator.clipboard.writeText(post.instagramUrl);
+            setCopied(true);
+            setShowMenu(false);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // Fallback
+            const input = document.createElement("input");
+            input.value = post.instagramUrl;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand("copy");
+            document.body.removeChild(input);
+            setCopied(true);
+            setShowMenu(false);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    }, [post.instagramUrl]);
+
+    return (
+        <div className="relative">
+            <button
+                onClick={handleShare}
+                className="p-2.5 rounded-xl bg-surface/80 text-primary hover:bg-brand-orange hover:text-white border border-glass-border hover:border-brand-orange transition-all active:scale-95"
+                aria-label="Delen"
+            >
+                {copied
+                    ? <Check className="w-5 h-5 text-green-400" />
+                    : <Share2 className="w-5 h-5" />
+                }
+            </button>
+
+            {/* Fallback Share Menu (Desktop) */}
+            {showMenu && (
+                <>
+                    <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setShowMenu(false)}
+                    />
+                    <div className="absolute bottom-full right-0 mb-2 z-50 min-w-48 p-2 rounded-2xl bg-surface border border-glass-border shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-2 duration-200">
+                        <a
+                            href={`https://wa.me/?text=${encodeURIComponent(shareData.text + " " + shareData.url)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary"
+                            onClick={() => setShowMenu(false)}
+                        >
+                            <span className="text-lg">💬</span>
+                            WhatsApp
+                        </a>
+                        <a
+                            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary"
+                            onClick={() => setShowMenu(false)}
+                        >
+                            <span className="text-lg">𝕏</span>
+                            X (Twitter)
+                        </a>
+                        <button
+                            onClick={handleCopy}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary w-full text-left"
+                        >
+                            <Copy className="w-4 h-4" />
+                            Link kopiëren
+                        </button>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
+// ─── Main Modal ───
+
 export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNavigate, userId, isAuthenticated }: Props) {
     const [isExpanded, setIsExpanded] = useState(false);
+
+    // Swipe
+    const { swipeOffset, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipe(
+        () => onNavigate("next"),
+        () => onNavigate("prev")
+    );
 
     // Reset expansion when navigating
     useEffect(() => {
         setIsExpanded(false);
     }, [post?._id]);
 
-    // Memoize expensive calculations
     const currentIndex = useMemo(() =>
         allPosts.findIndex((p) => p._id === post?._id),
         [allPosts, post?._id]
@@ -51,7 +198,6 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
         [post?.postedDate]
     );
 
-    // Memoize event handlers
     const handleClose = useCallback(() => onClose(), [onClose]);
     const handlePrev = useCallback(() => onNavigate("prev"), [onNavigate]);
     const handleNext = useCallback(() => onNavigate("next"), [onNavigate]);
@@ -77,35 +223,31 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [isOpen, handleClose, handlePrev, handleNext, isExpanded]);
 
-    // Lock body scroll when modal is open
+    // Lock body scroll
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "";
         }
-        return () => {
-            document.body.style.overflow = "";
-        };
+        return () => { document.body.style.overflow = ""; };
     }, [isOpen]);
 
     if (!isOpen || !post) return null;
-
-    // Use Portal to ensure modal is always on top of everything (including fixed navbars)
     if (typeof document === "undefined") return null;
 
     return createPortal(
         <div className="fixed inset-0 z-9999 h-dvh flex items-center justify-center p-0 md:p-8 animate-in fade-in duration-200 will-change-[opacity]">
-            {/* Premium Backdrop */}
+            {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-body/95 md:bg-black/90 backdrop-blur-xl transition-all"
                 onClick={handleClose}
             />
 
-            {/* Modal Container - Full Screen Mobile / Card Desktop */}
+            {/* Modal */}
             <div className="relative w-full h-full md:max-h-[96vh] md:max-w-7xl flex flex-col md:flex-row bg-surface md:bg-transparent md:rounded-4xl overflow-hidden shadow-2xl">
 
-                {/* Close Button - Always visible, high contrast */}
+                {/* Close */}
                 <button
                     onClick={handleClose}
                     className="absolute top-4 right-4 z-50 p-2.5 rounded-full bg-black/20 md:bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-brand-orange hover:border-brand-orange transition-all shadow-lg active:scale-95"
@@ -114,22 +256,28 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     <X className="w-6 h-6" />
                 </button>
 
-                {/* Left: Image Section (Top on Mobile) */}
+                {/* Image Section (swipeable) */}
                 <div
                     className={`relative w-full md:w-1/2 bg-black md:bg-linear-to-br md:from-black md:via-gray-900 md:to-black flex items-center justify-center overflow-hidden shrink-0 group transition-[height] duration-500 ease-in-out ${isExpanded ? 'h-full z-20' : 'h-[45vh] md:h-full'}`}
                     onClick={() => toggleExpand()}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
                 >
-                    <div className="relative w-full h-full md:p-6 pointer-events-none md:pointer-events-auto">
+                    <div
+                        className="relative w-full h-full md:p-6 pointer-events-none md:pointer-events-auto transition-transform duration-200 ease-out"
+                        style={{ transform: swipeOffset ? `translateX(${swipeOffset}px)` : undefined }}
+                    >
                         <div className="relative w-full h-full md:rounded-2xl overflow-hidden shadow-2xl">
                             <img
                                 src={post.imageUrl}
                                 alt={post.caption.slice(0, 100)}
-                                className={`w-full h-full transition-transform duration-500 group-hover:scale-[1.02] object-contain`}
+                                className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02] object-contain"
                             />
                         </div>
                     </div>
 
-                    {/* Mobile Expand Toggle Button - Centered Overlay when not expanded, or Bottom Right when expanded */}
+                    {/* Mobile Expand Toggle */}
                     <button
                         onClick={toggleExpand}
                         className={`md:hidden absolute z-50 p-3 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 shadow-lg active:scale-95 transition-all ${isExpanded ? 'bottom-8 right-4' : 'bottom-4 right-4'}`}
@@ -138,7 +286,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                         {isExpanded ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
                     </button>
 
-                    {/* Navigation Buttons - Overlay on Image for Mobile */}
+                    {/* Navigation Arrows */}
                     {hasPrev && (
                         <button
                             onClick={(e) => { e.stopPropagation(); handlePrev(); }}
@@ -157,9 +305,20 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                             <ChevronRight className="w-6 h-6" />
                         </button>
                     )}
+
+                    {/* Swipe hint dots */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+                        {allPosts.slice(0, 8).map((_, i) => (
+                            <div
+                                key={i}
+                                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentIndex ? 'bg-brand-orange w-4' : 'bg-white/40'}`}
+                            />
+                        ))}
+                        {allPosts.length > 8 && <span className="text-white/40 text-xs ml-1">+{allPosts.length - 8}</span>}
+                    </div>
                 </div>
 
-                {/* Right: Info Section (Bottom on Mobile) */}
+                {/* Info Section */}
                 <div className={`relative w-full md:w-1/2 flex-col flex-1 bg-surface md:bg-surface/95 md:backdrop-blur-2xl border-t md:border-t-0 md:border-l border-glass-border overflow-hidden ${isExpanded ? 'hidden md:flex' : 'flex'}`}>
 
                     {/* Header */}
@@ -184,14 +343,17 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                 </div>
                             </div>
 
-                            <a
-                                href={post.instagramUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-2.5 mr-16 rounded-xl bg-[linear-gradient(135deg,var(--color-brand-orange)_0%,#fbbf24_100%)] text-white hover:shadow-lg hover:scale-105 transition-all"
-                            >
-                                <ExternalLink className="w-5 h-5" />
-                            </a>
+                            <div className="flex items-center gap-2 mr-10">
+                                <ShareButton post={post} />
+                                <a
+                                    href={post.instagramUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2.5 rounded-xl bg-[linear-gradient(135deg,var(--color-brand-orange)_0%,#fbbf24_100%)] text-white hover:shadow-lg hover:scale-105 transition-all"
+                                >
+                                    <ExternalLink className="w-5 h-5" />
+                                </a>
+                            </div>
                         </div>
                     </div>
 
@@ -213,7 +375,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                         </div>
                     </div>
 
-                    {/* Footer / Counter */}
+                    {/* Footer */}
                     <div className="p-4 border-t border-glass-border bg-surface/50 text-center md:text-left">
                         <span className="text-xs font-mono text-muted uppercase tracking-wider">
                             Post {currentIndex + 1} / {allPosts.length}

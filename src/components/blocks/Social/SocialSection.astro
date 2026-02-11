@@ -1,0 +1,96 @@
+---
+/**
+ * SocialSection.astro — SSR Shell + Interactive Island
+ *
+ * Strategy:
+ * 1. SSR content in a screen-reader-only div (SEO: crawlers see images + text)
+ * 2. Interactive React island via client:only (modal, reactions, swipe)
+ * 3. SSR data passed as props to avoid double-fetch
+ */
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../../../convex/_generated/api";
+import SocialGridWrapper from "./SocialGridWrapper";
+
+const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
+let featuredPost: any = null;
+let thumbnailPosts: any[] = [];
+
+if (convexUrl) {
+    try {
+        const convex = new ConvexHttpClient(convexUrl);
+        featuredPost = await convex.query(api.socialPosts.getFeatured);
+        thumbnailPosts = await convex.query(api.socialPosts.getThumbnails, {
+            limit: 7,
+        });
+    } catch (e) {
+        console.warn("[SocialSection] Convex SSR fetch failed:", e);
+    }
+}
+
+const allPosts = [...(featuredPost ? [featuredPost] : []), ...thumbnailPosts];
+
+// Serialize for client — strip Convex internal fields that can't be serialized
+function serialize(post: any) {
+    if (!post) return null;
+    return {
+        _id: post._id,
+        imageUrl: post.imageUrl,
+        caption: post.caption,
+        instagramUrl: post.instagramUrl,
+        isFeatured: post.isFeatured,
+        isVisible: post.isVisible,
+        displayOrder: post.displayOrder,
+        postedDate: post.postedDate,
+    };
+}
+
+const serializedFeatured = serialize(featuredPost);
+const serializedThumbnails = thumbnailPosts
+    .map(serialize)
+    .filter((p): p is NonNullable<typeof p> => p !== null);
+
+// ImageKit transform for SEO images
+function ik(url: string, width: number): string {
+    if (!url || !url.includes("imagekit.io")) return url;
+    return url.replace(
+        "/De%20Koninklijkeloop/",
+        `/tr:w-${width},q-80,f-auto/De%20Koninklijkeloop/`,
+    );
+}
+---
+
+{/* SEO: Crawlable content — visually hidden but indexable by search engines */}
+{
+    allPosts.length > 0 && (
+        <div class="sr-only" aria-hidden="true">
+            <h2>De Koninklijke Loop — Instagram</h2>
+            {allPosts.map((post) => (
+                <article>
+                    <img
+                        src={ik(post.imageUrl, 400)}
+                        alt={
+                            post.caption?.slice(0, 100) ||
+                            "Instagram post De Koninklijke Loop"
+                        }
+                        width="400"
+                        height="400"
+                    />
+                    <p>{post.caption}</p>
+                    <a href={post.instagramUrl}>Bekijk op Instagram</a>
+                </article>
+            ))}
+            <a href="https://instagram.com/koninklijkeloop">
+                Volg @koninklijkeloop op Instagram
+            </a>
+        </div>
+    )
+}
+
+{
+    /* Interactive React island — handles all user interaction (modal, reactions, swipe) */
+}
+<SocialGridWrapper
+    client:only="react"
+    ssrFeatured={serializedFeatured}
+    ssrThumbnails={serializedThumbnails}
+/>
