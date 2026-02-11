@@ -50,6 +50,7 @@ export const siteConfig = {
             { name: "Over Ons", href: "/about" },
             { name: "Het Goede Doel", href: "/charity" },
             { name: "Contact", href: "/contact" },
+            { name: "Voorwaarden", href: "/voorwaarden" },
             { name: "Inloggen", href: "/login" },
         ],
     },
