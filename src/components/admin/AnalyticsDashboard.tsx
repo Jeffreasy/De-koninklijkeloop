@@ -3,11 +3,12 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
     AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
+    Sankey as RechartsSankey, Layer, Rectangle,
 } from "recharts";
 import {
-    Activity, Eye, Users, TrendingUp, ArrowRight,
+    Activity, Eye, Users, TrendingUp, ArrowRight, ArrowUpRight, ArrowDownRight, Minus,
     MousePointerClick, PlayCircle, UserPlus, Globe,
-    Smartphone, Monitor, Tablet, RefreshCw
+    Smartphone, Monitor, Tablet, RefreshCw, Download, Clock, BarChart3, Lock
 } from "lucide-react";
 import { apiRequest } from "../../lib/api";
 
@@ -78,53 +79,143 @@ interface GoTimeseries {
     views: number;
 }
 
+// ─── Retry wrapper ───
+
+async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            return await fn();
+        } catch (err) {
+            if (attempt === retries) throw err;
+            await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        }
+    }
+    throw new Error("Unreachable");
+}
+
 // ─── Custom hook: Go Backend data with polling ───
 
 function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
     const [dashboard, setDashboard] = useState<GoDashboard | null>(null);
+    const [prevDashboard, setPrevDashboard] = useState<GoDashboard | null>(null);
     const [pages, setPages] = useState<GoPage[]>([]);
     const [referrers, setReferrers] = useState<GoReferrer[]>([]);
     const [timeseries, setTimeseries] = useState<GoTimeseries[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const dateRange = useMemo(() => {
-        const to = new Date().toISOString().slice(0, 10);
-        const from = new Date(Date.now() - period.days * 86400000).toISOString().slice(0, 10);
-        return { from, to };
-    }, [period]);
-
     const fetchData = useCallback(async () => {
         try {
             setError(null);
-            const params = `?from=${dateRange.from}&to=${dateRange.to}`;
+            // Recalculate dates on every fetch (fixes stale midnight bug)
+            const to = new Date().toISOString().slice(0, 10);
+            const from = new Date(Date.now() - period.days * 86400000).toISOString().slice(0, 10);
+            const prevTo = from;
+            const prevFrom = new Date(Date.now() - period.days * 2 * 86400000).toISOString().slice(0, 10);
 
-            const [dashRes, pagesRes, refRes, tsRes] = await Promise.allSettled([
-                apiRequest(`/v1/analytics/dashboard${params}`),
-                apiRequest(`/v1/analytics/pages${params}`),
-                apiRequest(`/v1/analytics/referrers${params}`),
-                apiRequest(`/v1/analytics/timeseries${params}`),
+            const params = `?from=${from}&to=${to}`;
+            const prevParams = `?from=${prevFrom}&to=${prevTo}`;
+
+            const [dashRes, pagesRes, refRes, tsRes, prevDashRes] = await Promise.allSettled([
+                fetchWithRetry(() => apiRequest(`/v1/analytics/dashboard${params}`)),
+                fetchWithRetry(() => apiRequest(`/v1/analytics/pages${params}`)),
+                fetchWithRetry(() => apiRequest(`/v1/analytics/referrers${params}`)),
+                fetchWithRetry(() => apiRequest(`/v1/analytics/timeseries${params}`)),
+                fetchWithRetry(() => apiRequest(`/v1/analytics/dashboard${prevParams}`)),
             ]);
 
             if (dashRes.status === 'fulfilled') setDashboard(dashRes.value);
             if (pagesRes.status === 'fulfilled') setPages(pagesRes.value || []);
             if (refRes.status === 'fulfilled') setReferrers(refRes.value || []);
             if (tsRes.status === 'fulfilled') setTimeseries(tsRes.value || []);
+            if (prevDashRes.status === 'fulfilled') setPrevDashboard(prevDashRes.value);
         } catch (err: any) {
             setError(err.message || 'Failed to fetch analytics');
         } finally {
             setLoading(false);
         }
-    }, [dateRange]);
+    }, [period]);
 
     useEffect(() => {
         setLoading(true);
         fetchData();
-        const interval = setInterval(fetchData, 30_000); // Refresh every 30s
+        const interval = setInterval(fetchData, 30_000);
         return () => clearInterval(interval);
     }, [fetchData]);
 
-    return { dashboard, pages, referrers, timeseries, loading, error, refetch: fetchData };
+    return { dashboard, prevDashboard, pages, referrers, timeseries, loading, error, refetch: fetchData };
+}
+
+// ─── CSV Export ───
+
+function exportToCSV(pages: GoPage[], referrers: GoReferrer[], timeseries: GoTimeseries[], periodLabel: string) {
+    const lines: string[] = [];
+
+    lines.push(`Analytics Export - ${periodLabel} - ${new Date().toLocaleDateString("nl-NL")}`);
+    lines.push("");
+
+    lines.push("=== Pageviews per Dag ===");
+    lines.push("Datum,Views");
+    timeseries.forEach((t) => lines.push(`${t.date},${t.views}`));
+    lines.push("");
+
+    lines.push("=== Top Pagina's ===");
+    lines.push("Pad,Views");
+    pages.forEach((p) => lines.push(`${p.path},${p.views}`));
+    lines.push("");
+
+    lines.push("=== Verkeersbronnen ===");
+    lines.push("Referrer,Aantal");
+    referrers.forEach((r) => lines.push(`${r.referrer || "Direct"},${r.count}`));
+
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `analytics-${periodLabel.toLowerCase().replace(/\s/g, "-")}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ─── Trend calculation ───
+
+function calcTrend(current: number, previous: number): { pct: number; direction: "up" | "down" | "flat" } {
+    if (previous === 0 && current === 0) return { pct: 0, direction: "flat" };
+    if (previous === 0) return { pct: 100, direction: "up" };
+    const pct = Math.round(((current - previous) / previous) * 100);
+    if (pct > 0) return { pct, direction: "up" };
+    if (pct < 0) return { pct: Math.abs(pct), direction: "down" };
+    return { pct: 0, direction: "flat" };
+}
+
+// ─── User Journey Flow Data ───
+
+function buildFlowData(pages: GoPage[], referrers: GoReferrer[]) {
+    // Build top 5 entry→page flows from referrers x pages
+    const sources = referrers.slice(0, 4).map((r) => r.referrer || "Direct");
+    const destinations = pages.slice(0, 5).map((p) => PAGE_LABELS[p.path] || p.path);
+
+    const allNames = [...new Set([...sources, ...destinations])];
+    const nodes = allNames.map((name) => ({ name }));
+
+    const links: { source: number; target: number; value: number }[] = [];
+
+    sources.forEach((src, si) => {
+        const srcIdx = allNames.indexOf(src);
+        destinations.forEach((dest, di) => {
+            const destIdx = allNames.indexOf(dest);
+            if (srcIdx !== destIdx) {
+                // Approximate flow value based on position weight
+                const value = Math.max(1, Math.round(
+                    (referrers[si]?.count || 1) * (pages[di]?.views || 1) /
+                    ((referrers[0]?.count || 1) * (pages[0]?.views || 1)) * 100
+                ));
+                links.push({ source: srcIdx, target: destIdx, value });
+            }
+        });
+    });
+
+    return { nodes, links };
 }
 
 // ─── Main Component ───
@@ -132,8 +223,7 @@ function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
 export default function AnalyticsDashboard() {
     const [period, setPeriod] = useState<typeof PERIOD_OPTIONS[number]>(PERIOD_OPTIONS[1]);
 
-    // Go Backend data (charts, stats, pages, referrers)
-    const { dashboard, pages, referrers, timeseries, loading, error, refetch } = useGoAnalytics(period);
+    const { dashboard, prevDashboard, pages, referrers, timeseries, loading, error, refetch } = useGoAnalytics(period);
 
     // Convex data (live feed only)
     const recentEvents = useQuery(api.analytics.getRecentEvents, { limit: 15 });
@@ -165,17 +255,40 @@ export default function AnalyticsDashboard() {
     const totalDevices = deviceData.reduce((sum, d) => sum + d.count, 0) || 1;
 
     const conversionRate = useMemo(() => {
-        if (!dashboard?.total_views || !dashboard.events_by_type) return "0%";
+        if (!dashboard?.total_views || !dashboard.events_by_type) return 0;
         const completed = dashboard.events_by_type['registration_completed'] || 0;
         return dashboard.total_views > 0
-            ? `${Math.round((completed / dashboard.total_views) * 100)}%`
-            : "0%";
+            ? Math.round((completed / dashboard.total_views) * 100)
+            : 0;
     }, [dashboard]);
+
+    const prevConversionRate = useMemo(() => {
+        if (!prevDashboard?.total_views || !prevDashboard.events_by_type) return 0;
+        const completed = prevDashboard.events_by_type['registration_completed'] || 0;
+        return prevDashboard.total_views > 0
+            ? Math.round((completed / prevDashboard.total_views) * 100)
+            : 0;
+    }, [prevDashboard]);
+
+    const totalEvents = useMemo(() => {
+        if (!dashboard?.events_by_type) return 0;
+        return Object.values(dashboard.events_by_type).reduce((s, c) => s + c, 0);
+    }, [dashboard]);
+
+    const prevTotalEvents = useMemo(() => {
+        if (!prevDashboard?.events_by_type) return 0;
+        return Object.values(prevDashboard.events_by_type).reduce((s, c) => s + c, 0);
+    }, [prevDashboard]);
+
+    const flowData = useMemo(() => {
+        if (pages.length < 2 || referrers.length < 1) return null;
+        return buildFlowData(pages, referrers);
+    }, [pages, referrers]);
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500 pb-12">
 
-            {/* ═══════ Header + Period Selector ═══════ */}
+            {/* ═══════ Header + Period Selector + Export ═══════ */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 className="text-2xl font-display font-bold text-text-primary tracking-tight">
@@ -186,6 +299,14 @@ export default function AnalyticsDashboard() {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => exportToCSV(pages, referrers, timeseries, period.label)}
+                        className="p-2 rounded-xl bg-glass-border/20 text-text-muted hover:text-text-primary hover:bg-glass-border/40 transition-all cursor-pointer"
+                        title="Export CSV"
+                        disabled={loading}
+                    >
+                        <Download className="w-4 h-4" />
+                    </button>
                     <button
                         onClick={() => refetch()}
                         className="p-2 rounded-xl bg-glass-border/20 text-text-muted hover:text-text-primary hover:bg-glass-border/40 transition-all cursor-pointer"
@@ -199,8 +320,8 @@ export default function AnalyticsDashboard() {
                                 key={opt.value}
                                 onClick={() => setPeriod(opt)}
                                 className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${period.value === opt.value
-                                        ? "bg-brand-orange text-white shadow-lg"
-                                        : "text-text-muted hover:text-text-primary"
+                                    ? "bg-brand-orange text-white shadow-lg"
+                                    : "text-text-muted hover:text-text-primary"
                                     }`}
                             >
                                 {opt.label}
@@ -217,14 +338,15 @@ export default function AnalyticsDashboard() {
                 </div>
             )}
 
-            {/* ═══════ KPI Hero Cards ═══════ */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            {/* ═══════ KPI Hero Cards (6 cards: 4 active + 2 coming soon) ═══════ */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 md:gap-4">
                 <KPICard
                     icon={<Eye className="w-4 h-4" />}
                     label="Pageviews"
                     value={dashboard?.total_views ?? 0}
                     accent="#3B82F6"
                     loading={loading}
+                    trend={prevDashboard ? calcTrend(dashboard?.total_views ?? 0, prevDashboard.total_views ?? 0) : undefined}
                 />
                 <KPICard
                     icon={<Users className="w-4 h-4" />}
@@ -232,24 +354,33 @@ export default function AnalyticsDashboard() {
                     value={dashboard?.unique_sessions ?? 0}
                     accent="#14B8A6"
                     loading={loading}
+                    trend={prevDashboard ? calcTrend(dashboard?.unique_sessions ?? 0, prevDashboard.unique_sessions ?? 0) : undefined}
                 />
                 <KPICard
                     icon={<TrendingUp className="w-4 h-4" />}
                     label="Conversie Ratio"
-                    value={conversionRate}
+                    value={`${conversionRate}%`}
                     accent="#22C55E"
                     loading={loading}
+                    trend={prevDashboard ? calcTrend(conversionRate, prevConversionRate) : undefined}
                 />
                 <KPICard
                     icon={<Activity className="w-4 h-4" />}
                     label="Events Totaal"
-                    value={
-                        dashboard?.events_by_type
-                            ? Object.values(dashboard.events_by_type).reduce((s, c) => s + c, 0)
-                            : 0
-                    }
+                    value={totalEvents}
                     accent="#F97316"
                     loading={loading}
+                    trend={prevDashboard ? calcTrend(totalEvents, prevTotalEvents) : undefined}
+                />
+                <ComingSoonKPI
+                    icon={<BarChart3 className="w-4 h-4" />}
+                    label="Bounce Rate"
+                    tooltip="Vereist backend uitbreiding"
+                />
+                <ComingSoonKPI
+                    icon={<Clock className="w-4 h-4" />}
+                    label="Sessieduur"
+                    tooltip="Vereist backend uitbreiding"
                 />
             </div>
 
@@ -358,7 +489,7 @@ export default function AnalyticsDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
 
                 {/* Top Pages (Go Backend) */}
-                <GlassCard icon={<Eye className="w-5 h-5 text-blue-400" />} title="Top Pagina's" hoverColor="blue">
+                <GlassCard icon={<Eye className="w-5 h-5 text-blue-400" />} title="Top Pagina's" accentColor="#3B82F6">
                     {loading ? <SkeletonRows count={5} /> : topPagesData.length === 0 ? (
                         <EmptyState text="Nog geen pageview data" />
                     ) : (
@@ -387,7 +518,7 @@ export default function AnalyticsDashboard() {
                 </GlassCard>
 
                 {/* Referrers (Go Backend — server-side data) */}
-                <GlassCard icon={<Globe className="w-5 h-5 text-emerald-400" />} title="Verkeersbronnen" hoverColor="emerald">
+                <GlassCard icon={<Globe className="w-5 h-5 text-emerald-400" />} title="Verkeersbronnen" accentColor="#10B981">
                     {loading ? <SkeletonRows count={5} /> : referrers.length === 0 ? (
                         <EmptyState text="Nog geen referrer data" />
                     ) : (
@@ -399,12 +530,12 @@ export default function AnalyticsDashboard() {
                                         <span className="text-xs font-mono font-medium text-text-muted w-5 text-center opacity-50 group-hover/row:opacity-100">
                                             {i + 1}
                                         </span>
-                                        <div className="flex-1">
+                                        <div className="flex-1 min-w-0">
                                             <div className="flex justify-between text-xs mb-1">
-                                                <span className="font-medium text-text-primary truncate max-w-[180px]">
+                                                <span className="font-medium text-text-primary truncate mr-3">
                                                     {ref.referrer || "Direct"}
                                                 </span>
-                                                <span className="text-text-muted font-mono">{ref.count}</span>
+                                                <span className="text-text-muted font-mono flex-shrink-0">{ref.count}</span>
                                             </div>
                                             <div className="h-1.5 w-full bg-glass-border/30 rounded-full overflow-hidden">
                                                 <div
@@ -421,12 +552,40 @@ export default function AnalyticsDashboard() {
                 </GlassCard>
             </div>
 
+            {/* ═══════ User Journey Flow ═══════ */}
+            {!loading && flowData && flowData.links.length > 0 && (
+                <div className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-6 shadow-xl">
+                    <div className="absolute top-0 left-0 w-48 h-48 bg-teal-500/10 blur-3xl rounded-full -ml-10 -mt-10 pointer-events-none" />
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-5">
+                            <ArrowRight className="w-5 h-5 text-teal-400" />
+                            <span className="text-sm font-bold text-text-primary">Bezoekersstromen</span>
+                            <span className="text-[10px] text-text-muted ml-1">(Bron → Pagina)</span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <div className="min-w-[600px]">
+                                <ResponsiveContainer width="100%" height={250}>
+                                    <RechartsSankey
+                                        data={flowData}
+                                        node={<SankeyNode />}
+                                        link={{ stroke: "#3B82F650", strokeWidth: 2 }}
+                                        nodePadding={30}
+                                        nodeWidth={10}
+                                        margin={{ top: 10, right: 100, bottom: 10, left: 100 }}
+                                    />
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* ═══════ Device Breakdown + Live Feed ═══════ */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
 
                 {/* Device Breakdown (Go — server-side UA parsing) */}
                 <div className="lg:col-span-4 relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-6 shadow-xl">
-                    <div className="absolute bottom-0 right-0 w-48 h-48 bg-purple-500/10 blur-3xl rounded-full -mr-10 -mb-10 pointer-events-none" />
+                    <div className="absolute bottom-0 right-0 w-48 h-48 bg-indigo-500/10 blur-3xl rounded-full -mr-10 -mb-10 pointer-events-none" />
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-5">
                             <Smartphone className="w-5 h-5 text-indigo-400" />
@@ -523,15 +682,21 @@ export default function AnalyticsDashboard() {
 
 // ─── Reusable Components ───
 
-function GlassCard({ icon, title, hoverColor, children }: {
+function GlassCard({ icon, title, accentColor, children }: {
     icon: React.ReactNode;
     title: string;
-    hoverColor: string;
+    accentColor: string;
     children: React.ReactNode;
 }) {
     return (
-        <div className={`relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-6 shadow-xl group hover:shadow-2xl transition-all duration-500 hover:border-${hoverColor}-500/30`}>
-            <div className={`absolute top-0 right-0 w-48 h-48 bg-${hoverColor}-500/10 blur-3xl rounded-full -mr-10 -mt-10 pointer-events-none group-hover:bg-${hoverColor}-500/20 transition-all`} />
+        <div
+            className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-6 shadow-xl group hover:shadow-2xl transition-all duration-500"
+            style={{ '--hover-accent': `${accentColor}30` } as React.CSSProperties}
+        >
+            <div
+                className="absolute top-0 right-0 w-48 h-48 blur-3xl rounded-full -mr-10 -mt-10 pointer-events-none transition-all"
+                style={{ backgroundColor: `${accentColor}15` }}
+            />
             <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-5">
                     {icon}
@@ -543,12 +708,13 @@ function GlassCard({ icon, title, hoverColor, children }: {
     );
 }
 
-function KPICard({ icon, label, value, accent, loading }: {
+function KPICard({ icon, label, value, accent, loading, trend }: {
     icon: React.ReactNode;
     label: string;
     value: number | string;
     accent: string;
     loading: boolean;
+    trend?: { pct: number; direction: "up" | "down" | "flat" };
 }) {
     return (
         <div className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-2xl p-4 md:p-5 group transition-all duration-300">
@@ -562,6 +728,9 @@ function KPICard({ icon, label, value, accent, loading }: {
                     >
                         {icon}
                     </div>
+                    {trend && !loading && (
+                        <TrendBadge trend={trend} />
+                    )}
                 </div>
                 {loading ? (
                     <div className="h-9 w-24 bg-glass-border/20 rounded-lg animate-pulse" />
@@ -573,6 +742,82 @@ function KPICard({ icon, label, value, accent, loading }: {
                 <p className="text-xs text-text-muted mt-1 font-medium">{label}</p>
             </div>
         </div>
+    );
+}
+
+function TrendBadge({ trend }: { trend: { pct: number; direction: "up" | "down" | "flat" } }) {
+    if (trend.direction === "flat") {
+        return (
+            <div className="flex items-center gap-1 text-[10px] font-mono text-text-muted bg-glass-border/20 px-2 py-0.5 rounded-full">
+                <Minus className="w-3 h-3" />
+                <span>0%</span>
+            </div>
+        );
+    }
+
+    const isUp = trend.direction === "up";
+    return (
+        <div className={`flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full ${isUp
+                ? "text-green-400 bg-green-500/10 border border-green-500/20"
+                : "text-red-400 bg-red-500/10 border border-red-500/20"
+            }`}>
+            {isUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+            <span>{trend.pct}%</span>
+        </div>
+    );
+}
+
+function ComingSoonKPI({ icon, label, tooltip }: {
+    icon: React.ReactNode;
+    label: string;
+    tooltip: string;
+}) {
+    return (
+        <div className="relative overflow-hidden bg-glass-bg/20 backdrop-blur-xl border border-glass-border/50 rounded-2xl p-4 md:p-5 opacity-60 group" title={tooltip}>
+            <div className="relative z-10">
+                <div className="flex items-center justify-between mb-3">
+                    <div className="p-2 rounded-xl border bg-glass-border/10 border-glass-border/30 text-text-muted">
+                        {icon}
+                    </div>
+                    <div className="flex items-center gap-1 text-[10px] font-mono text-text-muted bg-glass-border/20 px-2 py-0.5 rounded-full border border-glass-border/30">
+                        <Lock className="w-2.5 h-2.5" />
+                        <span>Soon</span>
+                    </div>
+                </div>
+                <div className="text-3xl md:text-4xl font-display font-bold text-text-muted tracking-tight">
+                    —
+                </div>
+                <p className="text-xs text-text-muted mt-1 font-medium">{label}</p>
+            </div>
+        </div>
+    );
+}
+
+function SankeyNode({ x, y, width, height, payload }: any) {
+    return (
+        <g>
+            <Rectangle
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                fill="#3B82F6"
+                fillOpacity={0.6}
+                rx={4}
+                ry={4}
+            />
+            <text
+                x={x < 300 ? x - 6 : x + width + 6}
+                y={y + height / 2}
+                textAnchor={x < 300 ? "end" : "start"}
+                dominantBaseline="middle"
+                fill="var(--color-text-secondary, #CBD5E1)"
+                fontSize={11}
+                fontWeight={500}
+            >
+                {payload?.name || ""}
+            </text>
+        </g>
     );
 }
 

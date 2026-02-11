@@ -175,18 +175,16 @@ import FloatingToolbox from "../components/dashboard/FloatingToolbox";
             // sendBeacon -> /api/v1/analytics -> [...all].ts proxy -> Go (X-Tenant-ID injected server-side)
             import { trackPageView, trackRouteChange } from "../lib/analytics";
 
-            // Track initial page view
-            trackPageView();
-
-            // Track subsequent navigations via View Transitions
+            // Track page views and route changes via View Transitions
+            // Note: astro:page-load fires on BOTH initial load and subsequent navigations
             let previousPath = window.location.pathname;
             document.addEventListener("astro:page-load", () => {
                 const currentPath = window.location.pathname;
                 if (currentPath !== previousPath) {
                     trackRouteChange(previousPath, currentPath);
-                    previousPath = currentPath;
                 }
                 trackPageView();
+                previousPath = currentPath;
             });
         </script>
         <FloatingToolbox client:only="react" />

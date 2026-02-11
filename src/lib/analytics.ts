@@ -184,7 +184,6 @@ class Analytics {
 
     // ═══════ Page Views ═══════
     trackPageView(): void {
-        console.log('[Analytics:diag] convex=', !!this.convex, 'url=', import.meta.env.PUBLIC_CONVEX_URL);
         this.track(AnalyticsEvent.PAGE_VIEW, this.getUserContext());
     }
 

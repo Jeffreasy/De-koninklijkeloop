@@ -11,10 +11,12 @@
 import type * as admin from "../admin.js";
 import type * as adminTasks from "../adminTasks.js";
 import type * as analytics from "../analytics.js";
+import type * as analyticsCleanup from "../analyticsCleanup.js";
 import type * as archive from "../archive.js";
 import type * as auth from "../auth.js";
 import type * as chat from "../chat.js";
 import type * as contact from "../contact.js";
+import type * as crons from "../crons.js";
 import type * as donations from "../donations.js";
 import type * as eventSettings from "../eventSettings.js";
 import type * as feedback from "../feedback.js";
@@ -45,10 +47,12 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   adminTasks: typeof adminTasks;
   analytics: typeof analytics;
+  analyticsCleanup: typeof analyticsCleanup;
   archive: typeof archive;
   auth: typeof auth;
   chat: typeof chat;
   contact: typeof contact;
+  crons: typeof crons;
   donations: typeof donations;
   eventSettings: typeof eventSettings;
   feedback: typeof feedback;
