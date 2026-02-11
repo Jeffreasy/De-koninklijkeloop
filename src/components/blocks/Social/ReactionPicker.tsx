@@ -152,7 +152,7 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
             {reactionCounts && reactionCounts.length > 0 && (
                 <div className="flex items-center gap-2 md:gap-3 pt-1 md:pt-2">
                     <div className="h-px flex-1 bg-linear-to-r from-transparent via-border to-transparent" />
-                    <div className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl bg-white/5 border border-glass-border backdrop-blur-sm">
+                    <div className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl bg-surface/50 border border-glass-border backdrop-blur-sm">
                         <span className="text-brand-orange text-xs md:text-sm">🔥</span>
                         <span className="text-xs md:text-sm font-medium text-muted">
                             {reactionCounts.reduce((acc, { count }) => acc + count, 0)} reactie
