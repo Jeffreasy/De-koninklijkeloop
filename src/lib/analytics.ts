@@ -142,30 +142,31 @@ class Analytics {
     }
 
     /**
-     * Send event to Go backend using sendBeacon (fire-and-forget).
-     * sendBeacon survives page navigation and is non-blocking.
+     * Send event to Go backend using fetch with keepalive (fire-and-forget).
+     * keepalive: true survives page navigation, same as sendBeacon, but allows custom headers.
+     * We send directly to the Go backend (not the proxy) for reliability.
      */
     private sendToGo(event: string, metadata?: EventMetadata): void {
-        if (typeof navigator === 'undefined' || !navigator.sendBeacon) {
-            // Fallback for environments without sendBeacon
-            this.sendToGoFetch(event, metadata);
-            return;
-        }
+        const API_URL = (typeof import.meta !== 'undefined' && import.meta.env?.PUBLIC_API_URL)
+            || 'https://laventecareauthsystems.onrender.com/api/v1';
 
         const payload = JSON.stringify({
             event,
             path: window.location.pathname,
             referrer: document.referrer || undefined,
+            session_id: this.sessionId,
             metadata: metadata || {},
         });
 
-        const blob = new Blob([payload], { type: 'application/json' });
-        const sent = navigator.sendBeacon('/api/v1/analytics', blob);
-
-        if (!sent && this.debugMode) {
-            console.warn('[Analytics] sendBeacon failed, falling back to fetch');
-            this.sendToGoFetch(event, metadata);
-        }
+        fetch(`${API_URL}/analytics`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Tenant-ID': this.tenantId,
+            },
+            body: payload,
+            keepalive: true,
+        }).catch(() => { /* fire-and-forget */ });
     }
 
     /** Fetch fallback for sendBeacon */

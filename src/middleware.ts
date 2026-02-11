@@ -8,7 +8,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (
         url.pathname.startsWith("/_astro") ||
         url.pathname.startsWith("/_vercel") ||
-        url.pathname.startsWith("/api/auth") ||
+        url.pathname.startsWith("/api/") ||
         url.pathname.includes(".") ||
         context.isPrerendered
     ) {
