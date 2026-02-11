@@ -102,7 +102,14 @@ class Analytics {
             this.sessionId = getSessionId();
             const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
             if (convexUrl) {
-                this.convex = new ConvexHttpClient(convexUrl);
+                try {
+                    this.convex = new ConvexHttpClient(convexUrl);
+                    console.log('[Analytics] Convex client initialized:', convexUrl.slice(0, 30) + '...');
+                } catch (err) {
+                    console.error('[Analytics] Convex client init failed:', err);
+                }
+            } else {
+                console.warn('[Analytics] PUBLIC_CONVEX_URL not set — Convex live feed disabled');
             }
         }
     }
@@ -128,7 +135,7 @@ class Analytics {
             this.sendToGo(event, metadata);
         }
 
-        // 3. Convex for live feed (critical events only)
+        // 3. Convex for live feed
         if (this.convex && CONVEX_EVENTS.has(event as AnalyticsEvent)) {
             this.convex.mutation(api.analytics.logEvent, {
                 event,
@@ -136,7 +143,7 @@ class Analytics {
                 sessionId: this.sessionId,
                 path: typeof window !== 'undefined' ? window.location.pathname : '/',
             }).catch((err) => {
-                if (this.debugMode) console.warn('[Analytics] Convex write failed:', err);
+                console.error('[Analytics] Convex write failed:', err);
             });
         }
     }
