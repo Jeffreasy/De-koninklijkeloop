@@ -1,7 +1,20 @@
 {
     "headers": [
         {
-            "source": "/(robots.txt|llms.txt|llms-full.txt|ai.txt|humans.txt|.well-known/(.*))",
+            "source": "/:path(robots.txt|llms.txt|llms-full.txt|ai.txt|humans.txt)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=86400"
+                },
+                {
+                    "key": "X-Robots-Tag",
+                    "value": "noindex"
+                }
+            ]
+        },
+        {
+            "source": "/.well-known/:path*",
             "headers": [
                 {
                     "key": "Cache-Control",
