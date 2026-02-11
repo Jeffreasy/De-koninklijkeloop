@@ -58,6 +58,39 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
         }
     };
 
+    // ─── Unauthenticated: Professional Login CTA ───
+    if (!isAuthenticated) {
+        return (
+            <div className="rounded-2xl bg-surface border border-glass-border p-5 md:p-6 text-center space-y-3">
+                <div className="flex justify-center gap-3 text-xl md:text-2xl opacity-50 select-none">
+                    {REACTIONS.map(({ emoji }) => (
+                        <span key={emoji}>{emoji}</span>
+                    ))}
+                </div>
+                <div className="space-y-1">
+                    <h3 className="text-base md:text-lg font-bold text-primary">
+                        Reageer op deze post
+                    </h3>
+                    <p className="text-sm text-muted">
+                        Log in om je reactie achter te laten
+                    </p>
+                </div>
+                <a
+                    href="/login"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-orange text-white font-semibold hover:bg-orange-500 hover:shadow-lg hover:shadow-brand-orange/20 transition-all duration-300"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        <polyline points="10 17 15 12 10 7" />
+                        <line x1="15" x2="3" y1="12" y2="12" />
+                    </svg>
+                    Inloggen
+                </a>
+            </div>
+        );
+    }
+
+    // ─── Authenticated: Full Reaction Picker ───
     return (
         <div className="space-y-2 md:space-y-4">
             {/* Header - Compact on mobile */}
@@ -66,11 +99,6 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
                     <span className="text-brand-orange text-base md:text-lg">💬</span>
                     Reacties
                 </h3>
-                {!isAuthenticated && (
-                    <p className="text-xs text-muted italic px-2 py-0.5 md:px-3 md:py-1 rounded-lg bg-surface/5 border border-glass-border">
-                        Log in om te reageren
-                    </p>
-                )}
             </div>
 
             {/* Compact Reaction Buttons - Horizontal scroll on mobile */}
@@ -84,8 +112,8 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
                         <button
                             key={emoji}
                             onClick={() => handleReactionClick(emoji)}
-                            disabled={!isAuthenticated || isProcessing}
-                            title={isAuthenticated ? label : "Log in om te reageren"}
+                            disabled={isProcessing}
+                            title={label}
                             className={`
                                 group relative flex items-center gap-1.5 md:gap-2.5 px-2 py-1.5 md:px-4 md:py-2.5 rounded-xl md:rounded-2xl
                                 transition-all duration-300 overflow-hidden shrink-0
@@ -93,7 +121,7 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
                                     ? "bg-linear-to-r from-brand-orange to-orange-500 text-white shadow-lg md:shadow-xl shadow-brand-orange/30 scale-105 border border-brand-orange/50 md:border-2"
                                     : "bg-surface/50 text-primary hover:bg-surface border border-glass-border md:border-2 hover:border-brand-orange/30 shadow-md md:shadow-lg hover:shadow-lg md:hover:shadow-xl"
                                 }
-                                ${!isAuthenticated ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:scale-105 active:scale-95"}
+                                cursor-pointer hover:scale-105 active:scale-95
                                 ${isProcessing ? "opacity-70" : ""}
                                 backdrop-blur-xl
                             `}
