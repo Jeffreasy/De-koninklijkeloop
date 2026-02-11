@@ -44,9 +44,7 @@ const mediaItems: MediaItem[] = images.map((img) => ({
                     class={`gallery-item media-item group relative overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 ${enableLightbox ? "cursor-pointer" : ""} ${index >= initialLoadCount ? "hidden" : ""}`}
                     style="opacity: 0; transform: translateY(20px);"
                 >
-                    <div
-                        class={`relative bg-surface border border-glass-border overflow-hidden ${img.aspect === "vertical" ? "aspect-3/4" : "aspect-4/3"}`}
-                    >
+                    <div class="relative bg-surface border border-glass-border overflow-hidden aspect-square">
                         {/* Gradient Overlay on Hover */}
                         <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 flex flex-col justify-end p-6">
                             <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
