@@ -32,10 +32,22 @@ const [images2024, images2025] = await Promise.all([
 
 const cloudImages = [...images2025, ...images2024];
 
+// Varied fallback descriptions for images without custom alt-text
+const fallbackAlts = [
+    "Deelnemers wandelen over de Koninklijke Weg",
+    "Wandelaars op het bospad tijdens De Koninklijke Loop",
+    "Inclusieve wandelgroep onderweg naar Paleis Het Loo",
+    "Vrijwilligers en deelnemers samen op de route",
+    "Sfeervolle momenten langs het parcours in Apeldoorn",
+    "Wandelaars passeren een rustpunt op de Veluwe",
+];
+
 // Prepare the base images from ImageKit
-let mappedImages = cloudImages.map((img) => ({
+let mappedImages = cloudImages.map((img, index) => ({
     src: img.secureUrl || `${IMAGEKIT_URL_ENDPOINT}${img.src}`,
-    alt: img.alt || `Sfeerimpressie DKL ${img.year}`,
+    alt:
+        img.alt ||
+        `${fallbackAlts[index % fallbackAlts.length]} tijdens DKL ${img.year}`,
     class: "h-full w-full object-cover",
 }));
 

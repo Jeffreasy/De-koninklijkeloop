@@ -28,4 +28,5 @@
 
 ## Optional
 
+- [llms-full.txt](https://dekoninklijkeloop.nl/llms-full.txt): Uitgebreid context document met FAQ, routes en sponsorinformatie
 - [RSS Feed](https://dekoninklijkeloop.nl/rss.xml): Site updates feed

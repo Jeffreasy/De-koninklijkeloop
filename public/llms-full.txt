@@ -1,74 +1,131 @@
-# De Koninklijke Loop
+# De Koninklijke Loop — Volledig Context Document
 
-> De Koninklijke Loop is een inclusief wandelevenement in Kootwijk–Apeldoorn
-> op 16 mei 2026, georganiseerd voor en door mensen met een beperking.
-> De opbrengst van editie 2026 gaat naar Only Friends.
+> De Koninklijke Loop is een inclusief wandelevenement in Kootwijk–Apeldoorn,
+> georganiseerd voor en door mensen met een beperking.
+> Derde editie: 16 mei 2026. Goede doel: Only Friends.
 
-## Evenement Details
+## Evenement
 
-- **Editie**: 2026 (3e editie)
-- **Eerdere edities**: 2024 (Liliane Fonds), 2025 (Liliane Fonds)
-- **Datum**: Zaterdag 16 mei 2026
-- **Locatie**: Koninklijke Weg, Kootwijk – Paleis Het Loo, Apeldoorn (Gelderland, Nederland)
-- **Startpunt**: Grote Kerk, Apeldoorn (deelnemers worden per bus naar startpunten gebracht)
-- **Finishlocatie**: Grote Kerk, Apeldoorn (feestelijke inhuldiging met medaille)
-- **Deelname**: Gratis, vooraf inschrijven verplicht (max 75 deelnemers)
-- **Inschrijving sluit**: 7 mei 2026
-- **Doelgroep**: Iedereen — specifiek ook mensen met een beperking
-- **Goede doel 2026**: Only Friends
-- **Contact**: info@dekoninklijkeloop.nl
-- **Website**: https://dekoninklijkeloop.nl
+- **Naam:** De Koninklijke Loop 2026
+- **Datum:** Zaterdag 16 mei 2026
+- **Locatie:** Koninklijke Weg, Kootwijk – Paleis Het Loo, Apeldoorn
+- **Deelname:** Gratis, maximaal 75 wandelaars
+- **Startlocatie:** Grote Kerk, Apeldoorn (deelnemers worden naar startpunten gebracht)
+- **Finish:** Grote Kerk, Apeldoorn (feestelijke inhuldiging met medaille)
+- **Contact:** info@dekoninklijkeloop.nl
+- **Website:** https://dekoninklijkeloop.nl
 
 ## Routes
 
-Er zijn vier afstanden beschikbaar:
+| Afstand | Start | Beschrijving | Geschikt voor |
+|---------|-------|-------------|---------------|
+| 2,5 km | Berg en Bos, Apeldoorn | Vlak terrein door groene buitenwijken rond Paleis Het Loo | Iedereen, volledig rolstoelvriendelijk |
+| 6 km | Hoog Soeren | Heuvelachtig landschap | Licht getrainde wandelaar |
+| 10 km | Halte Assel | Over de Asselse heide naar Hoog Soeren en Apeldoorn | Redelijk getrainde wandelaar |
+| 15 km | Kerkje Kootwijk | Volledige Koninklijke Weg, heuvelachtig terrein | Getrainde wandelaar |
 
-### 2,5 km — Beginnersvriendelijk & Rolstoeltoegankelijk
-Start: Berg en Bos, Apeldoorn. Vlak terrein door groene buitenwijken rond Paleis Het Loo. Geschikt voor onervaren wandelaars en rolstoelgebruikers.
+### Toegankelijkheid
+- De 2,5 km route is volledig rolstoelvriendelijk
+- Begeleiders kunnen zich ook inschrijven
+- Organisatie kan begeleiding regelen bij behoefte
+- Rustpunten met drinken en snacks onderweg
+- Vrijwilligers met EHBO-kit langs de route
 
-### 6 km — Licht Getraind
-Start: Hoog Soeren. Heuvelachtig landschap. Geschikt voor licht getrainde wandelaars.
+## Goede Doel
 
-### 10 km — Getraind
-Start: Halte Assel. Over de Asselse hei via Hoog Soeren naar Apeldoorn. Heuvelachtig terrein, voor redelijk goed getrainde wandelaars.
+### 2026: Only Friends
+Only Friends is een sportclub die zich inzet voor kinderen en jongeren met een beperking. Via sport biedt Only Friends hen de kans om te bewegen, sociale contacten op te doen en plezier te maken.
 
-### 15 km — Ervaren
-Start: Oud kerkje Kootwijk. Heuvelachtig terrein, voor getrainde lopers.
+### Eerdere edities
+- 2024: Liliane Fonds
+- 2025: Liliane Fonds
 
-## Ondersteuning Onderweg
+## Organisatie
 
-- Meerdere rustpunten met water en snacks
-- Startpakket met drinken en snacks
-- EHBO-vrijwilligers lopen mee
-- Persoonlijke begeleiders kunnen zich ook inschrijven
-- Organisatie kan begeleiding regelen bij verzoek
+De Koninklijke Loop wordt georganiseerd door een team van mensen die elkaar allemaal door het werken en leven in zorginstellingen hebben ontmoet. Het evenement is een initiatief voor en door mensen met een beperking.
 
-## Goede Doel 2026: Only Friends
+## Partners & Sponsors
 
-Het goede doel van editie 2026 is Only Friends. In eerdere edities (2024 en 2025) ging de opbrengst naar het Liliane Fonds.
+### Hoofdpartners
+- **'s Heeren Loo** — Zorgorganisatie voor mensen met een verstandelijke beperking (https://sheerenloo.nl)
+- **Accres** — Dagbesteding en werk voor mensen met een beperking (https://accres.nl)
+- **Grote Kerk Apeldoorn** — Start- en finishlocatie (https://grotekerk-apeldoorn.nl)
 
-## Over De Organisatie
-
-De Koninklijke Loop wordt georganiseerd door een groep mensen die elkaar door het werken en leven in zorginstellingen hebben ontmoet. Het initiatief is voor en door mensen met een beperking, met als doel een inclusieve wereld.
+### Sponsors
+- 3x3 Anders (https://3x3anders.nl)
+- Beeld Pakker (https://beeldpakker.nl/)
+- Mojo Dojo (https://mojodojo.studio/)
+- Sterk In Vloeren (https://sterkinvloeren.nl/)
+- Bas Visual Storytelling (https://basvisualstorytelling.nl)
 
 ## Veelgestelde Vragen
 
 ### Over het evenement
-- **Wat maakt De Koninklijke Loop zo bijzonder?** De Koninklijke Loop is een sponsorloop mede georganiseerd door mensen met een beperking voor mensen met een beperking. We lopen de route over de Koninklijke weg, een rolstoelvriendelijke wandelroute.
-- **Waar vindt de Koninklijke Loop plaats?** Op de Koninklijke Weg. Deelnemers worden vanaf de Grote Kerk in Apeldoorn naar de startpunten gebracht en wandelen naar de finish bij de Grote Kerk.
-- **Wanneer vindt de Koninklijke Loop 2026 plaats?** Zaterdag 16 mei 2026.
-- **Kun je winnen?** Het is geen wedstrijd. Iedereen die de finish haalt krijgt een medaille.
+
+**Wat maakt De Koninklijke Loop zo bijzonder?**
+De Koninklijke Loop is een sponsorloop mede georganiseerd door mensen met een beperking voor mensen met een beperking. We lopen de route over de Koninklijke weg, een rolstoelvriendelijke wandelroute.
+
+**Waar vindt de Koninklijke Loop plaats?**
+De Koninklijke Loop vindt plaats op de Koninklijke Weg, een rolstoelvriendelijke route. We lopen verschillende afstanden tussen Assel en Paleis het Loo, Apeldoorn. De deelnemers worden vanaf de Grote Kerk in Apeldoorn naar de startpunten van de verschillende afstanden gebracht.
+
+**Wanneer vindt de Koninklijke Loop 2026 plaats?**
+De Koninklijke Loop vindt op zaterdag 16 mei 2026 plaats.
+
+**Kun je winnen bij de Koninklijke Loop?**
+De Koninklijke Loop is geen wedstrijd. Wel krijgt iedereen die de finish haalt een mooie medaille.
 
 ### Deelname
-- **Hoe kan ik meedoen?** Inschrijven via het online registratieformulier op dekoninklijkeloop.nl/register.
-- **Moet je betalen?** Nee, deelname is gratis. Wel vooraf inschrijven.
-- **Hoeveel mensen kunnen maximaal meelopen?** Maximaal 75 deelnemers.
-- **Wanneer sluit de inschrijving?** 7 mei 2026.
-- **Hulp of begeleiding nodig?** Een begeleider kan zich ook inschrijven. Bij bijzonderheden kan de organisatie helpen.
 
-### Doneren & Sponsoring
-- **Hoe kan ik doneren?** Via de GoFundMe pagina. Opbrengst gaat naar Only Friends.
-- **Bedrijfssponsoring?** Welkom, neem contact op via het contactformulier.
+**Hoe kan ik meedoen?**
+Je kunt je inschrijven via https://dekoninklijkeloop.nl/register.
+
+**Moet je betalen om mee te doen?**
+Deelname is helemaal gratis. Wel moet je jezelf van tevoren opgeven.
+
+**Wat als je hulp of begeleiding nodig hebt?**
+Een begeleider kan zich ook via het formulier opgeven. Heb je niemand die je kan begeleiden, geef dit aan bij de bijzonderheden.
+
+**Hoeveel mensen kunnen maximaal meelopen?**
+Er kunnen maximaal 75 mensen meedoen. Inschrijving sluit op 7 mei 2026.
+
+### Looproutes
+
+**Welke afstanden kan ik kiezen?**
+Je kunt kiezen uit 15, 10, 6 of 2,5 km.
+
+**Is de 2,5 km iets voor mij?**
+Tijdens de 2,5 km loop je vanaf Berg en Bos in Apeldoorn over vlak terrein. Geschikt voor de onervaren wandelaar en volledig rolstoelvriendelijk.
+
+**Hoe pittig is de 6 km?**
+In Hoog Soeren start de 6 km over heuvelachtig landschap. Geschikt voor de licht getrainde wandelaar.
+
+**Ben ik klaar voor de 10 km?**
+Bij halte Assel is het beginpunt. Over de Asselse heide naar Hoog Soeren en Apeldoorn. Heuvelachtig terrein voor de redelijk getrainde wandelaar.
+
+**Wie durft de 15 km aan?**
+Bij het oude kerkje in Kootwijk start de 15 km. Geschikt voor getrainde lopers over heuvelachtig terrein.
+
+### Ondersteuning
+
+**Zijn er plekken om even op adem te komen?**
+Er zijn diverse rustpunten met drinken. Je krijgt ook een pakketje mee bij de start.
+
+**Is er hulp tijdens de loop?**
+Vrijwilligers lopen mee met EHBO-kits en kunnen medische hulp verlenen.
+
+**Kan ik zelf vrijwilliger worden?**
+Alle hulp is welkom! Neem contact op via het contactformulier.
+
+### Goede doel & sponsoring
+
+**Hoe kan ik doneren?**
+Doneren kan direct via de GoFundMe pagina.
+
+**Welk goed doel steunen we dit jaar?**
+Only Friends, een sportclub voor kinderen en jongeren met een beperking.
+
+**Wil je ons als bedrijf sponsoren?**
+Bedrijven en organisaties zijn welkom. Neem contact op via het contactformulier.
 
 ## Pagina's
 
@@ -77,7 +134,7 @@ De Koninklijke Loop wordt georganiseerd door een groep mensen die elkaar door he
 - [Programma](https://dekoninklijkeloop.nl/programma): Volledig dagprogramma editie 2026
 - [Inschrijven](https://dekoninklijkeloop.nl/register): Online registratieformulier
 - [Over Ons](https://dekoninklijkeloop.nl/about): Organisatie, team en achtergrond
-- [Contact & FAQ](https://dekoninklijkeloop.nl/contact): Veelgestelde vragen en contactformulier
+- [Contact & FAQ](https://dekoninklijkeloop.nl/contact): 26 veelgestelde vragen en contactformulier
 - [Media](https://dekoninklijkeloop.nl/media): Foto's en aftermovies van eerdere edities
 - [Het Goede Doel](https://dekoninklijkeloop.nl/charity): Informatie over Only Friends
 - [DKL](https://dekoninklijkeloop.nl/dkl): Het verhaal achter De Koninklijke Loop
@@ -85,3 +142,4 @@ De Koninklijke Loop wordt georganiseerd door een groep mensen die elkaar door he
 ## Optional
 
 - [RSS Feed](https://dekoninklijkeloop.nl/rss.xml): Site updates feed
+- [llms.txt](https://dekoninklijkeloop.nl/llms.txt): Compact site context

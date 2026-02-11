@@ -43,7 +43,7 @@ const organizationSchema = {
         siteConfig.social.facebook,
         siteConfig.social.instagram,
         siteConfig.social.linkedin,
-    ].filter((url) => url !== "#"),
+    ].filter(Boolean),
 };
 
 const websiteSchema = {
@@ -59,9 +59,48 @@ const websiteSchema = {
     },
 };
 
+// Dynamic BreadcrumbList based on current page path
+const pathSegments = Astro.url.pathname.split("/").filter(Boolean);
+const breadcrumbNames: Record<string, string> = {
+    routes: "Routes",
+    programma: "Programma",
+    about: "Over Ons",
+    contact: "Contact & FAQ",
+    charity: "Het Goede Doel",
+    dkl: "Over DKL",
+    media: "Media",
+    register: "Inschrijven",
+    faq: "FAQ",
+};
+
+const breadcrumbSchema =
+    pathSegments.length > 0
+        ? {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                  {
+                      "@type": "ListItem",
+                      position: 1,
+                      name: "Home",
+                      item: "https://dekoninklijkeloop.nl/",
+                  },
+                  ...pathSegments.map((segment, index) => ({
+                      "@type": "ListItem",
+                      position: index + 2,
+                      name:
+                          breadcrumbNames[segment] ||
+                          segment.charAt(0).toUpperCase() + segment.slice(1),
+                      item: `https://dekoninklijkeloop.nl/${pathSegments.slice(0, index + 1).join("/")}`,
+                  })),
+              ],
+          }
+        : null;
+
 const allSchemas = [
     organizationSchema,
     websiteSchema,
+    ...(breadcrumbSchema ? [breadcrumbSchema] : []),
     ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []),
 ];
 ---

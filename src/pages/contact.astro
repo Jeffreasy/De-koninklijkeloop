@@ -6,18 +6,20 @@ import ContactSection from "../components/blocks/Contact/ContactSection.astro";
 import FAQSection from "../components/blocks/Contact/FAQSection.astro";
 import { faqData } from "../data/faqData";
 
+export const prerender = true;
+
 const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqData.flatMap(category =>
-        category.questions.map(q => ({
+    mainEntity: faqData.flatMap((category) =>
+        category.questions.map((q) => ({
             "@type": "Question",
             name: q.question,
             acceptedAnswer: {
                 "@type": "Answer",
                 text: q.answer,
             },
-        }))
+        })),
     ),
 };
 ---

@@ -5,6 +5,8 @@ import Footer from "../components/blocks/Global/Footer.astro";
 import { Button } from "../components/ui/button";
 import { charityHistory } from "../data/charityConfig";
 
+export const prerender = true;
+
 const currentYearCharity = charityHistory[0];
 ---
 
