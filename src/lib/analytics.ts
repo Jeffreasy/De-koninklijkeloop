@@ -149,10 +149,12 @@ class Analytics {
     }
 
     /**
-     * Send event to Go backend via Astro BFF Proxy (same-origin, no CORS).
-     * Route: fetch /api/v1/analytics → [...all].ts proxy → Go backend
-     * The proxy injects X-Tenant-ID server-side.
-     * Using fetch with keepalive (survives page navigation, like sendBeacon).
+     * Send event to Go backend via Vercel rewrite (same-origin, no CORS).
+     * IMPORTANT: tenant_id is sent in the body, NOT as X-Tenant-ID header.
+     * Sending X-Tenant-ID as a custom header triggers the Go CORS middleware
+     * which validates Origin against allowed_origins in the DB — causing 403.
+     * By keeping only standard headers (Content-Type: application/json),
+     * the CORS middleware skips the origin check entirely.
      */
     private sendToGo(event: string, metadata?: EventMetadata): void {
         const payload = JSON.stringify({
@@ -160,19 +162,18 @@ class Analytics {
             path: window.location.pathname,
             referrer: document.referrer || undefined,
             session_id: this.sessionId,
+            tenant_id: this.tenantId,
             metadata: metadata || {},
         });
 
         fetch('/api/v1/analytics', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Tenant-ID': this.tenantId,
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: payload,
             keepalive: true,
         }).catch(() => { /* fire-and-forget */ });
     }
+
 
 
     private getUserContext(): { user_type: EventMetadata['user_type'] } {
@@ -183,6 +184,7 @@ class Analytics {
 
     // ═══════ Page Views ═══════
     trackPageView(): void {
+        console.log('[Analytics:diag] convex=', !!this.convex, 'url=', import.meta.env.PUBLIC_CONVEX_URL);
         this.track(AnalyticsEvent.PAGE_VIEW, this.getUserContext());
     }
 
