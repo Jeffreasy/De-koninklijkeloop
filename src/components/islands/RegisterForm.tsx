@@ -476,7 +476,7 @@ export default function RegisterForm() {
                                 Akkoord met de voorwaarden
                             </Label>
                             <p className="text-sm text-text-muted">
-                                Ik heb de <a href="#" className="text-brand-primary hover:underline font-medium">Algemene Voorwaarden</a> gelezen en ga hiermee akkoord.
+                                Ik heb de <a href="/voorwaarden" target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:underline font-medium">Algemene Voorwaarden</a> gelezen en ga hiermee akkoord.
                             </p>
                         </div>
                     </div>

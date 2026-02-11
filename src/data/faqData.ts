@@ -62,12 +62,12 @@ export const faqData: FAQCategory[] = [
             },
             {
                 question: "Hoeveel mensen kunnen er maximaal meelopen tijdens DKL 26?",
-                answer: "Er kunnen maximaal 75 mensen meedoen met de Koninklijke Loop. Zorg dus dat je op tijd inschrijft!",
+                answer: "Er kunnen maximaal 150 mensen meedoen met de Koninklijke Loop. Zorg dus dat je op tijd inschrijft!",
                 icon: "💡"
             },
             {
                 question: "Wanneer sluit de inschrijving?",
-                answer: "Je kunt je inschrijven t/m 7 mei 2026. Let wel op: er kunnen maximaal 75 wandelaars deelnemen, dus wees er op tijd bij!",
+                answer: "Je kunt je inschrijven t/m 7 mei 2026. Let wel op: er kunnen maximaal 150 wandelaars deelnemen, dus wees er op tijd bij!",
                 icon: "⚠"
             },
             {
@@ -135,18 +135,41 @@ export const faqData: FAQCategory[] = [
         questions: [
             {
                 question: "Hoe kan ik doneren?",
-                answer: "Doneren kan direct via onze GoFundMe pagina. Alle giften komen, op de administratieve kosten van GoFundMe na, volledig ten goede van het Liliane Fonds.",
+                answer: "Doneren kan direct via onze GoFundMe pagina. Alle giften komen, op de administratieve kosten van GoFundMe na, volledig ten goede van Only Friends.",
                 icon: "💳"
             },
             {
                 question: "Welk goed doel steunen we dit jaar?",
-                answer: "Dit jaar is het goede doel wederom het Liliane Fonds. Het Liliane Fonds ondersteunt wereldwijd kinderen met een beperking en helpt hen door hun leefsituatie te verbeteren.",
+                answer: "Dit jaar is het goede doel Only Friends. Only Friends is een sportclub voor kinderen en jongeren met een beperking.",
                 icon: "❤️"
             },
             {
                 question: "Wil je ons als bedrijf of organisatie sponsoren?",
                 answer: "Bedrijven of organisaties zijn natuurlijk van harte welkom om de Koninklijke Loop of het goede doel te sponsoren. We horen graag van je via ons contactformulier.",
                 icon: "👨💼"
+            }
+        ]
+    },
+    {
+        title: "Privacy & Voorwaarden",
+        icon: "🔒",
+        questions: [
+            {
+                question: "Waar vind ik de algemene voorwaarden?",
+                answer: "Onze volledige algemene voorwaarden kun je lezen op de voorwaarden-pagina. Hier vind je alles over deelname, privacy, aansprakelijkheid en je rechten.",
+                icon: "📋",
+                action: true,
+                actionText: "Bekijk voorwaarden"
+            },
+            {
+                question: "Wat doen jullie met mijn gegevens?",
+                answer: "We gebruiken je gegevens alleen voor de organisatie van het evenement en communicatie over je deelname. We plaatsen geen tracking-cookies, verkopen geen data en IP-adressen worden geanonimiseerd opgeslagen. Lees meer in onze voorwaarden.",
+                icon: "🛡️"
+            },
+            {
+                question: "Kan ik mijn gegevens inzien, downloaden of verwijderen?",
+                answer: "Ja! Als je een account hebt, kun je via je dashboard of profiel al je gegevens downloaden als JSON-bestand. Je kunt ook je account permanent verwijderen. Dit zijn self-service functies die je zelf kunt uitvoeren.",
+                icon: "📥"
             }
         ]
     },

@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useStore } from "@nanostores/react";
 import { $user, logout } from "../../lib/auth";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../../convex/_generated/api";
 import {
     Loader2, Save, User, Shield, Key, LogOut,
-    CheckCircle2, XCircle, Pencil, X, Eye, EyeOff, Clock
+    CheckCircle2, XCircle, Pencil, X, Eye, EyeOff, Clock,
+    Download, Trash2, AlertTriangle, FileJson
 } from "lucide-react";
 
 interface ProfileData {
@@ -166,6 +169,16 @@ export default function ProfileIsland() {
             />
 
             <ChangePasswordSection />
+
+            <DataExportSection
+                email={user.email}
+                authUserId={user.id}
+            />
+
+            <AccountDeletionSection
+                email={user.email}
+                authUserId={user.id}
+            />
         </div>
     );
 }
@@ -466,5 +479,341 @@ function ChangePasswordSection() {
                 </div>
             </form>
         </div>
+    );
+}
+
+// ═══════════════════════════════════════════════════
+// Data Export Section (GDPR Art. 20)
+// ═══════════════════════════════════════════════════
+function DataExportSection({ email, authUserId }: { email: string; authUserId: string }) {
+    const [exporting, setExporting] = useState(false);
+    const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+    const handleExport = async () => {
+        setExporting(true);
+        setStatus(null);
+
+        try {
+            // 1. Fetch Go backend profile data
+            const goRes = await fetch('/api/auth/account/export', { credentials: 'include' });
+            if (!goRes.ok) {
+                if (goRes.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                throw new Error(`Profiel export mislukt (${goRes.status})`);
+            }
+            const goData = await goRes.json();
+
+            // 2. Fetch Convex domain data
+            let convexData = null;
+            try {
+                const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
+                if (convexUrl) {
+                    const convex = new ConvexHttpClient(convexUrl);
+                    convexData = await convex.query(api.gdpr.exportUserData, { email, authUserId });
+                }
+            } catch (convexErr) {
+                console.warn('[GDPR Export] Convex data fetch failed (non-blocking):', convexErr);
+            }
+
+            // 3. Merge into single export
+            const exportData = {
+                exported_at: new Date().toISOString(),
+                gdpr_article: "Art. 20 - Right to Data Portability",
+                profile: goData,
+                ...(convexData ? { domain_data: convexData } : {}),
+            };
+
+            // 4. Trigger browser download
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().split('T')[0];
+            a.href = url;
+            a.download = `mijn-data-${date}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            setStatus({ type: 'success', message: 'Data succesvol gedownload!' });
+            setTimeout(() => setStatus(null), 5000);
+        } catch (err) {
+            setStatus({
+                type: 'error',
+                message: err instanceof Error ? err.message : 'Kon data niet exporteren'
+            });
+        } finally {
+            setExporting(false);
+        }
+    };
+
+    return (
+        <div className="premium-glass rounded-2xl md:rounded-3xl p-6">
+            <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400">
+                    <FileJson className="w-5 h-5" />
+                </div>
+                <div>
+                    <h2 className="text-lg font-semibold text-text-primary">Mijn Data Downloaden</h2>
+                    <p className="text-sm text-text-muted">Download al je persoonlijke gegevens als JSON bestand (GDPR Art. 20)</p>
+                </div>
+            </div>
+
+            {status && (
+                <div className={`flex items-center gap-2 p-3 rounded-xl text-sm mb-4 ${status.type === 'success'
+                    ? 'bg-green-500/10 border border-green-500/20 text-green-400'
+                    : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                    }`}>
+                    {status.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                    {status.message}
+                </div>
+            )}
+
+            <div className="flex items-start gap-3">
+                <div className="flex-1">
+                    <p className="text-sm text-text-muted">
+                        Je export bevat: profielgegevens, registraties, donaties, berichten en feedback.
+                    </p>
+                </div>
+                <button
+                    onClick={handleExport}
+                    disabled={exporting}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500/80 text-white font-medium hover:bg-sky-500 transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                >
+                    {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    {exporting ? 'Exporteren...' : 'Download'}
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// ═══════════════════════════════════════════════════
+// Account Deletion Section (GDPR Art. 17)
+// ═══════════════════════════════════════════════════
+function AccountDeletionSection({ email, authUserId }: { email: string; authUserId: string }) {
+    const [showModal, setShowModal] = useState(false);
+    const [password, setPassword] = useState('');
+    const [confirmation, setConfirmation] = useState('');
+    const [deleting, setDeleting] = useState(false);
+    const [step, setStep] = useState<'idle' | 'convex' | 'go' | 'done'>('idle');
+    const [error, setError] = useState<string | null>(null);
+
+    const canConfirm = password.length > 0 && confirmation === 'VERWIJDEREN';
+
+    const handleDelete = async () => {
+        if (!canConfirm) return;
+
+        setDeleting(true);
+        setError(null);
+
+        try {
+            // Step 1: Clean Convex data first (safest order — if this fails, account stays intact)
+            setStep('convex');
+            try {
+                const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
+                if (convexUrl) {
+                    const convex = new ConvexHttpClient(convexUrl);
+                    await convex.mutation(api.gdpr.deleteUserData, { email, authUserId });
+                }
+            } catch (convexErr) {
+                console.warn('[GDPR Delete] Convex cleanup failed (non-blocking):', convexErr);
+                // Continue — Go deletion is the critical path
+            }
+
+            // Step 2: Delete account via Go backend
+            setStep('go');
+            const res = await fetch('/api/auth/account', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ password }),
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                if (res.status === 401) {
+                    throw new Error('Onjuist wachtwoord. Probeer het opnieuw.');
+                }
+                throw new Error(data.error || `Verwijdering mislukt (${res.status})`);
+            }
+
+            // Step 3: Cleanup & redirect
+            setStep('done');
+
+            // Clear local auth state
+            await fetch('/api/auth/logout', { method: 'POST' }).catch(() => { });
+
+            // Redirect after brief delay to show success
+            setTimeout(() => {
+                window.location.href = '/?account_deleted=true';
+            }, 1500);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Er ging iets mis');
+            setDeleting(false);
+            setStep('idle');
+        }
+    };
+
+    const resetModal = () => {
+        setShowModal(false);
+        setPassword('');
+        setConfirmation('');
+        setError(null);
+        setStep('idle');
+    };
+
+    return (
+        <>
+            {/* Danger Zone Card */}
+            <div className="rounded-2xl md:rounded-3xl p-6 border-2 border-red-500/20 bg-red-500/5">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center text-red-400">
+                        <Trash2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-semibold text-red-400">Account Verwijderen</h2>
+                        <p className="text-sm text-text-muted">Permanent en onomkeerbaar (GDPR Art. 17)</p>
+                    </div>
+                </div>
+
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-red-500/5 border border-red-500/10 mb-4">
+                    <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                    <div className="text-xs text-red-300/80 space-y-1">
+                        <p>Dit verwijdert permanent je account, registraties, donaties en alle gekoppelde data.</p>
+                        <p>Chatberichten worden geanonimiseerd. Deze actie kan niet ongedaan gemaakt worden.</p>
+                    </div>
+                </div>
+
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/20 text-red-400 font-medium border border-red-500/30 hover:bg-red-500/30 hover:text-red-300 transition-colors cursor-pointer"
+                >
+                    <Trash2 className="w-4 h-4" />
+                    Account Verwijderen...
+                </button>
+            </div>
+
+            {/* Confirmation Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        onClick={!deleting ? resetModal : undefined}
+                    />
+
+                    {/* Modal */}
+                    <div className="relative w-full max-w-md premium-glass rounded-2xl p-6 border border-red-500/20 shadow-2xl">
+                        {step === 'done' ? (
+                            // Success State
+                            <div className="text-center py-4">
+                                <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
+                                    <CheckCircle2 className="w-8 h-8 text-green-400" />
+                                </div>
+                                <h3 className="text-xl font-semibold text-text-primary mb-2">Account Verwijderd</h3>
+                                <p className="text-text-muted text-sm">Je wordt doorgestuurd naar de homepage...</p>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Header */}
+                                <div className="flex items-start justify-between mb-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center text-red-400">
+                                            <AlertTriangle className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-text-primary">Weet je het zeker?</h3>
+                                            <p className="text-xs text-text-muted">Deze actie is permanent</p>
+                                        </div>
+                                    </div>
+                                    {!deleting && (
+                                        <button
+                                            onClick={resetModal}
+                                            className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/5 transition-colors cursor-pointer"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {error && (
+                                    <div className="flex items-center gap-2 p-3 rounded-xl text-sm mb-4 bg-red-500/10 border border-red-500/20 text-red-400">
+                                        <XCircle className="w-4 h-4 shrink-0" />
+                                        {error}
+                                    </div>
+                                )}
+
+                                <div className="space-y-4">
+                                    {/* Password */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-secondary mb-2">Bevestig met je wachtwoord</label>
+                                        <input
+                                            type="password"
+                                            value={password}
+                                            onChange={e => setPassword(e.target.value)}
+                                            className="w-full px-4 py-2.5 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                                            placeholder="Je huidige wachtwoord"
+                                            disabled={deleting}
+                                            autoFocus
+                                        />
+                                    </div>
+
+                                    {/* Type VERWIJDEREN */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-secondary mb-2">
+                                            Type <span className="font-mono text-red-400 font-bold">VERWIJDEREN</span> ter bevestiging
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={confirmation}
+                                            onChange={e => setConfirmation(e.target.value)}
+                                            className={`w-full px-4 py-2.5 bg-glass-bg/50 border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-red-500/50 ${confirmation && confirmation !== 'VERWIJDEREN'
+                                                    ? 'border-red-500/40'
+                                                    : confirmation === 'VERWIJDEREN'
+                                                        ? 'border-green-500/40'
+                                                        : 'border-glass-border'
+                                                }`}
+                                            placeholder="VERWIJDEREN"
+                                            disabled={deleting}
+                                        />
+                                    </div>
+
+                                    {/* Progress indicator */}
+                                    {deleting && (
+                                        <div className="flex items-center gap-2 p-3 rounded-xl text-sm bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                                            <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                                            {step === 'convex' && 'Domeindata opruimen...'}
+                                            {step === 'go' && 'Account verwijderen...'}
+                                        </div>
+                                    )}
+
+                                    {/* Actions */}
+                                    <div className="flex gap-3 pt-2">
+                                        <button
+                                            onClick={resetModal}
+                                            disabled={deleting}
+                                            className="flex-1 px-4 py-2.5 rounded-xl text-text-muted hover:text-text-primary hover:bg-white/5 border border-glass-border transition-colors cursor-pointer disabled:opacity-50"
+                                        >
+                                            Annuleren
+                                        </button>
+                                        <button
+                                            onClick={handleDelete}
+                                            disabled={!canConfirm || deleting}
+                                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/80 text-white font-medium hover:bg-red-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                        >
+                                            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                            Definitief Verwijderen
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+        </>
     );
 }

@@ -21,6 +21,7 @@ import type * as donations from "../donations.js";
 import type * as eventSettings from "../eventSettings.js";
 import type * as feedback from "../feedback.js";
 import type * as fixData from "../fixData.js";
+import type * as gdpr from "../gdpr.js";
 import type * as internal_ from "../internal.js";
 import type * as media from "../media.js";
 import type * as mediaMetadata from "../mediaMetadata.js";
@@ -57,6 +58,7 @@ declare const fullApi: ApiFromModules<{
   eventSettings: typeof eventSettings;
   feedback: typeof feedback;
   fixData: typeof fixData;
+  gdpr: typeof gdpr;
   internal: typeof internal_;
   media: typeof media;
   mediaMetadata: typeof mediaMetadata;

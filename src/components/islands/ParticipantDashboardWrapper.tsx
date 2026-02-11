@@ -3,6 +3,7 @@ import { ConvexClientProvider } from "./ConvexClientProvider";
 import { $accessToken, logout } from "../../lib/auth";
 import { useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { ConvexHttpClient } from "convex/browser";
 import { Button } from "../ui/button";
 import type { Doc } from "../../../convex/_generated/dataModel";
 
@@ -58,7 +59,8 @@ import ParticipantEditModal from "./ParticipantEditModal";
 import {
     Edit2, Calendar, MapPin, Footprints, Users, HeartHandshake,
     Camera, Clock, Navigation, ExternalLink, Shield, Loader2,
-    ClipboardList, CheckCircle2, MapPinned, UserCheck, AlertTriangle
+    ClipboardList, CheckCircle2, MapPinned, UserCheck, AlertTriangle,
+    Download, Trash2, FileJson, XCircle, X
 } from "lucide-react";
 import { routes } from "../../lib/routeData";
 
@@ -201,6 +203,12 @@ function DashboardContent({ token }: { token: string }) {
                     confirmingTaskId={confirmingTaskId}
                 />
             )}
+
+            {/* Shared: Account & GDPR Section */}
+            <SharedAccountSection
+                email={data.user.email}
+                authUserId={data.user.id}
+            />
 
             {/* Shared: Route Card */}
             <SharedRouteCard registration={registration} />
@@ -557,6 +565,262 @@ function VrijwilligerSection({
                 </div>
             )}
         </div>
+    );
+}
+
+// ═══════════════════════════════════════════════════
+// SHARED: ACCOUNT & GDPR SECTION
+// ═══════════════════════════════════════════════════
+
+function SharedAccountSection({ email, authUserId }: { email: string; authUserId: string }) {
+    const [exporting, setExporting] = useState(false);
+    const [exportStatus, setExportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [password, setPassword] = useState('');
+    const [confirmation, setConfirmation] = useState('');
+    const [deleting, setDeleting] = useState(false);
+    const [deleteStep, setDeleteStep] = useState<'idle' | 'convex' | 'go' | 'done'>('idle');
+    const [deleteError, setDeleteError] = useState<string | null>(null);
+
+    const canConfirmDelete = password.length > 0 && confirmation === 'VERWIJDEREN';
+
+    const handleExport = async () => {
+        setExporting(true);
+        setExportStatus(null);
+        try {
+            const goRes = await fetch('/api/auth/account/export', { credentials: 'include' });
+            if (!goRes.ok) {
+                if (goRes.status === 401) { window.location.href = '/login'; return; }
+                throw new Error(`Export mislukt (${goRes.status})`);
+            }
+            const goData = await goRes.json();
+
+            let convexData = null;
+            try {
+                const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
+                if (convexUrl) {
+                    const convex = new ConvexHttpClient(convexUrl);
+                    convexData = await convex.query(api.gdpr.exportUserData, { email, authUserId });
+                }
+            } catch { /* non-blocking */ }
+
+            const exportData = {
+                exported_at: new Date().toISOString(),
+                gdpr_article: "Art. 20 - Right to Data Portability",
+                profile: goData,
+                ...(convexData ? { domain_data: convexData } : {}),
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mijn-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            setExportStatus({ type: 'success', message: 'Data gedownload!' });
+            setTimeout(() => setExportStatus(null), 5000);
+        } catch (err) {
+            setExportStatus({ type: 'error', message: err instanceof Error ? err.message : 'Export mislukt' });
+        } finally {
+            setExporting(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!canConfirmDelete) return;
+        setDeleting(true);
+        setDeleteError(null);
+
+        try {
+            setDeleteStep('convex');
+            try {
+                const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
+                if (convexUrl) {
+                    const convex = new ConvexHttpClient(convexUrl);
+                    await convex.mutation(api.gdpr.deleteUserData, { email, authUserId });
+                }
+            } catch { /* non-blocking */ }
+
+            setDeleteStep('go');
+            const res = await fetch('/api/auth/account', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ password }),
+            });
+
+            if (!res.ok) {
+                if (res.status === 401) throw new Error('Onjuist wachtwoord.');
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error || `Verwijdering mislukt (${res.status})`);
+            }
+
+            setDeleteStep('done');
+            await fetch('/api/auth/logout', { method: 'POST' }).catch(() => { });
+            setTimeout(() => { window.location.href = '/?account_deleted=true'; }, 1500);
+        } catch (err) {
+            setDeleteError(err instanceof Error ? err.message : 'Er ging iets mis');
+            setDeleting(false);
+            setDeleteStep('idle');
+        }
+    };
+
+    const resetDeleteModal = () => {
+        setShowDeleteModal(false);
+        setPassword('');
+        setConfirmation('');
+        setDeleteError(null);
+        setDeleteStep('idle');
+    };
+
+    return (
+        <>
+            <div className="bg-glass-bg border border-glass-border rounded-xl p-4 md:p-6 space-y-5">
+                <h3 className="text-lg font-bold text-text-body flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-text-muted" />
+                    Mijn Account
+                </h3>
+
+                {/* Data Export */}
+                <div className="flex items-center justify-between gap-4 p-4 bg-glass-surface/30 rounded-xl border border-glass-border">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-9 h-9 rounded-lg bg-sky-500/15 flex items-center justify-center shrink-0">
+                            <FileJson className="w-4 h-4 text-sky-400" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-text-body text-sm font-medium">Mijn Data Downloaden</p>
+                            <p className="text-text-muted text-xs">Profiel, registraties, donaties als JSON</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleExport}
+                        disabled={exporting}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500/80 text-white text-sm font-medium hover:bg-sky-500 transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
+                    >
+                        {exporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                        {exporting ? 'Bezig...' : 'Download'}
+                    </button>
+                </div>
+
+                {exportStatus && (
+                    <div className={`flex items-center gap-2 p-3 rounded-lg text-xs ${exportStatus.type === 'success'
+                            ? 'bg-green-500/10 border border-green-500/20 text-green-400'
+                            : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                        }`}>
+                        {exportStatus.type === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                        {exportStatus.message}
+                    </div>
+                )}
+
+                {/* Danger Zone */}
+                <div className="border-t border-glass-border pt-4">
+                    <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-red-500/20 bg-red-500/5">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center shrink-0">
+                                <Trash2 className="w-4 h-4 text-red-400" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-red-400 text-sm font-medium">Account Verwijderen</p>
+                                <p className="text-text-muted text-xs">Permanent en onomkeerbaar</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setShowDeleteModal(true)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-sm font-medium border border-red-500/30 hover:bg-red-500/30 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                        >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Verwijderen
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Delete Account Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={!deleting ? resetDeleteModal : undefined} />
+                    <div className="relative w-full max-w-md bg-glass-bg border border-red-500/20 rounded-2xl p-6 shadow-2xl">
+                        {deleteStep === 'done' ? (
+                            <div className="text-center py-4">
+                                <div className="w-14 h-14 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
+                                    <CheckCircle2 className="w-7 h-7 text-green-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-text-body mb-1">Account Verwijderd</h3>
+                                <p className="text-text-muted text-sm">Je wordt doorgestuurd...</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="flex items-start justify-between mb-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
+                                            <AlertTriangle className="w-5 h-5 text-red-400" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-text-body">Weet je het zeker?</h3>
+                                            <p className="text-xs text-text-muted">Dit verwijdert al je data permanent</p>
+                                        </div>
+                                    </div>
+                                    {!deleting && (
+                                        <button onClick={resetDeleteModal} className="p-1.5 rounded-lg text-text-muted hover:text-text-body hover:bg-white/5 cursor-pointer">
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {deleteError && (
+                                    <div className="flex items-center gap-2 p-3 rounded-xl text-sm mb-4 bg-red-500/10 border border-red-500/20 text-red-400">
+                                        <XCircle className="w-4 h-4 shrink-0" />
+                                        {deleteError}
+                                    </div>
+                                )}
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-muted mb-2">Bevestig met je wachtwoord</label>
+                                        <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                                            className="w-full px-4 py-2.5 bg-glass-surface/50 border border-glass-border rounded-xl text-text-body focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                                            placeholder="Je wachtwoord" disabled={deleting} autoFocus />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-muted mb-2">
+                                            Type <span className="font-mono text-red-400 font-bold">VERWIJDEREN</span> ter bevestiging
+                                        </label>
+                                        <input type="text" value={confirmation} onChange={e => setConfirmation(e.target.value)}
+                                            className={`w-full px-4 py-2.5 bg-glass-surface/50 border rounded-xl text-text-body focus:outline-none focus:ring-2 focus:ring-red-500/50 ${confirmation && confirmation !== 'VERWIJDEREN' ? 'border-red-500/40'
+                                                    : confirmation === 'VERWIJDEREN' ? 'border-green-500/40' : 'border-glass-border'
+                                                }`} placeholder="VERWIJDEREN" disabled={deleting} />
+                                    </div>
+
+                                    {deleting && (
+                                        <div className="flex items-center gap-2 p-3 rounded-xl text-sm bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                                            <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                                            {deleteStep === 'convex' && 'Data opruimen...'}
+                                            {deleteStep === 'go' && 'Account verwijderen...'}
+                                        </div>
+                                    )}
+
+                                    <div className="flex gap-3 pt-2">
+                                        <button onClick={resetDeleteModal} disabled={deleting}
+                                            className="flex-1 px-4 py-2.5 rounded-xl text-text-muted hover:text-text-body hover:bg-white/5 border border-glass-border transition-colors cursor-pointer disabled:opacity-50">
+                                            Annuleren
+                                        </button>
+                                        <button onClick={handleDelete} disabled={!canConfirmDelete || deleting}
+                                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/80 text-white font-medium hover:bg-red-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                                            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                            Definitief Verwijderen
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
 
