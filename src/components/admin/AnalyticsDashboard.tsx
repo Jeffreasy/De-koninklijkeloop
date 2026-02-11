@@ -8,7 +8,7 @@ import {
 import {
     Activity, Eye, Users, TrendingUp, ArrowRight, ArrowUpRight, ArrowDownRight, Minus,
     MousePointerClick, PlayCircle, UserPlus, Globe,
-    Smartphone, Monitor, Tablet, RefreshCw, Download, Clock, BarChart3, Lock
+    Smartphone, Monitor, Tablet, RefreshCw, Download, Clock, BarChart3
 } from "lucide-react";
 import { apiRequest } from "../../lib/api";
 
@@ -79,6 +79,18 @@ interface GoTimeseries {
     views: number;
 }
 
+interface GoBounceRate {
+    bounce_rate: number;
+    total_sessions: number;
+    bounced_sessions: number;
+}
+
+interface GoSessionDuration {
+    avg_duration_seconds: number;
+    median_duration_seconds: number;
+    total_sessions: number;
+}
+
 // ─── Retry wrapper ───
 
 async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
@@ -101,6 +113,10 @@ function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
     const [pages, setPages] = useState<GoPage[]>([]);
     const [referrers, setReferrers] = useState<GoReferrer[]>([]);
     const [timeseries, setTimeseries] = useState<GoTimeseries[]>([]);
+    const [bounceRate, setBounceRate] = useState<GoBounceRate | null>(null);
+    const [prevBounceRate, setPrevBounceRate] = useState<GoBounceRate | null>(null);
+    const [sessionDuration, setSessionDuration] = useState<GoSessionDuration | null>(null);
+    const [prevSessionDuration, setPrevSessionDuration] = useState<GoSessionDuration | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -116,12 +132,16 @@ function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
             const params = `?from=${from}&to=${to}`;
             const prevParams = `?from=${prevFrom}&to=${prevTo}`;
 
-            const [dashRes, pagesRes, refRes, tsRes, prevDashRes] = await Promise.allSettled([
+            const [dashRes, pagesRes, refRes, tsRes, prevDashRes, brRes, prevBrRes, sdRes, prevSdRes] = await Promise.allSettled([
                 fetchWithRetry(() => apiRequest(`/v1/analytics/dashboard${params}`)),
                 fetchWithRetry(() => apiRequest(`/v1/analytics/pages${params}`)),
                 fetchWithRetry(() => apiRequest(`/v1/analytics/referrers${params}`)),
                 fetchWithRetry(() => apiRequest(`/v1/analytics/timeseries${params}`)),
                 fetchWithRetry(() => apiRequest(`/v1/analytics/dashboard${prevParams}`)),
+                fetchWithRetry(() => apiRequest(`/v1/analytics/bounce-rate${params}`)),
+                fetchWithRetry(() => apiRequest(`/v1/analytics/bounce-rate${prevParams}`)),
+                fetchWithRetry(() => apiRequest(`/v1/analytics/session-duration${params}`)),
+                fetchWithRetry(() => apiRequest(`/v1/analytics/session-duration${prevParams}`)),
             ]);
 
             if (dashRes.status === 'fulfilled') setDashboard(dashRes.value);
@@ -129,6 +149,10 @@ function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
             if (refRes.status === 'fulfilled') setReferrers(refRes.value || []);
             if (tsRes.status === 'fulfilled') setTimeseries(tsRes.value || []);
             if (prevDashRes.status === 'fulfilled') setPrevDashboard(prevDashRes.value);
+            if (brRes.status === 'fulfilled') setBounceRate(brRes.value);
+            if (prevBrRes.status === 'fulfilled') setPrevBounceRate(prevBrRes.value);
+            if (sdRes.status === 'fulfilled') setSessionDuration(sdRes.value);
+            if (prevSdRes.status === 'fulfilled') setPrevSessionDuration(prevSdRes.value);
         } catch (err: any) {
             setError(err.message || 'Failed to fetch analytics');
         } finally {
@@ -143,7 +167,7 @@ function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
         return () => clearInterval(interval);
     }, [fetchData]);
 
-    return { dashboard, prevDashboard, pages, referrers, timeseries, loading, error, refetch: fetchData };
+    return { dashboard, prevDashboard, pages, referrers, timeseries, bounceRate, prevBounceRate, sessionDuration, prevSessionDuration, loading, error, refetch: fetchData };
 }
 
 // ─── CSV Export ───
@@ -188,6 +212,13 @@ function calcTrend(current: number, previous: number): { pct: number; direction:
     return { pct: 0, direction: "flat" };
 }
 
+function formatDuration(seconds: number): string {
+    if (seconds < 60) return `${Math.round(seconds)}s`;
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.round(seconds % 60);
+    return `${mins}m ${secs.toString().padStart(2, "0")}s`;
+}
+
 // ─── User Journey Flow Data ───
 
 function buildFlowData(pages: GoPage[], referrers: GoReferrer[]) {
@@ -223,7 +254,7 @@ function buildFlowData(pages: GoPage[], referrers: GoReferrer[]) {
 export default function AnalyticsDashboard() {
     const [period, setPeriod] = useState<typeof PERIOD_OPTIONS[number]>(PERIOD_OPTIONS[1]);
 
-    const { dashboard, prevDashboard, pages, referrers, timeseries, loading, error, refetch } = useGoAnalytics(period);
+    const { dashboard, prevDashboard, pages, referrers, timeseries, bounceRate, prevBounceRate, sessionDuration, prevSessionDuration, loading, error, refetch } = useGoAnalytics(period);
 
     // Convex data (live feed only)
     const recentEvents = useQuery(api.analytics.getRecentEvents, { limit: 15 });
@@ -338,7 +369,7 @@ export default function AnalyticsDashboard() {
                 </div>
             )}
 
-            {/* ═══════ KPI Hero Cards (6 cards: 4 active + 2 coming soon) ═══════ */}
+            {/* ═══════ KPI Hero Cards (6 active cards) ═══════ */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 md:gap-4">
                 <KPICard
                     icon={<Eye className="w-4 h-4" />}
@@ -372,15 +403,21 @@ export default function AnalyticsDashboard() {
                     loading={loading}
                     trend={prevDashboard ? calcTrend(totalEvents, prevTotalEvents) : undefined}
                 />
-                <ComingSoonKPI
+                <KPICard
                     icon={<BarChart3 className="w-4 h-4" />}
                     label="Bounce Rate"
-                    tooltip="Vereist backend uitbreiding"
+                    value={bounceRate ? `${bounceRate.bounce_rate}%` : '—'}
+                    accent="#EF4444"
+                    loading={loading}
+                    trend={prevBounceRate && bounceRate ? calcTrend(bounceRate.bounce_rate, prevBounceRate.bounce_rate) : undefined}
                 />
-                <ComingSoonKPI
+                <KPICard
                     icon={<Clock className="w-4 h-4" />}
                     label="Sessieduur"
-                    tooltip="Vereist backend uitbreiding"
+                    value={sessionDuration ? formatDuration(sessionDuration.avg_duration_seconds) : '—'}
+                    accent="#8B5CF6"
+                    loading={loading}
+                    trend={prevSessionDuration && sessionDuration ? calcTrend(sessionDuration.avg_duration_seconds, prevSessionDuration.avg_duration_seconds) : undefined}
                 />
             </div>
 
@@ -758,8 +795,8 @@ function TrendBadge({ trend }: { trend: { pct: number; direction: "up" | "down" 
     const isUp = trend.direction === "up";
     return (
         <div className={`flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full ${isUp
-                ? "text-green-400 bg-green-500/10 border border-green-500/20"
-                : "text-red-400 bg-red-500/10 border border-red-500/20"
+            ? "text-green-400 bg-green-500/10 border border-green-500/20"
+            : "text-red-400 bg-red-500/10 border border-red-500/20"
             }`}>
             {isUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
             <span>{trend.pct}%</span>
