@@ -156,7 +156,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                     {/* Timeline */}
                     <div className="relative space-y-0">
                         {/* Timeline Spine */}
-                        <div className="absolute left-[2.25rem] md:left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-glass-border to-transparent md:-translate-x-px pointer-events-none" />
+                        <div className="absolute left-9 md:left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-glass-border to-transparent md:-translate-x-px pointer-events-none" />
 
                         {!schedule ? (
                             [1, 2, 3, 4].map(i => (
