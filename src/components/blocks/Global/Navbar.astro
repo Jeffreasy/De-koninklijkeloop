@@ -350,7 +350,7 @@ const isActive = (href: string) => {
         const link = (e.target as HTMLElement).closest("[data-donate-source]");
         if (!link) return;
         const source = link.getAttribute("data-donate-source") || "unknown";
-        import("../../lib/analytics").then(({ trackDonationIntent }) => {
+        import("../../../lib/analytics").then(({ trackDonationIntent }) => {
             trackDonationIntent(source);
         });
     });
