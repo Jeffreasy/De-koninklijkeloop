@@ -3,7 +3,6 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
     AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
-    Sankey as RechartsSankey, Layer, Rectangle,
 } from "recharts";
 import {
     Activity, Eye, Users, TrendingUp, ArrowRight, ArrowUpRight, ArrowDownRight, Minus,
@@ -219,35 +218,7 @@ function formatDuration(seconds: number): string {
     return `${mins}m ${secs.toString().padStart(2, "0")}s`;
 }
 
-// ─── User Journey Flow Data ───
 
-function buildFlowData(pages: GoPage[], referrers: GoReferrer[]) {
-    // Build top 5 entry→page flows from referrers x pages
-    const sources = referrers.slice(0, 4).map((r) => r.referrer || "Direct");
-    const destinations = pages.slice(0, 5).map((p) => PAGE_LABELS[p.path] || p.path);
-
-    const allNames = [...new Set([...sources, ...destinations])];
-    const nodes = allNames.map((name) => ({ name }));
-
-    const links: { source: number; target: number; value: number }[] = [];
-
-    sources.forEach((src, si) => {
-        const srcIdx = allNames.indexOf(src);
-        destinations.forEach((dest, di) => {
-            const destIdx = allNames.indexOf(dest);
-            if (srcIdx !== destIdx) {
-                // Approximate flow value based on position weight
-                const value = Math.max(1, Math.round(
-                    (referrers[si]?.count || 1) * (pages[di]?.views || 1) /
-                    ((referrers[0]?.count || 1) * (pages[0]?.views || 1)) * 100
-                ));
-                links.push({ source: srcIdx, target: destIdx, value });
-            }
-        });
-    });
-
-    return { nodes, links };
-}
 
 // ─── Main Component ───
 
@@ -311,10 +282,7 @@ export default function AnalyticsDashboard() {
         return Object.values(prevDashboard.events_by_type).reduce((s, c) => s + c, 0);
     }, [prevDashboard]);
 
-    const flowData = useMemo(() => {
-        if (pages.length < 2 || referrers.length < 1) return null;
-        return buildFlowData(pages, referrers);
-    }, [pages, referrers]);
+
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500 pb-12">
@@ -590,28 +558,122 @@ export default function AnalyticsDashboard() {
             </div>
 
             {/* ═══════ User Journey Flow ═══════ */}
-            {!loading && flowData && flowData.links.length > 0 && (
+            {!loading && referrers.length > 0 && pages.length >= 2 && (
                 <div className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-6 shadow-xl">
                     <div className="absolute top-0 left-0 w-48 h-48 bg-teal-500/10 blur-3xl rounded-full -ml-10 -mt-10 pointer-events-none" />
+                    <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/10 blur-3xl rounded-full -mr-16 -mb-16 pointer-events-none" />
                     <div className="relative z-10">
-                        <div className="flex items-center gap-2 mb-5">
-                            <ArrowRight className="w-5 h-5 text-teal-600" />
-                            <span className="text-sm font-bold text-text-primary">Bezoekersstromen</span>
-                            <span className="text-[10px] text-text-muted ml-1">(Bron → Pagina)</span>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <div className="min-w-[600px]">
-                                <ResponsiveContainer width="100%" height={250}>
-                                    <RechartsSankey
-                                        data={flowData}
-                                        node={<SankeyNode />}
-                                        link={{ stroke: "#3B82F650", strokeWidth: 2 }}
-                                        nodePadding={30}
-                                        nodeWidth={10}
-                                        margin={{ top: 10, right: 100, bottom: 10, left: 100 }}
-                                    />
-                                </ResponsiveContainer>
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-600">
+                                    <ArrowRight className="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <span className="text-sm font-bold text-text-primary">Bezoekersstromen</span>
+                                    <p className="text-[10px] text-text-muted">Top verkeersbronnen → bestemmingspagina's</p>
+                                </div>
                             </div>
+                            <div className="text-[10px] font-mono text-text-muted bg-glass-border/20 px-2.5 py-1 rounded-full">
+                                {referrers.slice(0, 4).length} bronnen → {pages.slice(0, 5).length} pagina's
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Sources Column */}
+                            <div>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Globe className="w-3.5 h-3.5 text-text-muted" />
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Verkeersbronnen</span>
+                                </div>
+                                <div className="space-y-2">
+                                    {referrers.slice(0, 5).map((ref, i) => {
+                                        const maxCount = referrers[0]?.count || 1;
+                                        const pct = Math.round((ref.count / maxCount) * 100);
+                                        return (
+                                            <div key={ref.referrer || `direct-${i}`} className="group/flow">
+                                                <div className="flex items-center gap-3 p-2.5 rounded-xl bg-glass-border/10 hover:bg-glass-border/20 transition-all duration-200">
+                                                    <div className="w-7 h-7 rounded-lg bg-teal-500/10 border border-teal-500/15 flex items-center justify-center text-teal-600 flex-shrink-0">
+                                                        <Globe className="w-3.5 h-3.5" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center justify-between mb-1">
+                                                            <span className="text-xs font-medium text-text-primary truncate">
+                                                                {ref.referrer || "Direct"}
+                                                            </span>
+                                                            <span className="text-[10px] font-mono text-text-muted ml-2 flex-shrink-0">{ref.count}</span>
+                                                        </div>
+                                                        <div className="h-1 w-full bg-glass-border/20 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full rounded-full bg-gradient-to-r from-teal-500 to-teal-400 transition-all duration-700"
+                                                                style={{ width: `${pct}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-[10px] font-mono font-bold text-teal-600 w-8 text-right flex-shrink-0">{pct}%</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Destinations Column */}
+                            <div>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Eye className="w-3.5 h-3.5 text-text-muted" />
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Bestemmingen</span>
+                                </div>
+                                <div className="space-y-2">
+                                    {pages.slice(0, 5).map((page, i) => {
+                                        const maxViews = pages[0]?.views || 1;
+                                        const pct = Math.round((page.views / maxViews) * 100);
+                                        return (
+                                            <div key={page.path} className="group/flow">
+                                                <div className="flex items-center gap-3 p-2.5 rounded-xl bg-glass-border/10 hover:bg-glass-border/20 transition-all duration-200">
+                                                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/15 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                                        <Eye className="w-3.5 h-3.5" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center justify-between mb-1">
+                                                            <span className="text-xs font-medium text-text-primary truncate">
+                                                                {PAGE_LABELS[page.path] || page.path}
+                                                            </span>
+                                                            <span className="text-[10px] font-mono text-text-muted ml-2 flex-shrink-0">{page.views}</span>
+                                                        </div>
+                                                        <div className="h-1 w-full bg-glass-border/20 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-700"
+                                                                style={{ width: `${pct}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-[10px] font-mono font-bold text-blue-600 w-8 text-right flex-shrink-0">{pct}%</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Flow Summary */}
+                        <div className="mt-5 pt-4 border-t border-glass-border/40 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-2 h-2 rounded-full bg-teal-500" />
+                                    <span className="text-[10px] text-text-muted">Bronnen</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <ArrowRight className="w-3 h-3 text-text-muted/50" />
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                    <span className="text-[10px] text-text-muted">Bestemmingen</span>
+                                </div>
+                            </div>
+                            <span className="text-[10px] font-mono text-text-muted">
+                                {referrers.reduce((s, r) => s + r.count, 0)} totaal bezoeken
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -830,33 +892,8 @@ function ComingSoonKPI({ icon, label, tooltip }: {
     );
 }
 
-function SankeyNode({ x, y, width, height, payload }: any) {
-    return (
-        <g>
-            <Rectangle
-                x={x}
-                y={y}
-                width={width}
-                height={height}
-                fill="#3B82F6"
-                fillOpacity={0.6}
-                rx={4}
-                ry={4}
-            />
-            <text
-                x={x < 300 ? x - 6 : x + width + 6}
-                y={y + height / 2}
-                textAnchor={x < 300 ? "end" : "start"}
-                dominantBaseline="middle"
-                fill="var(--text-secondary, #e2e8f0)"
-                fontSize={11}
-                fontWeight={500}
-            >
-                {payload?.name || ""}
-            </text>
-        </g>
-    );
-}
+
+
 
 function SkeletonRows({ count }: { count: number }) {
     return (
