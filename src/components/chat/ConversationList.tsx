@@ -30,7 +30,7 @@ export function ConversationList({
     const allTeamMembers = [...onlineUsers, ...offlineUsers];
 
     return (
-        <div className="flex-1 overflow-y-auto p-3 space-y-5 scrollbar-thin scrollbar-thumb-white/10 overscroll-contain">
+        <div className="flex-1 overflow-y-auto p-3 space-y-5 scrollbar-thin scrollbar-thumb-glass-border overscroll-contain">
             {/* Group Chats */}
             {groupConversations.length > 0 && (
                 <div className="space-y-1.5">
@@ -43,13 +43,13 @@ export function ConversationList({
                         <button
                             key={group._id}
                             onClick={() => onOpenGroup(group)}
-                            className="w-full flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-left transition-colors group/item cursor-pointer touch-action-manipulation"
+                            className="w-full flex items-center gap-3 p-3 hover:bg-glass-surface/50 rounded-xl text-left transition-colors group/item cursor-pointer touch-action-manipulation"
                         >
-                            <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center text-lg border border-white/10">
+                            <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center text-lg border border-glass-border">
                                 {group.avatarEmoji || '👥'}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="text-sm font-bold text-white truncate">{group.name}</div>
+                                <div className="text-sm font-bold text-text-primary truncate">{group.name}</div>
                                 {group.lastMessagePreview && (
                                     <div className="text-xs text-text-muted truncate">{group.lastMessagePreview}</div>
                                 )}
@@ -65,14 +65,14 @@ export function ConversationList({
                     <h4 className="text-xs font-bold text-text-muted uppercase tracking-wider">
                         Online ({onlineUsers.length})
                     </h4>
-                    <button onClick={onCreateGroup} className="p-1.5 rounded-md hover:bg-white/10 text-text-muted hover:text-white transition-colors cursor-pointer touch-action-manipulation" title="Nieuwe groep">
+                    <button onClick={onCreateGroup} className="p-1.5 rounded-md hover:bg-glass-surface text-text-muted hover:text-text-primary transition-colors cursor-pointer touch-action-manipulation" title="Nieuwe groep">
                         <Plus className="w-3.5 h-3.5" />
                     </button>
                 </div>
 
                 {onlineUsers.length === 0 ? (
-                    <div className="p-5 text-center border-2 border-dashed border-white/5 rounded-2xl bg-white/5">
-                        <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-2 text-text-muted">
+                    <div className="p-5 text-center border-2 border-dashed border-glass-border/30 rounded-2xl bg-glass-surface/30">
+                        <div className="w-10 h-10 bg-glass-surface/50 rounded-full flex items-center justify-center mx-auto mb-2 text-text-muted">
                             <MessageSquare className="w-5 h-5 opacity-50" />
                         </div>
                         <p className="text-xs text-text-muted">Niemand anders online</p>
@@ -124,13 +124,13 @@ export function ConversationList({
                             <button
                                 key={conv.otherUser}
                                 onClick={() => onOpenDm({ id: conv.otherUser, name: conv.otherUser })}
-                                className="w-full flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-left transition-colors"
+                                className="w-full flex items-center gap-3 p-3 hover:bg-glass-surface/50 rounded-xl text-left transition-colors cursor-pointer"
                             >
-                                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white text-sm font-bold">
+                                <div className="w-10 h-10 rounded-full bg-glass-surface flex items-center justify-center text-text-primary text-sm font-bold">
                                     {conv.otherUser.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-bold text-white truncate">{conv.otherUser}</div>
+                                    <div className="text-sm font-bold text-text-primary truncate">{conv.otherUser}</div>
                                     <div className="text-xs text-text-muted truncate">{conv.lastMessage}</div>
                                 </div>
                             </button>
@@ -150,13 +150,13 @@ const UserListItem = memo(function UserListItem({ user, unreadCount, onClick, is
     return (
         <button
             onClick={onClick}
-            className="w-full flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl text-left transition-colors border border-transparent hover:border-white/5 group/item relative overflow-hidden cursor-pointer touch-action-manipulation"
+            className="w-full flex items-center gap-3 p-3 hover:bg-glass-surface/50 rounded-xl text-left transition-colors border border-transparent hover:border-glass-border/50 group/item relative overflow-hidden cursor-pointer touch-action-manipulation"
         >
             <div className="absolute inset-0 bg-brand-orange/5 opacity-0 group-hover/item:opacity-100 transition-opacity" />
             <div className="relative">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg border border-white/10 ${isOnline
-                    ? 'bg-linear-to-br from-brand-orange to-orange-600 shadow-brand-orange/20'
-                    : 'bg-white/10'
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-lg border border-glass-border ${isOnline
+                    ? 'bg-linear-to-br from-brand-orange to-orange-600 shadow-brand-orange/20 text-white'
+                    : 'bg-glass-surface text-text-primary'
                     }`}>
                     {user.name.charAt(0).toUpperCase()}
                 </div>
@@ -166,11 +166,11 @@ const UserListItem = memo(function UserListItem({ user, unreadCount, onClick, is
             <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center mb-0.5">
                     <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-bold text-white truncate">{user.name}</span>
+                        <span className="text-sm font-bold text-text-primary truncate">{user.name}</span>
                         {user.role && (
                             <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide ${user.role === 'admin'
-                                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                                : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                ? 'bg-red-500/20 text-red-600 border border-red-500/30'
+                                : 'bg-blue-500/20 text-blue-600 border border-blue-500/30'
                                 }`}>
                                 {user.role}
                             </span>

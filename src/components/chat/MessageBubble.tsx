@@ -31,7 +31,7 @@ export const MessageBubble = memo(function MessageBubble({ message, isMe, curren
     if ('type' in message && message.type === "system") {
         return (
             <div className="text-center py-2">
-                <span className="text-[10px] text-text-muted bg-white/5 px-3 py-1 rounded-full">{message.content}</span>
+                <span className="text-[10px] text-text-muted bg-glass-surface/50 px-3 py-1 rounded-full">{message.content}</span>
             </div>
         );
     }
@@ -51,7 +51,7 @@ export const MessageBubble = memo(function MessageBubble({ message, isMe, curren
             <div className="relative max-w-[85%]">
                 <div className={`p-3 md:p-3.5 rounded-2xl text-sm shadow-sm ${isMe
                     ? 'bg-brand-orange text-white rounded-tr-sm'
-                    : 'bg-white/10 text-text-body rounded-tl-sm border border-white/5'
+                    : 'bg-glass-surface/50 text-text-body rounded-tl-sm border border-glass-border/50'
                     }`}>
                     {showSenderName && !isMe && groupMsg && (
                         <div className="text-[10px] font-bold text-brand-orange mb-1">{groupMsg.senderName}</div>
@@ -73,7 +73,7 @@ export const MessageBubble = memo(function MessageBubble({ message, isMe, curren
                             <button
                                 key={emoji}
                                 onClick={() => { onReact(emoji); setShowReactions(false); }}
-                                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-base cursor-pointer touch-action-manipulation active:scale-90"
+                                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-glass-surface transition-colors text-base cursor-pointer touch-action-manipulation active:scale-90"
                             >
                                 {emoji}
                             </button>

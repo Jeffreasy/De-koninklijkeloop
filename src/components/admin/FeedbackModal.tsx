@@ -93,7 +93,7 @@ function FeedbackModalContent() {
             {/* Floating Trigger Button */}
             <motion.button
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-brand-orange text-white shadow-lg shadow-brand-orange/30 hover:shadow-brand-orange/50 hover:scale-105 transition-all duration-300 group"
+                className="fixed bottom-6 right-6 z-40 p-4 rounded-full bg-brand-orange text-white shadow-lg shadow-brand-orange/30 hover:shadow-brand-orange/50 hover:scale-105 transition-all duration-300 group cursor-pointer"
                 whileHover={{ rotate: 15 }}
                 whileTap={{ scale: 0.9 }}
             >
@@ -142,15 +142,15 @@ function FeedbackModalContent() {
                             </AnimatePresence>
 
                             {/* Header */}
-                            <div className="relative p-6 border-b border-white/5 flex items-center justify-between bg-white/5">
+                            <div className="relative p-6 border-b border-glass-border flex items-center justify-between bg-glass-surface/50">
                                 <div className="absolute inset-0 bg-linear-to-r from-brand-orange/5 to-transparent pointer-events-none" />
                                 <div className="relative">
-                                    <h3 className="font-bold font-display text-xl text-white tracking-tight">Feedback & Ideeën</h3>
+                                    <h3 className="font-bold font-display text-xl text-text-primary tracking-tight">Feedback & Ideeën</h3>
                                     <p className="text-xs text-text-muted mt-0.5 font-medium">Help ons het platform te verbeteren 🚀</p>
                                 </div>
                                 <button
                                     onClick={() => setIsOpen(false)}
-                                    className="relative p-2 rounded-xl hover:bg-white/10 text-text-muted hover:text-white transition-all duration-300 group"
+                                    className="relative p-2 rounded-xl hover:bg-glass-surface text-text-muted hover:text-text-primary transition-all duration-300 group cursor-pointer"
                                 >
                                     <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
                                 </button>
@@ -171,9 +171,9 @@ function FeedbackModalContent() {
                                                 key={t.id}
                                                 type="button"
                                                 onClick={() => setType(t.id)}
-                                                className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all duration-300 overflow-hidden group ${type === t.id
-                                                        ? `${t.bg} ${t.border} shadow-lg ring-1 ring-inset ring-white/10`
-                                                        : 'bg-white/5 border-white/5 text-text-muted hover:bg-white/10 hover:border-white/10'
+                                                className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all duration-300 overflow-hidden group cursor-pointer ${type === t.id
+                                                    ? `${t.bg} ${t.border} shadow-lg ring-1 ring-inset ring-glass-border/30`
+                                                    : 'bg-glass-surface/30 border-glass-border text-text-muted hover:bg-glass-surface/50 hover:border-glass-border'
                                                     }`}
                                             >
                                                 {type === t.id && (
@@ -182,10 +182,10 @@ function FeedbackModalContent() {
                                                         className={`absolute inset-0 ${t.bg} opacity-20`}
                                                     />
                                                 )}
-                                                <div className={`p-2 rounded-xl bg-black/20 backdrop-blur-sm ${type === t.id ? t.color : 'text-text-muted group-hover:text-text-body'} transition-colors`}>
+                                                <div className={`p-2 rounded-xl bg-glass-surface/30 backdrop-blur-sm ${type === t.id ? t.color : 'text-text-muted group-hover:text-text-body'} transition-colors`}>
                                                     <t.icon className="w-5 h-5" />
                                                 </div>
-                                                <span className={`text-xs font-bold ${type === t.id ? 'text-white' : 'text-text-muted group-hover:text-text-body'} transition-colors`}>
+                                                <span className={`text-xs font-bold ${type === t.id ? 'text-text-primary' : 'text-text-muted group-hover:text-text-body'} transition-colors`}>
                                                     {t.label}
                                                 </span>
                                             </button>
@@ -201,7 +201,7 @@ function FeedbackModalContent() {
                                             value={message}
                                             onChange={(e) => setMessage(e.target.value)}
                                             placeholder="Beschrijf duidelijk wat je bent tegengekomen of wat je graag zou willen zien..."
-                                            className="w-full h-32 px-4 py-3 rounded-2xl bg-black/20 border border-white/10 text-text-body placeholder:text-text-muted/40 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 resize-none transition-all text-sm leading-relaxed"
+                                            className="w-full h-32 px-4 py-3 rounded-2xl bg-glass-surface/30 border border-glass-border text-text-body placeholder:text-text-muted/40 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 resize-none transition-all text-sm leading-relaxed"
                                             required
                                             autoFocus
                                         />
@@ -218,7 +218,7 @@ function FeedbackModalContent() {
                                         <button
                                             type="button"
                                             onClick={() => setIsOpen(false)}
-                                            className="px-4 py-2.5 text-sm font-medium text-text-muted hover:text-white transition-colors"
+                                            className="px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-primary transition-colors cursor-pointer"
                                         >
                                             Annuleren
                                         </button>

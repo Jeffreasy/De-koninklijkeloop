@@ -8,7 +8,7 @@ import {
 import {
     Activity, Eye, Users, TrendingUp, ArrowRight, ArrowUpRight, ArrowDownRight, Minus,
     MousePointerClick, PlayCircle, UserPlus, Globe,
-    Smartphone, Monitor, Tablet, RefreshCw, Download, Clock, BarChart3
+    Smartphone, Monitor, Tablet, RefreshCw, Download, Clock, BarChart3, Lock
 } from "lucide-react";
 import { apiRequest } from "../../lib/api";
 
@@ -364,7 +364,7 @@ export default function AnalyticsDashboard() {
 
             {/* Error banner */}
             {error && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-sm text-red-400">
+                <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-sm text-red-600">
                     ⚠️ Go backend niet bereikbaar: {error}. Live feed via Convex werkt nog wel.
                 </div>
             )}
@@ -458,11 +458,11 @@ export default function AnalyticsDashboard() {
                                     />
                                     <Tooltip
                                         contentStyle={{
-                                            background: "rgba(15, 23, 42, 0.9)",
-                                            border: "1px solid rgba(255,255,255,0.1)",
+                                            background: "var(--color-surface, rgba(15, 23, 42, 0.9))",
+                                            border: "1px solid var(--color-glass-border, rgba(255,255,255,0.1))",
                                             borderRadius: "12px",
                                             fontSize: "12px",
-                                            color: "#F8FAFC",
+                                            color: "var(--color-text-primary, #F8FAFC)",
                                         }}
                                     />
                                     <Area
@@ -526,7 +526,7 @@ export default function AnalyticsDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
 
                 {/* Top Pages (Go Backend) */}
-                <GlassCard icon={<Eye className="w-5 h-5 text-blue-400" />} title="Top Pagina's" accentColor="#3B82F6">
+                <GlassCard icon={<Eye className="w-5 h-5 text-blue-600" />} title="Top Pagina's" accentColor="#3B82F6">
                     {loading ? <SkeletonRows count={5} /> : topPagesData.length === 0 ? (
                         <EmptyState text="Nog geen pageview data" />
                     ) : (
@@ -555,7 +555,7 @@ export default function AnalyticsDashboard() {
                 </GlassCard>
 
                 {/* Referrers (Go Backend — server-side data) */}
-                <GlassCard icon={<Globe className="w-5 h-5 text-emerald-400" />} title="Verkeersbronnen" accentColor="#10B981">
+                <GlassCard icon={<Globe className="w-5 h-5 text-emerald-600" />} title="Verkeersbronnen" accentColor="#10B981">
                     {loading ? <SkeletonRows count={5} /> : referrers.length === 0 ? (
                         <EmptyState text="Nog geen referrer data" />
                     ) : (
@@ -595,7 +595,7 @@ export default function AnalyticsDashboard() {
                     <div className="absolute top-0 left-0 w-48 h-48 bg-teal-500/10 blur-3xl rounded-full -ml-10 -mt-10 pointer-events-none" />
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-5">
-                            <ArrowRight className="w-5 h-5 text-teal-400" />
+                            <ArrowRight className="w-5 h-5 text-teal-600" />
                             <span className="text-sm font-bold text-text-primary">Bezoekersstromen</span>
                             <span className="text-[10px] text-text-muted ml-1">(Bron → Pagina)</span>
                         </div>
@@ -625,7 +625,7 @@ export default function AnalyticsDashboard() {
                     <div className="absolute bottom-0 right-0 w-48 h-48 bg-indigo-500/10 blur-3xl rounded-full -mr-10 -mb-10 pointer-events-none" />
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-5">
-                            <Smartphone className="w-5 h-5 text-indigo-400" />
+                            <Smartphone className="w-5 h-5 text-indigo-600" />
                             <span className="text-sm font-bold text-text-primary">Apparaten</span>
                         </div>
                         {loading ? <SkeletonRows count={3} /> : deviceData.length === 0 ? (
@@ -636,7 +636,7 @@ export default function AnalyticsDashboard() {
                                     const pct = Math.round((d.count / totalDevices) * 100);
                                     return (
                                         <div key={d.device_type} className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                            <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-600">
                                                 <DeviceIcon type={d.device_type} />
                                             </div>
                                             <div className="flex-1">
@@ -795,8 +795,8 @@ function TrendBadge({ trend }: { trend: { pct: number; direction: "up" | "down" 
     const isUp = trend.direction === "up";
     return (
         <div className={`flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full ${isUp
-            ? "text-green-400 bg-green-500/10 border border-green-500/20"
-            : "text-red-400 bg-red-500/10 border border-red-500/20"
+            ? "text-green-600 bg-green-500/10 border border-green-500/20"
+            : "text-red-600 bg-red-500/10 border border-red-500/20"
             }`}>
             {isUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
             <span>{trend.pct}%</span>

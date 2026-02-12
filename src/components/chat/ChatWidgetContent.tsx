@@ -111,16 +111,16 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
     return (
         <div className="fixed inset-0 md:inset-auto md:bottom-4 md:right-4 lg:bottom-24 lg:right-6 md:w-[380px] md:h-[70vh] lg:h-[600px] bg-surface/95 backdrop-blur-xl border-0 md:border md:border-glass-border rounded-none md:rounded-2xl shadow-2xl flex flex-col overflow-hidden z-50 animate-in slide-in-from-bottom-5 zoom-in-95 duration-300 motion-reduce:animate-none origin-bottom-right overscroll-contain pb-[env(safe-area-inset-bottom)]">
             {/* Header */}
-            <div className="p-4 border-b border-glass-border bg-white/5 flex justify-between items-center relative overflow-hidden shrink-0">
+            <div className="p-4 border-b border-glass-border bg-glass-surface/50 flex justify-between items-center relative overflow-hidden shrink-0">
                 <div className="absolute inset-0 bg-linear-to-r from-brand-orange/10 to-transparent pointer-events-none" />
                 <div className="relative z-10 flex items-center gap-3">
                     {chatView !== 'list' && (
-                        <button onClick={goBack} className="p-1.5 -ml-1 rounded-lg hover:bg-white/10 text-text-muted hover:text-white transition-colors">
+                        <button onClick={goBack} className="p-1.5 -ml-1 rounded-lg hover:bg-glass-surface text-text-muted hover:text-text-primary transition-colors cursor-pointer">
                             <ArrowLeft className="w-5 h-5" />
                         </button>
                     )}
                     <div>
-                        <h3 className="font-bold text-lg text-white font-display tracking-tight flex items-center gap-2">
+                        <h3 className="font-bold text-lg text-text-primary font-display tracking-tight flex items-center gap-2">
                             {chatView === 'list' && 'Berichten'}
                             {chatView === 'dm' && activeDmUser?.name}
                             {chatView === 'group' && activeGroup?.name}
@@ -143,13 +143,13 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
                         )}
                     </div>
                 </div>
-                <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-xl text-text-muted hover:text-white transition-colors relative z-10">
+                <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-glass-surface rounded-xl text-text-muted hover:text-text-primary transition-colors relative z-10 cursor-pointer">
                     <X className="w-5 h-5" />
                 </button>
             </div>
 
             {/* Content */}
-            <div className="flex-1 flex overflow-hidden bg-black/20">
+            <div className="flex-1 flex overflow-hidden bg-glass-surface/30">
                 {chatView === 'list' && (
                     <ConversationList
                         currentUser={currentUser}

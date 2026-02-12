@@ -76,7 +76,7 @@ export function DirectMessageView({ currentUser, otherUser }: DirectMessageViewP
 
     return (
         <div className="flex-1 flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent overscroll-contain" ref={scrollRef}>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-glass-border scrollbar-track-transparent overscroll-contain" ref={scrollRef}>
                 {messageList.map((msg) => (
                     <MessageBubble
                         key={msg._id}
@@ -88,7 +88,7 @@ export function DirectMessageView({ currentUser, otherUser }: DirectMessageViewP
                 ))}
                 {isOtherTyping && (
                     <div className="flex justify-start">
-                        <div className="bg-white/10 rounded-2xl rounded-tl-sm px-4 py-3 border border-white/5">
+                        <div className="bg-glass-surface/50 rounded-2xl rounded-tl-sm px-4 py-3 border border-glass-border/50">
                             <TypingDots />
                         </div>
                     </div>

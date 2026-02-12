@@ -246,12 +246,12 @@ export default function ParticipantsTable() {
             {/* Stats Cards - Premium Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 {[
-                    { label: "Totaal", value: stats.total, color: "text-white", bg: "bg-white/5", border: "border-white/10" },
+                    { label: "Totaal", value: stats.total, color: "text-text-primary", bg: "bg-glass-surface/50", border: "border-glass-border" },
                     { label: "Deelnemers", value: stats.deelnemers, color: "text-brand-orange", bg: "bg-brand-orange/5", border: "border-brand-orange/20" },
-                    { label: "Begeleiders", value: stats.begeleiders, color: "text-blue-400", bg: "bg-blue-500/5", border: "border-blue-500/20" },
-                    { label: "Vrijwilligers", value: stats.vrijwilligers, color: "text-green-400", bg: "bg-green-500/5", border: "border-green-500/20" },
-                    { label: "Accounts", value: stats.authenticated, color: "text-purple-300", bg: "bg-purple-500/5", border: "border-purple-500/20", icon: ShieldCheck },
-                    { label: "Gasten", value: stats.guests, color: "text-pink-300", bg: "bg-pink-500/5", border: "border-pink-500/20", icon: User }
+                    { label: "Begeleiders", value: stats.begeleiders, color: "text-blue-600", bg: "bg-blue-500/5", border: "border-blue-500/20" },
+                    { label: "Vrijwilligers", value: stats.vrijwilligers, color: "text-green-600", bg: "bg-green-500/5", border: "border-green-500/20" },
+                    { label: "Accounts", value: stats.authenticated, color: "text-purple-600", bg: "bg-purple-500/5", border: "border-purple-500/20", icon: ShieldCheck },
+                    { label: "Gasten", value: stats.guests, color: "text-pink-600", bg: "bg-pink-500/5", border: "border-pink-500/20", icon: User }
                 ].map((stat, idx) => (
                     <motion.div
                         key={stat.label}
@@ -307,7 +307,7 @@ export default function ParticipantsTable() {
                                 <button
                                     onClick={handleImport2025}
                                     disabled={isImporting}
-                                    className="px-3 py-2 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-xs font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+                                    className="px-3 py-2 rounded-xl bg-purple-500/10 text-purple-600 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-xs font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
                                 >
                                     <Archive className="w-3.5 h-3.5" />
                                     {isImporting ? "Bezig..." : "Importeer"}
@@ -320,9 +320,9 @@ export default function ParticipantsTable() {
                                 onChange={(e) => setUserTypeFilter(e.target.value as UserType)}
                                 className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
                             >
-                                <option value="all" className="bg-slate-900">Alle types</option>
-                                <option value="authenticated" className="bg-slate-900">Accounts</option>
-                                <option value="guest" className="bg-slate-900">Gasten</option>
+                                <option value="all" className="bg-surface">Alle types</option>
+                                <option value="authenticated" className="bg-surface">Accounts</option>
+                                <option value="guest" className="bg-surface">Gasten</option>
                             </select>
 
                             <select
@@ -330,10 +330,10 @@ export default function ParticipantsTable() {
                                 onChange={(e) => setRoleFilter(e.target.value as Role)}
                                 className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
                             >
-                                <option value="all" className="bg-slate-900">Alle rollen</option>
-                                <option value="deelnemer" className="bg-slate-900">Deelnemer</option>
-                                <option value="begeleider" className="bg-slate-900">Begeleider</option>
-                                <option value="vrijwilliger" className="bg-slate-900">Vrijwilliger</option>
+                                <option value="all" className="bg-surface">Alle rollen</option>
+                                <option value="deelnemer" className="bg-surface">Deelnemer</option>
+                                <option value="begeleider" className="bg-surface">Begeleider</option>
+                                <option value="vrijwilliger" className="bg-surface">Vrijwilliger</option>
                             </select>
 
                             <select
@@ -341,10 +341,10 @@ export default function ParticipantsTable() {
                                 onChange={(e) => setStatusFilter(e.target.value as Status)}
                                 className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
                             >
-                                <option value="all" className="bg-slate-900">Alle statussen</option>
-                                <option value="paid" className="bg-slate-900">Geaccepteerd</option>
-                                <option value="pending" className="bg-slate-900">In behandeling</option>
-                                <option value="cancelled" className="bg-slate-900">Geannuleerd</option>
+                                <option value="all" className="bg-surface">Alle statussen</option>
+                                <option value="paid" className="bg-surface">Geaccepteerd</option>
+                                <option value="pending" className="bg-surface">In behandeling</option>
+                                <option value="cancelled" className="bg-surface">Geannuleerd</option>
                             </select>
                         </div>
                     </div>
@@ -429,7 +429,7 @@ export default function ParticipantsTable() {
                                                                 </div>
                                                                 <div className="text-xs text-text-muted flex items-center gap-2 mt-1">
                                                                     <span className={`capitalize px-2 py-0.5 rounded-md bg-glass-surface/50 ${reg.role === "deelnemer" ? "text-brand-orange bg-brand-orange/5" :
-                                                                        reg.role === "begeleider" ? "text-blue-400 bg-blue-500/5" : "text-green-400 bg-green-500/5"
+                                                                        reg.role === "begeleider" ? "text-blue-600 bg-blue-500/5" : "text-green-600 bg-green-500/5"
                                                                         }`}>{reg.role}</span>
                                                                     <span className="font-mono opacity-40">#{reg._id.slice(-6)}</span>
                                                                 </div>
@@ -454,9 +454,9 @@ export default function ParticipantsTable() {
                                                         {reg.distance ? <span className="text-sm font-medium text-text-primary">{reg.distance} km</span> : <span className="text-text-muted text-sm">-</span>}
                                                     </td>
                                                     <td className="py-4 px-6">
-                                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${reg.status === "paid" ? "bg-green-500/10 text-green-400 border-green-500/20" :
-                                                            reg.status === "pending" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
-                                                                "bg-red-500/10 text-red-500 border-red-500/20"
+                                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${reg.status === "paid" ? "bg-green-500/10 text-green-700 border-green-500/20" :
+                                                            reg.status === "pending" ? "bg-yellow-500/10 text-yellow-700 border-yellow-500/20" :
+                                                                "bg-red-500/10 text-red-600 border-red-500/20"
                                                             }`}>
                                                             {reg.status === "paid" ? "Geaccepteerd" : reg.status === "pending" ? "In behandeling" : "Geannuleerd"}
                                                         </span>
@@ -503,9 +503,9 @@ export default function ParticipantsTable() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${reg.status === "paid" ? "bg-green-500/10 text-green-400 border-green-500/20" :
-                                                    reg.status === "pending" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
-                                                        "bg-red-500/10 text-red-500 border-red-500/20"
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${reg.status === "paid" ? "bg-green-500/10 text-green-700 border-green-500/20" :
+                                                    reg.status === "pending" ? "bg-yellow-500/10 text-yellow-700 border-yellow-500/20" :
+                                                        "bg-red-500/10 text-red-600 border-red-500/20"
                                                     }`}>
                                                     {reg.status === "paid" ? "OK" : reg.status === "pending" ? "Wacht" : "Nee"}
                                                 </span>

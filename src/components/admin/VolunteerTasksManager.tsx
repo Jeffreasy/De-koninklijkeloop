@@ -11,9 +11,9 @@ import {
 type TaskStatus = "assigned" | "confirmed" | "completed";
 
 const statusConfig: Record<TaskStatus, { label: string; style: string; icon: typeof ClipboardList }> = {
-    assigned: { label: "Toegewezen", style: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", icon: ClipboardList },
-    confirmed: { label: "Bevestigd", style: "bg-blue-500/15 text-blue-400 border-blue-500/30", icon: CheckCircle2 },
-    completed: { label: "Afgerond", style: "bg-green-500/15 text-green-400 border-green-500/30", icon: CheckCircle2 },
+    assigned: { label: "Toegewezen", style: "bg-yellow-500/15 text-yellow-600 border-yellow-500/30", icon: ClipboardList },
+    confirmed: { label: "Bevestigd", style: "bg-blue-500/15 text-blue-600 border-blue-500/30", icon: CheckCircle2 },
+    completed: { label: "Afgerond", style: "bg-green-500/15 text-green-600 border-green-500/30", icon: CheckCircle2 },
 };
 
 export default function VolunteerTasksManager() {
@@ -84,9 +84,9 @@ export default function VolunteerTasksManager() {
             {/* Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StatCard label="Totaal Taken" value={totalTasks} icon={ClipboardList} color="text-brand-orange" />
-                <StatCard label="Bevestigd" value={confirmedTasks} icon={CheckCircle2} color="text-blue-400" />
-                <StatCard label="Afgerond" value={completedTasks} icon={CheckCircle2} color="text-green-400" />
-                <StatCard label="Vrijwilligers" value={totalVolunteers} icon={User} color="text-purple-400" />
+                <StatCard label="Bevestigd" value={confirmedTasks} icon={CheckCircle2} color="text-blue-600" />
+                <StatCard label="Afgerond" value={completedTasks} icon={CheckCircle2} color="text-green-600" />
+                <StatCard label="Vrijwilligers" value={totalVolunteers} icon={User} color="text-purple-600" />
             </div>
 
             {/* Toolbar */}
@@ -164,7 +164,7 @@ export default function VolunteerTasksManager() {
                                 <div className="flex-1 min-w-0 space-y-1">
                                     <div className="flex items-start gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-green-500/15 flex items-center justify-center shrink-0 mt-0.5">
-                                            <ClipboardList className="w-4 h-4 text-green-400" />
+                                            <ClipboardList className="w-4 h-4 text-green-600" />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h4 className="text-text-primary font-semibold text-sm truncate">
@@ -218,7 +218,7 @@ export default function VolunteerTasksManager() {
                                     <button
                                         onClick={() => handleDelete(task._id)}
                                         disabled={isDeleting}
-                                        className="p-2 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all md:opacity-0 md:group-hover:opacity-100 cursor-pointer disabled:opacity-30 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                                        className="p-2 rounded-lg text-red-500/60 hover:text-red-500 hover:bg-red-500/10 transition-all md:opacity-0 md:group-hover:opacity-100 cursor-pointer disabled:opacity-30 min-h-[44px] min-w-[44px] flex items-center justify-center"
                                         aria-label="Verwijder taak"
                                     >
                                         {isDeleting ? (
@@ -378,7 +378,7 @@ function CreateTaskModal({
                 <div className="px-6 py-4 border-b border-glass-border flex items-center justify-between bg-glass-bg">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-xl bg-green-500/15 flex items-center justify-center">
-                            <Plus className="w-5 h-5 text-green-400" />
+                            <Plus className="w-5 h-5 text-green-600" />
                         </div>
                         <h2 id="create-task-title" className="text-lg font-bold text-text-primary">
                             Taak Toewijzen
@@ -396,7 +396,7 @@ function CreateTaskModal({
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-5">
                     {error && (
-                        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-2 text-red-400 text-sm">
+                        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-2 text-red-600 text-sm">
                             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                             <p>{error}</p>
                         </div>
@@ -411,7 +411,7 @@ function CreateTaskModal({
                         {selectedVolunteer ? (
                             <div className="flex items-center gap-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
                                 <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                                    <User className="w-4 h-4 text-green-400" />
+                                    <User className="w-4 h-4 text-green-600" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-text-primary font-medium text-sm truncate">{selectedVolunteer.name}</p>
@@ -419,7 +419,7 @@ function CreateTaskModal({
                                 </div>
                                 <button
                                     onClick={() => handleChange("registrationId", "")}
-                                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-text-muted hover:text-red-400 transition-colors cursor-pointer"
+                                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-text-muted hover:text-red-500 transition-colors cursor-pointer"
                                 >
                                     <X className="w-3.5 h-3.5" />
                                 </button>

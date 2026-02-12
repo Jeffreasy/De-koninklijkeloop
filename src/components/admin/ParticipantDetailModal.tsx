@@ -122,7 +122,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                         <div className="flex items-center gap-3 w-full mt-2">
                             <button
                                 onClick={() => setShowDeleteConfirm(false)}
-                                className="flex-1 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-text-primary transition-colors text-sm font-medium"
+                                className="flex-1 px-4 py-2 rounded-xl bg-glass-surface/50 hover:bg-glass-surface text-text-primary transition-colors text-sm font-medium cursor-pointer"
                             >
                                 Annuleren
                             </button>
@@ -150,7 +150,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
             <div className="relative w-full max-w-2xl bg-surface/95 dark:bg-surface/90 backdrop-blur-xl rounded-2xl border border-glass-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-glass-border flex items-center justify-between bg-white/5">
+                <div className="px-6 py-4 border-b border-glass-border flex items-center justify-between bg-glass-surface/30">
                     <div>
                         <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
                             Deelnemer Bewerken
@@ -166,7 +166,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-xl hover:bg-white/10 text-text-muted hover:text-text-primary transition-colors"
+                        className="p-2 rounded-xl hover:bg-glass-surface/50 text-text-muted hover:text-text-primary transition-colors cursor-pointer"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -187,7 +187,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                         type="text"
                                         value={formData.name}
                                         onChange={(e) => handleChange("name", e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
+                                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
                                         placeholder="Volledige naam"
                                     />
                                 </div>
@@ -201,7 +201,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                         type="email"
                                         value={formData.email}
                                         onChange={(e) => handleChange("email", e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
+                                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
                                         placeholder="Email adres"
                                     />
                                 </div>
@@ -210,7 +210,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                     </div>
 
                     {/* Participation Details */}
-                    <div className="space-y-4 pt-2 border-t border-white/5">
+                    <div className="space-y-4 pt-2 border-t border-glass-border/50">
                         <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Deelname Details</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-1.5">
@@ -218,11 +218,11 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                 <select
                                     value={formData.role}
                                     onChange={(e) => handleChange("role", e.target.value)}
-                                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
+                                    className="w-full px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
                                 >
-                                    <option value="deelnemer" className="bg-slate-900">Deelnemer</option>
-                                    <option value="begeleider" className="bg-slate-900">Begeleider</option>
-                                    <option value="vrijwilliger" className="bg-slate-900">Vrijwilliger</option>
+                                    <option value="deelnemer" className="bg-surface">Deelnemer</option>
+                                    <option value="begeleider" className="bg-surface">Begeleider</option>
+                                    <option value="vrijwilliger" className="bg-surface">Vrijwilliger</option>
                                 </select>
                             </div>
 
@@ -233,12 +233,12 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                     <select
                                         value={formData.distance}
                                         onChange={(e) => handleChange("distance", e.target.value)}
-                                        className="w-full pl-10 pr-8 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
+                                        className="w-full pl-10 pr-8 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
                                     >
-                                        <option value="2.5" className="bg-slate-900">2.5 km</option>
-                                        <option value="6" className="bg-slate-900">6 km</option>
-                                        <option value="10" className="bg-slate-900">10 km</option>
-                                        <option value="15" className="bg-slate-900">15 km</option>
+                                        <option value="2.5" className="bg-surface">2.5 km</option>
+                                        <option value="6" className="bg-surface">6 km</option>
+                                        <option value="10" className="bg-surface">10 km</option>
+                                        <option value="15" className="bg-surface">15 km</option>
                                     </select>
                                 </div>
                             </div>
@@ -248,21 +248,21 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                 <select
                                     value={formData.status}
                                     onChange={(e) => handleChange("status", e.target.value)}
-                                    className={`w-full px-3 py-2 rounded-xl border border-glass-border text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none ${formData.status === 'paid' ? 'bg-green-500/10 text-green-400 border-green-500/30' :
-                                        formData.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' :
-                                            'bg-red-500/10 text-red-400 border-red-500/30'
+                                    className={`w-full px-3 py-2 rounded-xl border text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none ${formData.status === 'paid' ? 'bg-green-500/10 text-green-700 border-green-500/30' :
+                                        formData.status === 'pending' ? 'bg-yellow-500/10 text-yellow-700 border-yellow-500/30' :
+                                            'bg-red-500/10 text-red-600 border-red-500/30'
                                         }`}
                                 >
-                                    <option value="paid" className="bg-slate-900 text-gray-100">✅ Geaccepteerd</option>
-                                    <option value="pending" className="bg-slate-900 text-gray-100">⏳ In behandeling</option>
-                                    <option value="cancelled" className="bg-slate-900 text-gray-100">❌ Geannuleerd</option>
+                                    <option value="paid" className="bg-surface text-text-primary">✅ Geaccepteerd</option>
+                                    <option value="pending" className="bg-surface text-text-primary">⏳ In behandeling</option>
+                                    <option value="cancelled" className="bg-surface text-text-primary">❌ Geannuleerd</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
                     {/* ICE Contact */}
-                    <div className="space-y-4 pt-2 border-t border-white/5">
+                    <div className="space-y-4 pt-2 border-t border-glass-border/50">
                         <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Noodcontact (ICE)</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
@@ -271,7 +271,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                     type="text"
                                     value={formData.iceName}
                                     onChange={(e) => handleChange("iceName", e.target.value)}
-                                    className="w-full px-4 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
+                                    className="w-full px-4 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
                                     placeholder="Naam ICE"
                                 />
                             </div>
@@ -283,7 +283,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                         type="tel"
                                         value={formData.icePhone}
                                         onChange={(e) => handleChange("icePhone", e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
+                                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
                                         placeholder="06 12345678"
                                     />
                                 </div>
@@ -292,7 +292,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                     </div>
 
                     {/* Admin Notes */}
-                    <div className="space-y-3 pt-2 border-t border-white/5">
+                    <div className="space-y-3 pt-2 border-t border-glass-border/50">
                         <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1 flex items-center gap-2">
                             <StickyNote className="w-3.5 h-3.5" />
                             Interne Notities
@@ -301,14 +301,14 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                             value={formData.notes}
                             onChange={(e) => handleChange("notes", e.target.value)}
                             placeholder="Interne notities voor de organisatie..."
-                            className="w-full min-h-[80px] bg-white/5 border border-glass-border rounded-xl p-3 text-sm text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none resize-none placeholder:text-text-muted/30"
+                            className="w-full min-h-[80px] bg-glass-surface/50 border border-glass-border rounded-xl p-3 text-sm text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none resize-none placeholder:text-text-muted/30"
                         />
                     </div>
 
                 </div>
 
                 {/* Footer Actions */}
-                <div className="px-6 py-4 border-t border-glass-border bg-black/20 flex items-center justify-between backdrop-blur-md">
+                <div className="px-6 py-4 border-t border-glass-border bg-glass-surface/30 flex items-center justify-between backdrop-blur-md">
                     <button
                         onClick={() => setShowDeleteConfirm(true)}
                         className="px-4 py-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors text-sm font-medium flex items-center gap-2 group"
@@ -319,7 +319,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                     <div className="flex items-center gap-3">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-white/5 transition-colors text-sm font-medium"
+                            className="px-4 py-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-glass-surface/50 transition-colors text-sm font-medium cursor-pointer"
                         >
                             Annuleren
                         </button>

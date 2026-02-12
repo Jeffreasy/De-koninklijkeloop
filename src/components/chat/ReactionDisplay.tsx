@@ -21,8 +21,8 @@ export const ReactionDisplay = memo(function ReactionDisplay({ reactions, onReac
                     key={emoji}
                     onClick={() => onReact(emoji)}
                     className={`flex items-center gap-1 px-2 py-1 min-h-[36px] rounded-full text-xs transition-colors border cursor-pointer touch-action-manipulation ${users.some(u => u.user === currentUser)
-                        ? 'bg-brand-orange/20 border-brand-orange/40 text-white'
-                        : 'bg-white/5 border-white/10 text-text-muted hover:bg-white/10'
+                        ? 'bg-brand-orange/20 border-brand-orange/40 text-text-primary'
+                        : 'bg-glass-surface/50 border-glass-border/50 text-text-muted hover:bg-glass-surface'
                         }`}
                     title={users.map(u => u.name).join(', ')}
                 >

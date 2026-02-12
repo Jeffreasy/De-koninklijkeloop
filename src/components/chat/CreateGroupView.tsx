@@ -60,7 +60,7 @@ export function CreateGroupView({ currentUser, teamMembers, onCreated, onCancel 
                             const idx = EMOJI_OPTIONS.indexOf(avatarEmoji);
                             setAvatarEmoji(EMOJI_OPTIONS[(idx + 1) % EMOJI_OPTIONS.length]);
                         }}
-                        className="w-14 h-14 rounded-full bg-linear-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center text-2xl border border-white/10 hover:border-white/30 transition-colors shrink-0"
+                        className="w-14 h-14 rounded-full bg-linear-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center text-2xl border border-glass-border hover:border-brand-orange/30 transition-colors shrink-0 cursor-pointer"
                     >
                         {avatarEmoji}
                     </button>
@@ -69,7 +69,7 @@ export function CreateGroupView({ currentUser, teamMembers, onCreated, onCancel 
                         value={groupName}
                         onChange={(e) => setGroupName(e.target.value)}
                         placeholder="Groepsnaam..."
-                        className="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-text-muted/50 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50"
+                        className="flex-1 bg-glass-surface/30 border border-glass-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50"
                     />
                 </div>
             </div>
@@ -86,7 +86,7 @@ export function CreateGroupView({ currentUser, teamMembers, onCreated, onCancel 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Zoek teamleden..."
-                        className="w-full bg-black/20 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-text-muted/50 focus:outline-none focus:border-brand-orange/50"
+                        className="w-full bg-glass-surface/30 border border-glass-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-brand-orange/50"
                     />
                 </div>
                 <div className="space-y-0.5 max-h-[200px] overflow-y-auto">
@@ -94,10 +94,10 @@ export function CreateGroupView({ currentUser, teamMembers, onCreated, onCancel 
                         <button
                             key={member.user}
                             onClick={() => toggleMember(member.user)}
-                            className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors ${selectedMembers.includes(member.user) ? 'bg-brand-orange/10 border border-brand-orange/30' : 'hover:bg-white/5 border border-transparent'
+                            className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer ${selectedMembers.includes(member.user) ? 'bg-brand-orange/10 border border-brand-orange/30' : 'hover:bg-glass-surface/50 border border-transparent'
                                 }`}
                         >
-                            <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${selectedMembers.includes(member.user) ? 'bg-brand-orange border-brand-orange' : 'border-white/20'
+                            <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${selectedMembers.includes(member.user) ? 'bg-brand-orange border-brand-orange' : 'border-glass-border'
                                 }`}>
                                 {selectedMembers.includes(member.user) && (
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -105,7 +105,7 @@ export function CreateGroupView({ currentUser, teamMembers, onCreated, onCancel 
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-sm font-medium text-white truncate">{member.name}</span>
+                                    <span className="text-sm font-medium text-text-primary truncate">{member.name}</span>
                                     <span className={`w-2 h-2 rounded-full ${member.isOnline ? 'bg-green-500' : 'bg-gray-500'}`}></span>
                                 </div>
                                 <span className="text-[10px] text-text-muted truncate">{member.user}</span>
@@ -119,7 +119,7 @@ export function CreateGroupView({ currentUser, teamMembers, onCreated, onCancel 
             <div className="flex gap-2 mt-auto pt-2">
                 <button
                     onClick={onCancel}
-                    className="flex-1 py-3 rounded-xl border border-white/10 text-sm text-text-muted hover:text-white hover:bg-white/5 transition-colors"
+                    className="flex-1 py-3 rounded-xl border border-glass-border text-sm text-text-muted hover:text-text-primary hover:bg-glass-surface/50 transition-colors cursor-pointer"
                 >
                     Annuleren
                 </button>

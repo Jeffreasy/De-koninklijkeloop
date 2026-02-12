@@ -19,10 +19,10 @@ export function ChatInput({ value, onChange, onSend, showEmojiPicker, onToggleEm
                 </div>
             )}
 
-            <div className="relative flex gap-2 items-end bg-black/20 p-1.5 rounded-2xl border border-white/10 focus-within:border-brand-orange/50 focus-within:ring-1 focus-within:ring-brand-orange/50 transition-all">
+            <div className="relative flex gap-2 items-end bg-glass-surface/30 p-1.5 rounded-2xl border border-glass-border focus-within:border-brand-orange/50 focus-within:ring-1 focus-within:ring-brand-orange/50 transition-all">
                 <button
                     onClick={onToggleEmoji}
-                    className={`p-2 rounded-xl transition-colors cursor-pointer touch-action-manipulation ${showEmojiPicker ? 'bg-brand-orange/20 text-brand-orange' : 'text-text-muted hover:text-white hover:bg-white/10'}`}
+                    className={`p-2 rounded-xl transition-colors cursor-pointer touch-action-manipulation ${showEmojiPicker ? 'bg-brand-orange/20 text-brand-orange' : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'}`}
                 >
                     <Smile className="w-5 h-5" />
                 </button>
@@ -36,7 +36,7 @@ export function ChatInput({ value, onChange, onSend, showEmojiPicker, onToggleEm
                         }
                     }}
                     placeholder="Typ een bericht..."
-                    className="flex-1 bg-transparent border-none px-2 py-2.5 text-sm text-white placeholder:text-text-muted/50 focus:outline-none resize-none max-h-24 min-h-[44px]"
+                    className="flex-1 bg-transparent border-none px-2 py-2.5 text-sm text-text-primary placeholder:text-text-muted/50 focus:outline-none resize-none max-h-24 min-h-[44px]"
                     rows={1}
                 />
                 <button

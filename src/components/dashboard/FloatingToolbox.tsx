@@ -31,7 +31,7 @@ function FloatingToolboxContent() {
     const isAppComingSoon = settings?.mobile_app_status === "coming_soon";
 
     return (
-        <div className="fixed bottom-6 right-6 z-90 flex flex-col items-end gap-3">
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div

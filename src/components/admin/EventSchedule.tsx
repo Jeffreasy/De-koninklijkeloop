@@ -136,7 +136,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                         </p>
 
                         {/* Preview Badge */}
-                        <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-400 text-xs font-medium">
+                        <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-700 text-xs font-medium">
                             <Info className="w-3 h-3" />
                             Concept — Tijden onder voorbehoud van wijzigingen
                         </div>
@@ -156,7 +156,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                     {/* Timeline */}
                     <div className="relative space-y-0">
                         {/* Timeline Spine */}
-                        <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-glass-border to-transparent md:-translate-x-px pointer-events-none" />
+                        <div className="absolute left-[2.25rem] md:left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-glass-border to-transparent md:-translate-x-px pointer-events-none" />
 
                         {!schedule ? (
                             [1, 2, 3, 4].map(i => (
@@ -194,8 +194,8 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                         <div className={`flex items-start py-4 md:py-6 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
 
                                             {/* Timeline Node */}
-                                            <div className="absolute left-6 md:left-1/2 md:-translate-x-1/2 z-10">
-                                                <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 shadow-lg transition-all duration-300 group-hover/item:scale-110 group-hover/item:shadow-xl
+                                            <div className="absolute left-4 md:left-1/2 md:-translate-x-1/2 z-10">
+                                                <div className={`flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border-2 shadow-lg transition-all duration-300 group-hover/item:scale-110 group-hover/item:shadow-xl
                                                     ${isEvent
                                                         ? 'bg-linear-to-br from-brand-orange to-red-500 text-white border-white/20 shadow-brand-orange/30'
                                                         : isBreak
@@ -203,19 +203,19 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                                             : 'bg-glass-surface text-text-muted border-glass-border shadow-sm'
                                                     }`}
                                                 >
-                                                    {getIcon(item.icon, "w-5 h-5")}
+                                                    {getIcon(item.icon, "w-4 h-4 md:w-5 md:h-5")}
                                                 </div>
                                             </div>
 
                                             {/* Spacer for mobile (left-aligned) */}
-                                            <div className="w-18 shrink-0 md:hidden" />
+                                            <div className="w-16 shrink-0 md:hidden" />
 
                                             {/* Desktop spacer */}
                                             <div className={`hidden md:block md:w-[calc(50%-1.5rem)] ${isLeft ? 'order-last' : ''}`} />
 
                                             {/* Card */}
-                                            <div className={`flex-1 md:w-[calc(50%-1.5rem)] ${isLeft ? 'md:pr-8' : 'md:pl-8'}`}>
-                                                <div className={`relative p-5 md:p-6 rounded-2xl border backdrop-blur-md transition-all duration-300 group-hover/item:-translate-y-0.5 group-hover/item:shadow-xl overflow-hidden
+                                            <div className={`flex-1 min-w-0 md:w-[calc(50%-1.5rem)] ${isLeft ? 'md:pr-8' : 'md:pl-8'}`}>
+                                                <div className={`relative p-4 md:p-6 rounded-2xl border backdrop-blur-md transition-all duration-300 group-hover/item:-translate-y-0.5 group-hover/item:shadow-xl overflow-hidden
                                                     ${isEvent
                                                         ? 'bg-glass-surface/90 border-brand-orange/15 hover:border-brand-orange/40 shadow-md shadow-brand-orange/5'
                                                         : isBreak
@@ -223,8 +223,8 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                                             : 'bg-glass-surface/40 border-glass-border hover:bg-glass-surface/60 shadow-sm'
                                                     }`}
                                                 >
-                                                    {/* Admin Actions */}
-                                                    <div className="absolute top-3 right-3 flex gap-1 md:opacity-0 md:group-hover/item:opacity-100 transition-opacity z-20">
+                                                    {/* Admin Actions — hidden on mobile, hover-reveal on desktop */}
+                                                    <div className="hidden md:flex absolute top-3 right-3 gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity z-20">
                                                         {onEditClick && (
                                                             <button
                                                                 onClick={(e) => { e.stopPropagation(); onEditClick(item); }}
@@ -270,7 +270,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                                     </div>
 
                                                     {/* Title */}
-                                                    <h4 className={`text-base md:text-lg font-bold mb-2 leading-snug ${isEvent ? 'text-text-primary' : 'text-text-secondary'}`}>
+                                                    <h4 className={`text-base md:text-lg font-bold mb-2 leading-snug pr-0 md:pr-16 ${isEvent ? 'text-text-primary' : 'text-text-secondary'}`}>
                                                         {item.title}
                                                     </h4>
 
@@ -308,6 +308,30 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                                                     )}
                                                                 </div>
                                                             </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Mobile Admin Actions — inline at bottom */}
+                                                    {(onEditClick || onAddClick) && (
+                                                        <div className="flex md:hidden items-center gap-2 mt-3 pt-3 border-t border-glass-border/50">
+                                                            {onEditClick && (
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); onEditClick(item); }}
+                                                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted hover:text-brand-orange bg-glass-bg rounded-lg border border-glass-border hover:border-brand-orange/30 transition-all cursor-pointer"
+                                                                >
+                                                                    <Edit3 className="w-3.5 h-3.5" />
+                                                                    Bewerk
+                                                                </button>
+                                                            )}
+                                                            {onAddClick && (
+                                                                <button
+                                                                    onClick={(e) => handleDelete(e, item._id)}
+                                                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted hover:text-red-500 bg-glass-bg rounded-lg border border-glass-border hover:border-red-500/30 transition-all cursor-pointer"
+                                                                >
+                                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                                    Verwijder
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     )}
                                                 </div>

@@ -21,7 +21,7 @@ export function DmStatusLine({ userId, teamMembers, currentUser }: DmStatusLineP
 
     if (member.isOnline) {
         return (
-            <p className="text-xs text-green-400 font-medium flex items-center gap-1">
+            <p className="text-xs text-green-600 font-medium flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                 Online
             </p>

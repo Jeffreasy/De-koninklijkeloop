@@ -36,7 +36,7 @@ export function EmojiPickerWrapper({ onSelect, onClose }: EmojiPickerProps) {
             <Picker
                 data={data}
                 onEmojiSelect={(emoji: any) => onSelect(emoji.native)}
-                theme="dark"
+                theme="auto"
                 locale="nl"
                 previewPosition="none"
                 skinTonePosition="search"
