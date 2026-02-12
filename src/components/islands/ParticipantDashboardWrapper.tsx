@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, Suspense } from "react";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { $accessToken, logout } from "../../lib/auth";
-import { useAction } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
 import { Button } from "../ui/button";
@@ -592,6 +592,7 @@ function VrijwilligerSection({
 // ═══════════════════════════════════════════════════
 
 function SharedAccountSection({ email, authUserId }: { email: string; authUserId: string }) {
+    const deleteConvexData = useMutation(api.gdpr.deleteUserData);
     const [exporting, setExporting] = useState(false);
     const [exportStatus, setExportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -656,13 +657,8 @@ function SharedAccountSection({ email, authUserId }: { email: string; authUserId
 
         try {
             setDeleteStep('convex');
-            try {
-                const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
-                if (convexUrl) {
-                    const convex = new ConvexHttpClient(convexUrl);
-                    await convex.mutation(api.gdpr.deleteUserData, { email, authUserId });
-                }
-            } catch { /* non-blocking */ }
+            const stats = await deleteConvexData({ email, authUserId });
+            console.log('[GDPR] Convex cleanup stats:', stats);
 
             setDeleteStep('go');
             const res = await fetch('/api/auth/account', {

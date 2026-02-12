@@ -610,18 +610,15 @@ function AccountDeletionSection({ email, authUserId }: { email: string; authUser
         setError(null);
 
         try {
-            // Step 1: Clean Convex data first (safest order — if this fails, account stays intact)
+            // Step 1: Clean Convex data first — if this fails, account stays intact
             setStep('convex');
-            try {
-                const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
-                if (convexUrl) {
-                    const convex = new ConvexHttpClient(convexUrl);
-                    await convex.mutation(api.gdpr.deleteUserData, { email, authUserId });
-                }
-            } catch (convexErr) {
-                console.warn('[GDPR Delete] Convex cleanup failed (non-blocking):', convexErr);
-                // Continue — Go deletion is the critical path
+            const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
+            if (!convexUrl) {
+                throw new Error('Convex configuratie ontbreekt. Neem contact op met support.');
             }
+            const convex = new ConvexHttpClient(convexUrl);
+            const stats = await convex.mutation(api.gdpr.deleteUserData, { email, authUserId });
+            console.log('[GDPR] Convex cleanup stats:', stats);
 
             // Step 2: Delete account via Go backend
             setStep('go');
@@ -771,10 +768,10 @@ function AccountDeletionSection({ email, authUserId }: { email: string; authUser
                                             value={confirmation}
                                             onChange={e => setConfirmation(e.target.value)}
                                             className={`w-full px-4 py-2.5 bg-glass-bg/50 border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-red-500/50 ${confirmation && confirmation !== 'VERWIJDEREN'
-                                                    ? 'border-red-500/40'
-                                                    : confirmation === 'VERWIJDEREN'
-                                                        ? 'border-green-500/40'
-                                                        : 'border-glass-border'
+                                                ? 'border-red-500/40'
+                                                : confirmation === 'VERWIJDEREN'
+                                                    ? 'border-green-500/40'
+                                                    : 'border-glass-border'
                                                 }`}
                                             placeholder="VERWIJDEREN"
                                             disabled={deleting}
