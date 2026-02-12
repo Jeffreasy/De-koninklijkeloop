@@ -62,7 +62,7 @@ import {
     ClipboardList, CheckCircle2, MapPinned, UserCheck, AlertTriangle,
     Download, Trash2, FileJson, XCircle, X
 } from "lucide-react";
-import { routes } from "../../lib/routeData";
+import { routes, loadRoutePoints, START_POINT, type Route, type RoutePoint } from "../../lib/routeData";
 
 const RouteMapInner = React.lazy(() => import("./RouteMapInner"));
 
@@ -353,9 +353,22 @@ function SharedRouteCard({ registration }: { registration: Doc<"registrations"> 
         return false;
     });
 
+    const [points, setPoints] = useState<RoutePoint[] | null>(null);
+
+    useEffect(() => {
+        if (!matchedRoute) return;
+        let cancelled = false;
+        loadRoutePoints(matchedRoute.id).then(pts => {
+            if (!cancelled) setPoints(pts);
+        });
+        return () => { cancelled = true; };
+    }, [matchedRoute?.id]);
+
     if (!matchedRoute) return null;
 
-    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${matchedRoute.points[0].lat},${matchedRoute.points[0].lng}&travelmode=walking`;
+    const fullRoute: Route | null = points ? { ...matchedRoute, points } : null;
+    const startCoord = points?.[0] ?? START_POINT;
+    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${startCoord.lat},${startCoord.lng}&travelmode=walking`;
 
     return (
         <div className="bg-glass-bg border border-glass-border rounded-xl p-4 md:p-6 space-y-4">
@@ -383,7 +396,13 @@ function SharedRouteCard({ registration }: { registration: Doc<"registrations"> 
                         <Loader2 className="w-8 h-8 animate-spin" />
                     </div>
                 }>
-                    <RouteMapInner route={matchedRoute} />
+                    {fullRoute ? (
+                        <RouteMapInner route={fullRoute} />
+                    ) : (
+                        <div className="flex items-center justify-center h-full text-brand-orange bg-surface/50">
+                            <Loader2 className="w-8 h-8 animate-spin" />
+                        </div>
+                    )}
                 </Suspense>
             </div>
 
@@ -708,8 +727,8 @@ function SharedAccountSection({ email, authUserId }: { email: string; authUserId
 
                 {exportStatus && (
                     <div className={`flex items-center gap-2 p-3 rounded-lg text-xs ${exportStatus.type === 'success'
-                            ? 'bg-green-500/10 border border-green-500/20 text-green-400'
-                            : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                        ? 'bg-green-500/10 border border-green-500/20 text-green-400'
+                        : 'bg-red-500/10 border border-red-500/20 text-red-400'
                         }`}>
                         {exportStatus.type === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
                         {exportStatus.message}
@@ -791,7 +810,7 @@ function SharedAccountSection({ email, authUserId }: { email: string; authUserId
                                         </label>
                                         <input type="text" value={confirmation} onChange={e => setConfirmation(e.target.value)}
                                             className={`w-full px-4 py-2.5 bg-glass-surface/50 border rounded-xl text-text-body focus:outline-none focus:ring-2 focus:ring-red-500/50 ${confirmation && confirmation !== 'VERWIJDEREN' ? 'border-red-500/40'
-                                                    : confirmation === 'VERWIJDEREN' ? 'border-green-500/40' : 'border-glass-border'
+                                                : confirmation === 'VERWIJDEREN' ? 'border-green-500/40' : 'border-glass-border'
                                                 }`} placeholder="VERWIJDEREN" disabled={deleting} />
                                     </div>
 

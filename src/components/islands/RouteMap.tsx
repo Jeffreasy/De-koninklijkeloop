@@ -1,13 +1,30 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
-import { routes } from '../../lib/routeData';
+import { routes, loadRoutePoints, type Route, type RoutePoint } from '../../lib/routeData';
 import { cn } from '../../lib/utils';
 
 const RouteMapInner = React.lazy(() => import('./RouteMapInner'));
 
 export default function RouteMap() {
     const [selectedRouteId, setSelectedRouteId] = useState<string>(routes[0].id);
-    const selectedRoute = routes.find(r => r.id === selectedRouteId) || routes[0];
+    const selectedMeta = routes.find(r => r.id === selectedRouteId) || routes[0];
+
+    const [points, setPoints] = useState<RoutePoint[] | null>(null);
+    const [loadingPoints, setLoadingPoints] = useState(false);
+
+    useEffect(() => {
+        let cancelled = false;
+        setLoadingPoints(true);
+        loadRoutePoints(selectedRouteId).then(pts => {
+            if (!cancelled) {
+                setPoints(pts);
+                setLoadingPoints(false);
+            }
+        });
+        return () => { cancelled = true; };
+    }, [selectedRouteId]);
+
+    const fullRoute: Route | null = points ? { ...selectedMeta, points } : null;
 
     // Lazy load logic
     const [isVisible, setIsVisible] = useState(false);
@@ -36,7 +53,7 @@ export default function RouteMap() {
             {/* Title - Always visible outside */}
             <div className="text-center max-w-2xl mx-auto">
                 <h2 className="text-3xl md:text-4xl font-display font-bold text-text-primary">
-                    {selectedRoute.name}
+                    {selectedMeta.name}
                 </h2>
             </div>
 
@@ -53,14 +70,20 @@ export default function RouteMap() {
                                 <Loader2 className="w-10 h-10 animate-spin" />
                             </div>
                         }>
-                            <RouteMapInner route={selectedRoute} />
+                            {fullRoute ? (
+                                <RouteMapInner route={fullRoute} />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center text-brand-orange bg-surface/50 backdrop-blur-sm">
+                                    <Loader2 className="w-10 h-10 animate-spin" />
+                                </div>
+                            )}
                         </Suspense>
 
                         {/* Floating Info (Top) */}
                         <div className="absolute top-6 left-4 right-4 z-400 flex justify-center pointer-events-none">
                             <div className="max-w-md bg-white/90 dark:bg-black/60 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-xl rounded-2xl p-4 text-center pointer-events-auto">
                                 <p className="text-sm md:text-base text-text-primary dark:text-white/90 leading-relaxed font-medium">
-                                    {selectedRoute.description}
+                                    {selectedMeta.description}
                                 </p>
                             </div>
                         </div>

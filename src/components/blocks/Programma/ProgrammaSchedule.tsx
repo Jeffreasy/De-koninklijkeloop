@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
-import { routes } from '../../../lib/routeData';
+import { routes, loadRoutePoints, type RoutePoint } from '../../../lib/routeData';
 import {
     Flag, Play, Bus, MapPin, Coffee, Trophy, PartyPopper,
     Circle, Clock, Sparkles, Timer, CalendarDays, Route, Info,
@@ -24,21 +24,41 @@ const getIcon = (iconName: string, className: string = "w-5 h-5") => {
     }
 };
 
+function getMapTileUrl(pts: RoutePoint[]): string | null {
+    if (!pts || pts.length === 0) return null;
+    const lats = pts.map(p => p.lat);
+    const lngs = pts.map(p => p.lng);
+    const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+    const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+    const span = Math.max(Math.max(...lats) - Math.min(...lats), Math.max(...lngs) - Math.min(...lngs));
+    let zoom = 13;
+    if (span > 0.15) zoom = 10;
+    else if (span > 0.08) zoom = 11;
+    else if (span > 0.04) zoom = 12;
+    const n = Math.pow(2, zoom);
+    const x = Math.floor(((centerLng + 180) / 360) * n);
+    const latRad = (centerLat * Math.PI) / 180;
+    const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
+    return `https://a.basemaps.cartocdn.com/dark_all/${zoom}/${x}/${y}@2x.png`;
+}
+
 type RouteFilter = 'all' | '15km' | '10km' | '6km' | '2.5km';
+
+const getRouteColor = (id: string) => routes.find(r => r.id === id)?.color ?? '#f97316';
 
 const FILTER_TABS: { id: RouteFilter; label: string; color: string }[] = [
     { id: 'all', label: 'Alles', color: '#f97316' },
-    { id: '15km', label: '15 KM', color: '#ef4444' },
-    { id: '10km', label: '10 KM', color: '#8b5cf6' },
-    { id: '6km', label: '6 KM', color: '#3b82f6' },
-    { id: '2.5km', label: '2,5 KM', color: '#10b981' },
+    { id: '15km', label: '15 KM', color: getRouteColor('15km') },
+    { id: '10km', label: '10 KM', color: getRouteColor('10km') },
+    { id: '6km', label: '6 KM', color: getRouteColor('6km') },
+    { id: '2.5km', label: '2,5 KM', color: getRouteColor('2.5km') },
 ];
 
 const MELDTIJDEN: { route: string; time: string; color: string }[] = [
-    { route: '15 KM', time: '10:15', color: '#ef4444' },
-    { route: '10 KM', time: '12:00', color: '#8b5cf6' },
-    { route: '6 KM', time: '13:15', color: '#3b82f6' },
-    { route: '2,5 KM', time: '14:30', color: '#10b981' },
+    { route: '15 KM', time: '10:15', color: getRouteColor('15km') },
+    { route: '10 KM', time: '12:00', color: getRouteColor('10km') },
+    { route: '6 KM', time: '13:15', color: getRouteColor('6km') },
+    { route: '2,5 KM', time: '14:30', color: getRouteColor('2.5km') },
 ];
 
 function ProgrammaContent() {
@@ -58,6 +78,12 @@ function ProgrammaContent() {
             item.routeId === activeFilter || !item.routeId
         );
     }, [schedule, activeFilter]);
+
+    const [routePointsMap, setRoutePointsMap] = useState<Record<string, RoutePoint[]>>({});
+    useEffect(() => {
+        Promise.all(routes.map(r => loadRoutePoints(r.id).then(pts => [r.id, pts] as const)))
+            .then(entries => setRoutePointsMap(Object.fromEntries(entries)));
+    }, []);
 
     return (
         <div className="space-y-8 md:space-y-12">
@@ -176,7 +202,7 @@ function ProgrammaContent() {
                             icon: Phone,
                             title: "Vragen of info?",
                             desc: "Neem contact op via onze contactpagina of spreek een routebegeleider aan.",
-                            color: "#8b5cf6"
+                            color: "#06b6d4"
                         },
                     ].map(item => (
                         <div key={item.title} className="flex gap-4 p-4 rounded-xl bg-glass-surface/40 border border-glass-border/50 group hover:bg-glass-surface/60 transition-all">
@@ -222,15 +248,16 @@ function ProgrammaContent() {
                         const labels = terrainLabels[route.id] || ['Natuur'];
 
                         const svgPath = (() => {
-                            if (route.points.length < 2) return '';
-                            const lats = route.points.map(p => p.lat);
-                            const lngs = route.points.map(p => p.lng);
+                            const pts = routePointsMap[route.id];
+                            if (!pts || pts.length < 2) return '';
+                            const lats = pts.map((p: RoutePoint) => p.lat);
+                            const lngs = pts.map((p: RoutePoint) => p.lng);
                             const minLat = Math.min(...lats), maxLat = Math.max(...lats);
                             const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
                             const padding = 0.15;
                             const rangeLat = (maxLat - minLat) || 0.001;
                             const rangeLng = (maxLng - minLng) || 0.001;
-                            return route.points.map((p, idx) => {
+                            return pts.map((p: RoutePoint, idx: number) => {
                                 const x = ((p.lng - minLng) / rangeLng) * (1 - 2 * padding) + padding;
                                 const y = 1 - (((p.lat - minLat) / rangeLat) * (1 - 2 * padding) + padding);
                                 return `${idx === 0 ? 'M' : 'L'} ${(x * 200).toFixed(1)} ${(y * 120).toFixed(1)}`;
@@ -247,14 +274,31 @@ function ProgrammaContent() {
                                     style={{ backgroundColor: route.color }}
                                 />
                                 <div className="flex flex-col sm:flex-row">
-                                    {/* SVG Route Preview */}
-                                    <div className="relative w-full sm:w-48 h-32 sm:h-auto shrink-0 bg-glass-surface/30 flex items-center justify-center overflow-hidden border-b sm:border-b-0 sm:border-r border-glass-border/50">
-                                        <svg viewBox="0 0 200 120" className="w-full h-full p-3 opacity-70 group-hover:opacity-100 transition-opacity" fill="none" preserveAspectRatio="xMidYMid meet">
+                                    {/* Mini-Map Tile Background + SVG Route Preview */}
+                                    <div className="relative w-full sm:w-48 h-32 sm:h-auto shrink-0 flex items-center justify-center overflow-hidden border-b sm:border-b-0 sm:border-r border-glass-border/50">
+                                        {/* Map tile background */}
+                                        {(() => {
+                                            const pts = routePointsMap[route.id];
+                                            const tileUrl = pts ? getMapTileUrl(pts) : null;
+                                            return tileUrl ? (
+                                                <img
+                                                    src={tileUrl}
+                                                    alt=""
+                                                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500"
+                                                    loading="lazy"
+                                                />
+                                            ) : (
+                                                <div className="absolute inset-0 bg-glass-surface/30" />
+                                            );
+                                        })()}
+                                        {/* Dark gradient overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-black/40 pointer-events-none" />
+                                        <svg viewBox="0 0 200 120" className="relative w-full h-full p-3 z-10" fill="none" preserveAspectRatio="xMidYMid meet">
                                             {svgPath && (
                                                 <>
-                                                    <path d={svgPath} stroke={route.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.15" fill="none" />
-                                                    <path d={svgPath} stroke={route.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" className="drop-shadow-sm" />
-                                                    <circle cx={svgPath.split(' ')[1]} cy={svgPath.split(' ')[2]} r="4" fill={route.color} opacity="0.8" />
+                                                    <path d={svgPath} stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.1" fill="none" />
+                                                    <path d={svgPath} stroke={route.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.3))' }} />
+                                                    <circle cx={svgPath.split(' ')[1]} cy={svgPath.split(' ')[2]} r="4" fill={route.color} stroke="white" strokeWidth="1" opacity="0.9" />
                                                     {(() => {
                                                         const parts = svgPath.trim().split(/\s+/);
                                                         return <circle cx={parts[parts.length - 2]} cy={parts[parts.length - 1]} r="4" fill={route.color} stroke="white" strokeWidth="1.5" />;
@@ -262,7 +306,7 @@ function ProgrammaContent() {
                                                 </>
                                             )}
                                         </svg>
-                                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider border" style={{ color: route.color, borderColor: `${route.color}30`, backgroundColor: `${route.color}10` }}>
+                                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider border backdrop-blur-sm z-10" style={{ color: 'white', borderColor: `${route.color}50`, backgroundColor: `${route.color}40` }}>
                                             {route.distance}
                                         </div>
                                     </div>
@@ -281,7 +325,7 @@ function ProgrammaContent() {
                                             </div>
                                             <div className="flex items-center gap-1.5 text-xs text-text-muted">
                                                 <Route className="w-3.5 h-3.5" style={{ color: route.color }} />
-                                                <span className="font-medium tabular-nums">{route.points.length} punten</span>
+                                                <span className="font-medium tabular-nums">{routePointsMap[route.id]?.length ?? '…'} punten</span>
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap gap-1.5">
