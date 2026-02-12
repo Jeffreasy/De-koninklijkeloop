@@ -105,10 +105,12 @@ const goFundMeUrl =
                             class="mx-auto max-w-[200px] bg-white rounded-xl p-4"
                         >
                             <img
-                                src="/De Koninklijkeloop/webassets/frame.svg"
+                                src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(goFundMeUrl)}&size=200x200&format=svg`}
                                 alt="QR-code naar GoFundMe donatiepagina Only Friends"
                                 class="w-full h-auto"
                                 loading="lazy"
+                                width="200"
+                                height="200"
                             />
                         </div>
                         <p class="text-xs text-secondary/60">

@@ -65,11 +65,12 @@ const currentCampaign = latest as ActiveCampaign;
                         {currentCampaign.description}
                     </p>
 
-                    <div>
+                    <div class="flex flex-col sm:flex-row items-start gap-4">
                         <a
                             href={currentCampaign.links.donation}
                             target="_blank"
                             rel="noopener noreferrer"
+                            data-donate-source="charity-spotlight"
                         >
                             <Button
                                 size="lg"
@@ -82,6 +83,16 @@ const currentCampaign = latest as ActiveCampaign;
                                     aria-hidden="true"
                                 />
                             </Button>
+                        </a>
+                        <a
+                            href="/charity"
+                            class="inline-flex items-center gap-2 text-secondary hover:text-brand-orange transition-colors text-base font-medium group h-12 md:h-14"
+                        >
+                            Lees meer over {currentCampaign.name}
+                            <ArrowRight
+                                className="w-4 h-4 transition-transform group-hover:translate-x-1"
+                                aria-hidden="true"
+                            />
                         </a>
                     </div>
                 </div>

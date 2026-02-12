@@ -112,7 +112,7 @@ const isActive = (href: string) => {
 >
     <!-- Enhanced Background Effects -->
     <div
-        class="absolute inset-0 overflow-hidden pointer-events-none dark:block hidden"
+        class="absolute inset-0 overflow-hidden pointer-events-none mobile-menu-blobs"
     >
         <!-- Animated Gradient Blobs (dark mode only) -->
         <div
@@ -133,11 +133,13 @@ const isActive = (href: string) => {
 
     <!-- Mobile Header - Enhanced -->
     <div
-        class="flex items-center justify-between px-6 h-24 border-b border-gray-200 dark:border-brand-orange/20 relative z-10 bg-gray-50 dark:bg-surface/60 shadow-sm dark:shadow-lg"
+        class="flex items-center justify-between px-6 h-24 border-b border-glass-border relative z-10 shadow-sm"
+        style="background-color: var(--bg-surface);"
     >
         <div class="flex items-center gap-2">
             <div
-                class="p-2 bg-white dark:bg-white/10 rounded-2xl border border-gray-200 dark:border-white/20 shadow-md dark:shadow-xl"
+                class="p-2 rounded-2xl border border-glass-border shadow-md"
+                style="background-color: var(--bg-surface);"
             >
                 <OptimizedImage
                     src="/De Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
@@ -150,7 +152,8 @@ const isActive = (href: string) => {
         </div>
         <button
             id="mobile-close-btn"
-            class="p-3 bg-gray-100 dark:bg-surface/50 hover:bg-brand-orange transition-all rounded-xl border border-gray-200 dark:border-glass-border hover:border-brand-orange shadow-md dark:shadow-lg hover:scale-110 active:scale-95 group"
+            class="p-3 hover:bg-brand-orange cursor-pointer transition-all rounded-xl border border-glass-border hover:border-brand-orange shadow-md hover:scale-110 active:scale-95 group"
+            style="background-color: var(--bg-surface);"
             aria-label="Close Menu"
         >
             <X
@@ -172,13 +175,16 @@ const isActive = (href: string) => {
                         class="mobile-nav-link group relative translate-y-4 opacity-0 transform transition-all duration-300"
                         style={`transition-delay: ${index * 50}ms`}
                     >
-                        <div class="relative overflow-hidden rounded-2xl bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 hover:border-brand-orange/60 dark:hover:border-brand-orange/40 shadow-sm dark:shadow-xl hover:shadow-lg dark:hover:shadow-2xl hover:shadow-brand-orange/10 transition-all duration-300 p-6 hover:scale-[1.02] active:scale-[0.98] will-change-transform">
+                        <div
+                            class="relative overflow-hidden rounded-2xl border border-glass-border hover:border-brand-orange/50 shadow-sm hover:shadow-md transition-all duration-200 p-5 active:scale-[0.98]"
+                            style="background-color: var(--bg-surface);"
+                        >
                             {/* Gradient Accent Overlay */}
                             <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-linear-to-r from-brand-orange/5 via-transparent to-action-blue/5 pointer-events-none" />
 
                             {/* Content */}
                             <div class="relative flex items-center justify-between">
-                                <span class="text-primary font-display font-bold text-2xl group-hover:text-brand-orange transition-colors tracking-tight flex items-center gap-2">
+                                <span class="text-primary font-display font-bold text-xl group-hover:text-brand-orange transition-colors tracking-tight flex items-center gap-2">
                                     {item.name}
                                     {item.badge && (
                                         <span class="text-[10px] font-bold leading-none px-2 py-1 rounded-full bg-brand-orange/15 text-brand-orange border border-brand-orange/20 uppercase tracking-wider">
@@ -186,7 +192,7 @@ const isActive = (href: string) => {
                                         </span>
                                     )}
                                 </span>
-                                <ChevronRight className="text-secondary group-hover:text-brand-orange group-hover:translate-x-1 transition-all w-5 h-5" />
+                                <ChevronRight className="text-muted group-hover:text-brand-orange group-hover:translate-x-1 transition-all w-5 h-5" />
                             </div>
                         </div>
                     </a>
@@ -222,11 +228,11 @@ const isActive = (href: string) => {
             style={`transition-delay: ${(navItems.filter((i) => i.name !== "Inschrijven").length + 1) * 50}ms`}
         >
             <div
-                class="relative overflow-hidden rounded-2xl bg-rose-500/10 border-2 border-rose-500/20 hover:border-rose-500/40 p-6 transition-all duration-300 group"
+                class="relative overflow-hidden rounded-2xl bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 p-5 shadow-sm hover:shadow-md transition-all duration-200 group"
             >
                 <div class="flex items-center justify-between">
                     <span
-                        class="text-rose-500 font-display font-bold text-2xl flex items-center gap-3"
+                        class="text-rose-600 font-display font-bold text-xl flex items-center gap-3"
                     >
                         <Heart className="w-6 h-6 fill-rose-500" />
                         Doneer aan Only Friends
@@ -365,5 +371,10 @@ const isActive = (href: string) => {
     /* Scrolled Navbar State - Glassmorphism with Orange Border */
     nav[data-scrolled="true"] {
         @apply bg-white/70 dark:bg-body/80 backdrop-blur-xl shadow-lg border-b-2 border-brand-orange;
+    }
+
+    /* Hide gradient blobs in light mode */
+    :global([data-theme="light"]) .mobile-menu-blobs {
+        display: none;
     }
 </style>

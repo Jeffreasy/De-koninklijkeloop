@@ -1,6 +1,7 @@
 ---
 // src/components/blocks/HeroSection.astro
 import { Button } from "../../ui/button";
+import { Heart } from "lucide-react";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../convex/_generated/api";
 
@@ -98,6 +99,19 @@ const tagline = settings?.tagline || "Samen maken we het verschil";
                 </Button>
             </a>
         </div>
+
+        <a
+            href="https://gofund.me/e7950f1c7"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-donate-source="hero"
+            class="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm font-medium group mt-2"
+        >
+            <Heart
+                className="w-4 h-4 text-rose-400 group-hover:scale-110 transition-transform"
+            />
+            Steun Only Friends via GoFundMe
+        </a>
     </div>
 
     <style>
