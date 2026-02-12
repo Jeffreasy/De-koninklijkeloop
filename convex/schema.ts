@@ -445,6 +445,80 @@ export default defineSchema({
     })
         .index("by_group", ["groupId", "createdAt"]),
 
+    // ═══════════════════════════════════════════════════════════
+    // PR/COMMUNICATIE MODULE
+    // Contact database for outreach to healthcare organizations
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * PR Organizations
+     * Healthcare organizations targeted for event communication.
+     */
+    pr_organizations: defineTable({
+        naam: v.string(),
+        sector: v.union(
+            v.literal("academisch_ziekenhuis"),
+            v.literal("algemeen_ziekenhuis"),
+            v.literal("ggz"),
+            v.literal("gehandicaptenzorg"),
+            v.literal("verpleging_verzorging"),
+            v.literal("revalidatie"),
+            v.literal("overig")
+        ),
+        regio: v.union(
+            v.literal("apeldoorn"),
+            v.literal("gelderland"),
+            v.literal("overijssel"),
+            v.literal("overig")
+        ),
+        type: v.optional(v.string()),       // Sub-classification
+        website: v.optional(v.string()),
+        notities: v.optional(v.string()),
+        isActive: v.boolean(),
+        created_at: v.number(),
+        updated_at: v.number(),
+    })
+        .index("by_sector", ["sector"])
+        .index("by_regio", ["regio"])
+        .index("by_active", ["isActive"])
+        .index("by_sector_regio", ["sector", "regio"]),
+
+    /**
+     * PR Contacts
+     * Individual contact persons at organizations.
+     */
+    pr_contacts: defineTable({
+        email: v.string(),
+        naam: v.optional(v.string()),
+        functie: v.optional(v.string()),     // Job title
+        organizationId: v.optional(v.id("pr_organizations")),
+        tags: v.optional(v.array(v.string())),
+        isActive: v.boolean(),
+        laatstGecontacteerd: v.optional(v.number()),
+        notities: v.optional(v.string()),
+        created_at: v.number(),
+        updated_at: v.number(),
+    })
+        .index("by_email", ["email"])
+        .index("by_organization", ["organizationId"])
+        .index("by_active", ["isActive"]),
+
+    /**
+     * PR Send History
+     * Log of communication campaigns sent.
+     */
+    pr_send_history: defineTable({
+        onderwerp: v.string(),
+        segment: v.string(),            // Human-readable segment description
+        aantalOntvangers: v.number(),
+        emailLijst: v.array(v.string()), // Snapshot of emails at send time
+        notities: v.optional(v.string()),
+        verzondenDoor: v.string(),       // Admin name/email
+        verzondenOp: v.number(),         // Send timestamp
+        created_at: v.number(),
+    })
+        .index("by_date", ["verzondenOp"]),
+
     /**
      * Analytics Events
      * Business-critical events for custom dashboard.
