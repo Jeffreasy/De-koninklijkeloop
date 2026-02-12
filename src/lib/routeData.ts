@@ -15,8 +15,8 @@ export interface Route extends RouteMetadata {
     points: RoutePoint[];
 }
 
-// Center near Paleis Het Loo, Apeldoorn (End point area)
-export const START_POINT = { lat: 52.220707, lng: 5.954667 };
+// Grote Kerk, Loolaan 16, Apeldoorn (Start/Finish point)
+export const START_POINT = { lat: 52.2205, lng: 5.9552 };
 
 export const routes: RouteMetadata[] = [
     {

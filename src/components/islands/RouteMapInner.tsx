@@ -35,7 +35,7 @@ export default function RouteMapInner({ route }: { route: Route }) {
     return (
         <div className="relative h-[500px] w-full">
             <MapContainer
-                center={[52.234, 5.945]}
+                center={[52.2205, 5.9552]}
                 zoom={13}
                 scrollWheelZoom={false}
                 className="h-full w-full z-0"
@@ -49,9 +49,14 @@ export default function RouteMapInner({ route }: { route: Route }) {
                     positions={route.points.map(p => [p.lat, p.lng])}
                     pathOptions={{ color: route.color, weight: 6, opacity: 0.8 }}
                 />
+                {/* Start marker: first point of the route */}
+                <Marker position={[route.points[0].lat, route.points[0].lng]}>
+                    <Popup>Start</Popup>
+                </Marker>
 
-                <Marker position={[52.234120, 5.945890]}>
-                    <Popup>Start/Finish: Paleis Het Loo</Popup>
+                {/* Finish marker: Grote Kerk, Loolaan 16 */}
+                <Marker position={[52.2205, 5.9552]}>
+                    <Popup>Finish: Grote Kerk, Loolaan 16</Popup>
                 </Marker>
 
                 <MapUpdater points={route.points} />
