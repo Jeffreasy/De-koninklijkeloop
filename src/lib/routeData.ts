@@ -1,6 +1,7 @@
 export interface RoutePoint {
     lat: number;
     lng: number;
+    ele?: number;
 }
 
 export interface RouteMetadata {

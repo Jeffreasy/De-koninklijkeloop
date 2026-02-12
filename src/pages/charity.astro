@@ -13,11 +13,36 @@ const currentYearCharity = charityHistory[0];
 const goFundMeUrl =
     (currentYearCharity as any).links?.donation ??
     "https://gofund.me/e7950f1c7";
+
+const charityJsonLd = [
+    {
+        "@context": "https://schema.org",
+        "@type": "DonateAction",
+        name: "Doneer aan Only Friends via De Koninklijke Loop",
+        description:
+            "Steun Only Friends, sportclub voor kinderen en jongeren met een beperking, via de GoFundMe van De Koninklijke Loop.",
+        recipient: {
+            "@type": "Organization",
+            name: "Only Friends",
+            url: "https://onlyfriends.nl",
+        },
+        url: goFundMeUrl,
+    },
+    {
+        "@context": "https://schema.org",
+        "@type": "NGO",
+        name: "Only Friends",
+        description:
+            "Sportclub voor kinderen en jongeren met een beperking in Amsterdam",
+        url: "https://onlyfriends.nl",
+    },
+];
 ---
 
 <BaseLayout
-    title="Het Goede Doel | De Koninklijke Loop 2026"
-    description="Het goede doel van De Koninklijke Loop 2026 is Only Friends. Doneer via GoFundMe of scan de QR-code."
+    title="Het Goede Doel — Only Friends | DKL 2026"
+    description="DKL 2026 wandelt voor Only Friends, sportclub voor kinderen en jongeren met een beperking. Doneer via GoFundMe. Alle bijdragen gaan direct naar Only Friends."
+    jsonLd={charityJsonLd}
 >
     <Navbar />
     <main class="pt-32 pb-20 px-6 min-h-screen">

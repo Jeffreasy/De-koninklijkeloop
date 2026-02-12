@@ -18,149 +18,163 @@ const startLocation = settings?.start_location || "Kootwijk";
 const finishLocation = settings?.finish_location || "Apeldoorn";
 ---
 
-<div class="space-y-16">
+<article class="space-y-16">
     {/* Introductie */}
-    <div class="text-center max-w-3xl mx-auto">
-        <h2
-            class="text-3xl md:text-4xl font-display font-bold text-primary mb-6"
-        >
-            De Loop over <span class="text-royal-gradient"
-                >De Koninklijke Weg</span
+    <section aria-label="Introductie De Koninklijke Loop">
+        <div class="text-center max-w-3xl mx-auto">
+            <h2
+                class="text-3xl md:text-4xl font-display font-bold text-primary mb-6"
             >
-        </h2>
-        <p class="text-lg text-secondary leading-relaxed">
-            Op <strong class="text-primary">{eventDateDisplay}</strong>, tijdens
-            de Koninklijke Loop (DKL), wandelen we over een speciaal,
-            toegankelijk wandelpad: het laatste stukje van de historische
-            Koninklijke Weg. Hoewel de volledige Koninklijke Weg 170 km lang is
-            (van Paleis Noordeinde naar Paleis Het Loo), focust de DKL zich op
-            het prachtige deel van {startLocation} naar {finishLocation}, met
-            afstanden van
-            {distancesText} km. We finishen feestelijk bij de Grote Kerk in
-            {finishLocation}.
-        </p>
-    </div>
+                De Loop over <span class="text-royal-gradient"
+                    >De Koninklijke Weg</span
+                >
+            </h2>
+            <p class="text-lg text-secondary leading-relaxed" data-speakable>
+                Op <strong class="text-primary">{eventDateDisplay}</strong>,
+                tijdens de Koninklijke Loop (DKL), wandelen we over een
+                speciaal, toegankelijk wandelpad: het laatste stukje van de
+                historische Koninklijke Weg. Hoewel de volledige Koninklijke Weg
+                170 km lang is (van Paleis Noordeinde naar Paleis Het Loo),
+                focust de DKL zich op het prachtige deel van {startLocation} naar
+                {finishLocation}, met afstanden van
+                {distancesText} km. We finishen feestelijk bij de Grote Kerk in
+                {finishLocation}.
+            </p>
+        </div>
+    </section>
 
     {/* Info Grid */}
-    <div class="grid md:grid-cols-2 gap-8">
-        {/* Koninklijke Weg */}
-        <div
-            class="glass-card p-8 rounded-3xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300"
-        >
+    <section
+        aria-label="Informatie over de Koninklijke Weg en toegankelijkheid"
+    >
+        <div class="grid md:grid-cols-2 gap-8">
+            {/* Koninklijke Weg */}
             <div
-                class="absolute top-0 right-0 p-8 opacity-10 text-brand-orange group-hover:scale-110 transition-transform duration-500"
+                class="glass-card p-8 rounded-3xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300"
             >
-                <Flag className="w-24 h-24" />
-            </div>
-            <div class="relative z-10">
                 <div
-                    class="w-12 h-12 bg-surface/50 rounded-xl flex items-center justify-center mb-6 text-brand-orange border border-glass-border"
+                    class="absolute top-0 right-0 p-8 opacity-10 text-brand-orange group-hover:scale-110 transition-transform duration-500"
                 >
-                    <Crown className="w-6 h-6" />
+                    <Flag className="w-24 h-24" />
                 </div>
-                <h3 class="text-2xl font-display font-bold text-primary mb-4">
-                    Koninklijke Weg
-                </h3>
-                <p class="text-secondary leading-relaxed mb-6">
-                    De Koninklijke Weg loopt van Paleis Noordeinde in Den Haag,
-                    via Soestdijk naar Paleis Het Loo. Onderweg loop je door het
-                    Groene Hart, over de Utrechtse Heuvelrug en via de Veluwe.
-                    De Koninklijke Loop (DKL) gebruikt het mooie laatste deel
-                    van deze route, van Kootwijk naar Apeldoorn.
-                </p>
-
-                <figure
-                    class="relative rounded-2xl overflow-hidden border border-glass-border shadow-lg group-hover:shadow-brand-orange/20 transition-all duration-500"
-                >
-                    <img
-                        src="https://ik.imagekit.io/a0oim4e3e/tr:w-800,f-auto,q-80/De%20Koninklijkeloop/webassets/671ff32e5e9bec64a207e3b2_route_Koninklijke_weg_qawkhc.jpg"
-                        alt="Illustratie Koninklijke Weg"
-                        width="800"
-                        height="500"
-                        loading="lazy"
-                        decoding="async"
-                        style="aspect-ratio: 8/5;"
-                        class="w-full h-auto object-cover"
-                    />
+                <div class="relative z-10">
                     <div
-                        class="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-sm py-1.5 px-4"
+                        class="w-12 h-12 bg-surface/50 rounded-xl flex items-center justify-center mb-6 text-brand-orange border border-glass-border"
                     >
-                        <figcaption
-                            class="text-[10px] text-white/80 font-medium text-center uppercase tracking-wider"
-                        >
-                            Tekening: Anneke van de Glind
-                        </figcaption>
-                    </div>
-                </figure>
-            </div>
-        </div>
-
-        {/* Paleis Noordeinde */}
-        <div
-            class="glass-card p-8 rounded-3xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300"
-        >
-            <div
-                class="absolute top-0 right-0 p-8 opacity-10 text-brand-blue-light group-hover:scale-110 transition-transform duration-500"
-            >
-                <MapPin className="w-24 h-24" />
-            </div>
-            <div class="relative z-10">
-                <div
-                    class="w-12 h-12 bg-surface/50 rounded-xl flex items-center justify-center mb-6 text-brand-orange border border-glass-border"
-                >
-                    <MapPin className="w-6 h-6" />
-                </div>
-                <h3 class="text-2xl font-display font-bold text-primary mb-4">
-                    Paleis Noordeinde
-                </h3>
-                <p class="text-secondary leading-relaxed">
-                    Paleis Noordeinde is het beginpunt van de Koninklijke Weg.
-                    Het paleis is een van de drie paleizen die door de
-                    Nederlandse staat ter beschikking zijn gesteld aan het
-                    staatshoofd.
-                </p>
-            </div>
-        </div>
-
-        {/* Toegankelijkheid (Full Width) */}
-        <div
-            class="glass-card p-8 rounded-3xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 md:col-span-2"
-        >
-            <div
-                class="absolute -right-10 -bottom-10 opacity-5 text-brand-orange"
-            >
-                <Accessibility className="w-64 h-64" />
-            </div>
-            <div
-                class="relative z-10 grid md:grid-cols-[1fr_2fr] gap-8 items-center"
-            >
-                <div>
-                    <div
-                        class="w-16 h-16 bg-brand-orange/10 rounded-2xl flex items-center justify-center mb-6 text-brand-orange border border-brand-orange/20"
-                    >
-                        <Accessibility className="w-8 h-8" />
+                        <Crown className="w-6 h-6" />
                     </div>
                     <h3
-                        class="text-2xl font-display font-bold text-primary mb-2"
+                        class="text-2xl font-display font-bold text-primary mb-4"
                     >
-                        Toegankelijkheid
+                        Koninklijke Weg
                     </h3>
-                    <p class="text-sm text-muted">Iedereen doet mee</p>
+                    <p
+                        class="text-secondary leading-relaxed mb-6"
+                        data-speakable
+                    >
+                        De Koninklijke Weg loopt van Paleis Noordeinde in Den
+                        Haag, via Soestdijk naar Paleis Het Loo. Onderweg loop
+                        je door het Groene Hart, over de Utrechtse Heuvelrug en
+                        via de Veluwe. De Koninklijke Loop (DKL) gebruikt het
+                        mooie laatste deel van deze route, van Kootwijk naar
+                        Apeldoorn.
+                    </p>
+
+                    <figure
+                        class="relative rounded-2xl overflow-hidden border border-glass-border shadow-lg group-hover:shadow-brand-orange/20 transition-all duration-500"
+                    >
+                        <img
+                            src="https://ik.imagekit.io/a0oim4e3e/tr:w-800,f-auto,q-80/De%20Koninklijkeloop/webassets/Koninklijke%20Weg%20Van%20Den%20Haag%20naar%20Apeldoorn.avif"
+                            alt="Kaart van de Koninklijke Weg wandelroute van Den Haag via Soestdijk naar Apeldoorn — 170 km historisch koninklijk pad door het Groene Hart en de Veluwe"
+                            width="800"
+                            height="500"
+                            loading="lazy"
+                            decoding="async"
+                            style="aspect-ratio: 8/5;"
+                            class="w-full h-auto object-cover"
+                        />
+                        <div
+                            class="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-sm py-1.5 px-4"
+                        >
+                            <figcaption
+                                class="text-[10px] text-white/80 font-medium text-center uppercase tracking-wider"
+                            >
+                                De Koninklijke Weg — Van Den Haag naar Apeldoorn
+                            </figcaption>
+                        </div>
+                    </figure>
                 </div>
+            </div>
+
+            {/* Paleis Noordeinde */}
+            <div
+                class="glass-card p-8 rounded-3xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300"
+            >
                 <div
-                    class="prose prose-p:text-secondary prose-strong:text-primary max-w-none"
+                    class="absolute top-0 right-0 p-8 opacity-10 text-brand-blue-light group-hover:scale-110 transition-transform duration-500"
                 >
-                    <p>
-                        Het pad is voor iedereen toegankelijk, ook voor mensen
-                        met een lichamelijke beperking. De route is <strong
-                            >rolstoelvriendelijk</strong
-                        >. Er zijn routebegeleiders, EHBO'ers en pendelbussen
-                        (inclusief rolstoelbus) beschikbaar om deelnemers naar
-                        de startpunten te brengen. Het volledige pad kent
-                        diverse etappes.
+                    <MapPin className="w-24 h-24" />
+                </div>
+                <div class="relative z-10">
+                    <div
+                        class="w-12 h-12 bg-surface/50 rounded-xl flex items-center justify-center mb-6 text-brand-orange border border-glass-border"
+                    >
+                        <MapPin className="w-6 h-6" />
+                    </div>
+                    <h3
+                        class="text-2xl font-display font-bold text-primary mb-4"
+                    >
+                        Paleis Noordeinde
+                    </h3>
+                    <p class="text-secondary leading-relaxed">
+                        Paleis Noordeinde is het beginpunt van de Koninklijke
+                        Weg. Het paleis is een van de drie paleizen die door de
+                        Nederlandse staat ter beschikking zijn gesteld aan het
+                        staatshoofd.
                     </p>
                 </div>
             </div>
+
+            {/* Toegankelijkheid (Full Width) */}
+            <div
+                class="glass-card p-8 rounded-3xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 md:col-span-2"
+            >
+                <div
+                    class="absolute -right-10 -bottom-10 opacity-5 text-brand-orange"
+                >
+                    <Accessibility className="w-64 h-64" />
+                </div>
+                <div
+                    class="relative z-10 grid md:grid-cols-[1fr_2fr] gap-8 items-center"
+                >
+                    <div>
+                        <div
+                            class="w-16 h-16 bg-brand-orange/10 rounded-2xl flex items-center justify-center mb-6 text-brand-orange border border-brand-orange/20"
+                        >
+                            <Accessibility className="w-8 h-8" />
+                        </div>
+                        <h3
+                            class="text-2xl font-display font-bold text-primary mb-2"
+                        >
+                            Toegankelijkheid
+                        </h3>
+                        <p class="text-sm text-muted">Iedereen doet mee</p>
+                    </div>
+                    <div
+                        class="prose prose-p:text-secondary prose-strong:text-primary max-w-none"
+                    >
+                        <p data-speakable>
+                            Het pad is voor iedereen toegankelijk, ook voor
+                            mensen met een lichamelijke beperking. De route is <strong
+                                >rolstoelvriendelijk</strong
+                            >. Er zijn routebegeleiders, EHBO'ers en
+                            pendelbussen (inclusief rolstoelbus) beschikbaar om
+                            deelnemers naar de startpunten te brengen. Het
+                            volledige pad kent diverse etappes.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+    </section>
+</article>

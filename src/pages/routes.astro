@@ -3,15 +3,36 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/blocks/Global/Navbar.astro";
 import HeroSection from "../components/blocks/Home/HeroSection.astro";
 import Footer from "../components/blocks/Global/Footer.astro";
-import RouteMap from "../components/islands/RouteMap.tsx";
+import RouteDetailWithElevation from "../components/islands/RouteDetailWithElevation.tsx";
 import RouteGrid from "../components/blocks/Route/RouteGrid.astro";
 
 export const prerender = true;
+
+const ogImage =
+    "https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/webassets/Koninklijke%20Weg%20Van%20Den%20Haag%20naar%20Apeldoorn.avif";
+
+const routesJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SportsActivityLocation",
+    name: "DKL Wandelroutes — Koninklijke Weg",
+    description:
+        "Vier rolstoelvriendelijke wandelroutes van 2,5 tot 15 km over de Koninklijke Weg, van Kootwijk naar Paleis Het Loo in Apeldoorn.",
+    url: "https://dekoninklijkeloop.nl/routes",
+    address: {
+        "@type": "PostalAddress",
+        streetAddress: "Koninklijke Weg",
+        addressLocality: "Apeldoorn",
+        addressRegion: "Gelderland",
+        addressCountry: "NL",
+    },
+};
 ---
 
 <BaseLayout
-    title="Routes | De Koninklijke Loop 2026"
-    description="Ontdek de vier wandelroutes van De Koninklijke Loop: 2,5, 6, 10 en 15 km over de Koninklijke Weg van Kootwijk naar Paleis Het Loo in Apeldoorn."
+    title="Wandelroutes DKL 2026 | De Koninklijke Loop — Kootwijk tot Apeldoorn"
+    description="Ontdek de vier wandelroutes van De Koninklijke Loop (DKL): 2,5, 6, 10 en 15 km over de Koninklijke Weg. Rolstoelvriendelijk pad van Kootwijk naar Paleis Het Loo in Apeldoorn."
+    ogImage={ogImage}
+    jsonLd={routesJsonLd}
 >
     <Navbar />
 
@@ -35,18 +56,15 @@ export const prerender = true;
 
             <div class="mb-12 mt-20 max-w-3xl mx-auto text-center">
                 <h2 class="text-3xl font-display font-bold text-primary mb-6">
-                    Onze Route
+                    Interactieve Kaart
                 </h2>
                 <p class="text-lg text-muted leading-relaxed">
-                    Dit is de toegankelijke wandelroute die we lopen tijdens de
-                    Koninklijke Loop (DKL), met keuze uit 2.5, 6, 10 of 15 km.
-                    Bekijk de interactieve kaart hieronder voor meer details
-                    over de route van Kootwijk naar Apeldoorn.
+                    Bekijk de route op de kaart met hoogteprofiel. Hover over
+                    het hoogteprofiel om je positie op de kaart te zien.
                 </p>
             </div>
 
-            <!-- Client-only map to avoid SSR issues with Leaflet -->
-            <RouteMap client:only="react" />
+            <RouteDetailWithElevation client:only="react" />
         </div>
     </main>
 

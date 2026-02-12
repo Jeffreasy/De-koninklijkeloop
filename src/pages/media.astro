@@ -56,11 +56,40 @@ const photoYears = Object.keys(imagesByYear).sort((a, b) => parseInt(b) - parseI
 // Stats
 const totalPhotos = Object.values(imagesByYear).reduce((sum, imgs) => sum + imgs.length, 0);
 const totalVideos = videos.length;
+const mediaJsonLd = [
+    {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        name: "De Koninklijke Loop 2025 — Aftermovie",
+        description:
+            "Aftermovie van De Koninklijke Loop (DKL) 2025: het inclusieve wandelevenement over de Koninklijke Weg in Apeldoorn.",
+        thumbnailUrl:
+            "https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/DKL25/WhatsApp_Image_2025-05-17_at_19.21.14_3f7fd59e_gme3eo.jpg",
+        uploadDate: "2025-06-01",
+        contentUrl: "https://streamable.com/o/m2nqjk",
+        embedUrl: "https://streamable.com/o/m2nqjk",
+        publisher: {
+            "@type": "Organization",
+            name: "De Koninklijke Loop",
+            url: "https://dekoninklijkeloop.nl",
+        },
+    },
+    {
+        "@context": "https://schema.org",
+        "@type": "ImageGallery",
+        name: "DKL Foto's — De Koninklijke Loop",
+        description: `Fotogalerij van De Koninklijke Loop met ${totalPhotos} foto's uit alle edities. Sfeerimpressies van het inclusieve wandelevenement over de Koninklijke Weg.`,
+        url: "https://dekoninklijkeloop.nl/media",
+        numberOfItems: totalPhotos,
+    },
+];
 ---
 
 <BaseLayout
-    title="Media & Foto's | De Koninklijke Loop"
-    description="Bekijk foto's en video's van De Koninklijke Loop. Aftermovies, sfeerimpressies en hoogtepunten van alle edities."
+    title="Foto's & Video's DKL | De Koninklijke Loop Media"
+    description="Bekijk foto's, video's en aftermovies van De Koninklijke Loop (DKL). Sfeerimpressies en hoogtepunten van alle edities. Upload je eigen foto's na het inloggen."
+    ogImage="https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/DKL25/WhatsApp_Image_2025-05-17_at_19.21.14_3f7fd59e_gme3eo.jpg"
+    jsonLd={mediaJsonLd}
 >
     <Navbar />
 

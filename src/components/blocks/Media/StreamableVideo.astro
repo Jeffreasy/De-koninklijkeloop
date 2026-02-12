@@ -19,7 +19,7 @@ const { shortcode, title, bare = false } = Astro.props;
         >
             <img
                 src={`https://thumbs-east.streamable.com/image/${shortcode}.jpg`}
-                onerror="this.src='https://placehold.co/1920x1080/000000/FFF?text=Video+Laden'; this.onerror=null;"
+                onerror="this.src='https://placehold.co/1920x1080/000000/FFF?text=Video+Laden';this.onerror=null"
                 alt={title || "Video thumbnail"}
                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
@@ -51,7 +51,7 @@ const { shortcode, title, bare = false } = Astro.props;
             >
                 <img
                     src={`https://thumbs-east.streamable.com/image/${shortcode}.jpg`}
-                    onerror="this.src='https://placehold.co/1920x1080/000000/FFF?text=Video+Laden'; this.onerror=null;"
+                    onerror="this.src='https://placehold.co/1920x1080/000000/FFF?text=Video+Laden';this.onerror=null"
                     alt={title || "Video"}
                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"

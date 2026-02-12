@@ -5,11 +5,26 @@ import Footer from "../components/blocks/Global/Footer.astro";
 import TeamSection from "../components/blocks/Overons/TeamSection.astro";
 
 export const prerender = true;
+
+const aboutJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: "Over De Koninklijke Loop (DKL)",
+    description:
+        "Het team achter De Koninklijke Loop — een inclusief wandelevenement georganiseerd door mensen uit de zorg, voor en door mensen met een beperking.",
+    url: "https://dekoninklijkeloop.nl/about",
+    mainEntity: {
+        "@type": "Organization",
+        name: "De Koninklijke Loop",
+        url: "https://dekoninklijkeloop.nl",
+    },
+};
 ---
 
 <BaseLayout
-    title="Over Ons | De Koninklijke Loop 2026"
-    description="Ontmoet het team achter De Koninklijke Loop. Een initiatief voor en door mensen met een beperking, georganiseerd door mensen uit de zorg."
+    title="Over Ons — Het Team achter DKL | De Koninklijke Loop 2026"
+    description="Ontmoet het team achter De Koninklijke Loop (DKL). Een inclusief wandelevenement georganiseerd voor en door mensen met een beperking, opgezet door mensen uit de zorg."
+    jsonLd={aboutJsonLd}
 >
     <Navbar />
 

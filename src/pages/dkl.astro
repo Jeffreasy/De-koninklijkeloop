@@ -3,14 +3,78 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/blocks/Global/Navbar.astro";
 import Footer from "../components/blocks/Global/Footer.astro";
 import DKLInfo from "../components/blocks/DKL/DKLInfo.astro";
-import KomootEmbed from "../components/blocks/Route/KomootEmbed.astro";
+import RouteDetailWithElevation from "../components/islands/RouteDetailWithElevation.tsx";
 
 export const prerender = true;
+
+const title = "De Koninklijke Loop (DKL) 2026 — Wandelroute Koninklijke Weg";
+const description =
+    "DKL26: het inclusieve wandelevenement over de historische Koninklijke Weg. Rolstoelvriendelijk wandelpad van Kootwijk naar Apeldoorn, met afstanden van 2,5 tot 15 km. Gratis meedoen op 16 mei 2026.";
+
+const ogImage =
+    "https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/webassets/Koninklijke%20Weg%20Van%20Den%20Haag%20naar%20Apeldoorn.avif";
+
+const dklJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SportsActivityLocation",
+    name: "Koninklijke Weg Wandelroute",
+    alternateName: ["DKL Route", "DKL26 Route", "Koninklijke Loop Route"],
+    description:
+        "Rolstoelvriendelijk wandelpad over de historische Koninklijke Weg van Kootwijk naar Apeldoorn. Onderdeel van de 170 km lange route van Paleis Noordeinde naar Paleis Het Loo.",
+    url: "https://dekoninklijkeloop.nl/dkl",
+    image: [
+        ogImage,
+        "https://ik.imagekit.io/a0oim4e3e/tr:w-1200,f-auto,q-80/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp",
+        "https://ik.imagekit.io/a0oim4e3e/tr:w-1200,f-auto,q-80/De%20Koninklijkeloop/DKL25/WhatsApp_Image_2025-05-17_at_19.21.14_3f7fd59e_gme3eo.jpg",
+    ],
+    address: {
+        "@type": "PostalAddress",
+        streetAddress: "Koninklijke Weg",
+        addressLocality: "Apeldoorn",
+        addressRegion: "Gelderland",
+        postalCode: "7311",
+        addressCountry: "NL",
+    },
+    geo: {
+        "@type": "GeoCoordinates",
+        latitude: 52.2137,
+        longitude: 5.8713,
+    },
+    amenityFeature: [
+        {
+            "@type": "LocationFeatureSpecification",
+            name: "Rolstoelvriendelijk",
+            value: true,
+        },
+        {
+            "@type": "LocationFeatureSpecification",
+            name: "EHBO beschikbaar",
+            value: true,
+        },
+        {
+            "@type": "LocationFeatureSpecification",
+            name: "Pendelbusvervoer",
+            value: true,
+        },
+    ],
+    openingHoursSpecification: {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: "Saturday",
+        opens: "08:00",
+        closes: "17:00",
+        validFrom: "2026-05-16",
+        validThrough: "2026-05-16",
+    },
+    publicAccess: true,
+    isAccessibleForFree: true,
+};
 ---
 
 <BaseLayout
-    title="Over DKL | De Koninklijke Loop 2026"
-    description="Het verhaal achter De Koninklijke Loop. Een wandelevenement georganiseerd voor en door mensen met een beperking. Bekijk de route van Kootwijk naar Apeldoorn."
+    title={title}
+    description={description}
+    ogImage={ogImage}
+    jsonLd={dklJsonLd}
 >
     <Navbar />
 
@@ -37,7 +101,7 @@ export const prerender = true;
             </div>
 
             {/* Route & Map Section */}
-            <div class="max-w-4xl mx-auto">
+            <div class="max-w-5xl mx-auto">
                 <div class="text-center mb-12">
                     <h2
                         class="text-3xl font-display font-bold text-primary mb-4"
@@ -47,17 +111,11 @@ export const prerender = true;
                     <p class="text-lg text-secondary leading-relaxed">
                         Dit is de toegankelijke wandelroute die we lopen tijdens
                         de Koninklijke Loop (DKL), met keuze uit 2.5, 6, 10 of
-                        15 km. Bekijk de interactieve kaart hieronder voor meer
-                        details over de route van Kootwijk naar Apeldoorn.
+                        15 km. Bekijk de interactieve kaart met hoogteprofiel.
                     </p>
                 </div>
 
-                {/* Komoot Embed */}
-                <KomootEmbed
-                    tourId="1914852208"
-                    shareToken="amNaNnjQrpHjos4rnAN4E3jReDmCWWTlgUuoGvDgE4cA7mkSzG"
-                    title="Koninklijke Loop Route - Komoot"
-                />
+                <RouteDetailWithElevation client:only="react" />
             </div>
         </div>
     </main>

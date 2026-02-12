@@ -15,7 +15,7 @@ const {
     title,
     description = siteConfig.meta.defaultDescription,
     canonicalUrl,
-    ogImage = "https://dekoninklijkeloop.nl/og-image.svg",
+    ogImage = "https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp",
     ogType = "website",
     jsonLd,
     noindex = false,
@@ -97,9 +97,34 @@ const breadcrumbSchema =
           }
         : null;
 
+// WebPage schema with speakable + dateModified for voice search & GEO
+const webPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: title,
+    description: description,
+    url: resolvedCanonical,
+    inLanguage: "nl-NL",
+    isPartOf: {
+        "@type": "WebSite",
+        name: "De Koninklijke Loop",
+        url: "https://dekoninklijkeloop.nl",
+    },
+    dateModified: new Date().toISOString().split("T")[0],
+    speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: ["h1", "[data-speakable]", "main p:first-of-type"],
+    },
+    about: {
+        "@type": "Event",
+        name: "De Koninklijke Loop 2026",
+    },
+};
+
 const allSchemas = [
     organizationSchema,
     websiteSchema,
+    webPageSchema,
     ...(breadcrumbSchema ? [breadcrumbSchema] : []),
     ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []),
 ];
@@ -126,6 +151,22 @@ const allSchemas = [
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+
+    {/* OG Image Dimensions */}
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+
+    {/* Geo Meta Tags - Lokale SEO */}
+    <meta name="geo.region" content="NL-GE" />
+    <meta name="geo.placename" content="Apeldoorn" />
+    <meta name="geo.position" content="52.2137;5.8713" />
+    <meta name="ICBM" content="52.2137, 5.8713" />
+
+    {/* Prerender Hints — Snellere navigatie */}
+    <link rel="prefetch" href="/dkl" />
+    <link rel="prefetch" href="/routes" />
+    <link rel="prefetch" href="/register" />
 
     {/* Additional Discovery */}
     <link rel="author" href="/humans.txt" />

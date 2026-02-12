@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, Marker, Popup, CircleMarker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Route } from '../../lib/routeData';
 import L from 'leaflet';
@@ -29,11 +29,18 @@ function MapUpdater({ points }: { points: { lat: number; lng: number }[] }) {
     return null;
 }
 
-export default function RouteMapInner({ route }: { route: Route }) {
+interface RouteMapInnerProps {
+    route: Route;
+    hoverIndex?: number | null;
+}
+
+export default function RouteMapInner({ route, hoverIndex }: RouteMapInnerProps) {
     if (!route) return null;
 
+    const hoverPoint = hoverIndex != null && route.points[hoverIndex] ? route.points[hoverIndex] : null;
+
     return (
-        <div className="relative h-[500px] w-full">
+        <div className="relative h-[400px] md:h-[500px] w-full">
             <MapContainer
                 center={[52.2205, 5.9552]}
                 zoom={13}
@@ -47,7 +54,7 @@ export default function RouteMapInner({ route }: { route: Route }) {
 
                 <Polyline
                     positions={route.points.map(p => [p.lat, p.lng])}
-                    pathOptions={{ color: route.color, weight: 6, opacity: 0.8 }}
+                    pathOptions={{ color: route.color, weight: 5, opacity: 0.85 }}
                 />
                 {/* Start marker: first point of the route */}
                 <Marker position={[route.points[0].lat, route.points[0].lng]}>
@@ -58,6 +65,20 @@ export default function RouteMapInner({ route }: { route: Route }) {
                 <Marker position={[52.2205, 5.9552]}>
                     <Popup>Finish: Grote Kerk, Loolaan 16</Popup>
                 </Marker>
+
+                {/* Hover indicator from elevation chart */}
+                {hoverPoint && (
+                    <CircleMarker
+                        center={[hoverPoint.lat, hoverPoint.lng]}
+                        radius={8}
+                        pathOptions={{
+                            color: '#fff',
+                            fillColor: route.color,
+                            fillOpacity: 1,
+                            weight: 3,
+                        }}
+                    />
+                )}
 
                 <MapUpdater points={route.points} />
             </MapContainer>

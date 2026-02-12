@@ -17,10 +17,13 @@ const eventJsonLd = {
 	"@context": "https://schema.org",
 	"@type": "Event",
 	name: "De Koninklijke Loop 2026",
+	alternateName: ["DKL", "DKL26", "De Koninklijke Loop", "Koninklijke Loop"],
 	description:
 		"Inclusief wandelevenement voor en door mensen met een beperking. Routes van 2,5 tot 15 km over de Koninklijke Weg. Goede doel: Only Friends.",
 	image: [
-		"https://ik.imagekit.io/a0oim4e3e/tr:w-1200,f-auto,q-80/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp",
+		"https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp",
+		"https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/webassets/Koninklijke%20Weg%20Van%20Den%20Haag%20naar%20Apeldoorn.avif",
+		"https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/DKL25/WhatsApp_Image_2025-05-17_at_19.21.14_3f7fd59e_gme3eo.jpg",
 	],
 	startDate: "2026-05-16T08:00:00+02:00",
 	endDate: "2026-05-16T17:00:00+02:00",
@@ -76,8 +79,9 @@ const eventJsonLd = {
 ---
 
 <BaseLayout
-	title="De Koninklijke Loop 2026 | Inclusief Wandelevenement"
-	description="De Koninklijke Loop is een inclusief wandelevenement op 16 mei 2026 in Kootwijk–Apeldoorn. Gratis deelname, routes van 2,5 tot 15 km. Goede doel: Only Friends."
+	title="De Koninklijke Loop (DKL) 2026 | Inclusief Wandelevenement Apeldoorn"
+	description="De Koninklijke Loop (DKL) is een inclusief wandelevenement op 16 mei 2026 over de Koninklijke Weg in Kootwijk–Apeldoorn. Gratis deelname, routes van 2,5 tot 15 km. Goede doel: Only Friends."
+	ogImage="https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
 	jsonLd={eventJsonLd}
 >
 	<Navbar />
