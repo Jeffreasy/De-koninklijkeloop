@@ -106,12 +106,15 @@ const isActive = (href: string) => {
 <!-- Mobile Menu Overlay - Premium Redesign -->
 <div
     id="mobile-menu"
-    class="fixed inset-0 bg-linear-to-br from-body via-body/95 to-body/90 backdrop-blur-3xl shadow-2xl z-100 translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] md:hidden flex flex-col"
+    class="fixed inset-0 shadow-2xl z-100 translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] md:hidden flex flex-col"
+    style="background-color: var(--bg-body);"
     aria-hidden="true"
 >
     <!-- Enhanced Background Effects -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <!-- Animated Gradient Blobs -->
+    <div
+        class="absolute inset-0 overflow-hidden pointer-events-none dark:block hidden"
+    >
+        <!-- Animated Gradient Blobs (dark mode only) -->
         <div
             class="absolute top-0 right-0 w-96 h-96 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-brand-orange),transparent_70%)_0%,color-mix(in_srgb,var(--color-brand-orange),transparent_80%)_100%)] blur-[120px] rounded-full animate-pulse"
         >
@@ -130,11 +133,11 @@ const isActive = (href: string) => {
 
     <!-- Mobile Header - Enhanced -->
     <div
-        class="flex items-center justify-between px-6 h-24 border-b border-brand-orange/20 relative z-10 bg-linear-to-r from-surface/60 via-surface/50 to-surface/60 backdrop-blur-xl shadow-lg"
+        class="flex items-center justify-between px-6 h-24 border-b border-gray-200 dark:border-brand-orange/20 relative z-10 bg-gray-50 dark:bg-surface/60 shadow-sm dark:shadow-lg"
     >
         <div class="flex items-center gap-2">
             <div
-                class="p-2 bg-linear-to-br from-white/15 to-white/5 rounded-2xl border border-white/20 shadow-xl backdrop-blur-sm"
+                class="p-2 bg-white dark:bg-white/10 rounded-2xl border border-gray-200 dark:border-white/20 shadow-md dark:shadow-xl"
             >
                 <OptimizedImage
                     src="/De Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
@@ -147,7 +150,7 @@ const isActive = (href: string) => {
         </div>
         <button
             id="mobile-close-btn"
-            class="p-3 bg-surface/50 hover:bg-brand-orange backdrop-blur-md transition-all rounded-xl border border-glass-border hover:border-brand-orange shadow-lg hover:scale-110 active:scale-95 group"
+            class="p-3 bg-gray-100 dark:bg-surface/50 hover:bg-brand-orange transition-all rounded-xl border border-gray-200 dark:border-glass-border hover:border-brand-orange shadow-md dark:shadow-lg hover:scale-110 active:scale-95 group"
             aria-label="Close Menu"
         >
             <X
@@ -169,7 +172,7 @@ const isActive = (href: string) => {
                         class="mobile-nav-link group relative translate-y-4 opacity-0 transform transition-all duration-300"
                         style={`transition-delay: ${index * 50}ms`}
                     >
-                        <div class="relative overflow-hidden rounded-2xl bg-white/5 dark:bg-white/2 backdrop-blur-xl border-2 border-white/30 dark:border-white/10 hover:border-brand-orange/60 dark:hover:border-brand-orange/40 shadow-xl hover:shadow-2xl hover:shadow-brand-orange/10 transition-all duration-300 p-6 hover:scale-[1.02] active:scale-[0.98] will-change-transform">
+                        <div class="relative overflow-hidden rounded-2xl bg-gray-50 dark:bg-white/5 border-2 border-gray-200 dark:border-white/10 hover:border-brand-orange/60 dark:hover:border-brand-orange/40 shadow-sm dark:shadow-xl hover:shadow-lg dark:hover:shadow-2xl hover:shadow-brand-orange/10 transition-all duration-300 p-6 hover:scale-[1.02] active:scale-[0.98] will-change-transform">
                             {/* Gradient Accent Overlay */}
                             <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-linear-to-r from-brand-orange/5 via-transparent to-action-blue/5 pointer-events-none" />
 
