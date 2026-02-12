@@ -446,23 +446,23 @@ export default function AnalyticsDashboard() {
                                     </defs>
                                     <XAxis
                                         dataKey="date"
-                                        tick={{ fontSize: 11, fill: "var(--color-text-muted)" }}
+                                        tick={{ fontSize: 11, fill: "var(--text-muted, #94a3b8)" }}
                                         axisLine={false}
                                         tickLine={false}
                                     />
                                     <YAxis
-                                        tick={{ fontSize: 11, fill: "var(--color-text-muted)" }}
+                                        tick={{ fontSize: 11, fill: "var(--text-muted, #94a3b8)" }}
                                         axisLine={false}
                                         tickLine={false}
                                         width={30}
                                     />
                                     <Tooltip
                                         contentStyle={{
-                                            background: "var(--color-surface, rgba(15, 23, 42, 0.9))",
-                                            border: "1px solid var(--color-glass-border, rgba(255,255,255,0.1))",
+                                            background: "var(--bg-surface, #0f172a)",
+                                            border: "1px solid var(--glass-border, rgba(148, 163, 184, 0.08))",
                                             borderRadius: "12px",
                                             fontSize: "12px",
-                                            color: "var(--color-text-primary, #F8FAFC)",
+                                            color: "var(--text-primary, #f8fafc)",
                                         }}
                                     />
                                     <Area
@@ -848,7 +848,7 @@ function SankeyNode({ x, y, width, height, payload }: any) {
                 y={y + height / 2}
                 textAnchor={x < 300 ? "end" : "start"}
                 dominantBaseline="middle"
-                fill="var(--color-text-secondary, #CBD5E1)"
+                fill="var(--text-secondary, #e2e8f0)"
                 fontSize={11}
                 fontWeight={500}
             >
