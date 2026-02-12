@@ -6,7 +6,7 @@ export const charityHistory = [
         header: "Sporten is voor Iedereen",
         subtitle: "Samen sterk voor kinderen met een beperking",
         description: "In 2026 lopen we voor Sportclub Only Friends. Zij maken sporten mogelijk voor kinderen en jongeren met een lichamelijke of verstandelijke beperking. Want bij Only Friends ben je geen uitzondering, maar de norm.",
-        links: { donation: "https://onlyfriends.nl/doneren" }, // Pas aan naar jouw link
+        links: { donation: "https://gofund.me/e7950f1c7" },
         features: [
             { value: "800+", label: "Sporters" },
             { value: "25+", label: "Sporten" },

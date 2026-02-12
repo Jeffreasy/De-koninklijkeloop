@@ -150,15 +150,27 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
                                                 {item.answer}
                                             </p>
 
-                                            {item.action && (
-                                                <a
-                                                    href={item.actionText?.includes("inschrijven") ? "/register" : "/contact"}
-                                                    className="inline-flex items-center gap-2 mt-6 text-sm font-bold text-white bg-brand-orange hover:bg-orange-400 px-5 py-2.5 rounded-lg shadow-lg shadow-brand-orange/20 transition-all hover:scale-105 active:scale-95 focus:ring-2 focus:ring-offset-2 focus:ring-brand-orange"
-                                                >
-                                                    {item.actionText}
-                                                    <ArrowRight className="w-4 h-4" />
-                                                </a>
-                                            )}
+                                            {item.action && (() => {
+                                                const text = item.actionText?.toLowerCase() ?? "";
+                                                const href = text.includes("doneer")
+                                                    ? "https://gofund.me/e7950f1c7"
+                                                    : text.includes("voorwaarden")
+                                                        ? "/voorwaarden"
+                                                        : text.includes("inschrijven")
+                                                            ? "/register"
+                                                            : "/contact";
+                                                const isExternal = href.startsWith("http");
+                                                return (
+                                                    <a
+                                                        href={href}
+                                                        {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                                                        className="inline-flex items-center gap-2 mt-6 text-sm font-bold text-white bg-brand-orange hover:bg-orange-400 px-5 py-2.5 rounded-lg shadow-lg shadow-brand-orange/20 transition-all hover:scale-105 active:scale-95 focus:ring-2 focus:ring-offset-2 focus:ring-brand-orange"
+                                                    >
+                                                        {item.actionText}
+                                                        <ArrowRight className="w-4 h-4" />
+                                                    </a>
+                                                );
+                                            })()}
                                         </div>
                                     </div>
                                 </div>

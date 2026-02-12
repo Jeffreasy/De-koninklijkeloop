@@ -1,7 +1,7 @@
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { ConvexClientProvider } from "../islands/ConvexClientProvider";
-import { Heart, Calendar, ArrowDown, ExternalLink, AlertTriangle } from "lucide-react";
+import { Heart, Calendar, ArrowDown, ExternalLink } from "lucide-react";
 
 /**
  * Normalize any GoFundMe URL into a proper widget embed URL.
@@ -10,23 +10,24 @@ import { Heart, Calendar, ArrowDown, ExternalLink, AlertTriangle } from "lucide-
  *   - Page URL: https://www.gofundme.com/f/samen-in-actie-2025
  *   - Widget URL: https://www.gofundme.com/f/samen-in-actie-2025/widget/medium
  *   - Sharesheet URL: https://www.gofundme.com/f/samen-in-actie-2025?sharesheet=...
- *   - Full embed URL with attribution: https://www.gofundme.com/f/.../widget/medium?attribution_id=...
+ *   - Short URL: https://gofund.me/e7950f1c7 (cannot be embedded, returns null)
  * 
- * Returns: https://www.gofundme.com/f/{slug}/widget/medium
+ * Returns: https://www.gofundme.com/f/{slug}/widget/medium or null for short URLs
  */
 function buildWidgetUrl(rawUrl: string): string | null {
     try {
         const url = new URL(rawUrl);
 
+        // Short URLs (gofund.me) are redirects — can't be embedded as widgets
+        if (url.hostname === "gofund.me") return null;
+
         // Extract the campaign slug from the pathname
-        // Pattern: /f/{slug} or /f/{slug}/widget/... or /f/{slug}/...
         const pathMatch = url.pathname.match(/^\/f\/([^/]+)/);
         if (!pathMatch) return null;
 
         const slug = pathMatch[1];
         return `https://www.gofundme.com/f/${slug}/widget/medium`;
     } catch {
-        // If URL parsing fails, try a regex fallback
         const match = rawUrl.match(/gofundme\.com\/f\/([^/?#]+)/);
         if (match) {
             return `https://www.gofundme.com/f/${match[1]}/widget/medium`;
@@ -37,16 +38,19 @@ function buildWidgetUrl(rawUrl: string): string | null {
 
 /**
  * Extract the clean GoFundMe page URL for the "Bekijk op GoFundMe" link.
+ * Short URLs (gofund.me) are returned as-is since they redirect properly.
  */
 function buildPageUrl(rawUrl: string): string {
     try {
         const url = new URL(rawUrl);
+        // Short URLs work fine as direct links
+        if (url.hostname === "gofund.me") return rawUrl;
         const pathMatch = url.pathname.match(/^\/f\/([^/]+)/);
         if (pathMatch) {
             return `https://www.gofundme.com/f/${pathMatch[1]}`;
         }
     } catch { /* fallback */ }
-    return rawUrl; // Return as-is if we can't parse
+    return rawUrl;
 }
 
 function DonationWidgetContent() {
@@ -148,20 +152,26 @@ function DonationWidgetContent() {
                             />
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-                            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4">
-                                <AlertTriangle className="w-8 h-8 text-amber-400" />
+                        <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-8">
+                            <div className="w-20 h-20 rounded-full bg-brand-orange/10 border border-brand-orange/20 flex items-center justify-center mb-6">
+                                <Heart className="w-10 h-10 text-brand-orange fill-brand-orange" />
                             </div>
-                            <h3 className="text-lg font-bold text-text-primary mb-2">Ongeldige GoFundMe URL</h3>
-                            <p className="text-text-muted max-w-sm text-sm leading-relaxed mb-4">
-                                De opgeslagen URL kon niet worden geparsed als een geldige GoFundMe campagne.
+                            <h3 className="text-xl font-bold text-text-primary mb-2 font-display">{activeCampaign.title}</h3>
+                            <p className="text-text-muted max-w-sm text-sm leading-relaxed mb-6">
+                                Widget niet beschikbaar voor verkorte URLs. Bezoekers worden doorgestuurd naar de GoFundMe pagina.
                             </p>
-                            <div className="text-xs text-text-muted bg-glass-surface/30 rounded-lg px-4 py-2 font-mono break-all max-w-md">
+                            <a
+                                href={pageUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-white bg-[#00b964] hover:bg-[#00a055] shadow-lg shadow-[#00b964]/20 transition-all hover:scale-105 active:scale-95"
+                            >
+                                <ExternalLink className="w-4 h-4" />
+                                Open GoFundMe Pagina
+                            </a>
+                            <div className="mt-4 text-xs text-text-muted bg-glass-surface/30 rounded-lg px-4 py-2 font-mono break-all max-w-md">
                                 {activeCampaign.gofundme_url}
                             </div>
-                            <p className="text-xs text-text-muted mt-3">
-                                Verwacht formaat: https://www.gofundme.com/f/campagne-naam
-                            </p>
                         </div>
                     )}
                 </div>

@@ -51,6 +51,7 @@ export const siteConfig = {
             { name: "Het Goede Doel", href: "/charity" },
             { name: "Contact", href: "/contact" },
             { name: "Voorwaarden", href: "/voorwaarden" },
+            { name: "Doneer", href: "https://gofund.me/e7950f1c7" },
             { name: "Inloggen", href: "/login" },
         ],
     },

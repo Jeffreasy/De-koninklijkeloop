@@ -4,15 +4,18 @@ import Navbar from "../components/blocks/Global/Navbar.astro";
 import Footer from "../components/blocks/Global/Footer.astro";
 import { Button } from "../components/ui/button";
 import { charityHistory } from "../data/charityConfig";
+import { Heart, ArrowRight, QrCode } from "lucide-react";
+import OptimizedImage from "../components/ui/OptimizedImage.astro";
 
 export const prerender = true;
 
 const currentYearCharity = charityHistory[0];
+const goFundMeUrl = currentYearCharity.links.donation;
 ---
 
 <BaseLayout
-    title="Het Goede Doel | De Koninklijke Loop"
-    description="Het goede doel van De Koninklijke Loop 2026 is Only Friends. Eerdere edities steunden het Liliane Fonds. Doneer of sponsor het evenement."
+    title="Het Goede Doel | De Koninklijke Loop 2026"
+    description="Het goede doel van De Koninklijke Loop 2026 is Only Friends. Doneer via GoFundMe of scan de QR-code."
 >
     <Navbar />
     <main class="pt-32 pb-20 px-6 min-h-screen">
@@ -30,7 +33,7 @@ const currentYearCharity = charityHistory[0];
             </div>
 
             <!-- Content Grid -->
-            <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div class="grid md:grid-cols-2 gap-8 items-start">
                 <div class="glass-card rounded-2xl p-8 space-y-4">
                     <h3 class="text-2xl font-bold text-primary">Onze Missie</h3>
                     <div class="text-muted leading-relaxed whitespace-pre-line">
@@ -47,30 +50,115 @@ const currentYearCharity = charityHistory[0];
                     </ul>
                 </div>
 
-                <div
-                    class="bg-brand-primary/10 rounded-2xl p-8 border border-brand-primary/20 text-center space-y-6"
-                >
-                    <h3 class="text-2xl font-bold text-text-body">Doe Meer</h3>
-                    <p class="text-text-body">
-                        Naast uw inschrijfgeld kunt u ook een extra donatie doen
-                        of uw eigen sponsoractie starten.
-                    </p>
-                    <Button variant="default" size="lg" className="w-full">
-                        Doneer Direct
-                    </Button>
+                <!-- Donation CTA -->
+                <div class="space-y-6">
+                    <!-- GoFundMe Button Card -->
+                    <div
+                        class="bg-rose-500/10 rounded-2xl p-8 border border-rose-500/20 text-center space-y-6"
+                    >
+                        <div class="flex justify-center">
+                            <Heart
+                                className="w-10 h-10 text-rose-500 fill-rose-500"
+                            />
+                        </div>
+                        <h3 class="text-2xl font-bold text-primary">
+                            Steun Only Friends
+                        </h3>
+                        <p class="text-secondary">
+                            Alle donaties gaan via GoFundMe direct naar Only
+                            Friends. Elke bijdrage maakt verschil!
+                        </p>
+                        <a
+                            href={goFundMeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Button
+                                size="lg"
+                                className="w-full rounded-2xl bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20 hover:shadow-rose-500/40 border-none transition-all group min-h-[48px] cursor-pointer"
+                            >
+                                Doneer via GoFundMe
+                                <ArrowRight
+                                    className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform"
+                                />
+                            </Button>
+                        </a>
+                    </div>
+
+                    <!-- QR Code Card -->
+                    <div
+                        class="glass-card rounded-2xl p-6 border border-glass-border text-center space-y-4"
+                    >
+                        <div
+                            class="flex items-center justify-center gap-2 text-secondary"
+                        >
+                            <QrCode className="w-5 h-5" />
+                            <span
+                                class="text-sm font-medium uppercase tracking-wider"
+                                >Scan om te doneren</span
+                            >
+                        </div>
+                        <div
+                            class="mx-auto max-w-[200px] bg-white rounded-xl p-4"
+                        >
+                            <img
+                                src="/De Koninklijkeloop/webassets/frame.svg"
+                                alt="QR-code naar GoFundMe donatiepagina Only Friends"
+                                class="w-full h-auto"
+                                loading="lazy"
+                            />
+                        </div>
+                        <p class="text-xs text-secondary/60">
+                            Scan deze QR-code met je telefoon om direct naar de
+                            GoFundMe pagina te gaan
+                        </p>
+                    </div>
                 </div>
             </div>
 
             <!-- Quote / Impact -->
-            <div class="border-l-4 border-brand-primary pl-6 py-2">
-                <blockquote class="text-2xl italic text-text-body font-display">
+            <div class="border-l-4 border-rose-500 pl-6 py-2">
+                <blockquote class="text-2xl italic text-primary font-display">
                     "Dankzij Only Friends kan ik sporten net als iedereen. Ik
                     hoor erbij, en dat voelt geweldig."
                 </blockquote>
-                <p class="mt-2 text-text-muted">
+                <p class="mt-2 text-secondary">
                     — Een sporter van Only Friends
                 </p>
             </div>
+
+            <!-- Past Campaigns -->
+            {
+                charityHistory.length > 1 && (
+                    <div class="border-t border-glass-border pt-12 space-y-8">
+                        <h3 class="text-2xl font-bold text-primary font-display text-center">
+                            Eerdere Edities
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            {charityHistory.slice(1).map((campaign) => (
+                                <div class="glass-card rounded-2xl p-6 border border-glass-border space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange text-sm font-bold">
+                                            {campaign.year}
+                                        </span>
+                                        {campaign.amountRaised && (
+                                            <span class="text-2xl font-bold text-brand-orange font-display">
+                                                {campaign.amountRaised}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h4 class="text-lg font-bold text-primary">
+                                        {campaign.name}
+                                    </h4>
+                                    <p class="text-secondary text-sm">
+                                        {campaign.description}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )
+            }
         </div>
     </main>
     <Footer />

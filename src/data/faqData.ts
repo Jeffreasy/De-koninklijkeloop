@@ -135,8 +135,10 @@ export const faqData: FAQCategory[] = [
         questions: [
             {
                 question: "Hoe kan ik doneren?",
-                answer: "Doneren kan direct via onze GoFundMe pagina. Alle giften komen, op de administratieve kosten van GoFundMe na, volledig ten goede van Only Friends.",
-                icon: "💳"
+                answer: "Doneren kan direct via onze GoFundMe pagina. Alle giften komen, op de administratieve kosten van GoFundMe na, volledig ten goede van Only Friends. Je kunt ook de QR-code scannen op onze goede doel pagina.",
+                icon: "💳",
+                action: true,
+                actionText: "Doneer via GoFundMe"
             },
             {
                 question: "Welk goed doel steunen we dit jaar?",

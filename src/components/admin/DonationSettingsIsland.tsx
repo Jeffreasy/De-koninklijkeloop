@@ -191,7 +191,7 @@ function DonationSettingsContent() {
                             <div className="mt-4 pt-4 border-t border-glass-border/50">
                                 <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-text-muted mb-2">
                                     <LinkIcon className="w-3 h-3" />
-                                    Widget URL
+                                    GoFundMe URL
                                 </label>
                                 <div className="flex gap-2">
                                     <input
