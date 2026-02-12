@@ -279,63 +279,61 @@ function ProgrammaContent() {
                         return (
                             <div
                                 key={route.id}
-                                className="relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md group hover:shadow-xl transition-all duration-300"
+                                className="relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md group hover:shadow-xl hover:border-glass-border/80 transition-all duration-300 flex flex-col h-full"
                             >
                                 <div
-                                    className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-[0.06] group-hover:opacity-[0.12] transition-opacity pointer-events-none"
+                                    className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-[0.04] group-hover:opacity-[0.10] transition-opacity pointer-events-none"
                                     style={{ backgroundColor: route.color }}
                                 />
-                                <div className="flex flex-col sm:flex-row">
-                                    {/* Mini-Map Tile Background + SVG Route Preview */}
-                                    <div className="relative w-full sm:w-48 h-32 sm:h-auto shrink-0 flex items-center justify-center overflow-hidden border-b sm:border-b-0 sm:border-r border-glass-border/50">
-                                        {/* Map tile grid */}
-                                        {(() => {
-                                            const pts = routePointsMap[route.id];
-                                            const tiles = pts ? getMapTiles(pts) : null;
-                                            return tiles ? (
-                                                <div className="absolute inset-0 opacity-50 group-hover:opacity-70 transition-opacity duration-500">
-                                                    {tiles.map((tile, ti) => (
-                                                        <img
-                                                            key={ti}
-                                                            src={tile.url}
-                                                            alt=""
-                                                            className="absolute w-[256px] h-[256px]"
-                                                            style={{ left: `calc(50% + ${tile.offsetX}px)`, top: `calc(50% + ${tile.offsetY}px)` }}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="absolute inset-0 bg-glass-surface/30" />
-                                            );
-                                        })()}
-                                        {/* Subtle overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/20 pointer-events-none" />
-                                        <svg viewBox="0 0 200 120" className="relative w-full h-full p-3 z-10" fill="none" preserveAspectRatio="xMidYMid meet">
-                                            {svgPath && (
-                                                <>
-                                                    <path d={svgPath} stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.1" fill="none" />
-                                                    <path d={svgPath} stroke={route.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.3))' }} />
-                                                    <circle cx={svgPath.split(' ')[1]} cy={svgPath.split(' ')[2]} r="4" fill={route.color} stroke="white" strokeWidth="1" opacity="0.9" />
-                                                    {(() => {
-                                                        const parts = svgPath.trim().split(/\s+/);
-                                                        return <circle cx={parts[parts.length - 2]} cy={parts[parts.length - 1]} r="4" fill={route.color} stroke="white" strokeWidth="1.5" />;
-                                                    })()}
-                                                </>
-                                            )}
-                                        </svg>
-                                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider border backdrop-blur-sm z-10" style={{ color: 'white', borderColor: `${route.color}50`, backgroundColor: `${route.color}40` }}>
-                                            {route.distance}
-                                        </div>
-                                    </div>
 
-                                    {/* Content */}
-                                    <div className="flex-1 p-5 md:p-6">
-                                        <div className="flex items-center gap-2.5 mb-2">
-                                            <div className="w-3 h-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: route.color }} />
-                                            <h3 className="text-base font-bold text-text-primary">{route.name}</h3>
-                                        </div>
-                                        <p className="text-sm text-text-muted leading-relaxed mb-4">{route.description}</p>
-                                        <div className="flex items-center gap-4 mb-3">
+                                {/* Map Preview — route SVG on gradient bg */}
+                                <div
+                                    className="relative w-full h-36 sm:h-40 shrink-0 overflow-hidden border-b border-glass-border/50"
+                                    style={{ background: `linear-gradient(135deg, ${route.color}08 0%, ${route.color}03 40%, transparent 70%)` }}
+                                >
+                                    {/* Subtle grid pattern */}
+                                    <div className="absolute inset-0 opacity-[0.04]" style={{
+                                        backgroundImage: `linear-gradient(${route.color}40 1px, transparent 1px), linear-gradient(90deg, ${route.color}40 1px, transparent 1px)`,
+                                        backgroundSize: '24px 24px',
+                                    }} />
+                                    {/* Gradient overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-glass-bg/60 pointer-events-none" />
+                                    {/* Route SVG */}
+                                    <svg viewBox="0 0 200 120" className="relative w-full h-full p-3 z-10" fill="none" preserveAspectRatio="xMidYMid meet">
+                                        {svgPath && (
+                                            <>
+                                                {/* Shadow/glow layer */}
+                                                <path d={svgPath} stroke={route.color} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" opacity="0.08" fill="none" />
+                                                {/* White outline */}
+                                                <path d={svgPath} stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.15" fill="none" />
+                                                {/* Main route */}
+                                                <path d={svgPath} stroke={route.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" style={{ filter: `drop-shadow(0 0 3px ${route.color}50)` }} />
+                                                {/* Start dot */}
+                                                <circle cx={svgPath.split(' ')[1]} cy={svgPath.split(' ')[2]} r="5" fill="white" stroke={route.color} strokeWidth="2" opacity="0.9" />
+                                                {/* End dot */}
+                                                {(() => {
+                                                    const parts = svgPath.trim().split(/\s+/);
+                                                    return <circle cx={parts[parts.length - 2]} cy={parts[parts.length - 1]} r="5" fill={route.color} stroke="white" strokeWidth="2" />;
+                                                })()}
+                                            </>
+                                        )}
+                                    </svg>
+                                    {/* Distance badge */}
+                                    <div className="absolute bottom-2.5 left-2.5 px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-wider border backdrop-blur-md z-10" style={{ color: 'white', borderColor: `${route.color}60`, backgroundColor: `${route.color}cc` }}>
+                                        {route.distance}
+                                    </div>
+                                </div>
+
+                                {/* Content — below map */}
+                                <div className="flex-1 p-5 flex flex-col">
+                                    <div className="flex items-center gap-2.5 mb-2">
+                                        <div className="w-3 h-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: route.color, boxShadow: `0 0 0 2px var(--color-bg-primary, #fff), 0 0 0 4px ${route.color}30` }} />
+                                        <h3 className="text-base font-bold text-text-primary leading-tight">{route.name}</h3>
+                                    </div>
+                                    <p className="text-sm text-text-muted leading-relaxed mb-4 line-clamp-2">{route.description}</p>
+
+                                    <div className="mt-auto space-y-3">
+                                        <div className="flex items-center gap-4">
                                             <div className="flex items-center gap-1.5 text-xs text-text-muted">
                                                 <Timer className="w-3.5 h-3.5" style={{ color: route.color }} />
                                                 <span className="font-medium">~{walkTime}</span>
@@ -347,7 +345,7 @@ function ProgrammaContent() {
                                         </div>
                                         <div className="flex flex-wrap gap-1.5">
                                             {labels.map(label => (
-                                                <span key={label} className="px-2 py-0.5 rounded-md text-[10px] font-medium border" style={{ color: route.color, borderColor: `${route.color}20`, backgroundColor: `${route.color}08` }}>
+                                                <span key={label} className="px-2.5 py-0.5 rounded-md text-[10px] font-semibold border" style={{ color: route.color, borderColor: `${route.color}25`, backgroundColor: `${route.color}08` }}>
                                                     {label}
                                                 </span>
                                             ))}
