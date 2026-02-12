@@ -103,22 +103,26 @@ function ProgrammaContent() {
                 </p>
 
 
-                {/* Quick Info Badges */}
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-glass-bg border border-glass-border backdrop-blur-md text-sm">
-                        <CalendarDays className="w-4 h-4 text-brand-orange" />
-                        <span className="text-text-primary font-medium">{eventDate}</span>
+                {/* Social Proof Strip */}
+                <div className="max-w-2xl mx-auto rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-xl p-1">
+                    <div className="grid grid-cols-2 md:grid-cols-4">
+                        {[
+                            { icon: CalendarDays, label: 'Datum', value: eventDate },
+                            { icon: MapPinned, label: 'Locatie', value: `${locationName}` },
+                            { icon: Users, label: 'Ingeschreven', value: currentParticipants > 0 ? `${currentParticipants}` : '—' },
+                            { icon: Route, label: 'Routes', value: `${routes.length}` },
+                        ].map((stat, i) => (
+                            <div
+                                key={stat.label}
+                                className={`flex flex-col items-center gap-1 py-3 px-2 ${i < 3 ? 'border-r border-glass-border/40 last:border-r-0' : ''
+                                    } ${i < 2 ? 'border-b md:border-b-0 border-glass-border/40' : ''}`}
+                            >
+                                <stat.icon className="w-4 h-4 text-brand-orange mb-0.5" />
+                                <span className="text-sm md:text-base font-bold text-text-primary tabular-nums">{stat.value}</span>
+                                <span className="text-[10px] text-text-muted uppercase tracking-wider font-medium">{stat.label}</span>
+                            </div>
+                        ))}
                     </div>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-glass-bg border border-glass-border backdrop-blur-md text-sm">
-                        <MapPinned className="w-4 h-4 text-brand-orange" />
-                        <span className="text-text-primary font-medium">{locationName}, {locationCity}</span>
-                    </div>
-                    {currentParticipants > 0 && (
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-glass-bg border border-glass-border backdrop-blur-md text-sm">
-                            <Users className="w-4 h-4 text-green-500" />
-                            <span className="text-text-primary font-medium tabular-nums">{currentParticipants} deelnemers</span>
-                        </div>
-                    )}
                 </div>
             </section>
 
