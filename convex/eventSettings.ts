@@ -16,6 +16,20 @@ export const getActiveSettings = query({
 });
 
 /**
+ * Get live participant count from actual registrations
+ * Counts non-cancelled, 2026 edition registrations directly
+ */
+export const getLiveParticipantCount = query({
+    args: {},
+    handler: async (ctx) => {
+        const registrations = await ctx.db.query("registrations").collect();
+        return registrations.filter(
+            r => r.status !== "cancelled" && r.edition !== "2025"
+        ).length;
+    },
+});
+
+/**
  * Update event settings
  * Admin only - requires token validation
  */

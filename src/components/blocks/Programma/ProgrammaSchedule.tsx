@@ -64,12 +64,13 @@ const MELDTIJDEN: { route: string; time: string; color: string }[] = [
 function ProgrammaContent() {
     const schedule = useQuery(api.team.getSchedule);
     const settings = useQuery(api.eventSettings.getActiveSettings);
+    const liveCount = useQuery(api.eventSettings.getLiveParticipantCount);
     const [activeFilter, setActiveFilter] = useState<RouteFilter>('all');
 
     const eventDate = settings?.event_date_display || settings?.event_date || '2026';
     const locationName = settings?.location_name || 'Paleis Het Loo';
     const locationCity = settings?.location_city || 'Apeldoorn';
-    const currentParticipants = (settings as any)?.current_participants ?? 0;
+    const currentParticipants = liveCount ?? 0;
 
     const filteredSchedule = useMemo(() => {
         if (!schedule) return null;
@@ -91,25 +92,16 @@ function ProgrammaContent() {
             <section className="text-center">
                 <div className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-brand-orange/10 text-brand-orange text-xs font-bold uppercase tracking-widest mb-6 border border-brand-orange/20 shadow-sm">
                     <Sparkles className="w-3 h-3" />
-                    Editie 2025
+                    Editie 2026
                 </div>
 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary tracking-tight font-display mb-4">
-                    Programma 2025
+                    Programma 2026
                 </h1>
                 <p className="text-text-muted text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed mb-6">
-                    Bekijk het volledige dagprogramma van De Koninklijke Loop 2025. Van de eerste stappen tot de finish bij het paleis.
+                    Bekijk het volledige dagprogramma van De Koninklijke Loop 2026. Van de eerste stappen tot de finish bij de Grote Kerk.
                 </p>
 
-                {/* 2026 Announcement Banner */}
-                <div className="max-w-xl mx-auto mb-8 p-4 rounded-2xl bg-glass-bg border border-brand-orange/20 backdrop-blur-md">
-                    <p className="text-sm font-semibold text-text-primary mb-1">
-                        Het programma van 2026 volgt binnenkort!
-                    </p>
-                    <p className="text-xs text-text-muted">
-                        Het definitieve programma voor de editie 2026 wordt tijdig aangekondigd. Onderstaand programma is van de succesvolle editie 2025 en dient als referentie.
-                    </p>
-                </div>
 
                 {/* Quick Info Badges */}
                 <div className="flex flex-wrap items-center justify-center gap-3">
