@@ -10,7 +10,9 @@ import OptimizedImage from "../components/ui/OptimizedImage.astro";
 export const prerender = true;
 
 const currentYearCharity = charityHistory[0];
-const goFundMeUrl = currentYearCharity.links.donation;
+const goFundMeUrl =
+    (currentYearCharity as any).links?.donation ??
+    "https://gofund.me/e7950f1c7";
 ---
 
 <BaseLayout
