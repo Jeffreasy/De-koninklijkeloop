@@ -43,13 +43,13 @@ function getMapTiles(pts: RoutePoint[]): { url: string; offsetX: number; offsetY
     const tileY = Math.floor(exactY);
     const fracX = exactX - tileX;
     const fracY = exactY - tileY;
-    const isDark = typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark';
-    const style = isDark ? 'dark_all' : 'rastertiles/voyager_nolabels';
+    const subdomains = ['a', 'b', 'c'];
     const tiles: { url: string; offsetX: number; offsetY: number }[] = [];
     for (let dy = 0; dy <= 1; dy++) {
         for (let dx = 0; dx <= 1; dx++) {
+            const s = subdomains[(dy * 2 + dx) % 3];
             tiles.push({
-                url: `https://a.basemaps.cartocdn.com/${style}/${zoom}/${tileX + dx}/${tileY + dy}@2x.png`,
+                url: `https://${s}.tile.openstreetmap.org/${zoom}/${tileX + dx}/${tileY + dy}.png`,
                 offsetX: (dx - fracX) * 256,
                 offsetY: (dy - fracY) * 256,
             });
