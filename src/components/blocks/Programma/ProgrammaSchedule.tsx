@@ -24,7 +24,7 @@ const getIcon = (iconName: string, className: string = "w-5 h-5") => {
     }
 };
 
-function getMapTileUrl(pts: RoutePoint[]): string | null {
+function getMapTiles(pts: RoutePoint[]): { url: string; offsetX: number; offsetY: number }[] | null {
     if (!pts || pts.length === 0) return null;
     const lats = pts.map(p => p.lat);
     const lngs = pts.map(p => p.lng);
@@ -36,10 +36,26 @@ function getMapTileUrl(pts: RoutePoint[]): string | null {
     else if (span > 0.08) zoom = 11;
     else if (span > 0.04) zoom = 12;
     const n = Math.pow(2, zoom);
-    const x = Math.floor(((centerLng + 180) / 360) * n);
+    const exactX = ((centerLng + 180) / 360) * n;
     const latRad = (centerLat * Math.PI) / 180;
-    const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
-    return `https://a.basemaps.cartocdn.com/dark_all/${zoom}/${x}/${y}@2x.png`;
+    const exactY = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;
+    const tileX = Math.floor(exactX);
+    const tileY = Math.floor(exactY);
+    const fracX = exactX - tileX;
+    const fracY = exactY - tileY;
+    const isDark = typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark';
+    const style = isDark ? 'dark_all' : 'rastertiles/voyager_nolabels';
+    const tiles: { url: string; offsetX: number; offsetY: number }[] = [];
+    for (let dy = 0; dy <= 1; dy++) {
+        for (let dx = 0; dx <= 1; dx++) {
+            tiles.push({
+                url: `https://a.basemaps.cartocdn.com/${style}/${zoom}/${tileX + dx}/${tileY + dy}@2x.png`,
+                offsetX: (dx - fracX) * 256,
+                offsetY: (dy - fracY) * 256,
+            });
+        }
+    }
+    return tiles;
 }
 
 type RouteFilter = 'all' | '15km' | '10km' | '6km' | '2.5km';
@@ -272,23 +288,28 @@ function ProgrammaContent() {
                                 <div className="flex flex-col sm:flex-row">
                                     {/* Mini-Map Tile Background + SVG Route Preview */}
                                     <div className="relative w-full sm:w-48 h-32 sm:h-auto shrink-0 flex items-center justify-center overflow-hidden border-b sm:border-b-0 sm:border-r border-glass-border/50">
-                                        {/* Map tile background */}
+                                        {/* Map tile grid */}
                                         {(() => {
                                             const pts = routePointsMap[route.id];
-                                            const tileUrl = pts ? getMapTileUrl(pts) : null;
-                                            return tileUrl ? (
-                                                <img
-                                                    src={tileUrl}
-                                                    alt=""
-                                                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500"
-                                                    loading="lazy"
-                                                />
+                                            const tiles = pts ? getMapTiles(pts) : null;
+                                            return tiles ? (
+                                                <div className="absolute inset-0 opacity-50 group-hover:opacity-70 transition-opacity duration-500">
+                                                    {tiles.map((tile, ti) => (
+                                                        <img
+                                                            key={ti}
+                                                            src={tile.url}
+                                                            alt=""
+                                                            className="absolute w-[256px] h-[256px]"
+                                                            style={{ left: `calc(50% + ${tile.offsetX}px)`, top: `calc(50% + ${tile.offsetY}px)` }}
+                                                        />
+                                                    ))}
+                                                </div>
                                             ) : (
                                                 <div className="absolute inset-0 bg-glass-surface/30" />
                                             );
                                         })()}
-                                        {/* Dark gradient overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-black/40 pointer-events-none" />
+                                        {/* Subtle overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/20 pointer-events-none" />
                                         <svg viewBox="0 0 200 120" className="relative w-full h-full p-3 z-10" fill="none" preserveAspectRatio="xMidYMid meet">
                                             {svgPath && (
                                                 <>

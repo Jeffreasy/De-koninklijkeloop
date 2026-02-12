@@ -82,7 +82,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://*.convex.cloud https://ik.imagekit.io https://vercel.live https://va.vercel-scripts.com https://cdn.jsdelivr.net https://code.iconify.design https://cdn.vercel-insights.com https://www.gofundme.com",
         "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com https://unpkg.com",
-        "img-src 'self' data: https://ik.imagekit.io https://*.convex.cloud https://thumbs-east.streamable.com https://placehold.co https://*.tile.openstreetmap.org https://unpkg.com",
+        "img-src 'self' data: https://ik.imagekit.io https://*.convex.cloud https://thumbs-east.streamable.com https://placehold.co https://*.tile.openstreetmap.org https://unpkg.com https://*.basemaps.cartocdn.com",
         "font-src 'self' data: * https://api.fontshare.com https://fonts.gstatic.com https://fonts.googleapis.com",
         "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://laventecareauthsystems.onrender.com http://localhost:8080 ws://localhost:8080 https://ik.imagekit.io https://upload.imagekit.io https://*.tile.openstreetmap.org https://va.vercel-analytics.com https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com https://cdn.jsdelivr.net",
         "frame-src 'self' https://streamable.com https://*.streamable.com https://vercel.live https://www.komoot.com https://*.komoot.com https://komoot.com https://komoot.de https://*.komoot.de https://www.gofundme.com",
