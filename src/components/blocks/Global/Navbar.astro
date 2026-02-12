@@ -75,6 +75,7 @@ const isActive = (href: string) => {
                 rel="noopener noreferrer"
                 class="ml-3 px-4 py-2 rounded-full text-sm font-medium font-display tracking-wide flex items-center gap-1.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white hover:scale-105 transition-all shadow-sm hover:shadow-lg hover:shadow-rose-500/20"
                 aria-label="Doneer aan Only Friends via GoFundMe"
+                data-donate-source="navbar-desktop"
             >
                 <Heart className="w-4 h-4 fill-current" />
                 Doneer
@@ -214,6 +215,7 @@ const isActive = (href: string) => {
             target="_blank"
             rel="noopener noreferrer"
             class="mobile-nav-link transform translate-y-4 opacity-0"
+            data-donate-source="navbar-mobile"
             style={`transition-delay: ${(navItems.filter((i) => i.name !== "Inschrijven").length + 1) * 50}ms`}
         >
             <div
@@ -340,6 +342,18 @@ const isActive = (href: string) => {
         // Run on View Transitions navigation
         document.addEventListener("astro:page-load", initMobileMenu);
     })();
+</script>
+
+<script>
+    // Donation click analytics
+    document.addEventListener("click", (e) => {
+        const link = (e.target as HTMLElement).closest("[data-donate-source]");
+        if (!link) return;
+        const source = link.getAttribute("data-donate-source") || "unknown";
+        import("../../lib/analytics").then(({ trackDonationIntent }) => {
+            trackDonationIntent(source);
+        });
+    });
 </script>
 
 <style>
