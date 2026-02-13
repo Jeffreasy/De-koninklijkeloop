@@ -115,6 +115,7 @@ input[type="button"],
 .card,
 .clickable {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 /* CLS Prevention: Reserve space for Iconify icons before CDN loads */
@@ -191,6 +192,8 @@ iconify-icon {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
     /* ~80px for fixed navbar */
+    overflow-x: hidden;
+    /* Prevent horizontal scroll from decorative blobs */
   }
 
   ::selection {
@@ -218,6 +221,13 @@ iconify-icon {
       radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--color-brand-orange), transparent 80%) 0%, transparent 40%);
     background-size: 100% 100%, 100% 100%;
     background-attachment: fixed;
+  }
+
+  /* Mobile: disable fixed attachment (causes jank on iOS/Android) */
+  @media (max-width: 768px) {
+    body {
+      background-attachment: scroll;
+    }
   }
 
   /* Light Mode: Royal Path Pattern (Clean Ambient) */

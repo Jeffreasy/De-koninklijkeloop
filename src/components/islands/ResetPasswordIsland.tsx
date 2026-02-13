@@ -119,7 +119,7 @@ export default function ResetPasswordIsland() {
                             <input
                                 type="password"
                                 {...register("password")}
-                                className="w-full bg-glass-bg border border-glass-border rounded-xl px-4 py-3 text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 transition-all"
+                                className="w-full bg-glass-bg border border-glass-border rounded-xl px-4 py-3 text-base text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 transition-all"
                                 placeholder="Minimaal 8 tekens"
                             />
                             {errors.password && <p className="text-red-400 text-xs ml-1">{errors.password.message}</p>}
@@ -130,7 +130,7 @@ export default function ResetPasswordIsland() {
                             <input
                                 type="password"
                                 {...register("confirmPassword")}
-                                className="w-full bg-glass-bg border border-glass-border rounded-xl px-4 py-3 text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 transition-all"
+                                className="w-full bg-glass-bg border border-glass-border rounded-xl px-4 py-3 text-base text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 transition-all"
                                 placeholder="Typ het nog eens"
                             />
                             {errors.confirmPassword && <p className="text-red-400 text-xs ml-1">{errors.confirmPassword.message}</p>}

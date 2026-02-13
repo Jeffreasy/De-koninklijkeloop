@@ -795,7 +795,7 @@ function SharedAccountSection({ token }: { token: string }) {
                                     <div>
                                         <label className="block text-sm font-medium text-text-muted mb-2">Bevestig met je wachtwoord</label>
                                         <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-                                            className="w-full px-4 py-2.5 bg-glass-surface/50 border border-glass-border rounded-xl text-text-body focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                                            className="w-full px-4 py-2.5 bg-glass-surface/50 border border-glass-border rounded-xl text-base text-text-body focus:outline-none focus:ring-2 focus:ring-red-500/50"
                                             placeholder="Je wachtwoord" disabled={deleting} autoFocus />
                                     </div>
                                     <div>
@@ -803,7 +803,7 @@ function SharedAccountSection({ token }: { token: string }) {
                                             Type <span className="font-mono text-red-400 font-bold">VERWIJDEREN</span> ter bevestiging
                                         </label>
                                         <input type="text" value={confirmation} onChange={e => setConfirmation(e.target.value)}
-                                            className={`w-full px-4 py-2.5 bg-glass-surface/50 border rounded-xl text-text-body focus:outline-none focus:ring-2 focus:ring-red-500/50 ${confirmation && confirmation !== 'VERWIJDEREN' ? 'border-red-500/40'
+                                            className={`w-full px-4 py-2.5 bg-glass-surface/50 border rounded-xl text-base text-text-body focus:outline-none focus:ring-2 focus:ring-red-500/50 ${confirmation && confirmation !== 'VERWIJDEREN' ? 'border-red-500/40'
                                                 : confirmation === 'VERWIJDEREN' ? 'border-green-500/40' : 'border-glass-border'
                                                 }`} placeholder="VERWIJDEREN" disabled={deleting} />
                                     </div>
