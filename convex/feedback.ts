@@ -12,17 +12,24 @@ import { v } from "convex/values";
  */
 export const submit = mutation({
     args: {
-        type: v.string(),
+        type: v.union(v.literal("bug"), v.literal("feature"), v.literal("question"), v.literal("other")),
         message: v.string(),
-        metadata: v.optional(v.any()),
+        metadata: v.optional(v.object({
+            page: v.optional(v.string()),
+            browser: v.optional(v.string()),
+            screen: v.optional(v.string()),
+        })),
         userId: v.optional(v.string()),
         userName: v.optional(v.string()),
         userEmail: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
+        if (args.message.length > 2000) throw new Error("Feedback te lang (max 2000 tekens)");
+        if (args.message.trim().length === 0) throw new Error("Feedback mag niet leeg zijn");
+
         const feedbackId = await ctx.db.insert("feedback", {
             type: args.type,
-            message: args.message,
+            message: args.message.trim(),
             metadata: args.metadata,
             status: "open",
             userId: args.userId,

@@ -206,8 +206,7 @@ function DashboardContent({ token }: { token: string }) {
 
             {/* Shared: Account & GDPR Section */}
             <SharedAccountSection
-                email={data.user.email}
-                authUserId={data.user.id}
+                token={token}
             />
 
             {/* Shared: Route Card */}
@@ -591,8 +590,8 @@ function VrijwilligerSection({
 // SHARED: ACCOUNT & GDPR SECTION
 // ═══════════════════════════════════════════════════
 
-function SharedAccountSection({ email, authUserId }: { email: string; authUserId: string }) {
-    const deleteConvexData = useMutation(api.gdpr.deleteUserData);
+function SharedAccountSection({ token }: { token: string }) {
+    const deleteConvexData = useAction(api.gdpr.deleteUserData);
     const [exporting, setExporting] = useState(false);
     const [exportStatus, setExportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -618,9 +617,9 @@ function SharedAccountSection({ email, authUserId }: { email: string; authUserId
             let convexData = null;
             try {
                 const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
-                if (convexUrl) {
+                if (convexUrl && token) {
                     const convex = new ConvexHttpClient(convexUrl);
-                    convexData = await convex.query(api.gdpr.exportUserData, { email, authUserId });
+                    convexData = await convex.action(api.gdpr.exportUserData, { token });
                 }
             } catch { /* non-blocking */ }
 
@@ -657,8 +656,7 @@ function SharedAccountSection({ email, authUserId }: { email: string; authUserId
 
         try {
             setDeleteStep('convex');
-            const stats = await deleteConvexData({ email, authUserId });
-            console.log('[GDPR] Convex cleanup stats:', stats);
+            await deleteConvexData({ token });
 
             setDeleteStep('go');
             const res = await fetch('/api/auth/account', {

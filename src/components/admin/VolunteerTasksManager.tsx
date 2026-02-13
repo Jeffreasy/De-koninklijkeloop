@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { useQuery, useAction } from "convex/react";
+import { useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { $accessToken } from "../../lib/auth";
+import { useStore } from "@nanostores/react";
 import {
     ClipboardList, Plus, Trash2, MapPinned, Clock, User,
     CheckCircle2, AlertTriangle, X, Loader2, Search,
@@ -17,11 +18,23 @@ const statusConfig: Record<TaskStatus, { label: string; style: string; icon: typ
 };
 
 export default function VolunteerTasksManager() {
-    const tasks = useQuery(api.internal.listVolunteerTasks);
-    const volunteers = useQuery(api.internal.listVolunteerRegistrations);
+    const accessToken = useStore($accessToken);
+    const getVolunteerTasks = useAction(api.adminTasks.getVolunteerTasks);
+    const getVolunteerRegistrations = useAction(api.adminTasks.getVolunteerRegistrations);
     const createTask = useAction(api.adminTasks.createTask);
     const deleteTask = useAction(api.adminTasks.deleteTask);
     const updateStatus = useAction(api.adminTasks.updateTaskStatus);
+
+    const [tasks, setTasks] = useState<any[] | undefined>(undefined);
+    const [volunteers, setVolunteers] = useState<any[] | undefined>(undefined);
+
+    const fetchData = useCallback(() => {
+        if (!accessToken) return;
+        getVolunteerTasks({ token: accessToken }).then(setTasks).catch(console.error);
+        getVolunteerRegistrations({ token: accessToken }).then(setVolunteers).catch(console.error);
+    }, [accessToken]);
+
+    useEffect(() => { fetchData(); }, [fetchData]);
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");

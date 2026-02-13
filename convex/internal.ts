@@ -1,4 +1,4 @@
-import { query, internalQuery, internalMutation } from "./_generated/server";
+import { internalQuery, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
 // Internal query to fetch all registrations
@@ -244,7 +244,7 @@ export const deleteVolunteerTask = internalMutation({
 });
 
 // Admin: list all volunteer tasks with registration info
-export const listVolunteerTasks = query({
+export const listVolunteerTasks = internalQuery({
     args: {},
     handler: async (ctx) => {
         const tasks = await ctx.db.query("volunteer_tasks").order("desc").collect();
@@ -259,7 +259,7 @@ export const listVolunteerTasks = query({
 });
 
 // Admin: list all vrijwilliger registrations (for assignment dropdown)
-export const listVolunteerRegistrations = query({
+export const listVolunteerRegistrations = internalQuery({
     args: {},
     handler: async (ctx) => {
         const all = await ctx.db.query("registrations").collect();

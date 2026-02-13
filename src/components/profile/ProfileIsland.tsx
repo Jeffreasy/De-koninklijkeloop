@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useStore } from "@nanostores/react";
-import { $user, logout } from "../../lib/auth";
+import { $user, $accessToken, logout } from "../../lib/auth";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../convex/_generated/api";
 import {
@@ -170,15 +170,9 @@ export default function ProfileIsland() {
 
             <ChangePasswordSection />
 
-            <DataExportSection
-                email={user.email}
-                authUserId={user.id}
-            />
+            <DataExportSection />
 
-            <AccountDeletionSection
-                email={user.email}
-                authUserId={user.id}
-            />
+            <AccountDeletionSection />
         </div>
     );
 }
@@ -485,7 +479,8 @@ function ChangePasswordSection() {
 // ═══════════════════════════════════════════════════
 // Data Export Section (GDPR Art. 20)
 // ═══════════════════════════════════════════════════
-function DataExportSection({ email, authUserId }: { email: string; authUserId: string }) {
+function DataExportSection() {
+    const token = useStore($accessToken);
     const [exporting, setExporting] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -505,13 +500,13 @@ function DataExportSection({ email, authUserId }: { email: string; authUserId: s
             }
             const goData = await goRes.json();
 
-            // 2. Fetch Convex domain data
+            // 2. Fetch Convex domain data (via secure action)
             let convexData = null;
             try {
                 const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
-                if (convexUrl) {
+                if (convexUrl && token) {
                     const convex = new ConvexHttpClient(convexUrl);
-                    convexData = await convex.query(api.gdpr.exportUserData, { email, authUserId });
+                    convexData = await convex.action(api.gdpr.exportUserData, { token });
                 }
             } catch (convexErr) {
                 console.warn('[GDPR Export] Convex data fetch failed (non-blocking):', convexErr);
@@ -593,7 +588,8 @@ function DataExportSection({ email, authUserId }: { email: string; authUserId: s
 // ═══════════════════════════════════════════════════
 // Account Deletion Section (GDPR Art. 17)
 // ═══════════════════════════════════════════════════
-function AccountDeletionSection({ email, authUserId }: { email: string; authUserId: string }) {
+function AccountDeletionSection() {
+    const token = useStore($accessToken);
     const [showModal, setShowModal] = useState(false);
     const [password, setPassword] = useState('');
     const [confirmation, setConfirmation] = useState('');
@@ -613,12 +609,11 @@ function AccountDeletionSection({ email, authUserId }: { email: string; authUser
             // Step 1: Clean Convex data first — if this fails, account stays intact
             setStep('convex');
             const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
-            if (!convexUrl) {
-                throw new Error('Convex configuratie ontbreekt. Neem contact op met support.');
+            if (!convexUrl || !token) {
+                throw new Error('Configuratie ontbreekt. Neem contact op met support.');
             }
             const convex = new ConvexHttpClient(convexUrl);
-            const stats = await convex.mutation(api.gdpr.deleteUserData, { email, authUserId });
-            console.log('[GDPR] Convex cleanup stats:', stats);
+            await convex.action(api.gdpr.deleteUserData, { token });
 
             // Step 2: Delete account via Go backend
             setStep('go');

@@ -60,3 +60,22 @@ export const updateTaskStatus = action({
         });
     },
 });
+
+// Admin: list volunteer tasks with registration info (secure wrapper)
+export const getVolunteerTasks = action({
+    args: { token: v.string() },
+    handler: async (ctx, args): Promise<any[]> => {
+        await verifyAuth(args.token, { requiredRoles: ["admin", "editor"], useBearerAuth: true });
+        return await ctx.runQuery(internal.internal.listVolunteerTasks, {});
+    },
+});
+
+// Admin: list vrijwilliger registrations (secure wrapper)
+export const getVolunteerRegistrations = action({
+    args: { token: v.string() },
+    handler: async (ctx, args): Promise<any[]> => {
+        await verifyAuth(args.token, { requiredRoles: ["admin", "editor"], useBearerAuth: true });
+        return await ctx.runQuery(internal.internal.listVolunteerRegistrations, {});
+    },
+});
+

@@ -5,11 +5,22 @@ import { mutation, query } from "./_generated/server";
 export const logEvent = mutation({
     args: {
         event: v.string(),
-        metadata: v.optional(v.any()),
+        metadata: v.optional(v.object({
+            url: v.optional(v.string()),
+            referrer: v.optional(v.string()),
+            userAgent: v.optional(v.string()),
+            screen: v.optional(v.string()),
+            language: v.optional(v.string()),
+        })),
         sessionId: v.string(),
         path: v.string(),
     },
     handler: async (ctx, args) => {
+        // Input length guards
+        if (args.event.length > 100) throw new Error("Event name too long");
+        if (args.path.length > 500) throw new Error("Path too long");
+        if (args.sessionId.length > 100) throw new Error("Session ID too long");
+
         await ctx.db.insert("analytics_events", {
             event: args.event,
             metadata: args.metadata,

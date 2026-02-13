@@ -1,4 +1,4 @@
-import { Users, Filter, Mail, Phone, MapPin, Search, ChevronLeft, ChevronRight, Download, ChevronsUpDown, ShieldCheck, UserCircle, User, Archive, Calendar, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { Users, Filter, Mail, Phone, MapPin, Search, ChevronLeft, ChevronRight, Download, ChevronsUpDown, ShieldCheck, UserCircle, User, Calendar, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { useState, useMemo, useEffect } from "react";
@@ -58,24 +58,9 @@ export default function ParticipantsTable() {
     const [statusFilter, setStatusFilter] = useState<Status>("all");
     const [editionFilter, setEditionFilter] = useState<string>("2026");
 
-    // Actions
-    const import2025 = useAction(api.archive.import2025);
-    const [isImporting, setIsImporting] = useState(false);
 
-    const handleImport2025 = async () => {
-        if (!accessToken || !confirm("Weet je zeker dat je de 2025 data wilt importeren?")) return;
-        setIsImporting(true);
-        try {
-            const res = await import2025({ token: accessToken });
-            alert(res);
-            fetchRegistrations();
-        } catch (err) {
-            console.error(err);
-            alert("Import mislukt. Check console.");
-        } finally {
-            setIsImporting(false);
-        }
-    };
+
+
 
     // Sort State
     const [sortField, setSortField] = useState<SortField>("createdAt");
@@ -302,17 +287,7 @@ export default function ParticipantsTable() {
                                 ))}
                             </div>
 
-                            {/* Import Button (2025 only) */}
-                            {editionFilter === "2025" && (
-                                <button
-                                    onClick={handleImport2025}
-                                    disabled={isImporting}
-                                    className="px-3 py-2 rounded-xl bg-purple-500/10 text-purple-600 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-xs font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
-                                >
-                                    <Archive className="w-3.5 h-3.5" />
-                                    {isImporting ? "Bezig..." : "Importeer"}
-                                </button>
-                            )}
+
 
                             {/* Filters */}
                             <select

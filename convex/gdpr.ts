@@ -1,5 +1,13 @@
-import { mutation, query } from "./_generated/server";
+// ═══════════════════════════════════════════════════════════════
+// SECURITY: GDPR mutations/queries are internalMutation/internalQuery.
+// Only accessible via the action() wrappers below which verify auth.
+// Users can only delete/export their OWN data (email from verified token).
+// ═══════════════════════════════════════════════════════════════
+import { action } from "./_generated/server";
+import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
+import { verifyAuth } from "./authHelpers";
 
 const DELETED_USER_LABEL = "Verwijderd Account";
 
@@ -11,7 +19,7 @@ const DELETED_USER_LABEL = "Verwijderd Account";
 // Tables: registrations, donations, social_reactions, messages, feedback,
 //         presence, direct_messages, group_conversations, group_messages, media
 
-export const deleteUserData = mutation({
+export const deleteUserDataInternal = internalMutation({
     args: {
         email: v.string(),
         authUserId: v.optional(v.string()),
@@ -221,7 +229,7 @@ export const deleteUserData = mutation({
 // Collects all user-attributable data from Convex for JSON export.
 // Frontend merges this with the Go backend export.
 
-export const exportUserData = query({
+export const exportUserDataInternal = internalQuery({
     args: {
         email: v.string(),
         authUserId: v.optional(v.string()),
@@ -309,5 +317,39 @@ export const exportUserData = query({
                 sent_by_you: true,
             })),
         };
+    },
+});
+
+// ═══════════════════════════════════════════════════
+// SECURE ACTION WRAPPERS — verify auth, restrict to own data
+// ═══════════════════════════════════════════════════
+
+/** GDPR Art. 17: Delete own data (requires auth) */
+export const deleteUserData = action({
+    args: {
+        token: v.string(),
+    },
+    handler: async (ctx, args): Promise<any> => {
+        const authUser = await verifyAuth(args.token, { useBearerAuth: true });
+        const stats: any = await ctx.runMutation(internal.gdpr.deleteUserDataInternal, {
+            email: authUser.email,
+            authUserId: authUser.id,
+        });
+        return stats;
+    },
+});
+
+/** GDPR Art. 20: Export own data (requires auth) */
+export const exportUserData = action({
+    args: {
+        token: v.string(),
+    },
+    handler: async (ctx, args): Promise<any> => {
+        const authUser = await verifyAuth(args.token, { useBearerAuth: true });
+        const data: any = await ctx.runQuery(internal.gdpr.exportUserDataInternal, {
+            email: authUser.email,
+            authUserId: authUser.id,
+        });
+        return data;
     },
 });

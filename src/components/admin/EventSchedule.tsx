@@ -1,5 +1,8 @@
-import { useQuery, useMutation } from 'convex/react';
+import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation, useAction } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { $accessToken } from '../../lib/auth';
+import { useStore } from '@nanostores/react';
 import { routes } from '../../lib/routeData';
 import {
     Flag,
@@ -45,10 +48,19 @@ const STAT_COLORS: Record<string, { bg: string; border: string; text: string; gl
 };
 
 const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, onEditClick?: (item: any) => void }) => {
+    const accessToken = useStore($accessToken);
     const schedule = useQuery(api.team.getSchedule);
-    const volunteerTasks = useQuery(api.internal.listVolunteerTasks);
+    const getVolunteerTasks = useAction(api.adminTasks.getVolunteerTasks);
     const deleteScheduleItem = useMutation(api.team.deleteScheduleItem);
 
+    const [volunteerTasks, setVolunteerTasks] = useState<any[] | undefined>(undefined);
+
+    const fetchVolunteers = useCallback(() => {
+        if (!accessToken) return;
+        getVolunteerTasks({ token: accessToken }).then(setVolunteerTasks).catch(console.error);
+    }, [accessToken]);
+
+    useEffect(() => { fetchVolunteers(); }, [fetchVolunteers]);
     const getVolunteersForTime = (time: string) => {
         if (!volunteerTasks || !time) return [];
         return volunteerTasks.filter(t => t.startTime === time);
