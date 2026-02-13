@@ -1,12 +1,13 @@
 import type { APIRoute } from "astro";
 import { getAllImagesForAdmin } from "../../../lib/imagekit";
+import { verifyApiAdmin } from "../../../lib/apiAuth";
 
 /**
  * API endpoint to fetch all ImageKit images for admin panel
  * GET /api/admin/imagekit-images
  */
-export const GET: APIRoute = async ({ locals }) => {
-    const { user } = locals as any;
+export const GET: APIRoute = async ({ request }) => {
+    const user = await verifyApiAdmin(request);
     if (!user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,

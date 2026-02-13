@@ -1,8 +1,9 @@
 import type { APIRoute } from "astro";
 import { deleteImage } from "../../../lib/imagekit";
+import { verifyApiAdmin } from "../../../lib/apiAuth";
 
-export const POST: APIRoute = async ({ request, locals }) => {
-    const { user } = locals as any;
+export const POST: APIRoute = async ({ request }) => {
+    const user = await verifyApiAdmin(request);
     if (!user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,

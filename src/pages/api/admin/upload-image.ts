@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro';
 import { uploadImage } from '../../../lib/imagekit';
+import { verifyApiAdmin } from '../../../lib/apiAuth';
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
     try {
-        // Auth check — locals.user is set by middleware from cookie
-        const { user } = locals as any;
+        const user = await verifyApiAdmin(request);
         if (!user) {
             return new Response(JSON.stringify({
                 error: "Niet ingelogd — herlaad de pagina en probeer opnieuw",
