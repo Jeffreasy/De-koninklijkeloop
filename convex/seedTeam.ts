@@ -1,6 +1,6 @@
-import { mutation } from "./_generated/server";
+import { internalMutation } from "./_generated/server";
 
-export const seedTeamData = mutation({
+export const seedTeamData = internalMutation({
     handler: async (ctx) => {
         // 1. Clear existing data
         const existingMinutes = await ctx.db.query("team_minutes").collect();

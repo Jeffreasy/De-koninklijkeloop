@@ -1,16 +1,15 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
+import { AUTH_API_URL, TENANT_ID } from "./authHelpers";
 
 export const validateToken = action({
     args: { token: v.string() },
     handler: async (ctx, args) => {
-        // Call LaventeCare API to verify token
-        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
-        const res = await fetch(`${API_URL}/me`, {
+        const res = await fetch(`${AUTH_API_URL}/auth/me`, {
             headers: {
                 "Authorization": `Bearer ${args.token}`,
-                "X-Tenant-ID": "b2727666-7230-4689-b58b-ceab8c2898d5" // UUID for de-koninklijkeloop
-            }
+                "X-Tenant-ID": TENANT_ID,
+            },
         });
 
         if (!res.ok) {
@@ -18,6 +17,6 @@ export const validateToken = action({
         }
 
         const userData = await res.json();
-        return userData; // Returns user profile including role
+        return userData;
     },
 });

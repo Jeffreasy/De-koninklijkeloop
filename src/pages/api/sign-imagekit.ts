@@ -1,13 +1,14 @@
 
 import type { APIRoute } from "astro";
 import { getAuthenticationParameters } from "../../lib/imagekit";
+import { verifyApiAdmin } from "../../lib/apiAuth";
 
 /**
  * POST /api/sign-imagekit
  * Returns authentication parameters for client-side ImageKit uploads
  */
-export const POST: APIRoute = async ({ locals }) => {
-    const { user } = locals;
+export const POST: APIRoute = async ({ request }) => {
+    const user = await verifyApiAdmin(request);
     if (!user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,

@@ -28,8 +28,7 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
     // Go backend email routes are under /api/v1/admin/email/*
     const backendUrl = `${API_URL}/admin/email/${path}`;
 
-    console.log(`[Email Proxy] Forwarding ${request.method} to ${backendUrl}`);
-    console.log(`[Email Proxy] X-Tenant-ID: ${tenantID}`);
+
 
     // Forward request to backend
     try {
@@ -45,7 +44,7 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
         headers.set('Host', new URL(API_URL).host);
         headers.set('Content-Type', 'application/json');
 
-        console.log(`[Email Proxy] Token present: ${!!token}, length: ${token?.length}`);
+
 
         const response = await fetch(backendUrl, {
             method: request.method,

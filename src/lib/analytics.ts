@@ -2,6 +2,12 @@
 // Hybrid Analytics: Vercel SI + Go Backend (sendBeacon) + Convex (live feed)
 // Privacy-First: No PII, GDPR-Compliant, Client-Side Only
 
+declare global {
+    interface Window {
+        si?: (event: string, metadata?: Record<string, unknown>) => void;
+    }
+}
+
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../convex/_generated/api";
 

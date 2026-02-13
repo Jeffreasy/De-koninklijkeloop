@@ -1,3 +1,8 @@
+/**
+ * TRUST BOUNDARY: Mutations in this file are admin-only.
+ * Security relies on SSR middleware auth (admin pages are gated).
+ * TODO: Convert critical mutations to action() + verifyAuth() for defense-in-depth.
+ */
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 

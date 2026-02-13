@@ -1,8 +1,10 @@
-import { query, mutation } from "./_generated/server";
+/**
+ * TRUST BOUNDARY: Mutations in this file are admin-only.
+ * Security relies on SSR middleware auth (admin pages are gated).
+ * TODO: Convert critical mutations to action() + verifyAuth() for defense-in-depth.
+ */
+import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
-
-// TODO: Implement proper auth checks when Auth System is fully integrated
-// import { requireAdminOrEditor } from "./users"; 
 
 // --- MINUTES ---
 
@@ -37,7 +39,7 @@ export const createMinute = mutation({
         content: v.string(),
     },
     handler: async (ctx, args) => {
-        // await requireAdminOrEditor(ctx); // Security check
+
         const newId = await ctx.db.insert("team_minutes", {
             ...args,
             created_at: Date.now(),
@@ -124,7 +126,7 @@ export const deleteScheduleItem = mutation({
 
 // --- SEED: Real Event Program (2025 Edition as template) ---
 
-export const seedSchedule = mutation({
+export const seedSchedule = internalMutation({
     handler: async (ctx) => {
         // Clear existing schedule
         const existing = await ctx.db.query("event_schedule").collect();

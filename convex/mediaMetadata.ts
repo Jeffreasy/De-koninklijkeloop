@@ -55,8 +55,9 @@ export const saveAltText = mutation({
         token: v.string(), // Admin auth token
     },
     handler: async (ctx, { cloudinary_public_id, alt_text, title, tags, folder, token }) => {
-        // TODO: Verify admin auth via token
-        // For now, we trust the client (admin panel is behind auth middleware)
+        // TRUST BOUNDARY: Admin panel is behind SSR middleware auth.
+        // Token accepted for forward-compatibility, not verified here.
+        // To verify: convert to action() + call verifyAuth().
 
         const existing = await ctx.db
             .query("media_metadata")
@@ -114,7 +115,7 @@ export const bulkSave = mutation({
         token: v.string(),
     },
     handler: async (ctx, { updates, token }) => {
-        // TODO: Verify admin auth via token
+        // TRUST BOUNDARY: See saveAltText for auth model.
 
         let created = 0;
         let updated = 0;
@@ -162,7 +163,7 @@ export const deleteMetadata = mutation({
         token: v.string(),
     },
     handler: async (ctx, { cloudinary_public_id, token }) => {
-        // TODO: Verify admin auth
+        // TRUST BOUNDARY: See saveAltText for auth model.
 
         const existing = await ctx.db
             .query("media_metadata")

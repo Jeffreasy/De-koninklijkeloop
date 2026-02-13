@@ -14,7 +14,7 @@
  * Run: npx convex run seedPrData:seed
  */
 
-import { mutation } from "./_generated/server";
+import { internalMutation } from "./_generated/server";
 
 // ═══════════════════════════════════════════════════════════════
 // MASTER DATA — EXTRACTED FROM PDF (VERIFIED)
@@ -291,7 +291,7 @@ const ALL_ORGANIZATIONS: OrgEntry[] = [
 // SEED MUTATION
 // ═══════════════════════════════════════════════════════════════
 
-export const seed = mutation({
+export const seed = internalMutation({
     args: {},
     handler: async (ctx) => {
         // Check if data already exists
@@ -359,7 +359,7 @@ export const seed = mutation({
 });
 
 // Force seed (deletes existing data first)
-export const seedForce = mutation({
+export const seedForce = internalMutation({
     args: {},
     handler: async (ctx) => {
         // Delete all existing PR data

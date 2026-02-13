@@ -31,7 +31,9 @@ export const getLiveParticipantCount = query({
 
 /**
  * Update event settings
- * Admin only - requires token validation
+ * TRUST BOUNDARY: Admin panel is behind SSR middleware auth.
+ * Token is passed for forward-compatibility but not yet verified server-side.
+ * TODO: Convert to action() to enable server-side token verification.
  */
 export const updateSettings = mutation({
     args: {
@@ -89,8 +91,9 @@ export const updateSettings = mutation({
         token: v.string(), // Admin auth token (validated against LaventeCare)
     },
     handler: async (ctx, args) => {
-        // TODO: Validate admin token with LaventeCare Auth System
-        // For now, we trust the middleware has validated the user
+        // TRUST BOUNDARY: Admin middleware validates user before this page loads.
+        // Token is accepted for forward-compatibility but not verified here.
+        // To verify: convert this mutation to an action() and call verifyAuth().
 
         const current = await ctx.db
             .query("event_settings")

@@ -21,7 +21,8 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     // Backend route: /api/email-stats
     const backendUrl = `${API_URL}/email-stats`;
 
-    console.log(`[Email Stats Proxy] Forwarding to ${backendUrl}`);
+
+
 
     try {
         const headers = new Headers();

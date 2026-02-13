@@ -30,32 +30,30 @@ export default function VolunteerTasksManager() {
     const [updatingId, setUpdatingId] = useState<string | null>(null);
 
     const token = $accessToken.get() || "";
-    const tenantId = import.meta.env.PUBLIC_TENANT_ID ||
-        import.meta.env.PUBLIC_DEV_TENANT_ID ||
-        "b2727666-7230-4689-b58b-ceab8c2898d5";
+
 
     const handleDelete = useCallback(async (taskId: string) => {
         if (!confirm("Weet je zeker dat je deze taak wilt verwijderen?")) return;
         setDeletingId(taskId);
         try {
-            await deleteTask({ token, tenantId, taskId: taskId as any });
+            await deleteTask({ token, taskId: taskId as any });
         } catch (e) {
             console.error("Delete failed:", e);
         } finally {
             setDeletingId(null);
         }
-    }, [token, tenantId, deleteTask]);
+    }, [token, deleteTask]);
 
     const handleStatusChange = useCallback(async (taskId: string, newStatus: TaskStatus) => {
         setUpdatingId(taskId);
         try {
-            await updateStatus({ token, tenantId, taskId: taskId as any, status: newStatus });
+            await updateStatus({ token, taskId: taskId as any, status: newStatus });
         } catch (e) {
             console.error("Status update failed:", e);
         } finally {
             setUpdatingId(null);
         }
-    }, [token, tenantId, updateStatus]);
+    }, [token, updateStatus]);
 
     // Filter + search
     const filteredTasks = (tasks || []).filter(t => {
@@ -239,7 +237,7 @@ export default function VolunteerTasksManager() {
                 <CreateTaskModal
                     volunteers={volunteers}
                     token={token}
-                    tenantId={tenantId}
+
                     onClose={() => setShowCreateModal(false)}
                     createTask={createTask}
                 />
@@ -286,13 +284,13 @@ interface Volunteer {
 function CreateTaskModal({
     volunteers,
     token,
-    tenantId,
+
     onClose,
     createTask,
 }: {
     volunteers: Volunteer[];
     token: string;
-    tenantId: string;
+
     onClose: () => void;
     createTask: any;
 }) {
@@ -338,7 +336,7 @@ function CreateTaskModal({
         try {
             await createTask({
                 token,
-                tenantId,
+
                 registrationId: form.registrationId as any,
                 title: form.title.trim(),
                 description: form.description.trim() || undefined,
