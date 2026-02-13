@@ -54,6 +54,42 @@ export const createRegistration = internalMutation({
     },
 });
 
+// Internal mutation to promote a guest registration to authenticated
+// Called when a ghost user creates an account (sets password)
+export const promoteRegistration = internalMutation({
+    args: {
+        email: v.string(),
+        authUserId: v.string(),
+        edition: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const currentEdition = args.edition || "2026";
+
+        const existing = await ctx.db
+            .query("registrations")
+            .withIndex("by_email", (q) => q.eq("email", args.email))
+            .filter((q) => q.eq(q.field("edition"), currentEdition))
+            .first();
+
+        if (!existing) {
+            throw new Error("Geen gastregistratie gevonden voor dit e-mailadres.");
+        }
+
+        if (existing.userType === "authenticated") {
+            // Already promoted — idempotent
+            return existing._id;
+        }
+
+        // Promote: guest → authenticated
+        await ctx.db.patch(existing._id, {
+            userType: "authenticated",
+            authUserId: args.authUserId,
+        });
+
+        return existing._id;
+    },
+});
+
 export const getRegistrationByEmail = query({
     args: { email: v.string() },
     handler: async (ctx, args) => {

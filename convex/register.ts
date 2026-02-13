@@ -17,10 +17,11 @@ export const registerParticipant = action({
         agreedToMedia: v.boolean(),
     },
     handler: async (ctx, args): Promise<string> => {
-        // Force the correct Tenant ID to avoid stale Environment Variables in Convex Cloud
         const tenantId = "b2727666-7230-4689-b58b-ceab8c2898d5";
 
-        // 1. Create User in Auth System
+        // 1. Create User in Auth System (or auto-promote ghost user)
+        // The Go backend auto-detects ghost users (password_hash IS NULL)
+        // and promotes them by setting the password — same user_id preserved.
         const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
         const authRes = await fetch(`${API_URL}/auth/register`, {
             method: "POST",
@@ -38,11 +39,9 @@ export const registerParticipant = action({
             const errorText = await authRes.text();
             console.error(`[Register] Auth API Failed: ${authRes.status} - ${errorText}`);
 
-            // Map common errors
             if (authRes.status === 409) {
                 throw new Error("Dit e-mailadres is al in gebruik (Auth).");
             }
-            // WORKAROUND: Auth System returns 500 for duplicates currently
             if (authRes.status === 500 && errorText.includes("Registration failed")) {
                 throw new Error("Dit e-mailadres is al bekend. Log in of gebruik een ander adres.");
             }
@@ -53,22 +52,36 @@ export const registerParticipant = action({
         let authUserId: string | undefined;
         try {
             const authData = await authRes.json();
-            // Handle PascalCase or snake_case
             const rawUser = authData.User || authData.user;
             authUserId = rawUser?.ID || rawUser?.id;
         } catch (e) {
             console.warn("[Register] Could not parse Auth response JSON, proceeding without linking ID.", e);
         }
 
-        // 3. Store Registration in Convex (Internal Mutation)
-        // We filter out 'password' before passing to DB
+        // 3. Store/Update Registration in Convex
+        // Try creating a new registration first. If the email already exists
+        // (guest registered earlier), promote the existing guest record instead.
         const { password, ...registrationData } = args;
 
-        const registrationId = await ctx.runMutation(internal.internal.createRegistration, {
-            ...registrationData,
-            userType: "authenticated",
-            authUserId: authUserId
-        });
+        let registrationId: string;
+        try {
+            registrationId = await ctx.runMutation(internal.internal.createRegistration, {
+                ...registrationData,
+                userType: "authenticated",
+                authUserId: authUserId
+            });
+        } catch (e: any) {
+            // Duplicate email for this edition → guest exists, promote it
+            if (e.message?.includes("al geregistreerd") && authUserId) {
+                registrationId = await ctx.runMutation(internal.internal.promoteRegistration, {
+                    email: args.email,
+                    authUserId: authUserId,
+                });
+                console.log(`[Register] Ghost user promoted in Convex: ${registrationId}`);
+            } else {
+                throw e; // Re-throw unexpected errors
+            }
+        }
 
         return registrationId;
     },

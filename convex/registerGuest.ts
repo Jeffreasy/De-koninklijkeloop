@@ -4,8 +4,8 @@ import { internal } from "./_generated/api";
 
 /**
  * Guest Registration Action
- * Allows users to register for the event WITHOUT creating a LaventeCare account
- * No password required, no Auth API call
+ * Creates a ghost user in the Go backend (password_hash = NULL)
+ * and stores the registration in Convex with the linked authUserId.
  */
 export const registerGuest = action({
     args: {
@@ -21,18 +21,50 @@ export const registerGuest = action({
         agreedToMedia: v.boolean(),
     },
     handler: async (ctx, args): Promise<string> => {
-        // NO LaventeCare Auth System call - this is a guest registration
-        // Guests cannot log in or access the dashboard
+        const tenantId = "b2727666-7230-4689-b58b-ceab8c2898d5";
+        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
 
-        // Store registration in Convex with userType: "guest"
+        // 1. Create ghost user in Go backend (password_hash = NULL)
+        let authUserId: string | undefined;
+        try {
+            const ghostRes = await fetch(`${API_URL}/guest/register`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Tenant-ID": tenantId
+                },
+                body: JSON.stringify({
+                    email: args.email,
+                    full_name: args.name
+                })
+            });
+
+            if (ghostRes.ok) {
+                const ghostData = await ghostRes.json();
+                // Normalize ID from Go response (pgtype.UUID returns as nested object or string)
+                authUserId = ghostData.id || ghostData.ID;
+                console.log(`[RegisterGuest] Ghost user created: ${authUserId}`);
+            } else if (ghostRes.status === 409) {
+                // Email already has an account — continue without linking
+                console.warn(`[RegisterGuest] Email already registered in auth system, proceeding as unlinked guest`);
+            } else {
+                const errorText = await ghostRes.text();
+                console.warn(`[RegisterGuest] Ghost API returned ${ghostRes.status}: ${errorText}`);
+                // Don't block registration — guest can still register in Convex without auth link
+            }
+        } catch (e) {
+            // Network error etc — don't block the guest registration
+            console.warn("[RegisterGuest] Ghost API unreachable, proceeding without auth link:", e);
+        }
+
+        // 2. Store registration in Convex
         const registrationId = await ctx.runMutation(internal.internal.createRegistration, {
             ...args,
             userType: "guest",
-            authUserId: undefined  // No linked account
+            authUserId: authUserId  // Linked if ghost creation succeeded, undefined otherwise
         });
 
-        console.log(`[RegisterGuest] Created guest registration: ${registrationId}`);
-
+        console.log(`[RegisterGuest] Created registration: ${registrationId} (authUserId: ${authUserId || "none"})`);
         return registrationId;
     },
 });
