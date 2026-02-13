@@ -7,8 +7,8 @@ import { Upload } from "lucide-react";
 
 interface Props {
     type: "organization" | "contact" | "import";
-    editing?: any;
-    organizations?: any[];
+    editing?: Record<string, any> | null;
+    organizations?: Array<{ _id: string; naam: string }>;
     onClose: () => void;
 }
 
@@ -20,7 +20,7 @@ export default function CommunicatieModals({ type, editing, organizations, onClo
 }
 
 // ═══ ORGANIZATION MODAL ═══
-function OrgModal({ editing, onClose }: { editing: any; onClose: () => void }) {
+function OrgModal({ editing, onClose }: { editing: Record<string, any> | null | undefined; onClose: () => void }) {
     const createOrg = useMutation(api.prCommunicatie.createOrganization);
     const updateOrg = useMutation(api.prCommunicatie.updateOrganization);
     const [loading, setLoading] = useState(false);
@@ -130,7 +130,7 @@ function OrgModal({ editing, onClose }: { editing: any; onClose: () => void }) {
 }
 
 // ═══ CONTACT MODAL ═══
-function ContactModal({ editing, organizations, onClose }: { editing: any; organizations?: any[]; onClose: () => void }) {
+function ContactModal({ editing, organizations, onClose }: { editing: Record<string, any> | null | undefined; organizations?: Array<{ _id: string; naam: string }>; onClose: () => void }) {
     const createContact = useMutation(api.prCommunicatie.createContact);
     const updateContact = useMutation(api.prCommunicatie.updateContact);
     const [loading, setLoading] = useState(false);
@@ -238,7 +238,7 @@ function ContactModal({ editing, organizations, onClose }: { editing: any; organ
 }
 
 // ═══ CSV IMPORT MODAL ═══
-function ImportModal({ organizations, onClose }: { organizations?: any[]; onClose: () => void }) {
+function ImportModal({ organizations, onClose }: { organizations?: Array<{ _id: string; naam: string }>; onClose: () => void }) {
     const bulkImportOrgs = useMutation(api.prCommunicatie.bulkImportOrganizations);
     const bulkImportContacts = useMutation(api.prCommunicatie.bulkImportContacts);
     const [loading, setLoading] = useState(false);

@@ -41,6 +41,42 @@ const regioValidator = v.union(
 );
 
 // ═══════════════════════════════════════════════════════════
+// SHARED HELPER: Filter organizations by sector/regio
+// Extracted to eliminate 3x duplicate branching logic
+// ═══════════════════════════════════════════════════════════
+
+async function filterOrgs(
+    ctx: any,
+    opts: { sector?: string; regio?: string; activeOnly?: boolean }
+) {
+    let orgs;
+    if (opts.sector && opts.regio) {
+        orgs = await ctx.db
+            .query("pr_organizations")
+            .withIndex("by_sector_regio", (q: any) =>
+                q.eq("sector", opts.sector).eq("regio", opts.regio)
+            )
+            .collect();
+    } else if (opts.sector) {
+        orgs = await ctx.db
+            .query("pr_organizations")
+            .withIndex("by_sector", (q: any) => q.eq("sector", opts.sector))
+            .collect();
+    } else if (opts.regio) {
+        orgs = await ctx.db
+            .query("pr_organizations")
+            .withIndex("by_regio", (q: any) => q.eq("regio", opts.regio))
+            .collect();
+    } else {
+        orgs = await ctx.db.query("pr_organizations").collect();
+    }
+    if (opts.activeOnly !== false) {
+        orgs = orgs.filter((o: any) => o.isActive);
+    }
+    return orgs;
+}
+
+// ═══════════════════════════════════════════════════════════
 // ORGANIZATIONS
 // ═══════════════════════════════════════════════════════════
 
@@ -52,46 +88,23 @@ export const listOrganizations = query({
         activeOnly: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
-        let orgs;
+        let orgs = await filterOrgs(ctx, {
+            sector: args.sector,
+            regio: args.regio,
+            activeOnly: args.activeOnly,
+        });
 
-        if (args.sector && args.regio) {
-            orgs = await ctx.db
-                .query("pr_organizations")
-                .withIndex("by_sector_regio", (q) =>
-                    q.eq("sector", args.sector!).eq("regio", args.regio!)
-                )
-                .collect();
-        } else if (args.sector) {
-            orgs = await ctx.db
-                .query("pr_organizations")
-                .withIndex("by_sector", (q) => q.eq("sector", args.sector!))
-                .collect();
-        } else if (args.regio) {
-            orgs = await ctx.db
-                .query("pr_organizations")
-                .withIndex("by_regio", (q) => q.eq("regio", args.regio!))
-                .collect();
-        } else {
-            orgs = await ctx.db.query("pr_organizations").collect();
-        }
-
-        // Filter by active status
-        if (args.activeOnly) {
-            orgs = orgs.filter((o) => o.isActive);
-        }
-
-        // Filter by search term
         if (args.search) {
             const term = args.search.toLowerCase();
             orgs = orgs.filter(
-                (o) =>
+                (o: any) =>
                     o.naam.toLowerCase().includes(term) ||
                     o.notities?.toLowerCase().includes(term) ||
                     o.website?.toLowerCase().includes(term)
             );
         }
 
-        return orgs.sort((a, b) => a.naam.localeCompare(b.naam));
+        return orgs.sort((a: any, b: any) => a.naam.localeCompare(b.naam));
     },
 });
 
@@ -180,6 +193,8 @@ export const deleteOrganization = mutation({
 export const listContacts = query({
     args: {
         organizationId: v.optional(v.id("pr_organizations")),
+        sector: v.optional(sectorValidator),
+        regio: v.optional(regioValidator),
         search: v.optional(v.string()),
         activeOnly: v.optional(v.boolean()),
     },
@@ -211,7 +226,7 @@ export const listContacts = query({
             );
         }
 
-        // Enrich with organization name
+        // Enrich with organization data
         const enriched = await Promise.all(
             contacts.map(async (c) => {
                 const org = c.organizationId
@@ -226,7 +241,16 @@ export const listContacts = query({
             })
         );
 
-        return enriched.sort((a, b) => {
+        // Filter by sector/regio (via linked organization)
+        let filtered = enriched;
+        if (args.sector) {
+            filtered = filtered.filter((c) => c.organizationSector === args.sector);
+        }
+        if (args.regio) {
+            filtered = filtered.filter((c) => c.organizationRegio === args.regio);
+        }
+
+        return filtered.sort((a, b) => {
             const nameA = a.naam || a.email;
             const nameB = b.naam || b.email;
             return nameA.localeCompare(nameB);
@@ -303,45 +327,23 @@ export const getEmailsByFilter = query({
         activeOnly: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
-        // Get organizations matching filter
-        let orgs;
+        const orgs = await filterOrgs(ctx, {
+            sector: args.sector,
+            regio: args.regio,
+            activeOnly: args.activeOnly,
+        });
 
-        if (args.sector && args.regio) {
-            orgs = await ctx.db
-                .query("pr_organizations")
-                .withIndex("by_sector_regio", (q) =>
-                    q.eq("sector", args.sector!).eq("regio", args.regio!)
-                )
-                .collect();
-        } else if (args.sector) {
-            orgs = await ctx.db
-                .query("pr_organizations")
-                .withIndex("by_sector", (q) => q.eq("sector", args.sector!))
-                .collect();
-        } else if (args.regio) {
-            orgs = await ctx.db
-                .query("pr_organizations")
-                .withIndex("by_regio", (q) => q.eq("regio", args.regio!))
-                .collect();
-        } else {
-            orgs = await ctx.db.query("pr_organizations").collect();
-        }
-
-        if (args.activeOnly !== false) {
-            orgs = orgs.filter((o) => o.isActive);
-        }
-
-        const orgIds = new Set(orgs.map((o) => o._id));
+        const orgIds = new Set(orgs.map((o: any) => o._id));
 
         // Get all active contacts
         const allContacts = await ctx.db
             .query("pr_contacts")
-            .withIndex("by_active", (q) => q.eq("isActive", true))
+            .withIndex("by_active", (q: any) => q.eq("isActive", true))
             .collect();
 
-        // Filter contacts belonging to matching orgs (or unlinked)
-        const filteredContacts = allContacts.filter((c) => {
-            if (!c.organizationId) return false; // Skip unlinked for BCC
+        // Filter contacts belonging to matching orgs
+        const filteredContacts = allContacts.filter((c: any) => {
+            if (!c.organizationId) return false;
             return orgIds.has(c.organizationId);
         });
 
@@ -357,7 +359,7 @@ export const getEmailsByFilter = query({
             if (!emailSet.has(contact.email.toLowerCase())) {
                 emailSet.add(contact.email.toLowerCase());
                 const org = contact.organizationId
-                    ? orgs.find((o) => o._id === contact.organizationId)
+                    ? orgs.find((o: any) => o._id === contact.organizationId)
                     : null;
                 results.push({
                     email: contact.email,
@@ -420,29 +422,26 @@ export const getStats = query({
         const contacts = await ctx.db.query("pr_contacts").collect();
         const history = await ctx.db.query("pr_send_history").collect();
 
-        const activeOrgs = orgs.filter((o) => o.isActive).length;
-        const activeContacts = contacts.filter((c) => c.isActive).length;
-        const uniqueEmails = new Set(
-            contacts.filter((c) => c.isActive).map((c) => c.email.toLowerCase())
-        ).size;
+        // Single pass: filter active orgs once, compute sector + regio breakdown
+        const activeOrgs = orgs.filter((o) => o.isActive);
+        const activeContacts = contacts.filter((c) => c.isActive);
 
-        // Sector breakdown
         const bySector: Record<string, number> = {};
-        for (const org of orgs.filter((o) => o.isActive)) {
-            bySector[org.sector] = (bySector[org.sector] || 0) + 1;
-        }
-
-        // Regio breakdown
         const byRegio: Record<string, number> = {};
-        for (const org of orgs.filter((o) => o.isActive)) {
+        for (const org of activeOrgs) {
+            bySector[org.sector] = (bySector[org.sector] || 0) + 1;
             byRegio[org.regio] = (byRegio[org.regio] || 0) + 1;
         }
 
+        const uniqueEmails = new Set(
+            activeContacts.map((c) => c.email.toLowerCase())
+        ).size;
+
         return {
             totalOrganizations: orgs.length,
-            activeOrganizations: activeOrgs,
+            activeOrganizations: activeOrgs.length,
             totalContacts: contacts.length,
-            activeContacts,
+            activeContacts: activeContacts.length,
             uniqueEmails,
             totalCampaigns: history.length,
             bySector,
@@ -498,17 +497,30 @@ export const bulkImportContacts = mutation({
         ),
     },
     handler: async (ctx, args) => {
+        // Build set of existing emails for duplicate detection
+        const existing = await ctx.db.query("pr_contacts").collect();
+        const existingEmails = new Set(
+            existing.map((c) => c.email.toLowerCase())
+        );
+
         const now = Date.now();
-        const ids = [];
+        let imported = 0;
+        let skipped = 0;
+
         for (const contact of args.contacts) {
-            const id = await ctx.db.insert("pr_contacts", {
+            if (existingEmails.has(contact.email.toLowerCase())) {
+                skipped++;
+                continue;
+            }
+            await ctx.db.insert("pr_contacts", {
                 ...contact,
                 isActive: true,
                 created_at: now,
                 updated_at: now,
             });
-            ids.push(id);
+            existingEmails.add(contact.email.toLowerCase());
+            imported++;
         }
-        return { imported: ids.length };
+        return { imported, skipped };
     },
 });

@@ -6,10 +6,41 @@ import { SECTORS, REGIOS } from "../../../convex/prCommunicatie";
 import { PaginationControls } from "./PaginationControls";
 import { PAGINATION } from "./constants";
 import CommunicatieModals from "./CommunicatieModals";
+import { AdminModal, AdminModalFooterButtons } from "./AdminModal";
 import {
     Building2, Users, Mail, Send, Search, Plus, Upload,
-    Pencil, Trash2, Copy, Check, History, Loader2
+    Pencil, Trash2, Copy, Check, History, Loader2, AlertTriangle
 } from "lucide-react";
+
+// Typed records from Convex
+interface OrgRecord {
+    _id: Id<"pr_organizations">;
+    naam: string;
+    sector: string;
+    regio: string;
+    type?: string;
+    website?: string;
+    notities?: string;
+    isActive: boolean;
+    created_at: number;
+    updated_at: number;
+}
+
+interface ContactRecord {
+    _id: Id<"pr_contacts">;
+    email: string;
+    naam?: string;
+    functie?: string;
+    organizationId?: Id<"pr_organizations">;
+    tags?: string[];
+    isActive: boolean;
+    notities?: string;
+    organizationNaam: string | null;
+    organizationSector: string | null;
+    organizationRegio: string | null;
+    created_at: number;
+    updated_at: number;
+}
 
 type Tab = "organisaties" | "contacten" | "bcc" | "historie";
 
@@ -34,8 +65,9 @@ export default function CommunicatieManager() {
     const [showOrgModal, setShowOrgModal] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
-    const [editingOrg, setEditingOrg] = useState<any>(null);
-    const [editingContact, setEditingContact] = useState<any>(null);
+    const [editingOrg, setEditingOrg] = useState<OrgRecord | null>(null);
+    const [editingContact, setEditingContact] = useState<ContactRecord | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<{ type: "org" | "contact"; id: string; name: string } | null>(null);
 
     // Queries
     const stats = useQuery(api.prCommunicatie.getStats);
@@ -46,8 +78,9 @@ export default function CommunicatieManager() {
     } as any);
     const contacts = useQuery(api.prCommunicatie.listContacts, {
         search: search || undefined,
-        ...(sectorFilter ? {} : {}),
-    });
+        sector: sectorFilter || undefined,
+        regio: regioFilter || undefined,
+    } as any);
     const sendHistory = useQuery(api.prCommunicatie.listSendHistory);
 
     // BCC query
@@ -111,20 +144,20 @@ export default function CommunicatieManager() {
             aantalOntvangers: bccResults.emails.length,
             emailLijst: bccResults.emails,
             notities: bccNotes || undefined,
-            verzondenDoor: "Admin",
+            verzondenDoor: "Admin", // TODO: replace with actual user identity from auth context
         });
         setBccSubject("");
         setBccNotes("");
     };
 
-    const handleDeleteOrg = async (id: Id<"pr_organizations">) => {
-        if (!confirm("Weet je zeker dat je deze organisatie wilt verwijderen?")) return;
-        await deleteOrg({ id });
-    };
-
-    const handleDeleteContact = async (id: Id<"pr_contacts">) => {
-        if (!confirm("Weet je zeker dat je dit contact wilt verwijderen?")) return;
-        await deleteContact({ id });
+    const handleConfirmDelete = async () => {
+        if (!deleteTarget) return;
+        if (deleteTarget.type === "org") {
+            await deleteOrg({ id: deleteTarget.id as Id<"pr_organizations"> });
+        } else {
+            await deleteContact({ id: deleteTarget.id as Id<"pr_contacts"> });
+        }
+        setDeleteTarget(null);
     };
 
     const sectorLabel = (val: string) => SECTORS.find((s) => s.value === val)?.label ?? val;
@@ -278,7 +311,7 @@ export default function CommunicatieManager() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {paginatedOrgs.items.map((org) => (
+                                    {paginatedOrgs.items.map((org: OrgRecord) => (
                                         <tr key={org._id} className="border-b border-border/50 hover:bg-surface/30 transition-colors">
                                             <td className="px-4 py-3 font-medium text-text-primary">{org.naam}</td>
                                             {/* Multi-Badge Column Stacking (Pattern 3.11) */}
@@ -310,7 +343,7 @@ export default function CommunicatieManager() {
                                                         <Pencil className="w-4 h-4" />
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDeleteOrg(org._id)}
+                                                        onClick={() => setDeleteTarget({ type: "org", id: org._id, name: org.naam })}
                                                         className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-red-500/10 text-text-muted hover:text-red-400 transition-colors cursor-pointer"
                                                         title="Verwijderen"
                                                         aria-label={`Verwijder ${org.naam}`}
@@ -397,7 +430,7 @@ export default function CommunicatieManager() {
                                                         <Pencil className="w-4 h-4" />
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDeleteContact(contact._id)}
+                                                        onClick={() => setDeleteTarget({ type: "contact", id: contact._id, name: contact.naam || contact.email })}
                                                         className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-red-500/10 text-text-muted hover:text-red-400 transition-colors cursor-pointer"
                                                         title="Verwijderen"
                                                         aria-label={`Verwijder ${contact.email}`}
@@ -574,6 +607,40 @@ export default function CommunicatieManager() {
                     organizations={organizations ?? []}
                     onClose={() => setShowImportModal(false)}
                 />
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {deleteTarget && (
+                <AdminModal
+                    isOpen={true}
+                    onClose={() => setDeleteTarget(null)}
+                    title="Verwijderen bevestigen"
+                    size="md"
+                    footer={
+                        <AdminModalFooterButtons
+                            onCancel={() => setDeleteTarget(null)}
+                            onConfirm={handleConfirmDelete}
+                            cancelText="Annuleren"
+                            confirmText="Verwijderen"
+                        />
+                    }
+                >
+                    <div className="flex items-start gap-4">
+                        <div className="p-3 rounded-xl bg-red-500/10">
+                            <AlertTriangle className="w-6 h-6 text-red-400" />
+                        </div>
+                        <div>
+                            <p className="text-text-primary font-medium">
+                                Weet je zeker dat je <strong>{deleteTarget.name}</strong> wilt verwijderen?
+                            </p>
+                            <p className="text-text-muted text-sm mt-1">
+                                {deleteTarget.type === "org"
+                                    ? "Gekoppelde contacten worden losgekoppeld maar niet verwijderd."
+                                    : "Dit contact wordt permanent verwijderd."}
+                            </p>
+                        </div>
+                    </div>
+                </AdminModal>
             )}
         </div>
     );
