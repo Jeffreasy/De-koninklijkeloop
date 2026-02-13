@@ -1,4 +1,4 @@
-import { X, ChevronLeft, ChevronRight, ExternalLink, Calendar, Maximize2, Minimize2, Share2, Copy, Check } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ExternalLink, Calendar, Maximize2, Minimize2, Share2, Copy, Check, MessageCircle } from "lucide-react";
 import { useEffect, useMemo, useCallback, memo, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { ReactionPicker } from "./ReactionPicker";
@@ -136,7 +136,7 @@ function ShareButton({ post }: { post: SocialPost }) {
                             className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary"
                             onClick={() => setShowMenu(false)}
                         >
-                            <span className="text-lg">💬</span>
+                            <MessageCircle className="w-4 h-4 text-green-500" />
                             WhatsApp
                         </a>
                         <a
@@ -270,7 +270,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     >
                         <div className="relative w-full h-full md:rounded-2xl overflow-hidden shadow-2xl">
                             <img
-                                src={post.imageUrl}
+                                src={post.imageUrl.includes("imagekit.io") ? post.imageUrl.replace("/De%20Koninklijkeloop/", "/tr:w-1200,q-85,f-auto/De%20Koninklijkeloop/") : post.imageUrl}
                                 alt={post.caption.slice(0, 100)}
                                 className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02] object-contain"
                             />
@@ -349,7 +349,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                     href={post.instagramUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2.5 rounded-xl bg-[linear-gradient(135deg,var(--color-brand-orange)_0%,#fbbf24_100%)] text-white hover:shadow-lg hover:scale-105 transition-all"
+                                    className="p-2.5 rounded-xl bg-linear-to-br from-brand-orange to-amber-400 text-white hover:shadow-lg hover:scale-105 transition-all"
                                 >
                                     <ExternalLink className="w-5 h-5" />
                                 </a>

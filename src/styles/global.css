@@ -175,6 +175,15 @@ iconify-icon {
   filter: drop-shadow(0 2px 10px rgba(255, 147, 40, 0.3));
 }
 
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer base {
 
   /* Native Scroll & Selection Polish */
