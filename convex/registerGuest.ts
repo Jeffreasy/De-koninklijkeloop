@@ -1,6 +1,7 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { TENANT_ID, AUTH_API_URL } from "./authHelpers";
 
 /**
  * Guest Registration Action
@@ -21,17 +22,16 @@ export const registerGuest = action({
         agreedToMedia: v.boolean(),
     },
     handler: async (ctx, args): Promise<string> => {
-        const tenantId = "b2727666-7230-4689-b58b-ceab8c2898d5";
-        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
+
 
         // 1. Create ghost user in Go backend (password_hash = NULL)
         let authUserId: string | undefined;
         try {
-            const ghostRes = await fetch(`${API_URL}/guest/register`, {
+            const ghostRes = await fetch(`${AUTH_API_URL}/guest/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-Tenant-ID": tenantId
+                    "X-Tenant-ID": TENANT_ID
                 },
                 body: JSON.stringify({
                     email: args.email,

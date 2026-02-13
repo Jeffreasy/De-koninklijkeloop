@@ -2,7 +2,24 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+// ─── Security Model ───────────────────────────────────────────
+// Chat is admin/editor-only. The user identity (email) is provided
+// by the client, which receives it from the SSR middleware after
+// token verification against LaventeCare auth. The middleware
+// guards /admin routes, so only authenticated admin/editor users
+// can reach the chat UI. The Convex mutations themselves do NOT
+// re-verify the token — this is an accepted trust boundary.
+// For a higher-security model, convert mutations to actions and
+// call verifyAuth() from authHelpers.ts.
+
 // ─── Helpers ──────────────────────────────────────────────────
+
+/** Basic validation: user identity must look like an email and be reasonable length */
+function validateChatUser(user: string): void {
+    if (!user || user.length > 254 || !user.includes("@")) {
+        throw new Error("Invalid user identity");
+    }
+}
 
 function makeConversationId(a: string, b: string): string {
     return a < b ? `${a}:${b}` : `${b}:${a}`;
@@ -18,6 +35,7 @@ export const heartbeat = mutation({
         role: v.optional(v.union(v.literal("admin"), v.literal("editor")))
     },
     handler: async (ctx, args) => {
+        validateChatUser(args.user);
         const existing = await ctx.db
             .query("presence")
             .withIndex("by_user", (q) => q.eq("user", args.user))
@@ -197,6 +215,8 @@ export const sendMessage = mutation({
         type: v.optional(v.union(v.literal("text"), v.literal("image"), v.literal("system")))
     },
     handler: async (ctx, args) => {
+        validateChatUser(args.sender);
+        validateChatUser(args.recipient);
         const content = args.content.trim();
         if (!content) throw new Error("Message content cannot be empty");
         if (content.length > 2000) throw new Error("Message too long (max 2000 characters)");
@@ -231,6 +251,8 @@ export const markAsRead = mutation({
         sender: v.string()
     },
     handler: async (ctx, args) => {
+        validateChatUser(args.recipient);
+        validateChatUser(args.sender);
         // Use index: find unread messages where recipient is current user
         const unread = await ctx.db
             .query("direct_messages")
@@ -385,6 +407,7 @@ export const sendGroupMessage = mutation({
         type: v.optional(v.union(v.literal("text"), v.literal("image"), v.literal("system"))),
     },
     handler: async (ctx, args) => {
+        validateChatUser(args.sender);
         const content = args.content.trim();
         if (!content) throw new Error("Message content cannot be empty");
         if (content.length > 2000) throw new Error("Message too long (max 2000 characters)");

@@ -14,6 +14,7 @@ import type * as analytics from "../analytics.js";
 import type * as analyticsCleanup from "../analyticsCleanup.js";
 import type * as archive from "../archive.js";
 import type * as auth from "../auth.js";
+import type * as authHelpers from "../authHelpers.js";
 import type * as chat from "../chat.js";
 import type * as contact from "../contact.js";
 import type * as crons from "../crons.js";
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   analyticsCleanup: typeof analyticsCleanup;
   archive: typeof archive;
   auth: typeof auth;
+  authHelpers: typeof authHelpers;
   chat: typeof chat;
   contact: typeof contact;
   crons: typeof crons;

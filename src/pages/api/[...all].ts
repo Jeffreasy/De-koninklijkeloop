@@ -60,15 +60,15 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
             headers.set("X-Tenant-ID", tenantID);
         }
 
-        // Debug Proxy Request
-        console.log(`[Proxy] Forwarding ${request.method} to ${targetUrl}`);
-        console.log(`[Proxy] X-Tenant-ID: ${headers.get("X-Tenant-ID")}`);
+        // Debug Proxy Request (safe — no body/PII logged)
+        if (import.meta.env.DEV) {
+            console.log(`[Proxy] Forwarding ${request.method} to ${targetUrl}`);
+        }
 
         let body: any = undefined;
         if (request.method !== 'GET') {
             const rawBody = await request.clone().text();
-            console.log(`[Proxy] Request Body (${rawBody.length} chars): ${rawBody.substring(0, 100)}...`);
-            body = rawBody; // Forward as string or stream
+            body = rawBody;
         }
 
         const response = await fetch(targetUrl, {
@@ -79,7 +79,6 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         } as any);
 
         const responseText = await response.text();
-        console.log(`[Proxy] Response ${response.status}: ${responseText.substring(0, 100)}...`);
 
         const responseHeaders = new Headers(response.headers);
         responseHeaders.delete('content-encoding');

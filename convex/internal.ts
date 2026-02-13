@@ -1,10 +1,10 @@
-import { query, internalMutation } from "./_generated/server";
+import { query, internalQuery, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
 // Internal query to fetch all registrations
 // Used by admin actions after auth verification
 // (Forces Codegen)
-export const listRegistrations = query({
+export const listRegistrations = internalQuery({
     args: {},
     handler: async (ctx) => {
         return await ctx.db.query("registrations").order("desc").collect();
@@ -90,7 +90,7 @@ export const promoteRegistration = internalMutation({
     },
 });
 
-export const getRegistrationByEmail = query({
+export const getRegistrationByEmail = internalQuery({
     args: { email: v.string() },
     handler: async (ctx, args) => {
         return await ctx.db
@@ -171,7 +171,7 @@ export const deleteRegistration = internalMutation({
 });
 
 // Get linked companion registrations (for begeleiders)
-export const getCompanionRegistrations = query({
+export const getCompanionRegistrations = internalQuery({
     args: { email: v.string() },
     handler: async (ctx, args) => {
         return await ctx.db
@@ -182,7 +182,7 @@ export const getCompanionRegistrations = query({
 });
 
 // Get the registration a begeleider is companion of
-export const getLinkedDeelnemer = query({
+export const getLinkedDeelnemer = internalQuery({
     args: { companionEmail: v.string() },
     handler: async (ctx, args) => {
         if (!args.companionEmail) return null;
@@ -194,7 +194,7 @@ export const getLinkedDeelnemer = query({
 });
 
 // Get volunteer tasks for a registration
-export const getVolunteerTasks = query({
+export const getVolunteerTasks = internalQuery({
     args: { registrationId: v.id("registrations") },
     handler: async (ctx, args) => {
         return await ctx.db

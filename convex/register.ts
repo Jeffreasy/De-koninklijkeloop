@@ -1,6 +1,7 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-import { api, internal } from "./_generated/api";
+import { internal } from "./_generated/api";
+import { TENANT_ID, AUTH_API_URL } from "./authHelpers";
 
 export const registerParticipant = action({
     args: {
@@ -17,17 +18,14 @@ export const registerParticipant = action({
         agreedToMedia: v.boolean(),
     },
     handler: async (ctx, args): Promise<string> => {
-        const tenantId = "b2727666-7230-4689-b58b-ceab8c2898d5";
-
         // 1. Create User in Auth System (or auto-promote ghost user)
         // The Go backend auto-detects ghost users (password_hash IS NULL)
         // and promotes them by setting the password — same user_id preserved.
-        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
-        const authRes = await fetch(`${API_URL}/auth/register`, {
+        const authRes = await fetch(`${AUTH_API_URL}/auth/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-Tenant-ID": tenantId
+                "X-Tenant-ID": TENANT_ID
             },
             body: JSON.stringify({
                 email: args.email,

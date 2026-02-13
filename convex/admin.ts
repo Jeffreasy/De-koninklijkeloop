@@ -1,54 +1,25 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { internal } from "./_generated/api";
+import { verifyAuth } from "./authHelpers";
 
 export const getRegistrations = action({
     args: { token: v.string() },
     handler: async (ctx, args): Promise<any> => {
-        const tenantId = process.env.TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
+        await verifyAuth(args.token, { requiredRoles: ["admin", "editor"] });
 
-        // 1. Verify Token via Auth API
-        // 1. Verify Token via Auth API
-        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
-        const res = await fetch(`${API_URL}/auth/me`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Cookie": `access_token=${args.token}`,
-                "X-Tenant-ID": tenantId
-            }
-        });
-
-        if (!res.ok) {
-            const errorText = await res.text();
-            console.error(`[Admin] Auth Failed: ${res.status} ${res.statusText} - ${errorText}`);
-            throw new Error(`Unauthorized: Invalid Token (${res.status}: ${errorText})`);
-        }
-
-        const userData = await res.json();
-        const user = userData.User || userData.user || userData; // Handle PascalCase/snake_case/flat
-        const role = (user.Role || user.role || "").toLowerCase();
-
-        if (role !== "admin" && role !== "editor") {
-            console.warn(`[Admin] Access Forbidden. User Role: ${role}`);
-            throw new Error("Forbidden: Insufficient Permissions (Admin or Editor Required)");
-        }
-
-        // 2. Fetch Data securely (Internal Query)
-        // We use the separated 'internal' file to avoid circular type inference
-        const data = await ctx.runQuery(api.internal.listRegistrations, {});
+        const data = await ctx.runQuery(internal.internal.listRegistrations, {});
         return data;
     },
 });
 
-// Public admin action to update registration
+// Admin action to update registration
 export const updateRegistration = action({
     args: {
         token: v.string(),
         id: v.id("registrations"),
         status: v.optional(v.union(v.literal("pending"), v.literal("paid"), v.literal("cancelled"))),
         notes: v.optional(v.string()),
-        // Editable fields matching internal mutation
         name: v.optional(v.string()),
         email: v.optional(v.string()),
         role: v.optional(v.union(v.literal("deelnemer"), v.literal("begeleider"), v.literal("vrijwilliger"))),
@@ -57,28 +28,9 @@ export const updateRegistration = action({
         icePhone: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        // 1. Verify Token
-        const tenantId = process.env.TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
-        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
+        await verifyAuth(args.token, { requiredRoles: ["admin", "editor"] });
 
-        const res = await fetch(`${API_URL}/auth/me`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Cookie": `access_token=${args.token}`,
-                "X-Tenant-ID": tenantId
-            }
-        });
-
-        if (!res.ok) throw new Error("Unauthorized");
-        const userData = await res.json();
-        const user = userData.User || userData.user || userData;
-        const role = (user.Role || user.role || "").toLowerCase();
-        if (role !== "admin" && role !== "editor") throw new Error("Forbidden");
-
-        // 2. Call Internal Mutation
-        // @ts-ignore - Internal mutation types might not be generated yet
-        await ctx.runMutation(api.internal.updateRegistration, {
+        await ctx.runMutation(internal.internal.updateRegistration, {
             id: args.id,
             status: args.status,
             notes: args.notes,
@@ -98,26 +50,8 @@ export const deleteRegistration = action({
         id: v.id("registrations"),
     },
     handler: async (ctx, args) => {
-        // 1. Verify Token
-        const tenantId = process.env.TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
-        const API_URL = process.env.LAVENTECARE_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
+        await verifyAuth(args.token, { requiredRoles: ["admin"] });
 
-        const res = await fetch(`${API_URL}/auth/me`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Cookie": `access_token=${args.token}`,
-                "X-Tenant-ID": tenantId
-            }
-        });
-
-        if (!res.ok) throw new Error("Unauthorized");
-        const userData = await res.json();
-        const user = userData.User || userData.user || userData;
-        if ((user.Role || user.role || "").toLowerCase() !== "admin") throw new Error("Forbidden");
-
-        // 2. Call Internal Mutation
-        // @ts-ignore - Internal mutation types might not be generated yet
-        await ctx.runMutation(api.internal.deleteRegistration, { id: args.id });
+        await ctx.runMutation(internal.internal.deleteRegistration, { id: args.id });
     },
 });

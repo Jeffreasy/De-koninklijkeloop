@@ -265,38 +265,3 @@ export const reorder = mutation({
         return args.updates.map((u) => u.id);
     },
 });
-
-/**
- * Migration: Update Cloudinary URLs to ImageKit URLs
- * Run once to migrate existing social posts from Cloudinary to ImageKit
- */
-export const migrateCloudinaryToImageKit = mutation({
-    args: {},
-    handler: async (ctx) => {
-        const allPosts = await ctx.db.query("social_posts").collect();
-        let migratedCount = 0;
-        const results: Array<{ id: string; oldUrl: string; newUrl: string }> = [];
-
-        for (const post of allPosts) {
-            if (post.imageUrl && post.imageUrl.includes("cloudinary")) {
-                // Extract filename from Cloudinary URL (last segment)
-                // Handles both patterns:
-                //   .../v123/filename.jpg
-                //   .../De%20Koninklijkeloop/SocialMediaPosts/filename.jpg
-                const urlParts = post.imageUrl.split("/");
-                const fileName = urlParts[urlParts.length - 1];
-
-                const newUrl = `https://ik.imagekit.io/a0oim4e3e/De%20Koninklijkeloop/SocialmediaPosts/${fileName}`;
-
-                await ctx.db.patch(post._id, {
-                    imageUrl: newUrl,
-                    updatedAt: Date.now(),
-                });
-                migratedCount++;
-                results.push({ id: post._id, oldUrl: post.imageUrl, newUrl });
-            }
-        }
-
-        return { migratedCount, totalPosts: allPosts.length, results };
-    },
-});
