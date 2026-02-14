@@ -59,6 +59,22 @@ function generateSlug(title: string): string {
         .trim();
 }
 
+/** Ensures slug is unique by appending -2, -3, etc. if needed */
+async function ensureUniqueSlug(ctx: any, baseSlug: string, excludeId?: any): Promise<string> {
+    let slug = baseSlug;
+    let suffix = 2;
+    while (true) {
+        const existing = await ctx.db
+            .query("blog_posts")
+            .withIndex("by_slug", (q: any) => q.eq("slug", slug))
+            .first();
+        if (!existing || (excludeId && existing._id === excludeId)) break;
+        slug = `${baseSlug}-${suffix}`;
+        suffix++;
+    }
+    return slug;
+}
+
 function estimateReadingTime(content: string): number {
     const text = content.replace(/<[^>]*>/g, "");
     const words = text.split(/\s+/).length;
@@ -82,13 +98,20 @@ export const createPost = mutation({
     },
     handler: async (ctx, args) => {
         const now = Date.now();
-        const slug = args.slug || generateSlug(args.title);
+        const baseSlug = args.slug || generateSlug(args.title);
+        const slug = await ensureUniqueSlug(ctx, baseSlug);
 
-        // Resolve category name
+        // Resolve category
         let category_name: string | undefined;
+        let category_slug: string | undefined;
         if (args.category_id) {
             const cat = await ctx.db.get(args.category_id);
             category_name = cat?.name;
+            category_slug = cat?.slug;
+            // P4: increment post_count
+            if (cat) {
+                await ctx.db.patch(cat._id, { post_count: (cat.post_count || 0) + 1 });
+            }
         }
 
         const status = (args.status || "draft") as "draft" | "review" | "published" | "scheduled" | "archived";
@@ -101,6 +124,7 @@ export const createPost = mutation({
             cover_image_url: args.cover_image_url,
             category_id: args.category_id,
             category_name,
+            category_slug,
             status,
             is_featured: args.is_featured || false,
             tags: args.tags,
@@ -139,7 +163,9 @@ export const updatePost = mutation({
         const patch: Record<string, any> = { updated_at: Date.now() };
 
         if (updates.title !== undefined) patch.title = updates.title;
-        if (updates.slug !== undefined) patch.slug = updates.slug;
+        if (updates.slug !== undefined) {
+            patch.slug = await ensureUniqueSlug(ctx, updates.slug, id);
+        }
         if (updates.content !== undefined) {
             patch.content = updates.content;
             patch.reading_time_minutes = estimateReadingTime(updates.content);
@@ -147,9 +173,18 @@ export const updatePost = mutation({
         if (updates.excerpt !== undefined) patch.excerpt = updates.excerpt;
         if (updates.cover_image_url !== undefined) patch.cover_image_url = updates.cover_image_url;
         if (updates.category_id !== undefined) {
+            // P4: decrement old category, increment new
+            if (existing.category_id && existing.category_id !== updates.category_id) {
+                const oldCat = await ctx.db.get(existing.category_id);
+                if (oldCat) await ctx.db.patch(oldCat._id, { post_count: Math.max(0, (oldCat.post_count || 0) - 1) });
+            }
             patch.category_id = updates.category_id;
             const cat = await ctx.db.get(updates.category_id);
             patch.category_name = cat?.name;
+            patch.category_slug = cat?.slug;
+            if (cat && existing.category_id !== updates.category_id) {
+                await ctx.db.patch(cat._id, { post_count: (cat.post_count || 0) + 1 });
+            }
         }
         if (updates.status !== undefined) {
             patch.status = updates.status;
@@ -170,6 +205,12 @@ export const updatePost = mutation({
 export const deletePost = mutation({
     args: { id: v.id("blog_posts") },
     handler: async (ctx, { id }) => {
+        const post = await ctx.db.get(id);
+        // P4: decrement category post_count
+        if (post?.category_id) {
+            const cat = await ctx.db.get(post.category_id);
+            if (cat) await ctx.db.patch(cat._id, { post_count: Math.max(0, (cat.post_count || 0) - 1) });
+        }
         // Delete associated comments
         const comments = await ctx.db
             .query("blog_comments")
@@ -285,17 +326,28 @@ export const listComments = query({
             results = await ctx.db.query("blog_comments").order("desc").collect();
         }
 
-        // Resolve post titles for admin view
-        const comments = await Promise.all(
+        // Resolve post titles and nest replies
+        const enriched = await Promise.all(
             results.map(async (c) => {
                 const post = await ctx.db.get(c.post_id);
-                return { ...c, post_title: post?.title || "Verwijderd" };
+                return { ...c, post_title: post?.title || "Verwijderd", replies: [] as any[] };
             })
         );
 
+        // Build parent→children tree
+        const byId = new Map(enriched.map(c => [c._id, c]));
+        const roots: typeof enriched = [];
+        for (const comment of enriched) {
+            if (comment.parent_id && byId.has(comment.parent_id)) {
+                byId.get(comment.parent_id)!.replies.push(comment);
+            } else {
+                roots.push(comment);
+            }
+        }
+
         return {
-            comments: limit ? comments.slice(0, limit) : comments,
-            total: comments.length,
+            comments: limit ? roots.slice(0, limit) : roots,
+            total: roots.length,
         };
     },
 });

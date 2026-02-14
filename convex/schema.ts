@@ -548,6 +548,7 @@ export default defineSchema({
         cover_image_url: v.optional(v.string()),
         category_id: v.optional(v.id("blog_categories")),
         category_name: v.optional(v.string()),  // Denormalized for read perf
+        category_slug: v.optional(v.string()),  // Denormalized for filter links
         status: v.union(
             v.literal("draft"),
             v.literal("review"),
