@@ -21,13 +21,13 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
     const [activeGroup, setActiveGroup] = useState<GroupConversation | null>(null);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
-    // Presence
+    // Presence — ONLY when widget is open (prevents heartbeat→reactivity spam)
     usePresence(
-        { id: currentUser.email, name: currentUser.name || currentUser.email || "Gebruiker", role: currentUser.role },
-        "chat-widget"
+        isOpen ? { id: currentUser.email, name: currentUser.name || currentUser.email || "Gebruiker", role: currentUser.role } : null,
+        isOpen ? "chat-widget" : undefined
     );
 
-    // Queries — skip expensive ones when widget is closed to prevent Convex reactive spam
+    // Queries — skip expensive ones when widget is closed
     const teamMembers = useQuery(api.chat.getAllTeamMembers, isOpen ? {} : "skip") || [];
     const unreadStats = useQuery(api.chat.getUnreadCounts, { user: currentUser.email });
     const conversations = useQuery(api.chat.getConversations, isOpen ? { user: currentUser.email } : "skip") || [];

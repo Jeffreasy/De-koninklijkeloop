@@ -5,11 +5,11 @@ import { api } from '../../convex/_generated/api';
 
 /**
  * usePresence Hook
- * Sends a heartbeat every 30 seconds to keep the user "Online".
- * Now includes role for badge display.
+ * Sends a heartbeat every 60s to keep the user "Online".
+ * Pass null for user to disable the heartbeat entirely.
  */
 export function usePresence(
-    user: { id: string; name: string; role?: string },
+    user: { id: string; name: string; role?: string } | null,
     path?: string
 ) {
     const heartbeat = useMutation(api.chat.heartbeat);
