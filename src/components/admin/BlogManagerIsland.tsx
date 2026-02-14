@@ -120,30 +120,32 @@ export default function BlogManagerIsland() {
         <div className="space-y-6">
             {/* Top Tab Bar */}
             <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex gap-1 p-1 rounded-xl bg-glass-bg/30 border border-glass-border">
-                    <button onClick={() => setActiveTab("posts")}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${activeTab === "posts" ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-text-primary"}`}
-                    >
-                        <FileText className="w-4 h-4" /> Berichten
-                    </button>
-                    <button onClick={() => setActiveTab("categories")}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${activeTab === "categories" ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-text-primary"}`}
-                    >
-                        <FolderOpen className="w-4 h-4" /> Categorieën
-                    </button>
-                    <button onClick={() => setActiveTab("comments")}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${activeTab === "comments" ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-text-primary"}`}
-                    >
-                        <MessageCircle className="w-4 h-4" /> Reacties
-                        {pendingComments > 0 && (
-                            <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500 text-white">{pendingComments}</span>
-                        )}
-                    </button>
-                    <button onClick={() => setActiveTab("config")}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${activeTab === "config" ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-text-primary"}`}
-                    >
-                        <Settings className="w-4 h-4" /> Instellingen
-                    </button>
+                <div className="overflow-x-auto -mx-1 px-1">
+                    <div className="flex gap-1 p-1 rounded-xl bg-glass-bg/30 border border-glass-border w-max min-w-full">
+                        <button onClick={() => setActiveTab("posts")}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${activeTab === "posts" ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-text-primary"}`}
+                        >
+                            <FileText className="w-4 h-4" /> Berichten
+                        </button>
+                        <button onClick={() => setActiveTab("categories")}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${activeTab === "categories" ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-text-primary"}`}
+                        >
+                            <FolderOpen className="w-4 h-4" /> Categorieën
+                        </button>
+                        <button onClick={() => setActiveTab("comments")}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${activeTab === "comments" ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-text-primary"}`}
+                        >
+                            <MessageCircle className="w-4 h-4" /> Reacties
+                            {pendingComments > 0 && (
+                                <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500 text-white">{pendingComments}</span>
+                            )}
+                        </button>
+                        <button onClick={() => setActiveTab("config")}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${activeTab === "config" ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" : "text-text-muted hover:text-text-primary"}`}
+                        >
+                            <Settings className="w-4 h-4" /> Instellingen
+                        </button>
+                    </div>
                 </div>
 
                 {activeTab === "posts" && (
@@ -159,17 +161,19 @@ export default function BlogManagerIsland() {
             {activeTab === "posts" && (
                 <div className="space-y-4">
                     {/* Status Filter */}
-                    <div className="flex flex-wrap gap-1 p-1 rounded-xl bg-glass-border/20">
-                        {STATUS_TABS.map((tab) => (
-                            <button key={tab.value} onClick={() => setStatusFilter(tab.value)}
-                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${statusFilter === tab.value
-                                    ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
-                                    : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
-                                    }`}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
+                    <div className="overflow-x-auto">
+                        <div className="flex flex-wrap gap-1 p-1 rounded-xl bg-glass-border/20 min-w-max">
+                            {STATUS_TABS.map((tab) => (
+                                <button key={tab.value} onClick={() => setStatusFilter(tab.value)}
+                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${statusFilter === tab.value
+                                        ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
+                                        : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
+                                        }`}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Post List */}

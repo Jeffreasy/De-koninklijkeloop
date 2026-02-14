@@ -75,7 +75,7 @@ export default function CommentSection({ slug, postId }: Props) {
         new Date(typeof ts === 'number' ? ts : ts).toLocaleDateString("nl-NL", { day: "numeric", month: "short", year: "numeric" });
 
     const renderComment = (comment: Comment, depth = 0) => (
-        <div key={comment.id} className={`${depth > 0 ? "ml-6 pl-4 border-l-2 border-glass-border/30" : ""}`}>
+        <div key={comment.id} className={`${depth > 0 ? "ml-4 sm:ml-6 pl-3 sm:pl-4 border-l-2 border-glass-border/30" : ""}`}>
             <div className="glass-card p-4 mb-3">
                 <div className="flex items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2">
@@ -89,7 +89,7 @@ export default function CommentSection({ slug, postId }: Props) {
                 <p className="text-sm text-text-secondary leading-relaxed">{comment.content}</p>
                 <button
                     onClick={() => setReplyTo(comment.id)}
-                    className="mt-2 inline-flex items-center gap-1 text-xs text-text-muted hover:text-brand-orange transition-colors cursor-pointer"
+                    className="mt-2 inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-brand-orange transition-colors cursor-pointer min-h-[44px] py-2"
                 >
                     <Reply className="w-3 h-3" /> Reageren
                 </button>
@@ -119,21 +119,24 @@ export default function CommentSection({ slug, postId }: Props) {
                             <div className="flex items-center gap-2 text-xs text-text-muted">
                                 <Reply className="w-3 h-3" />
                                 Reageren op bericht
-                                <button onClick={() => setReplyTo(null)} className="text-brand-orange hover:underline cursor-pointer">
+                                <button onClick={() => setReplyTo(null)} className="text-brand-orange hover:underline cursor-pointer min-h-[44px] py-2 px-2">
                                     Annuleren
                                 </button>
                             </div>
                         )}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <input type="text" value={name} onChange={(e) => setName(e.target.value)} required
-                                className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                                aria-label="Jouw naam"
+                                className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                                 placeholder="Jouw naam *" />
                             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                                aria-label="E-mailadres"
+                                className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                                 placeholder="E-mail (optioneel)" />
                         </div>
                         <textarea value={content} onChange={(e) => setContent(e.target.value)} required
-                            className="w-full px-4 py-3 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all resize-none"
+                            aria-label="Reactie"
+                            className="w-full px-4 py-3 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all resize-none"
                             rows={3} placeholder="Schrijf je reactie..." />
                         <button type="submit" disabled={submitting || !name || !content}
                             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 cursor-pointer disabled:opacity-50 text-sm"

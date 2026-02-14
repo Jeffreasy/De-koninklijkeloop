@@ -105,7 +105,7 @@ const activeCategory = categories.find((c: any) => c.slug === categorySlug);
                         <a
                             href="/blog"
                             class:list={[
-                                "px-4 py-2 rounded-xl text-sm font-medium transition-all",
+                                "px-4 py-2 rounded-xl text-sm font-medium transition-all min-h-[44px] inline-flex items-center",
                                 !categorySlug
                                     ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
                                     : "bg-glass-bg/30 border border-glass-border text-text-muted hover:text-text-primary hover:bg-glass-bg/50",
@@ -117,7 +117,7 @@ const activeCategory = categories.find((c: any) => c.slug === categorySlug);
                             <a
                                 href={`/blog?category=${cat.slug}`}
                                 class:list={[
-                                    "px-4 py-2 rounded-xl text-sm font-medium transition-all",
+                                    "px-4 py-2 rounded-xl text-sm font-medium transition-all min-h-[44px] inline-flex items-center",
                                     categorySlug === cat.slug
                                         ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
                                         : "bg-glass-bg/30 border border-glass-border text-text-muted hover:text-text-primary hover:bg-glass-bg/50",
@@ -133,7 +133,7 @@ const activeCategory = categories.find((c: any) => c.slug === categorySlug);
             {/* Posts Grid */}
             {
                 posts.length === 0 ? (
-                    <div class="glass-card p-16 text-center">
+                    <div class="glass-card p-8 sm:p-16 text-center">
                         <p class="text-text-muted text-lg">
                             {categorySlug
                                 ? "Geen berichten in deze categorie."
@@ -171,7 +171,7 @@ const activeCategory = categories.find((c: any) => c.slug === categorySlug);
                             <a
                                 href={`/blog?page=${p}${categorySlug ? `&category=${categorySlug}` : ""}`}
                                 class:list={[
-                                    "w-10 h-10 rounded-xl flex items-center justify-center text-sm font-medium transition-all",
+                                    "w-11 h-11 rounded-xl flex items-center justify-center text-sm font-medium transition-all",
                                     p === page
                                         ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
                                         : "bg-glass-bg/30 border border-glass-border text-text-muted hover:text-text-primary",
