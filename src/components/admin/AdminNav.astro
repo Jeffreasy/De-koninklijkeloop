@@ -59,6 +59,8 @@ const allNavItems = [
   { name: "Email", href: "/admin/email", icon: "lucide:mail" },
   { name: "Media", href: "/admin/media", icon: "lucide:image" },
   { name: "Social Media", href: "/admin/social", icon: "lucide:instagram" },
+  { name: "X Poster", href: "/admin/x-poster", icon: "lucide:twitter" },
+  { name: "Blog", href: "/admin/blog", icon: "lucide:book-open" },
   {
     name: "Communicatie",
     href: "/admin/communicatie",
@@ -68,8 +70,9 @@ const allNavItems = [
   { name: "Instellingen", href: "/admin/settings", icon: "lucide:settings" },
 ];
 
+const adminOnlyItems = ["Instellingen", "X Poster", "Blog"];
 const navItems = allNavItems.filter((item) => {
-  if (item.name === "Instellingen") {
+  if (adminOnlyItems.includes(item.name)) {
     return userRole === "admin";
   }
   return true;

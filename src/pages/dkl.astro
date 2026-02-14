@@ -4,8 +4,9 @@ import Navbar from "../components/blocks/Global/Navbar.astro";
 import Footer from "../components/blocks/Global/Footer.astro";
 import DKLInfo from "../components/blocks/DKL/DKLInfo.astro";
 import RouteDetailWithElevation from "../components/islands/RouteDetailWithElevation.tsx";
+import BlogPreviewSection from "../components/blocks/Blog/BlogPreviewSection.astro";
 
-export const prerender = true;
+export const prerender = false;
 
 const title = "De Koninklijke Loop (DKL) 2026 — Wandelroute Koninklijke Weg";
 const description =
@@ -117,6 +118,9 @@ const dklJsonLd = {
 
                 <RouteDetailWithElevation client:only="react" />
             </div>
+
+            {/* Blog Preview Section */}
+            <BlogPreviewSection />
         </div>
     </main>
 

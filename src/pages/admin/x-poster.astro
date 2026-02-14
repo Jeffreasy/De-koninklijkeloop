@@ -1,0 +1,26 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import XPosterIsland from "../../components/admin/XPosterIsland";
+
+// Admin-only guard
+const user = Astro.locals.user;
+if (!user || user.role !== "admin") {
+    return Astro.redirect("/admin/dashboard");
+}
+---
+
+<AdminLayout title="X Poster | De Koninklijke Loop Admin">
+    <div class="space-y-6">
+        <div>
+            <h1 class="text-3xl font-bold font-display text-text-primary">
+                X / Twitter Poster
+            </h1>
+            <p class="text-text-muted mt-1">
+                Beheer campagnes, posts en automatisch publiceren naar X
+            </p>
+        </div>
+        <div class="min-h-[600px]">
+            <XPosterIsland client:only="react" />
+        </div>
+    </div>
+</AdminLayout>

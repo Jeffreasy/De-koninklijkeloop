@@ -65,7 +65,7 @@ export const getOnlineUsers = query({
     handler: async (ctx) => {
         const presence = await ctx.db.query("presence").collect();
         const now = Date.now();
-        return presence.filter(p => (now - p.lastActive) < 60000).map(p => ({
+        return presence.filter(p => (now - p.lastActive) < 120000).map(p => ({
             user: p.user,
             name: p.name,
             status: p.status,
@@ -85,7 +85,7 @@ export const getAllTeamMembers = query({
             user: p.user,
             name: p.name,
             role: p.role,
-            isOnline: (now - p.lastActive) < 60000,
+            isOnline: (now - p.lastActive) < 120000,
             lastActive: p.lastActive,
             path: p.currentPath,
         }));

@@ -369,7 +369,7 @@ export default defineSchema({
     /**
      * Real-Time Presence System
      * Tracks user activity for the "Green Dot" indicator.
-     * Logic: Frontend sends heartbeat every 30s. Offline if > 60s.
+     * Logic: Frontend sends heartbeat every 60s. Offline if > 120s.
      */
     presence: defineTable({
         user: v.string(), // Identifier (email or ID)
@@ -534,4 +534,78 @@ export default defineSchema({
         .index("by_event", ["event"])
         .index("by_timestamp", ["timestamp"])
         .index("by_path", ["path"]),
+
+    // ═══════════════════════════════════════════════════════════
+    // BLOG MODULE
+    // Blog posts, categories, comments, and configuration
+    // ═══════════════════════════════════════════════════════════
+
+    blog_posts: defineTable({
+        title: v.string(),
+        slug: v.string(),
+        content: v.string(),                    // HTML from TipTap
+        excerpt: v.optional(v.string()),
+        cover_image_url: v.optional(v.string()),
+        category_id: v.optional(v.id("blog_categories")),
+        category_name: v.optional(v.string()),  // Denormalized for read perf
+        status: v.union(
+            v.literal("draft"),
+            v.literal("review"),
+            v.literal("published"),
+            v.literal("scheduled"),
+            v.literal("archived")
+        ),
+        is_featured: v.boolean(),
+        tags: v.optional(v.array(v.string())),
+        reading_time_minutes: v.optional(v.number()),
+        author_name: v.optional(v.string()),
+
+        // SEO
+        seo_title: v.optional(v.string()),
+        seo_description: v.optional(v.string()),
+
+        // Timestamps
+        published_at: v.optional(v.number()),
+        created_at: v.number(),
+        updated_at: v.number(),
+    })
+        .index("by_slug", ["slug"])
+        .index("by_status", ["status"])
+        .index("by_category", ["category_id"])
+        .index("by_featured", ["is_featured"])
+        .index("by_published", ["published_at"]),
+
+    blog_categories: defineTable({
+        name: v.string(),
+        slug: v.string(),
+        description: v.optional(v.string()),
+        post_count: v.number(),             // Denormalized counter
+        created_at: v.number(),
+        updated_at: v.number(),
+    })
+        .index("by_slug", ["slug"]),
+
+    blog_comments: defineTable({
+        post_id: v.id("blog_posts"),
+        author_name: v.string(),
+        author_email: v.optional(v.string()),
+        content: v.string(),
+        status: v.union(
+            v.literal("pending"),
+            v.literal("approved"),
+            v.literal("rejected")
+        ),
+        parent_id: v.optional(v.id("blog_comments")), // Reply threading
+        created_at: v.number(),
+    })
+        .index("by_post", ["post_id"])
+        .index("by_status", ["status"])
+        .index("by_post_status", ["post_id", "status"]),
+
+    blog_config: defineTable({
+        enabled: v.boolean(),
+        comments_enabled: v.boolean(),
+        posts_per_page: v.number(),
+        updated_at: v.number(),
+    }),
 });

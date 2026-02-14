@@ -1,0 +1,26 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import BlogManagerIsland from "../../components/admin/BlogManagerIsland";
+
+// Admin-only guard
+const user = Astro.locals.user;
+if (!user || user.role !== "admin") {
+    return Astro.redirect("/admin/dashboard");
+}
+---
+
+<AdminLayout title="Blog | De Koninklijke Loop Admin">
+    <div class="space-y-6">
+        <div>
+            <h1 class="text-3xl font-bold font-display text-text-primary">
+                Blog Beheer
+            </h1>
+            <p class="text-text-muted mt-1">
+                Schrijf, publiceer en beheer blogposts en reacties
+            </p>
+        </div>
+        <div class="min-h-[600px]">
+            <BlogManagerIsland client:only="react" />
+        </div>
+    </div>
+</AdminLayout>

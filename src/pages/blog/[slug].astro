@@ -1,0 +1,178 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/blocks/Global/Navbar.astro";
+import Footer from "../../components/blocks/Global/Footer.astro";
+import CommentSection from "../../components/blocks/Blog/CommentSection";
+import { getConvexClient } from "../../lib/convex-server";
+import { api } from "../../../convex/_generated/api";
+
+export const prerender = false;
+
+const convex = getConvexClient();
+const { slug } = Astro.params;
+
+let post: any = null;
+
+try {
+    const found = await convex.query(api.blog.getPostBySlug, { slug: slug! });
+    if (found && found.status === "published") {
+        post = {
+            ...found,
+            id: found._id,
+            published_at: found.published_at
+                ? new Date(found.published_at).toISOString()
+                : undefined,
+        };
+    }
+} catch (err) {
+    console.error("[Blog] SSR post fetch failed:", err);
+}
+
+if (!post) {
+    return Astro.redirect("/blog");
+}
+
+const publishedDate = post.published_at
+    ? new Date(post.published_at).toLocaleDateString("nl-NL", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+      })
+    : null;
+---
+
+<BaseLayout
+    title={post.seo_title || `${post.title} | Blog | De Koninklijke Loop`}
+    description={post.seo_description ||
+        post.excerpt ||
+        `Lees "${post.title}" op het De Koninklijke Loop blog.`}
+    ogImage={post.og_image_url || post.cover_image_url}
+    ogType="article"
+>
+    <Navbar />
+    <main class="min-h-screen bg-body pt-28 pb-16">
+        <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Back Link */}
+            <a
+                href="/blog"
+                class="inline-flex items-center gap-2 text-sm text-text-muted hover:text-brand-orange transition-colors mb-6 group"
+            >
+                <svg
+                    class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Terug naar blog
+            </a>
+
+            {/* Cover Image */}
+            {
+                post.cover_image_url && (
+                    <div class="rounded-2xl overflow-hidden mb-8 aspect-21/9">
+                        <img
+                            src={post.cover_image_url}
+                            alt={post.title}
+                            class="w-full h-full object-cover"
+                            loading="eager"
+                        />
+                    </div>
+                )
+            }
+
+            {/* Header */}
+            <header class="mb-10">
+                {/* Category + Reading Time */}
+                <div class="flex items-center gap-3 mb-4 flex-wrap">
+                    {
+                        post.category_name && (
+                            <a
+                                href={`/blog?category=${post.category_slug}`}
+                                class="px-3 py-1 rounded-lg bg-brand-orange/10 text-brand-orange text-xs font-semibold hover:bg-brand-orange/20 transition-all"
+                            >
+                                {post.category_name}
+                            </a>
+                        )
+                    }
+                    {
+                        post.reading_time_minutes && (
+                            <span class="text-xs text-text-muted">
+                                {post.reading_time_minutes} min leestijd
+                            </span>
+                        )
+                    }
+                    {
+                        publishedDate && (
+                            <time
+                                class="text-xs text-text-muted"
+                                datetime={post.published_at}
+                            >
+                                {publishedDate}
+                            </time>
+                        )
+                    }
+                </div>
+
+                <h1
+                    class="text-3xl md:text-5xl font-display font-black text-text-primary leading-tight mb-4"
+                >
+                    {post.title}
+                </h1>
+
+                {
+                    post.excerpt && (
+                        <p class="text-lg text-text-muted leading-relaxed">
+                            {post.excerpt}
+                        </p>
+                    )
+                }
+
+                {/* Tags */}
+                {
+                    post.tags && post.tags.length > 0 && (
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            {post.tags.map((tag: string) => (
+                                <span class="px-2.5 py-1 rounded-md bg-glass-bg/30 border border-glass-border text-xs text-text-muted">
+                                    #{tag}
+                                </span>
+                            ))}
+                        </div>
+                    )
+                }
+            </header>
+
+            {/* Content */}
+            <div
+                class="prose prose-invert prose-lg max-w-none
+                    prose-headings:font-display prose-headings:text-text-primary
+                    prose-p:text-text-secondary prose-p:leading-relaxed
+                    prose-a:text-brand-orange prose-a:no-underline hover:prose-a:underline
+                    prose-img:rounded-xl prose-img:shadow-lg
+                    prose-blockquote:border-l-brand-orange prose-blockquote:bg-glass-bg/20 prose-blockquote:rounded-r-xl prose-blockquote:py-1
+                    prose-code:text-brand-orange prose-code:bg-glass-bg/30 prose-code:rounded prose-code:px-1.5 prose-code:py-0.5
+                    prose-pre:bg-glass-bg/30 prose-pre:border prose-pre:border-glass-border prose-pre:rounded-xl"
+                set:html={post.content}
+            />
+
+            {/* Divider */}
+            <hr class="my-12 border-glass-border/50" />
+
+            {/* Comments */}
+            <section id="comments">
+                <h2
+                    class="text-2xl font-display font-bold text-text-primary mb-6"
+                >
+                    Reacties
+                </h2>
+                <CommentSection client:visible slug={slug!} postId={post.id} />
+            </section>
+        </article>
+    </main>
+    <Footer />
+</BaseLayout>

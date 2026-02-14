@@ -27,11 +27,11 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
         "chat-widget"
     );
 
-    // Queries
-    const teamMembers = useQuery(api.chat.getAllTeamMembers) || [];
+    // Queries — skip expensive ones when widget is closed to prevent Convex reactive spam
+    const teamMembers = useQuery(api.chat.getAllTeamMembers, isOpen ? {} : "skip") || [];
     const unreadStats = useQuery(api.chat.getUnreadCounts, { user: currentUser.email });
-    const conversations = useQuery(api.chat.getConversations, { user: currentUser.email }) || [];
-    const groupConversations = useQuery(api.chat.getGroupConversations, { user: currentUser.email }) || [];
+    const conversations = useQuery(api.chat.getConversations, isOpen ? { user: currentUser.email } : "skip") || [];
+    const groupConversations = useQuery(api.chat.getGroupConversations, isOpen ? { user: currentUser.email } : "skip") || [];
 
     const otherOnlineUsers = teamMembers.filter(u => u.user !== currentUser.email && u.isOnline);
     const offlineUsers = teamMembers.filter(u => u.user !== currentUser.email && !u.isOnline);

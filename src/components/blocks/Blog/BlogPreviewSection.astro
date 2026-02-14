@@ -1,0 +1,268 @@
+---
+/**
+ * BlogPreviewSection — Public-facing blog preview for the /dkl page
+ * Fetches latest published blog posts from the LaventeCare API
+ * and renders them in editorial-style glass cards.
+ */
+
+// Use Convex directly for SSR — avoids self-fetch deadlock
+import { getConvexClient } from "../../../lib/convex-server";
+import { api } from "../../../../convex/_generated/api";
+
+const convexClient = getConvexClient();
+
+interface BlogPost {
+    slug: string;
+    title: string;
+    excerpt?: string;
+    cover_image_url?: string;
+    category_name?: string;
+    reading_time_minutes?: number;
+    published_at?: string;
+    is_featured?: boolean;
+}
+
+let posts: BlogPost[] = [];
+let featuredPost: BlogPost | null = null;
+
+try {
+    // Query Convex directly — SSR can't self-fetch reliably
+    const data = await convexClient.query(api.blog.listPosts, {
+        status: "published",
+        limit: 4,
+    });
+    const allPosts: BlogPost[] = (data.posts || []).map((p: any) => ({
+        ...p,
+        published_at: p.published_at
+            ? new Date(p.published_at).toISOString()
+            : undefined,
+    }));
+
+    featuredPost =
+        allPosts.find((p: BlogPost) => p.is_featured) || allPosts[0] || null;
+    posts = allPosts.filter((p: BlogPost) => p !== featuredPost).slice(0, 3);
+} catch (err) {
+    console.error("[BlogPreview] Failed to fetch posts:", err);
+}
+
+const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "";
+    return new Date(dateStr).toLocaleDateString("nl-NL", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    });
+};
+
+const hasContent = featuredPost || posts.length > 0;
+---
+
+{
+    hasContent && (
+        <section class="py-24 relative" id="blog">
+            {/* Section Header */}
+            <div class="text-center mb-16">
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-xs font-semibold tracking-wide uppercase mb-6">
+                    <svg
+                        class="w-3.5 h-3.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+                        />
+                    </svg>
+                    Blog
+                </span>
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-primary mb-4">
+                    Verhalen & Updates
+                </h2>
+                <p class="text-lg text-secondary max-w-2xl mx-auto leading-relaxed">
+                    Lees het laatste nieuws, verhalen van deelnemers en updates
+                    over De Koninklijke Loop
+                </p>
+            </div>
+
+            {/* Blog Grid — Featured + 3 Small Cards */}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Featured Post (Large) */}
+                {featuredPost && (
+                    <a
+                        href={`/blog/${featuredPost.slug}`}
+                        class="group glass-card overflow-hidden lg:row-span-2 flex flex-col cursor-pointer hover:border-brand-orange/20 transition-all duration-300"
+                    >
+                        {featuredPost.cover_image_url ? (
+                            <div class="aspect-video overflow-hidden">
+                                <img
+                                    src={featuredPost.cover_image_url}
+                                    alt={featuredPost.title}
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                    loading="lazy"
+                                />
+                            </div>
+                        ) : (
+                            <div class="aspect-video bg-linear-to-br from-brand-orange/10 via-brand-orange/5 to-transparent flex items-center justify-center">
+                                <svg
+                                    class="w-16 h-16 text-brand-orange/20"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="1"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
+                                    />
+                                </svg>
+                            </div>
+                        )}
+                        <div class="flex-1 p-6 flex flex-col">
+                            <div class="flex items-center gap-2 mb-3 flex-wrap">
+                                {featuredPost.category_name && (
+                                    <span class="text-[11px] font-semibold text-brand-orange bg-brand-orange/10 px-2.5 py-0.5 rounded-md">
+                                        {featuredPost.category_name}
+                                    </span>
+                                )}
+                                {featuredPost.reading_time_minutes && (
+                                    <span class="text-xs text-secondary">
+                                        {featuredPost.reading_time_minutes} min
+                                        leestijd
+                                    </span>
+                                )}
+                            </div>
+                            <h3 class="text-xl md:text-2xl font-display font-bold text-primary group-hover:text-brand-orange transition-colors leading-tight mb-3">
+                                {featuredPost.title}
+                            </h3>
+                            {featuredPost.excerpt && (
+                                <p class="text-secondary leading-relaxed line-clamp-3 flex-1">
+                                    {featuredPost.excerpt}
+                                </p>
+                            )}
+                            <div class="flex items-center justify-between mt-4 pt-4 border-t border-glass-border/50">
+                                {featuredPost.published_at ? (
+                                    <time
+                                        class="text-xs text-secondary"
+                                        datetime={featuredPost.published_at}
+                                    >
+                                        {formatDate(featuredPost.published_at)}
+                                    </time>
+                                ) : (
+                                    <span />
+                                )}
+                                <span class="text-sm text-brand-orange font-medium group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                                    Lees artikel
+                                    <svg
+                                        class="w-4 h-4"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                                        />
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                )}
+
+                {/* Regular Posts (Compact) */}
+                {posts.map((post) => (
+                    <a
+                        href={`/blog/${post.slug}`}
+                        class="group glass-card overflow-hidden flex flex-col sm:flex-row cursor-pointer hover:border-brand-orange/20 transition-all duration-300"
+                    >
+                        {post.cover_image_url ? (
+                            <div class="w-full sm:w-40 shrink-0 aspect-video sm:aspect-square overflow-hidden">
+                                <img
+                                    src={post.cover_image_url}
+                                    alt={post.title}
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    loading="lazy"
+                                />
+                            </div>
+                        ) : (
+                            <div class="w-full sm:w-40 shrink-0 aspect-video sm:aspect-square bg-linear-to-br from-brand-orange/10 to-transparent flex items-center justify-center">
+                                <svg
+                                    class="w-10 h-10 text-brand-orange/20"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+                                    />
+                                </svg>
+                            </div>
+                        )}
+                        <div class="flex-1 p-5 flex flex-col justify-center">
+                            <div class="flex items-center gap-2 mb-2">
+                                {post.category_name && (
+                                    <span class="text-[11px] font-semibold text-brand-orange bg-brand-orange/10 px-2 py-0.5 rounded-md">
+                                        {post.category_name}
+                                    </span>
+                                )}
+                                {post.reading_time_minutes && (
+                                    <span class="text-xs text-secondary">
+                                        {post.reading_time_minutes} min
+                                    </span>
+                                )}
+                            </div>
+                            <h3 class="text-base font-display font-bold text-primary group-hover:text-brand-orange transition-colors line-clamp-2 leading-snug mb-1.5">
+                                {post.title}
+                            </h3>
+                            {post.excerpt && (
+                                <p class="text-sm text-secondary line-clamp-2 leading-relaxed">
+                                    {post.excerpt}
+                                </p>
+                            )}
+                            {post.published_at && (
+                                <time
+                                    class="text-xs text-secondary/60 mt-2"
+                                    datetime={post.published_at}
+                                >
+                                    {formatDate(post.published_at)}
+                                </time>
+                            )}
+                        </div>
+                    </a>
+                ))}
+            </div>
+
+            {/* CTA to Blog */}
+            <div class="text-center mt-12">
+                <a
+                    href="/blog"
+                    class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-orange text-white font-semibold hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 cursor-pointer group"
+                >
+                    Bekijk alle artikelen
+                    <svg
+                        class="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                        />
+                    </svg>
+                </a>
+            </div>
+        </section>
+    )
+}

@@ -31,7 +31,7 @@ export function usePresence(
         };
 
         sendHeartbeat();
-        const interval = setInterval(sendHeartbeat, 30000);
+        const interval = setInterval(sendHeartbeat, 60000);
         return () => clearInterval(interval);
     }, [user, path, heartbeat]);
 }
