@@ -216,13 +216,13 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
                     <div>
                         <label htmlFor="bp-title" className="block text-sm font-medium text-text-muted mb-1.5">Titel</label>
                         <input id="bp-title" type="text" value={title} onChange={(e) => handleTitleChange(e.target.value)} required
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                             placeholder="Bericht titel" />
                     </div>
                     <div>
                         <label htmlFor="bp-slug" className="block text-sm font-medium text-text-muted mb-1.5">Slug</label>
                         <input id="bp-slug" type="text" value={slug} onChange={(e) => setSlug(e.target.value)} required
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary font-mono text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary font-mono text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                             placeholder="bericht-slug" />
                     </div>
                 </div>
@@ -240,7 +240,7 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
                 <div>
                     <label htmlFor="bp-excerpt" className="block text-sm font-medium text-text-muted mb-1.5">Samenvatting</label>
                     <textarea id="bp-excerpt" value={excerpt} onChange={(e) => setExcerpt(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all resize-none"
+                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all resize-none"
                         rows={2} placeholder="Korte beschrijving voor de post preview..." />
                 </div>
 
@@ -249,7 +249,7 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
                     <div>
                         <label htmlFor="bp-category" className="block text-sm font-medium text-text-muted mb-1.5">Categorie</label>
                         <select id="bp-category" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm focus:border-brand-orange/50 outline-none cursor-pointer"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none cursor-pointer transition-all"
                         >
                             <option value="">Geen categorie</option>
                             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -258,13 +258,13 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
                     <div>
                         <label htmlFor="bp-tags" className="block text-sm font-medium text-text-muted mb-1.5">Tags</label>
                         <input id="bp-tags" type="text" value={tags} onChange={(e) => setTags(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                             placeholder="hardlopen, dordrecht" />
                     </div>
                     <div>
                         <label htmlFor="bp-cover" className="block text-sm font-medium text-text-muted mb-1.5">Cover Afbeelding URL</label>
                         <input id="bp-cover" type="url" value={coverImageUrl} onChange={(e) => setCoverImageUrl(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                             placeholder="https://..." />
                     </div>
                 </div>
@@ -283,7 +283,8 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
                     </label>
                     <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
                         <select value={visibility} onChange={(e) => setVisibility(e.target.value)}
-                            className="rounded-lg bg-glass-bg/30 border border-glass-border text-text-primary text-sm px-2 py-1 cursor-pointer">
+                            aria-label="Zichtbaarheid"
+                            className="rounded-lg bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm px-3 py-1.5 cursor-pointer transition-all focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none">
                             <option value="public">Openbaar</option>
                             <option value="private">Privé</option>
                             <option value="unlisted">Niet opgelijst</option>
@@ -295,7 +296,7 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
                 {/* SEO Collapsible */}
                 <div>
                     <button type="button" onClick={() => setShowSeo(!showSeo)}
-                        className="flex items-center gap-2 text-sm font-medium text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+                        className="flex items-center gap-2 text-sm font-medium text-text-muted hover:text-text-primary transition-colors cursor-pointer min-h-[44px] py-2"
                     >
                         {showSeo ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         SEO Instellingen
@@ -305,13 +306,13 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
                             <div>
                                 <label htmlFor="bp-seo-title" className="block text-sm font-medium text-text-muted mb-1.5">SEO Titel</label>
                                 <input id="bp-seo-title" type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)}
-                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                                     placeholder="Aangepaste SEO titel" />
                             </div>
                             <div>
                                 <label htmlFor="bp-seo-desc" className="block text-sm font-medium text-text-muted mb-1.5">Meta Omschrijving</label>
                                 <textarea id="bp-seo-desc" value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)}
-                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all resize-none"
+                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all resize-none"
                                     rows={2} placeholder="Meta omschrijving voor zoekmachines" />
                             </div>
                         </div>
@@ -321,18 +322,18 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
                 {/* Actions */}
                 <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-glass-border/50">
                     <button type="button" onClick={onClose}
-                        className="px-4 py-2 rounded-xl border border-glass-border text-text-muted hover:text-text-primary hover:bg-glass-bg/30 transition-all cursor-pointer text-sm"
+                        className="px-4 py-2 rounded-xl border border-glass-border text-text-muted hover:text-text-primary hover:bg-glass-bg/30 transition-all cursor-pointer text-sm min-h-[44px]"
                     >
                         Annuleren
                     </button>
                     <button type="submit" disabled={saving} onClick={() => setSaveAction("draft")}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-glass-border text-text-primary hover:bg-glass-bg/30 transition-all cursor-pointer text-sm disabled:opacity-50"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-glass-border text-text-primary hover:bg-glass-bg/30 transition-all cursor-pointer text-sm disabled:opacity-50 min-h-[44px]"
                     >
                         {saving && saveAction === "draft" && <Loader2 className="w-4 h-4 animate-spin" />}
                         Concept Opslaan
                     </button>
                     <button type="submit" disabled={saving} onClick={() => setSaveAction("publish")}
-                        className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 cursor-pointer disabled:opacity-50 text-sm"
+                        className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 cursor-pointer disabled:opacity-50 text-sm min-h-[44px]"
                     >
                         {saving && saveAction === "publish" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                         Publiceren

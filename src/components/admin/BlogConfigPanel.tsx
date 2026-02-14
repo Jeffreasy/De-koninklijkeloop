@@ -111,7 +111,7 @@ export default function BlogConfigPanel() {
                         max={100}
                         value={config.posts_per_page}
                         onChange={(e) => setConfig({ ...config, posts_per_page: parseInt(e.target.value) || 12 })}
-                        className="w-24 px-3 py-2 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
+                        className="w-24 px-3 py-2 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                     />
                 </div>
             </div>

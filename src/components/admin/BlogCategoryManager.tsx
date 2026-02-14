@@ -90,14 +90,17 @@ export default function BlogCategoryManager({ categories, onRefresh }: Props) {
                 <div className="glass-card p-4 space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <input type="text" value={name} onChange={(e) => handleNameChange(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                            aria-label="Categorie naam"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                             placeholder="Categorie naam" />
                         <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary font-mono text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                            aria-label="Slug"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary font-mono text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                             placeholder="slug" />
                     </div>
                     <input type="text" value={description} onChange={(e) => setDescription(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                        aria-label="Beschrijving"
+                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                         placeholder="Beschrijving (optioneel)" />
                     <div className="flex gap-2">
                         <button onClick={handleSave} disabled={saving || !name}
@@ -128,12 +131,15 @@ export default function BlogCategoryManager({ categories, onRefresh }: Props) {
                                 <div className="space-y-3">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-                                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm focus:border-brand-orange/50 outline-none transition-all" />
+                                            aria-label="Categorie naam"
+                                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all" />
                                         <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)}
-                                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary font-mono text-sm focus:border-brand-orange/50 outline-none transition-all" />
+                                            aria-label="Slug"
+                                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary font-mono text-base sm:text-sm focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all" />
                                     </div>
                                     <input type="text" value={description} onChange={(e) => setDescription(e.target.value)}
-                                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                                        aria-label="Beschrijving"
+                                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                                         placeholder="Beschrijving" />
                                     <div className="flex gap-2">
                                         <button onClick={handleSave} disabled={saving || !name}
@@ -166,12 +172,12 @@ export default function BlogCategoryManager({ categories, onRefresh }: Props) {
                                     )}
                                     <div className="flex gap-1 shrink-0">
                                         <button onClick={() => startEdit(cat)} title="Bewerken"
-                                            className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-glass-border/30 transition-all cursor-pointer"
+                                            className="p-2.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-glass-border/30 transition-all cursor-pointer"
                                         >
                                             <Pencil className="w-3.5 h-3.5" />
                                         </button>
                                         <button onClick={() => handleDelete(cat.id)} title="Verwijderen"
-                                            className="p-2 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                                            className="p-2.5 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>

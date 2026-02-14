@@ -44,12 +44,13 @@ const publishedDate = post.published_at
                 <img
                     src={post.cover_image_url}
                     alt={post.title}
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
                     loading="lazy"
                 />
             </div>
         ) : (
             <div
+                aria-hidden="true"
                 class:list={[
                     "flex items-center justify-center bg-linear-to-br from-brand-orange/10 to-brand-orange/5",
                     variant === "featured" ? "aspect-video" : "aspect-16/10",

@@ -203,7 +203,7 @@ export default function BlogManagerIsland() {
                                     >
                                         {/* Cover Image */}
                                         {post.cover_image_url && (
-                                            <img src={post.cover_image_url} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                                            <img src={post.cover_image_url} alt={post.title} className="w-16 h-16 rounded-xl object-cover shrink-0" />
                                         )}
                                         {/* Info */}
                                         <div className="flex-1 min-w-0">
@@ -222,7 +222,7 @@ export default function BlogManagerIsland() {
                                             </div>
                                         </div>
                                         {/* Actions */}
-                                        <div className="flex gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                                        <div className="flex gap-2 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                                             {post.status === "draft" && (
                                                 <button onClick={() => handlePublish(post.id)} title="Publiceren"
                                                     className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 transition-all cursor-pointer"

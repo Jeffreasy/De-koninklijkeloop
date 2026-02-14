@@ -70,17 +70,19 @@ export default function BlogCommentMod({ onCountChange }: Props) {
             {/* Filter Bar */}
             <div className="flex items-center gap-4">
                 <Filter className="w-4 h-4 text-text-muted shrink-0" />
-                <div className="flex gap-1 p-1 rounded-xl bg-glass-border/20">
-                    {FILTERS.map((f) => (
-                        <button key={f.value} onClick={() => setFilter(f.value)}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${filter === f.value
-                                ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
-                                : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
-                                }`}
-                        >
-                            {f.label}
-                        </button>
-                    ))}
+                <div className="overflow-x-auto">
+                    <div className="flex gap-1 p-1 rounded-xl bg-glass-border/20 min-w-max">
+                        {FILTERS.map((f) => (
+                            <button key={f.value} onClick={() => setFilter(f.value)}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${filter === f.value
+                                    ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
+                                    : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
+                                    }`}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -127,7 +129,7 @@ export default function BlogCommentMod({ onCountChange }: Props) {
                                     <button
                                         onClick={() => handleAction(comment.id, "approve")}
                                         disabled={actionLoading === comment.id}
-                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 transition-all text-xs font-medium cursor-pointer disabled:opacity-50"
+                                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 transition-all text-xs font-medium cursor-pointer disabled:opacity-50 min-h-[44px]"
                                     >
                                         {actionLoading === comment.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
                                         Goedkeuren
@@ -137,7 +139,7 @@ export default function BlogCommentMod({ onCountChange }: Props) {
                                     <button
                                         onClick={() => handleAction(comment.id, "reject")}
                                         disabled={actionLoading === comment.id}
-                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all text-xs font-medium cursor-pointer disabled:opacity-50"
+                                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all text-xs font-medium cursor-pointer disabled:opacity-50 min-h-[44px]"
                                     >
                                         <XCircle className="w-3 h-3" /> Afwijzen
                                     </button>
@@ -149,7 +151,7 @@ export default function BlogCommentMod({ onCountChange }: Props) {
                                         }
                                     }}
                                     disabled={actionLoading === comment.id}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all text-xs font-medium cursor-pointer disabled:opacity-50"
+                                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all text-xs font-medium cursor-pointer disabled:opacity-50 min-h-[44px]"
                                 >
                                     <Trash2 className="w-3 h-3" /> Verwijderen
                                 </button>
