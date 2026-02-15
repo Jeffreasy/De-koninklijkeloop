@@ -11,6 +11,7 @@ export default defineConfig({
   adapter: vercel({
     webAnalytics: { enabled: true },
     speedInsights: { enabled: true },
+    maxDuration: 60,
     imagesConfig: {
       checkOrigin: false,
       sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
