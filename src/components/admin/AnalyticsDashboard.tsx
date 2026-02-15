@@ -7,7 +7,7 @@ import {
 import {
     Activity, Eye, Users, TrendingUp, ArrowRight, ArrowUpRight, ArrowDownRight, Minus,
     MousePointerClick, PlayCircle, UserPlus, Globe,
-    Smartphone, Monitor, Tablet, RefreshCw, Download, Clock, BarChart3, Lock
+    Smartphone, Monitor, Tablet, RefreshCw, Download, Clock, BarChart3, Lock, AlertTriangle
 } from "lucide-react";
 import { apiRequest } from "../../lib/api";
 
@@ -202,12 +202,12 @@ function exportToCSV(pages: GoPage[], referrers: GoReferrer[], timeseries: GoTim
 
 // ─── Trend calculation ───
 
-function calcTrend(current: number, previous: number): { pct: number; direction: "up" | "down" | "flat" } {
+function calcTrend(current: number, previous: number, invertDirection = false): { pct: number; direction: "up" | "down" | "flat" } {
     if (previous === 0 && current === 0) return { pct: 0, direction: "flat" };
-    if (previous === 0) return { pct: 100, direction: "up" };
+    if (previous === 0) return { pct: 100, direction: invertDirection ? "down" : "up" };
     const pct = Math.round(((current - previous) / previous) * 100);
-    if (pct > 0) return { pct, direction: "up" };
-    if (pct < 0) return { pct: Math.abs(pct), direction: "down" };
+    if (pct > 0) return { pct, direction: invertDirection ? "down" : "up" };
+    if (pct < 0) return { pct: Math.abs(pct), direction: invertDirection ? "up" : "down" };
     return { pct: 0, direction: "flat" };
 }
 
@@ -318,6 +318,7 @@ export default function AnalyticsDashboard() {
                             <button
                                 key={opt.value}
                                 onClick={() => setPeriod(opt)}
+                                aria-pressed={period.value === opt.value}
                                 className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${period.value === opt.value
                                     ? "bg-brand-orange text-white shadow-lg"
                                     : "text-text-muted hover:text-text-primary"
@@ -332,8 +333,17 @@ export default function AnalyticsDashboard() {
 
             {/* Error banner */}
             {error && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-sm text-red-600">
-                    ⚠️ Go backend niet bereikbaar: {error}. Live feed via Convex werkt nog wel.
+                <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-sm text-red-600 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 shrink-0" />
+                        <span>Go backend niet bereikbaar: {error}. Live feed via Convex werkt nog wel.</span>
+                    </div>
+                    <button
+                        onClick={() => refetch()}
+                        className="px-3 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-600 text-xs font-medium transition-colors cursor-pointer whitespace-nowrap"
+                    >
+                        Opnieuw
+                    </button>
                 </div>
             )}
 
@@ -342,7 +352,7 @@ export default function AnalyticsDashboard() {
                 <KPICard
                     icon={<Eye className="w-4 h-4" />}
                     label="Pageviews"
-                    value={dashboard?.total_views ?? 0}
+                    value={dashboard?.total_views?.toLocaleString('nl-NL') ?? 0}
                     accent="#3B82F6"
                     loading={loading}
                     trend={prevDashboard ? calcTrend(dashboard?.total_views ?? 0, prevDashboard.total_views ?? 0) : undefined}
@@ -350,7 +360,7 @@ export default function AnalyticsDashboard() {
                 <KPICard
                     icon={<Users className="w-4 h-4" />}
                     label="Unieke Sessies"
-                    value={dashboard?.unique_sessions ?? 0}
+                    value={dashboard?.unique_sessions?.toLocaleString('nl-NL') ?? 0}
                     accent="#14B8A6"
                     loading={loading}
                     trend={prevDashboard ? calcTrend(dashboard?.unique_sessions ?? 0, prevDashboard.unique_sessions ?? 0) : undefined}
@@ -377,7 +387,7 @@ export default function AnalyticsDashboard() {
                     value={bounceRate ? `${bounceRate.bounce_rate}%` : '—'}
                     accent="#EF4444"
                     loading={loading}
-                    trend={prevBounceRate && bounceRate ? calcTrend(bounceRate.bounce_rate, prevBounceRate.bounce_rate) : undefined}
+                    trend={prevBounceRate && bounceRate ? calcTrend(bounceRate.bounce_rate, prevBounceRate.bounce_rate, true) : undefined}
                 />
                 <KPICard
                     icon={<Clock className="w-4 h-4" />}
@@ -540,7 +550,7 @@ export default function AnalyticsDashboard() {
                                                 <span className="font-medium text-text-primary truncate mr-3">
                                                     {ref.referrer || "Direct"}
                                                 </span>
-                                                <span className="text-text-muted font-mono flex-shrink-0">{ref.count}</span>
+                                                <span className="text-text-muted font-mono shrink-0">{ref.count}</span>
                                             </div>
                                             <div className="h-1.5 w-full bg-glass-border/30 rounded-full overflow-hidden">
                                                 <div
@@ -592,7 +602,7 @@ export default function AnalyticsDashboard() {
                                         return (
                                             <div key={ref.referrer || `direct-${i}`} className="group/flow">
                                                 <div className="flex items-center gap-3 p-2.5 rounded-xl bg-glass-border/10 hover:bg-glass-border/20 transition-all duration-200">
-                                                    <div className="w-7 h-7 rounded-lg bg-teal-500/10 border border-teal-500/15 flex items-center justify-center text-teal-600 flex-shrink-0">
+                                                    <div className="w-7 h-7 rounded-lg bg-teal-500/10 border border-teal-500/15 flex items-center justify-center text-teal-600 shrink-0">
                                                         <Globe className="w-3.5 h-3.5" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
@@ -600,16 +610,16 @@ export default function AnalyticsDashboard() {
                                                             <span className="text-xs font-medium text-text-primary truncate">
                                                                 {ref.referrer || "Direct"}
                                                             </span>
-                                                            <span className="text-[10px] font-mono text-text-muted ml-2 flex-shrink-0">{ref.count}</span>
+                                                            <span className="text-[10px] font-mono text-text-muted ml-2 shrink-0">{ref.count}</span>
                                                         </div>
                                                         <div className="h-1 w-full bg-glass-border/20 rounded-full overflow-hidden">
                                                             <div
-                                                                className="h-full rounded-full bg-gradient-to-r from-teal-500 to-teal-400 transition-all duration-700"
+                                                                className="h-full rounded-full bg-linear-to-r from-teal-500 to-teal-400 transition-all duration-700"
                                                                 style={{ width: `${pct}%` }}
                                                             />
                                                         </div>
                                                     </div>
-                                                    <span className="text-[10px] font-mono font-bold text-teal-600 w-8 text-right flex-shrink-0">{pct}%</span>
+                                                    <span className="text-[10px] font-mono font-bold text-teal-600 w-8 text-right shrink-0">{pct}%</span>
                                                 </div>
                                             </div>
                                         );
@@ -630,7 +640,7 @@ export default function AnalyticsDashboard() {
                                         return (
                                             <div key={page.path} className="group/flow">
                                                 <div className="flex items-center gap-3 p-2.5 rounded-xl bg-glass-border/10 hover:bg-glass-border/20 transition-all duration-200">
-                                                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/15 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/15 flex items-center justify-center text-blue-600 shrink-0">
                                                         <Eye className="w-3.5 h-3.5" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
@@ -638,16 +648,16 @@ export default function AnalyticsDashboard() {
                                                             <span className="text-xs font-medium text-text-primary truncate">
                                                                 {PAGE_LABELS[page.path] || page.path}
                                                             </span>
-                                                            <span className="text-[10px] font-mono text-text-muted ml-2 flex-shrink-0">{page.views}</span>
+                                                            <span className="text-[10px] font-mono text-text-muted ml-2 shrink-0">{page.views}</span>
                                                         </div>
                                                         <div className="h-1 w-full bg-glass-border/20 rounded-full overflow-hidden">
                                                             <div
-                                                                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-700"
+                                                                className="h-full rounded-full bg-linear-to-r from-blue-500 to-blue-400 transition-all duration-700"
                                                                 style={{ width: `${pct}%` }}
                                                             />
                                                         </div>
                                                     </div>
-                                                    <span className="text-[10px] font-mono font-bold text-blue-600 w-8 text-right flex-shrink-0">{pct}%</span>
+                                                    <span className="text-[10px] font-mono font-bold text-blue-600 w-8 text-right shrink-0">{pct}%</span>
                                                 </div>
                                             </div>
                                         );

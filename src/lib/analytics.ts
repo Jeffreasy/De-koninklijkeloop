@@ -110,12 +110,12 @@ class Analytics {
             if (convexUrl) {
                 try {
                     this.convex = new ConvexHttpClient(convexUrl);
-                    console.log('[Analytics] Convex client initialized:', convexUrl.slice(0, 30) + '...');
+                    if (this.debugMode) console.log('[Analytics] Convex client initialized:', convexUrl.slice(0, 30) + '...');
                 } catch (err) {
-                    console.error('[Analytics] Convex client init failed:', err);
+                    if (this.debugMode) console.error('[Analytics] Convex client init failed:', err);
                 }
             } else {
-                console.warn('[Analytics] PUBLIC_CONVEX_URL not set — Convex live feed disabled');
+                if (this.debugMode) console.warn('[Analytics] PUBLIC_CONVEX_URL not set — Convex live feed disabled');
             }
         }
     }
@@ -149,7 +149,7 @@ class Analytics {
                 sessionId: this.sessionId,
                 path: typeof window !== 'undefined' ? window.location.pathname : '/',
             }).catch((err) => {
-                console.error('[Analytics] Convex write failed:', err);
+                if (this.debugMode) console.error('[Analytics] Convex write failed:', err);
             });
         }
     }

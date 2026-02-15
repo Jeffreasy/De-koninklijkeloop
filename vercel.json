@@ -91,6 +91,14 @@
         {
             "source": "/api/v1/health",
             "destination": "https://laventecareauthsystems.onrender.com/api/v1/health"
+        },
+        {
+            "source": "/api/v1/analytics/:path*",
+            "destination": "https://laventecareauthsystems.onrender.com/api/v1/analytics/:path*"
+        },
+        {
+            "source": "/api/v1/analytics",
+            "destination": "https://laventecareauthsystems.onrender.com/api/v1/analytics"
         }
     ]
 }
