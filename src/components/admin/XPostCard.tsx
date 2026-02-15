@@ -61,6 +61,11 @@ export default function XPostCard({ post, campaigns, onEdit, onApprove, onQueue,
                         {scheduledDate}
                     </span>
                 )}
+                {post.content_type && post.content_type !== "tweet" && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-brand-orange/10 text-brand-orange border border-brand-orange/20 text-[10px] font-medium capitalize">
+                        {post.content_type}
+                    </span>
+                )}
                 {post.ai_generated && (
                     <span className="inline-flex items-center gap-1 text-amber-400">
                         AI

@@ -2,8 +2,16 @@ import { useState, useEffect } from "react";
 import { apiRequest } from "../../lib/api";
 import { addToast } from "../../lib/toast";
 import { AdminModal } from "./AdminModal";
-import { Loader2, Save, Sparkles, Link2, Image } from "lucide-react";
+import { Loader2, Save, Sparkles, Link2, Image, FileText } from "lucide-react";
 import type { Campaign } from "./XCampaignModal";
+
+const CONTENT_TYPES = [
+    { value: "tweet", label: "Tweet", maxChars: 280, description: "Kort & krachtig" },
+    { value: "verhaal", label: "Verhaal", maxChars: 1500, description: "Storytelling" },
+    { value: "artikel", label: "Artikel", maxChars: 4000, description: "Diepe content" },
+] as const;
+
+type ContentType = typeof CONTENT_TYPES[number]["value"];
 
 export interface XPost {
     id: string;
@@ -11,6 +19,7 @@ export interface XPost {
     parent_id: string | null;
     thread_position: number;
     content: string;
+    content_type: ContentType;
     media_url: string | null;
     link_url: string | null;
     scheduled_for: string;
@@ -34,6 +43,7 @@ interface Props {
 
 export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }: Props) {
     const [content, setContent] = useState("");
+    const [contentType, setContentType] = useState<ContentType>("tweet");
     const [campaignId, setCampaignId] = useState("");
     const [scheduledFor, setScheduledFor] = useState("");
     const [archetype, setArchetype] = useState("hero");
@@ -45,35 +55,38 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
     const [threadContent, setThreadContent] = useState<string[]>([]);
     const [campaignContext, setCampaignContext] = useState("");
 
+    const maxChars = CONTENT_TYPES.find(ct => ct.value === contentType)?.maxChars ?? 280;
+
     useEffect(() => {
         if (editingPost) {
             setContent(editingPost.content);
+            setContentType(editingPost.content_type || "tweet");
             setCampaignId(editingPost.campaign_id || "");
             setScheduledFor(editingPost.scheduled_for?.substring(0, 16) || "");
             setArchetype(editingPost.archetype || "hero");
             setMediaUrl(editingPost.media_url || "");
             setLinkUrl(editingPost.link_url || "");
         } else {
-            setContent(""); setCampaignId(""); setScheduledFor(""); setArchetype("hero");
+            setContent(""); setContentType("tweet"); setCampaignId(""); setScheduledFor(""); setArchetype("hero");
             setMediaUrl(""); setLinkUrl(""); setThreadMode(false); setThreadContent([]);
         }
     }, [editingPost, isOpen]);
 
     const charCount = content.length;
-    const charColor = charCount > 280 ? "text-red-400" : charCount > 250 ? "text-amber-400" : "text-green-400";
+    const charColor = charCount > maxChars ? "text-red-400" : charCount > maxChars * 0.9 ? "text-amber-400" : "text-green-400";
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // #6: Validate char limits before submit
+        // Validate char limits before submit
         if (threadMode && threadContent.length > 0) {
             const overLimit = threadContent.findIndex((t) => t.length > 280);
             if (overLimit !== -1) {
                 addToast(`Tweet ${overLimit + 1} overschrijdt de 280 tekens limiet`, "error");
                 return;
             }
-        } else if (content.length > 280) {
-            addToast("Tweet overschrijdt de 280 tekens limiet", "error");
+        } else if (content.length > maxChars) {
+            addToast(`Content overschrijdt de ${maxChars} tekens limiet voor ${contentType}`, "error");
             return;
         }
 
@@ -85,6 +98,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                 for (let i = 0; i < threadContent.length; i++) {
                     const body = {
                         content: threadContent[i],
+                        content_type: "tweet" as const,
                         scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : new Date().toISOString(),
                         campaign_id: campaignId || undefined,
                         archetype,
@@ -102,6 +116,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                 // #7: PUT existing post instead of creating duplicate
                 const body = {
                     content,
+                    content_type: contentType,
                     scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : new Date().toISOString(),
                     campaign_id: campaignId || undefined,
                     archetype,
@@ -115,6 +130,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
             } else {
                 const body = {
                     content,
+                    content_type: contentType,
                     scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : new Date().toISOString(),
                     campaign_id: campaignId || undefined,
                     archetype,
@@ -142,7 +158,8 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
         try {
             const body = {
                 archetype,
-                campaign_context: campaignContext || "Hardloopwedstrijd door historisch Dordrecht, 10km en 5km routes",
+                content_type: contentType,
+                campaign_context: campaignContext || "Inclusief wandelevenement door Apeldoorn richting Paleis Het Loo",
                 thread_mode: threadMode,
             };
             const data = await apiRequest("/admin/social/posts/generate", {
@@ -177,10 +194,34 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                         <Sparkles className="w-4 h-4 text-amber-400" />
                         AI Content Generatie
                     </div>
+
+                    {/* Content Type Selector */}
+                    <div className="flex gap-2">
+                        {CONTENT_TYPES.map((ct) => (
+                            <button
+                                key={ct.value}
+                                type="button"
+                                onClick={() => setContentType(ct.value)}
+                                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border ${contentType === ct.value
+                                        ? "bg-brand-orange/20 border-brand-orange/50 text-brand-orange"
+                                        : "bg-glass-bg/30 border-glass-border text-text-muted hover:text-text-primary hover:border-glass-border/80"
+                                    }`}
+                            >
+                                <div className="flex items-center justify-center gap-1.5">
+                                    <FileText className="w-3.5 h-3.5" />
+                                    {ct.label}
+                                </div>
+                                <div className="text-[10px] opacity-70 mt-0.5">
+                                    max {ct.maxChars} tekens
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+
                     <textarea
                         value={campaignContext}
                         onChange={(e) => setCampaignContext(e.target.value)}
-                        placeholder="Beschrijf de context (bijv. 'Hardloopwedstrijd door historisch Dordrecht, 10km en 5km routes')"
+                        placeholder="Beschrijf de context (bijv. 'Inclusief wandelevenement door Apeldoorn richting Paleis Het Loo')"
                         className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all resize-none"
                         rows={2}
                     />
@@ -189,7 +230,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all text-sm font-medium cursor-pointer disabled:opacity-50"
                         >
                             {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                            {threadMode ? "Thread Genereren" : "Tweet Genereren"}
+                            {threadMode ? "Thread Genereren" : `${CONTENT_TYPES.find(ct => ct.value === contentType)?.label ?? "Tweet"} Genereren`}
                         </button>
                         <label htmlFor="xp-thread-mode" className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
                             <input id="xp-thread-mode" type="checkbox" checked={threadMode} onChange={(e) => setThreadMode(e.target.checked)}
@@ -223,15 +264,17 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                     </div>
                 ) : (
                     <div>
-                        <label htmlFor="xp-content" className="block text-sm font-medium text-text-muted mb-1.5">Tweet Content</label>
+                        <label htmlFor="xp-content" className="block text-sm font-medium text-text-muted mb-1.5">
+                            {CONTENT_TYPES.find(ct => ct.value === contentType)?.label ?? "Tweet"} Content
+                        </label>
                         <div className="relative">
                             <textarea id="xp-content" value={content} onChange={(e) => setContent(e.target.value)} required
                                 className="w-full px-4 py-3 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all resize-none"
-                                rows={4}
-                                placeholder="Schrijf je tweet..."
-                                maxLength={280}
+                                rows={contentType === "tweet" ? 4 : contentType === "verhaal" ? 8 : 12}
+                                placeholder={`Schrijf je ${contentType}...`}
+                                maxLength={maxChars}
                             />
-                            <span className={`absolute right-3 bottom-3 text-xs font-mono ${charColor}`}>{charCount}/280</span>
+                            <span className={`absolute right-3 bottom-3 text-xs font-mono ${charColor}`}>{charCount}/{maxChars}</span>
                         </div>
                     </div>
                 )}
