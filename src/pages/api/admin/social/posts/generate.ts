@@ -2,6 +2,9 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
+// Vercel Pro: allow up to 60s execution for AI generation (default 10s causes 502)
+export const maxDuration = 60;
+
 /**
  * Dedicated SSR endpoint for AI content generation via Vercel AI Gateway.
  *
@@ -279,7 +282,7 @@ function buildUserPrompt(contentType: string, campaignContext: string): string {
 - Gebruik sfeerbeelden: beschrijf wat je ziet, hoort, ruikt op de Koninklijke Weg.
 - Vertel het verhaal van Salih Toprak en de bewoners van 's Heeren Loo.
 - Gebruik alinea's voor leesbaarheid. Korte eerste zin als hook.
-- Sluit af met een zachte call-to-action richting deconinklijkeloop.nl.
+- Sluit af met een zachte call-to-action richting dekoninklijkeloop.nl.
 - Gebruik 2-3 relevante hashtags aan het einde.
 - Richt op 800-1200 tekens.`;
             break;
@@ -290,7 +293,7 @@ function buildUserPrompt(contentType: string, campaignContext: string): string {
 - Verwerk achtergrond over de Koninklijke Weg, de historie van Aalt van de Glind.
 - Beschrijf de impact van Only Friends en de rolwisseling van de bewoners.
 - Gebruik meerdere alinea's. Wissel korte en langere zinnen af.
-- Sluit af met een persoonlijke CTA en link naar deconinklijkeloop.nl.
+- Sluit af met een persoonlijke CTA en link naar dekoninklijkeloop.nl.
 - Gebruik 2-3 relevante hashtags aan het einde.
 - Richt op 2000-3000 tekens.`;
             break;
@@ -360,14 +363,18 @@ function parseThreadResponse(content: string): string[] {
     let current = "";
     let inTweet = false;
 
+    // Regex handles markdown formatting: **TWEET 1:**, ### TWEET 1:, TWEET 1:
+    const tweetHeaderRegex = /^\s*(?:\*\*|#{1,3}\s*)?TWEET\s*\d+(?:\*\*)?\s*:\s*(?:\*\*)?\s*(.*)/i;
+
     for (const line of lines) {
         const trimmed = line.trim();
-        if (/^TWEET\s*\d+\s*:/i.test(trimmed)) {
+        const match = trimmed.match(tweetHeaderRegex);
+
+        if (match) {
             if (inTweet && current.trim()) {
                 tweets.push(current.trim());
             }
-            const colonIdx = trimmed.indexOf(":");
-            current = colonIdx >= 0 ? trimmed.substring(colonIdx + 1).trim() : "";
+            current = match[1]?.trim() || "";
             inTweet = true;
         } else if (inTweet) {
             current += (current ? "\n" : "") + line;
@@ -463,11 +470,36 @@ async function checkBudget(token: string): Promise<{ allowed: boolean; remaining
                 "X-Tenant-ID": tenantID,
             },
         });
-        if (!res.ok) return { allowed: true, remaining: 17 }; // Allow on error
+        // FAIL-CLOSED: auth/permission errors → block immediately
+        if (res.status === 401 || res.status === 403) {
+            return { allowed: false, remaining: 0 };
+        }
+        // FAIL-CLOSED: any other error → block (financial API, never fail-open)
+        if (!res.ok) return { allowed: false, remaining: 0 };
         const data = await res.json();
         return { allowed: (data.remaining ?? 0) > 0, remaining: data.remaining ?? 0 };
     } catch {
-        return { allowed: true, remaining: 17 }; // Allow on error
+        // FAIL-CLOSED: network/parse error → block
+        return { allowed: false, remaining: 0 };
+    }
+}
+
+// Record budget usage after successful AI generation (so Go backend decrements count)
+async function recordBudgetUsage(token: string): Promise<void> {
+    try {
+        const tenantID = import.meta.env.PUBLIC_TENANT_ID || 'b2727666-7230-4689-b58b-ceab8c2898d5';
+        await fetch(`${API_URL}/admin/social/budget`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "X-Tenant-ID": tenantID,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ action: "record_generation" }),
+        });
+    } catch {
+        // Best-effort: AI content delivered even if budget recording fails
+        console.error("[Budget] Failed to record AI generation usage");
     }
 }
 
@@ -488,6 +520,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     };
     try {
         body = await request.json();
+        // Guard against null/array JSON bodies ("null" is valid JSON)
+        if (!body || typeof body !== "object" || Array.isArray(body)) {
+            return new Response(JSON.stringify({ error: "Request body must be a JSON object" }), { status: 400 });
+        }
     } catch {
         return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400 });
     }
@@ -527,12 +563,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         // C1: Thread mode support
         if (threadMode) {
             const threadPrompt = buildThreadPrompt(campaignContext);
-            const text = await callAI(providers, systemPrompt, threadPrompt, 400);
+            // 800 tokens: 3 NL tweets (~280 chars each) + formatting = ~500-600 tokens minimum
+            const text = await callAI(providers, systemPrompt, threadPrompt, 800);
             const tweets = parseThreadResponse(text);
 
             if (tweets.length < 3) {
                 return new Response(JSON.stringify({ error: `Expected 3 tweets, got ${tweets.length}` }), { status: 502 });
             }
+
+            // Record budget usage after successful AI generation
+            await recordBudgetUsage(token);
 
             return new Response(JSON.stringify({
                 thread: tweets.slice(0, 3),
@@ -557,6 +597,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         if ([...draft].length > limits.maxChars) {
             draft = [...draft].slice(0, limits.maxChars - 3).join("") + "...";
         }
+
+        // Record budget usage after successful AI generation
+        await recordBudgetUsage(token);
 
         return new Response(JSON.stringify({
             draft,
