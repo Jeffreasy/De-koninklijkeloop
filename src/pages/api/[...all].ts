@@ -4,6 +4,10 @@ export const prerender = false;
 
 const API_URL = import.meta.env.PUBLIC_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
 
+// Vercel Serverless function max duration (seconds)
+// AI generation can take 15-30s, default 10s timeout kills it
+export const config = { maxDuration: 60 };
+
 // PROXY: Forward requests to Backend, attaching the HttpOnly Token
 export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
     // Determine the actual path after /api/
@@ -71,12 +75,18 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
             body = rawBody;
         }
 
+        // 55s timeout — generous for AI generation, but still fails cleanly
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 55_000);
+
         const response = await fetch(targetUrl, {
             method: request.method,
             headers: headers,
             body: body,
-            // duplex: 'half' // Removed for compatibility if using string body
+            signal: controller.signal,
         } as RequestInit);
+
+        clearTimeout(timeoutId);
 
         const responseText = await response.text();
 
@@ -91,6 +101,10 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         });
     } catch (e) {
         if (import.meta.env.DEV) console.error("API Proxy Error:", e);
-        return new Response(JSON.stringify({ error: "Backend Protocol Violation" }), { status: 502 });
+        const isTimeout = e instanceof DOMException && e.name === 'AbortError';
+        return new Response(JSON.stringify({ error: isTimeout ? "Backend timeout — probeer opnieuw" : "Backend Protocol Violation" }), {
+            status: isTimeout ? 504 : 502
+        });
     }
 };
+
