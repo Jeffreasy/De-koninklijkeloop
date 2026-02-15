@@ -20,7 +20,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     // 401 Interceptor: Token likely expired
     // EXCEPTION: Don't refresh if we're trying to login (401 means wrong password)
     if (res.status === 401 && !endpoint.includes("/auth/login")) {
-        console.warn("[API] 401 Unauthorized - Attempting Refresh...");
+        if (import.meta.env.DEV) console.warn("[API] 401 Unauthorized - Attempting Refresh...");
 
         try {
             // Attempt Silent Refresh
@@ -31,7 +31,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
             });
 
             if (refreshRes.ok) {
-                console.log("[API] Refresh Successful. Retrying original request.");
+                if (import.meta.env.DEV) console.log("[API] Refresh Successful. Retrying original request.");
                 // Retry Original Request
                 res = await fetch(`${API_URL}${endpoint}`, {
                     ...options,
@@ -39,7 +39,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
                     credentials: "include",
                 });
             } else {
-                console.error("[API] Refresh Failed. Redirecting to login.");
+                if (import.meta.env.DEV) console.error("[API] Refresh Failed. Redirecting to login.");
                 throw new Error("Session expired");
             }
         } catch (e) {

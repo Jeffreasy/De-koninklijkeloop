@@ -84,14 +84,14 @@ export default function XPostCard({ post, campaigns, onEdit, onApprove, onQueue,
 
             {/* Actions */}
             <div className="flex gap-2 pt-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                {post.status === "draft" && (
+                {(post.status === "draft" || post.status === "failed") && (
                     <button onClick={() => onApprove(post.id)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20 transition-all text-xs font-medium cursor-pointer"
                     >
                         <CheckCheck className="w-3 h-3" aria-hidden="true" /> Goedkeuren
                     </button>
                 )}
-                {post.status === "approved" && (
+                {(post.status === "approved" || post.status === "failed") && (
                     <button onClick={() => onQueue(post.id)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all text-xs font-medium cursor-pointer"
                     >

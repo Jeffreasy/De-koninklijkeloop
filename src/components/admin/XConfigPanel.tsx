@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiRequest } from "../../lib/api";
 import { addToast } from "../../lib/toast";
-import { Shield, Trash2, TestTube, Save, Loader2, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
+import { Shield, Trash2, TestTube, Save, Loader2, CheckCircle, XCircle } from "lucide-react";
 
 interface XConfig {
     configured: boolean;
