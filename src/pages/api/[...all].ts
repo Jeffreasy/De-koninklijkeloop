@@ -4,11 +4,10 @@ export const prerender = false;
 
 const API_URL = import.meta.env.PUBLIC_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
 
-// Vercel Serverless function max duration (seconds)
-// AI generation can take 15-30s, default 10s timeout kills it
-export const config = { maxDuration: 60 };
-
 // PROXY: Forward requests to Backend, attaching the HttpOnly Token
+// NOTE: AI generation (/admin/social/posts/generate) has its own dedicated
+// endpoint at src/pages/api/admin/social/posts/generate.ts which takes
+// priority over this catch-all. See that file for AI Gateway routing.
 export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
     // Determine the actual path after /api/
     // This file should remain in src/pages/api/[...all].ts
@@ -93,9 +92,7 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         responseHeaders.delete('content-length');
         responseHeaders.delete('set-cookie');
 
-        // Stream the response body directly — this converts to a Vercel Streaming
-        // Function which has longer timeout than buffered functions (critical for
-        // grok-3-mini AI generation which takes 13-18s).
+        // Stream the response body to avoid buffering large responses.
         return new Response(response.body, {
             status: response.status,
             headers: responseHeaders
