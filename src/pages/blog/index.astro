@@ -62,9 +62,19 @@ try {
     }
 
     // Paginate
-    posts = allPosts.slice(offset, offset + limit);
-    total = allPosts.length;
     featuredPosts = allPosts.filter((p: any) => p.is_featured).slice(0, 3);
+
+    // On page 1 without category filter, exclude featured posts from the main grid
+    const featuredIds = new Set(
+        !categorySlug && page === 1 ? featuredPosts.map((p: any) => p._id) : [],
+    );
+    const gridPosts =
+        featuredIds.size > 0
+            ? allPosts.filter((p: any) => !featuredIds.has(p._id))
+            : allPosts;
+
+    posts = gridPosts.slice(offset, offset + limit);
+    total = gridPosts.length;
 } catch (err) {
     if (import.meta.env.DEV) console.error("[Blog] SSR fetch failed:", err);
 }

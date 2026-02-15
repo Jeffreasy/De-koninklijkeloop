@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiRequest } from "../../lib/api";
+import { addToast } from "../../lib/toast";
 import { Shield, Trash2, TestTube, Save, Loader2, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
 
 interface XConfig {
@@ -31,7 +32,7 @@ export default function XConfigPanel() {
             const data = await apiRequest("/admin/x-config");
             setConfig(data);
         } catch (err) {
-            console.error("[XConfig] Failed to load:", err);
+            if (import.meta.env.DEV) console.error("[XConfig] Failed to load:", err);
             setConfig({ configured: false });
         } finally {
             setLoading(false);
@@ -55,11 +56,14 @@ export default function XConfigPanel() {
                     enabled,
                 }),
             });
+            addToast("X configuratie opgeslagen", "success");
             setShowForm(false);
             setApiKey(""); setApiSecret(""); setAccessToken(""); setAccessSecret("");
             await fetchConfig();
-        } catch (err: any) {
-            setTestResult({ status: "failed", error: err.message });
+        } catch (err) {
+            if (import.meta.env.DEV) console.error("[XConfig] Save failed:", err);
+            const message = err instanceof Error ? err.message : "Opslaan mislukt";
+            setTestResult({ status: "failed", error: message });
         } finally {
             setSaving(false);
         }
@@ -71,8 +75,10 @@ export default function XConfigPanel() {
         try {
             const data = await apiRequest("/admin/x-config/test", { method: "POST" });
             setTestResult(data);
-        } catch (err: any) {
-            setTestResult({ status: "failed", error: err.message });
+        } catch (err) {
+            if (import.meta.env.DEV) console.error("[XConfig] Test failed:", err);
+            const message = err instanceof Error ? err.message : "Verbinding testen mislukt";
+            setTestResult({ status: "failed", error: message });
         } finally {
             setTesting(false);
         }
@@ -83,10 +89,13 @@ export default function XConfigPanel() {
         setDeleting(true);
         try {
             await apiRequest("/admin/x-config", { method: "DELETE" });
+            addToast("X configuratie verwijderd", "success");
             setConfig({ configured: false });
             setTestResult(null);
-        } catch (err: any) {
-            setTestResult({ status: "failed", error: err.message });
+        } catch (err) {
+            if (import.meta.env.DEV) console.error("[XConfig] Delete failed:", err);
+            const message = err instanceof Error ? err.message : "Verwijderen mislukt";
+            setTestResult({ status: "failed", error: message });
         } finally {
             setDeleting(false);
         }
@@ -203,7 +212,7 @@ export default function XConfigPanel() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="xc-api-key" className="block text-sm font-medium text-text-muted mb-1.5">API Key</label>
-                                <input id="xc-api-key" type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)} required
+                                <input id="xc-api-key" type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} required
                                     className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-sm"
                                     placeholder="Jouw X API Key" />
                             </div>
@@ -215,7 +224,7 @@ export default function XConfigPanel() {
                             </div>
                             <div>
                                 <label htmlFor="xc-access-token" className="block text-sm font-medium text-text-muted mb-1.5">Access Token</label>
-                                <input id="xc-access-token" type="text" value={accessToken} onChange={(e) => setAccessToken(e.target.value)} required
+                                <input id="xc-access-token" type="password" value={accessToken} onChange={(e) => setAccessToken(e.target.value)} required
                                     className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-sm"
                                     placeholder="Jouw Access Token" />
                             </div>

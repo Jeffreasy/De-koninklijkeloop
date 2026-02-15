@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiRequest } from "../../lib/api";
+import { addToast } from "../../lib/toast";
 import { XCampaignModal, type Campaign } from "./XCampaignModal";
 import { XPostEditor, type XPost } from "./XPostEditor";
 import XPostCard from "./XPostCard";
 import XBudgetWidget from "./XBudgetWidget";
-import { Loader2, Plus, ListFilter, Megaphone } from "lucide-react";
+import { Loader2, Plus, ListFilter, Megaphone, Send } from "lucide-react";
 
 type PostStatus = "all" | "draft" | "approved" | "queued" | "published" | "failed";
 
@@ -35,7 +36,7 @@ export default function XPosterIsland() {
             setCampaigns(campaignsRes.campaigns || []);
             setPosts(postsRes.posts || []);
         } catch (err) {
-            console.error("[XPoster] Fetch failed:", err);
+            if (import.meta.env.DEV) console.error("[XPoster] Fetch failed:", err);
         } finally {
             setLoading(false);
         }
@@ -73,18 +74,22 @@ export default function XPosterIsland() {
     const handleApprove = async (id: string) => {
         try {
             await apiRequest(`/admin/social/posts/${id}/approve`, { method: "POST" });
+            addToast("Post goedgekeurd", "success");
             fetchData();
         } catch (err) {
-            console.error("[XPoster] Approve failed:", err);
+            if (import.meta.env.DEV) console.error("[XPoster] Approve failed:", err);
+            addToast("Goedkeuren mislukt", "error");
         }
     };
 
     const handleQueue = async (id: string) => {
         try {
             await apiRequest(`/admin/social/posts/${id}/queue`, { method: "POST" });
+            addToast("Post in wachtrij geplaatst", "success");
             fetchData();
         } catch (err) {
-            console.error("[XPoster] Queue failed:", err);
+            if (import.meta.env.DEV) console.error("[XPoster] Queue failed:", err);
+            addToast("In wachtrij plaatsen mislukt", "error");
         }
     };
 
@@ -92,20 +97,22 @@ export default function XPosterIsland() {
         if (!confirm("Weet je zeker dat je deze post wilt verwijderen?")) return;
         try {
             await apiRequest(`/admin/social/posts/${id}`, { method: "DELETE" });
+            addToast("Post verwijderd", "success");
             fetchData();
         } catch (err) {
-            console.error("[XPoster] Delete failed:", err);
+            if (import.meta.env.DEV) console.error("[XPoster] Delete failed:", err);
+            addToast("Verwijderen mislukt", "error");
         }
     };
 
-    const statusCounts = {
-        all: posts.length,
-        draft: posts.filter((p) => p.status === "draft").length,
-        approved: posts.filter((p) => p.status === "approved").length,
-        queued: posts.filter((p) => p.status === "queued").length,
-        published: posts.filter((p) => p.status === "published").length,
-        failed: posts.filter((p) => p.status === "failed").length,
-    };
+    const statusCounts = posts.reduce(
+        (acc, p) => {
+            acc.all++;
+            if (p.status in acc) acc[p.status as PostStatus]++;
+            return acc;
+        },
+        { all: 0, draft: 0, approved: 0, queued: 0, published: 0, failed: 0 } as Record<PostStatus, number>
+    );
 
     const STATUS_TABS: { value: PostStatus; label: string }[] = [
         { value: "all", label: "Alle" },
@@ -204,7 +211,7 @@ export default function XPosterIsland() {
                 <div className="glass-card p-12 text-center">
                     <div className="max-w-md mx-auto space-y-4">
                         <div className="w-16 h-16 mx-auto rounded-full bg-glass-border/30 flex items-center justify-center">
-                            <iconify-icon icon="lucide:send" width="32" class="text-text-muted opacity-50" />
+                            <Send className="w-8 h-8 text-text-muted opacity-50" />
                         </div>
                         <h3 className="text-xl font-display font-bold text-text-primary">Nog geen posts</h3>
                         <p className="text-text-muted">Maak je eerste X post om te beginnen met publiceren.</p>
@@ -249,13 +256,4 @@ export default function XPosterIsland() {
             />
         </div>
     );
-}
-
-// JSX IntrinsicElement for iconify-icon
-declare global {
-    namespace JSX {
-        interface IntrinsicElements {
-            "iconify-icon": any;
-        }
-    }
 }

@@ -29,11 +29,11 @@ export default function EventSettingsIsland({ convexUrl }: Props) {
 
     useEffect(() => {
         if (!convexUrl) {
-            console.error("[EventSettingsIsland] No Convex URL provided");
+            if (import.meta.env.DEV) console.error("[EventSettingsIsland] No Convex URL provided");
             return;
         }
 
-        console.log("[EventSettingsIsland] Initializing Convex client with:", convexUrl);
+        if (import.meta.env.DEV) console.log("[EventSettingsIsland] Initializing Convex client");
         const convexClient = new ConvexReactClient(convexUrl);
         setClient(convexClient);
 

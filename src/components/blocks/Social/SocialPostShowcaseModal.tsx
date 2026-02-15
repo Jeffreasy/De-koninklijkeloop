@@ -140,7 +140,7 @@ function ShareButton({ post }: { post: SocialPost }) {
                             WhatsApp
                         </a>
                         <a
-                            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`}
+                            href={`https://x.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary"

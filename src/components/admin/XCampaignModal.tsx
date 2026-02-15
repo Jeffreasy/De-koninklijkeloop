@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiRequest } from "../../lib/api";
+import { addToast } from "../../lib/toast";
 import { AdminModal } from "./AdminModal";
 import { Loader2, Save } from "lucide-react";
 
@@ -63,10 +64,12 @@ export function XCampaignModal({ isOpen, onClose, onSaved, editingCampaign }: Pr
                     body: JSON.stringify(body),
                 });
             }
+            addToast(editingCampaign ? "Campagne bijgewerkt" : "Campagne aangemaakt", "success");
             onSaved();
             onClose();
         } catch (err) {
-            console.error("[XCampaign] Save failed:", err);
+            if (import.meta.env.DEV) console.error("[XCampaign] Save failed:", err);
+            addToast("Campagne opslaan mislukt", "error");
         } finally {
             setSaving(false);
         }
@@ -77,10 +80,12 @@ export function XCampaignModal({ isOpen, onClose, onSaved, editingCampaign }: Pr
         setDeleting(true);
         try {
             await apiRequest(`/admin/social/campaigns/${editingCampaign.id}`, { method: "DELETE" });
+            addToast("Campagne verwijderd", "success");
             onSaved();
             onClose();
         } catch (err) {
-            console.error("[XCampaign] Delete failed:", err);
+            if (import.meta.env.DEV) console.error("[XCampaign] Delete failed:", err);
+            addToast("Campagne verwijderen mislukt", "error");
         } finally {
             setDeleting(false);
         }
@@ -90,7 +95,7 @@ export function XCampaignModal({ isOpen, onClose, onSaved, editingCampaign }: Pr
     const handleNameChange = (val: string) => {
         setName(val);
         if (!editingCampaign) {
-            setUtmCampaign(val.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
+            setUtmCampaign(val.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
         }
     };
 

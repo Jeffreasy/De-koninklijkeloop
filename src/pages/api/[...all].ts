@@ -65,7 +65,7 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
             console.log(`[Proxy] Forwarding ${request.method} to ${targetUrl}`);
         }
 
-        let body: any = undefined;
+        let body: string | undefined = undefined;
         if (request.method !== 'GET') {
             const rawBody = await request.clone().text();
             body = rawBody;
@@ -76,7 +76,7 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
             headers: headers,
             body: body,
             // duplex: 'half' // Removed for compatibility if using string body
-        } as any);
+        } as RequestInit);
 
         const responseText = await response.text();
 
@@ -90,7 +90,7 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
             headers: responseHeaders
         });
     } catch (e) {
-        console.error("API Proxy Error:", e);
+        if (import.meta.env.DEV) console.error("API Proxy Error:", e);
         return new Response(JSON.stringify({ error: "Backend Protocol Violation" }), { status: 502 });
     }
 };

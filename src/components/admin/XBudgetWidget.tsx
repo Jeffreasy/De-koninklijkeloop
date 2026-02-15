@@ -16,8 +16,8 @@ export default function XBudgetWidget() {
         try {
             const data = await apiRequest("/admin/social/budget");
             setBudget(data);
-        } catch {
-            // Silently fail - widget is non-critical
+        } catch (err) {
+            if (import.meta.env.DEV) console.error("[XBudget] Fetch failed:", err);
         }
     }, []);
 
@@ -29,7 +29,7 @@ export default function XBudgetWidget() {
 
     if (!budget) return null;
 
-    const percentage = Math.round((budget.used / budget.max) * 100);
+    const percentage = budget.max > 0 ? Math.round((budget.used / budget.max) * 100) : 0;
     const isWarning = budget.remaining < 3;
 
     return (

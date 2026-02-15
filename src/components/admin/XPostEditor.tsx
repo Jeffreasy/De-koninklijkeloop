@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiRequest } from "../../lib/api";
+import { addToast } from "../../lib/toast";
 import { AdminModal } from "./AdminModal";
 import { Loader2, Save, Sparkles, Link2, Image } from "lucide-react";
 import type { Campaign } from "./XCampaignModal";
@@ -63,13 +64,26 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // #6: Validate char limits before submit
+        if (threadMode && threadContent.length > 0) {
+            const overLimit = threadContent.findIndex((t) => t.length > 280);
+            if (overLimit !== -1) {
+                addToast(`Tweet ${overLimit + 1} overschrijdt de 280 tekens limiet`, "error");
+                return;
+            }
+        } else if (content.length > 280) {
+            addToast("Tweet overschrijdt de 280 tekens limiet", "error");
+            return;
+        }
+
         setSaving(true);
         try {
             if (threadMode && threadContent.length > 0) {
                 // Create thread: first post is parent, rest are children
                 let parentId: string | null = null;
                 for (let i = 0; i < threadContent.length; i++) {
-                    const body: any = {
+                    const body = {
                         content: threadContent[i],
                         scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : new Date().toISOString(),
                         campaign_id: campaignId || undefined,
@@ -84,8 +98,22 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                     });
                     if (i === 0) parentId = res.id;
                 }
+            } else if (editingPost) {
+                // #7: PUT existing post instead of creating duplicate
+                const body = {
+                    content,
+                    scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : new Date().toISOString(),
+                    campaign_id: campaignId || undefined,
+                    archetype,
+                    media_url: mediaUrl || undefined,
+                    link_url: linkUrl || undefined,
+                };
+                await apiRequest(`/admin/social/posts/${editingPost.id}`, {
+                    method: "PUT",
+                    body: JSON.stringify(body),
+                });
             } else {
-                const body: any = {
+                const body = {
                     content,
                     scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : new Date().toISOString(),
                     campaign_id: campaignId || undefined,
@@ -98,10 +126,12 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                     body: JSON.stringify(body),
                 });
             }
+            addToast(editingPost ? "Post bijgewerkt" : "Post opgeslagen als concept", "success");
             onSaved();
             onClose();
         } catch (err) {
-            console.error("[XPost] Save failed:", err);
+            if (import.meta.env.DEV) console.error("[XPost] Save failed:", err);
+            addToast("Post opslaan mislukt", "error");
         } finally {
             setSaving(false);
         }
@@ -127,7 +157,8 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                 setThreadMode(false);
             }
         } catch (err) {
-            console.error("[XPost] AI generate failed:", err);
+            if (import.meta.env.DEV) console.error("[XPost] AI generate failed:", err);
+            addToast("AI generatie mislukt", "error");
         } finally {
             setGenerating(false);
         }
@@ -160,8 +191,8 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                             {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                             {threadMode ? "Thread Genereren" : "Tweet Genereren"}
                         </button>
-                        <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
-                            <input type="checkbox" checked={threadMode} onChange={(e) => setThreadMode(e.target.checked)}
+                        <label htmlFor="xp-thread-mode" className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
+                            <input id="xp-thread-mode" type="checkbox" checked={threadMode} onChange={(e) => setThreadMode(e.target.checked)}
                                 className="rounded border-glass-border text-brand-orange focus:ring-brand-orange/30" />
                             Thread modus
                         </label>
@@ -182,6 +213,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                                         updated[i] = e.target.value;
                                         setThreadContent(updated);
                                     }}
+                                    aria-label={`Tweet ${i + 1} van ${threadContent.length}`}
                                     className="w-full px-4 pt-6 pb-2 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm focus:border-brand-orange/50 outline-none transition-all resize-none"
                                     rows={3}
                                 />
@@ -197,7 +229,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                                 className="w-full px-4 py-3 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all resize-none"
                                 rows={4}
                                 placeholder="Schrijf je tweet..."
-                                maxLength={300}
+                                maxLength={280}
                             />
                             <span className={`absolute right-3 bottom-3 text-xs font-mono ${charColor}`}>{charCount}/280</span>
                         </div>
@@ -234,7 +266,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                 {/* Schedule */}
                 <div>
                     <label htmlFor="xp-schedule" className="block text-sm font-medium text-text-muted mb-1.5">Inplannen</label>
-                    <input id="xp-schedule" type="datetime-local" value={scheduledFor} onChange={(e) => setScheduledFor(e.target.value)} required
+                    <input id="xp-schedule" type="datetime-local" value={scheduledFor} onChange={(e) => setScheduledFor(e.target.value)}
                         className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm focus:border-brand-orange/50 outline-none transition-all"
                     />
                 </div>
