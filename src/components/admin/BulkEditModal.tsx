@@ -113,7 +113,7 @@ export function BulkEditModal({ isOpen, selectedImages, onClose, onBulkUpdate, a
 
             onClose();
         } catch (error) {
-            console.error("Bulk save failed", error);
+            if (import.meta.env.DEV) console.error("Bulk save failed", error);
             addToast("Kon niet alles opslaan. Probeer opnieuw.", "error");
         } finally {
             setIsSaving(false);
@@ -159,7 +159,7 @@ export function BulkEditModal({ isOpen, selectedImages, onClose, onBulkUpdate, a
                             <button
                                 onClick={() => handleApplyToAll('alt')}
                                 disabled={!applyAllAlt}
-                                className="p-2 bg-glass-border/30 hover:bg-brand-orange/20 text-text-primary rounded-lg transition-colors disabled:opacity-50"
+                                className="p-2 bg-glass-border/30 hover:bg-brand-orange/20 text-text-primary rounded-lg transition-colors disabled:opacity-50 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
                                 title="Pas toe op alle items"
                             >
                                 <Copy className="w-4 h-4" />
@@ -218,7 +218,7 @@ export function BulkEditModal({ isOpen, selectedImages, onClose, onBulkUpdate, a
             </div>
 
             {/* Scrollable Content */}
-            <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
+            <div className="space-y-4 overflow-y-auto max-h-[60dvh] pr-2 overscroll-contain">
                 {selectedImages.map(img => (
                     <div
                         key={img.public_id}

@@ -122,7 +122,7 @@ export default function ReplyModal({ email, onClose, onSuccess }: ReplyModalProp
             <div className="flex items-center justify-end gap-3 mt-6 pt-6 border-t border-border">
                 <button
                     onClick={onClose}
-                    className="px-5 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-glass-border rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-5 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-glass-border rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] cursor-pointer"
                     disabled={sending}
                 >
                     Annuleren
@@ -130,7 +130,7 @@ export default function ReplyModal({ email, onClose, onSuccess }: ReplyModalProp
                 <button
                     onClick={handleSend}
                     disabled={sending || !body.trim()}
-                    className="px-6 py-2.5 text-sm font-medium text-white bg-brand-orange hover:bg-orange-400 disabled:bg-glass-border disabled:text-text-muted disabled:cursor-not-allowed rounded-xl transition-[background-color,opacity] duration-200 flex items-center gap-2 shadow-lg shadow-brand-orange/20"
+                    className="px-6 py-2.5 text-sm font-medium text-white bg-brand-orange hover:bg-orange-400 disabled:bg-glass-border disabled:text-text-muted disabled:cursor-not-allowed rounded-xl transition-[background-color,opacity] duration-200 flex items-center gap-2 shadow-lg shadow-brand-orange/20 min-h-[44px] cursor-pointer"
                     aria-label={sending ? "Sending reply..." : "Send reply"}
                 >
                     {sending ? (

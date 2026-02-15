@@ -9,7 +9,10 @@ import { mutation, query } from "./_generated/server";
 /**
  * SOCIAL POSTS API
  * Manual Instagram post management for homepage display
+ * Posts are scoped by year/edition (2024, 2025, 2026, ...)
  */
+
+const CURRENT_YEAR = "2026";
 
 // ============================================================
 // QUERIES (Public + Admin)
@@ -17,30 +20,46 @@ import { mutation, query } from "./_generated/server";
 
 /**
  * Get all visible posts ordered by displayOrder (for public display)
+ * Scoped by year — defaults to current year
  */
 export const listPublic = query({
-    args: {},
-    handler: async (ctx) => {
+    args: { year: v.optional(v.string()) },
+    handler: async (ctx, args) => {
+        if (args.year) {
+            return await ctx.db
+                .query("social_posts")
+                .withIndex("by_year_visible", (q) => q.eq("year", args.year).eq("isVisible", true))
+                .collect()
+                .then((posts) => posts.sort((a, b) => a.displayOrder - b.displayOrder));
+        }
+        // No year filter — return all visible posts
         return await ctx.db
             .query("social_posts")
             .withIndex("by_visible", (q) => q.eq("isVisible", true))
             .collect()
-            .then((posts) =>
-                posts.sort((a, b) => a.displayOrder - b.displayOrder)
-            );
+            .then((posts) => posts.sort((a, b) => a.displayOrder - b.displayOrder));
     },
 });
 
 /**
  * Get the featured post (for public display)
+ * Scoped by year — defaults to current year
  */
 export const getFeatured = query({
-    args: {},
-    handler: async (ctx) => {
-        const posts = await ctx.db
-            .query("social_posts")
-            .withIndex("by_featured", (q) => q.eq("isFeatured", true))
-            .collect();
+    args: { year: v.optional(v.string()) },
+    handler: async (ctx, args) => {
+        let posts;
+        if (args.year) {
+            posts = await ctx.db
+                .query("social_posts")
+                .withIndex("by_year_featured", (q) => q.eq("year", args.year).eq("isFeatured", true))
+                .collect();
+        } else {
+            posts = await ctx.db
+                .query("social_posts")
+                .withIndex("by_featured", (q) => q.eq("isFeatured", true))
+                .collect();
+        }
 
         // Return first visible featured post
         return posts.find((p) => p.isVisible) || null;
@@ -49,16 +68,28 @@ export const getFeatured = query({
 
 /**
  * Get thumbnail posts (excluding featured, for public display)
+ * Scoped by year — defaults to current year
  */
 export const getThumbnails = query({
-    args: { limit: v.optional(v.number()) },
+    args: {
+        limit: v.optional(v.number()),
+        year: v.optional(v.string()),
+    },
     handler: async (ctx, args) => {
-        const limit = args.limit || 7;
+        const limit = args.limit || 50;
 
-        const allPosts = await ctx.db
-            .query("social_posts")
-            .withIndex("by_visible", (q) => q.eq("isVisible", true))
-            .collect();
+        let allPosts;
+        if (args.year) {
+            allPosts = await ctx.db
+                .query("social_posts")
+                .withIndex("by_year_visible", (q) => q.eq("year", args.year).eq("isVisible", true))
+                .collect();
+        } else {
+            allPosts = await ctx.db
+                .query("social_posts")
+                .withIndex("by_visible", (q) => q.eq("isVisible", true))
+                .collect();
+        }
 
         // Filter out featured posts and sort by displayOrder
         const thumbnails = allPosts
@@ -72,10 +103,21 @@ export const getThumbnails = query({
 
 /**
  * Get all posts (for admin panel)
+ * Optionally scoped by year
  */
 export const listAll = query({
-    args: {},
-    handler: async (ctx) => {
+    args: { year: v.optional(v.string()) },
+    handler: async (ctx, args) => {
+        if (args.year) {
+            return await ctx.db
+                .query("social_posts")
+                .withIndex("by_year", (q) => q.eq("year", args.year))
+                .collect()
+                .then((posts) =>
+                    posts.sort((a, b) => a.displayOrder - b.displayOrder)
+                );
+        }
+        // No year filter — return all posts
         return await ctx.db
             .query("social_posts")
             .collect()
@@ -111,21 +153,26 @@ export const create = mutation({
         displayOrder: v.number(),
         isVisible: v.boolean(),
         postedDate: v.optional(v.string()),
+        year: v.optional(v.string()),
         updatedBy: v.string(),
     },
     handler: async (ctx, args) => {
-        // If setting as featured, unfeatured all other posts
+        const year = args.year || CURRENT_YEAR;
+
+        // If setting as featured, unfeatured all other posts IN THE SAME YEAR
         if (args.isFeatured) {
-            const allPosts = await ctx.db.query("social_posts").collect();
-            for (const post of allPosts) {
-                if (post.isFeatured) {
-                    await ctx.db.patch(post._id, { isFeatured: false });
-                }
+            const yearPosts = await ctx.db
+                .query("social_posts")
+                .withIndex("by_year_featured", (q) => q.eq("year", year).eq("isFeatured", true))
+                .collect();
+            for (const post of yearPosts) {
+                await ctx.db.patch(post._id, { isFeatured: false });
             }
         }
 
         const now = Date.now();
         return await ctx.db.insert("social_posts", {
+            year,
             imageUrl: args.imageUrl,
             caption: args.caption,
             instagramUrl: args.instagramUrl,
@@ -153,17 +200,25 @@ export const update = mutation({
         displayOrder: v.optional(v.number()),
         isVisible: v.optional(v.boolean()),
         postedDate: v.optional(v.string()),
+        year: v.optional(v.string()),
         updatedBy: v.string(),
     },
     handler: async (ctx, args) => {
         const { id, updatedBy, ...updates } = args;
+        const post = await ctx.db.get(id);
+        if (!post) throw new Error("Post not found");
 
-        // If setting as featured, unfeatured all other posts
+        const postYear = updates.year || post.year || CURRENT_YEAR;
+
+        // If setting as featured, unfeatured all other posts IN THE SAME YEAR
         if (updates.isFeatured === true) {
-            const allPosts = await ctx.db.query("social_posts").collect();
-            for (const post of allPosts) {
-                if (post.isFeatured && post._id !== id) {
-                    await ctx.db.patch(post._id, { isFeatured: false });
+            const yearPosts = await ctx.db
+                .query("social_posts")
+                .withIndex("by_year_featured", (q) => q.eq("year", postYear).eq("isFeatured", true))
+                .collect();
+            for (const p of yearPosts) {
+                if (p._id !== id) {
+                    await ctx.db.patch(p._id, { isFeatured: false });
                 }
             }
         }
@@ -213,6 +268,7 @@ export const toggleVisibility = mutation({
 
 /**
  * Toggle featured status
+ * Scoped: only unfeatured other posts within the same year
  */
 export const toggleFeatured = mutation({
     args: {
@@ -224,12 +280,16 @@ export const toggleFeatured = mutation({
         if (!post) throw new Error("Post not found");
 
         const newFeaturedStatus = !post.isFeatured;
+        const postYear = post.year || CURRENT_YEAR;
 
-        // If setting as featured, unfeatured all other posts
+        // If setting as featured, unfeatured all other posts IN THE SAME YEAR
         if (newFeaturedStatus) {
-            const allPosts = await ctx.db.query("social_posts").collect();
-            for (const p of allPosts) {
-                if (p.isFeatured && p._id !== args.id) {
+            const yearPosts = await ctx.db
+                .query("social_posts")
+                .withIndex("by_year_featured", (q) => q.eq("year", postYear).eq("isFeatured", true))
+                .collect();
+            for (const p of yearPosts) {
+                if (p._id !== args.id) {
                     await ctx.db.patch(p._id, { isFeatured: false });
                 }
             }
@@ -268,5 +328,27 @@ export const reorder = mutation({
         }
 
         return args.updates.map((u) => u.id);
+    },
+});
+
+/**
+ * Backfill: Set year on posts that don't have one yet.
+ * Run once from Convex dashboard or CLI.
+ */
+export const backfillYear = mutation({
+    args: { year: v.optional(v.string()) },
+    handler: async (ctx, args) => {
+        const defaultYear = args.year || "2025";
+        const allPosts = await ctx.db.query("social_posts").collect();
+        let updated = 0;
+
+        for (const post of allPosts) {
+            if (!post.year) {
+                await ctx.db.patch(post._id, { year: defaultYear });
+                updated++;
+            }
+        }
+
+        return { updated, total: allPosts.length, year: defaultYear };
     },
 });

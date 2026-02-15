@@ -68,14 +68,26 @@ export default function MediaLightboxModal({
         resetZoom();
     }, [currentIndex]);
 
-    // Prevent body scroll when modal is open
+    // iOS-safe scroll lock
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = 'hidden';
-            return () => {
-                document.body.style.overflow = '';
-            };
-        }
+        if (!isOpen) return;
+
+        const scrollY = window.scrollY;
+        const body = document.body;
+        body.style.position = 'fixed';
+        body.style.top = `-${scrollY}px`;
+        body.style.left = '0';
+        body.style.right = '0';
+        body.style.overflow = 'hidden';
+
+        return () => {
+            body.style.position = '';
+            body.style.top = '';
+            body.style.left = '';
+            body.style.right = '';
+            body.style.overflow = '';
+            window.scrollTo(0, scrollY);
+        };
     }, [isOpen]);
 
     // Keyboard navigation
@@ -204,6 +216,7 @@ export default function MediaLightboxModal({
     return (
         <div
             className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm animate-in fade-in duration-300"
+            style={{ height: '100dvh' }}
             onClick={(e) => {
                 if (e.target === e.currentTarget) handleClose();
             }}
@@ -234,7 +247,7 @@ export default function MediaLightboxModal({
                         {/* Close Button */}
                         <button
                             onClick={handleClose}
-                            className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white"
+                            className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
                             aria-label="Sluiten"
                         >
                             <X className="w-6 h-6" />

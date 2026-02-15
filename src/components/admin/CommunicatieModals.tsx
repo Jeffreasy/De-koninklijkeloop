@@ -45,7 +45,7 @@ function OrgModal({ editing, onClose }: { editing: Record<string, any> | null | 
             }
             onClose();
         } catch (err) {
-            console.error("Failed to save organization:", err);
+            if (import.meta.env.DEV) console.error("Failed to save organization:", err);
         } finally {
             setLoading(false);
         }
@@ -161,7 +161,7 @@ function ContactModal({ editing, organizations, onClose }: { editing: Record<str
             }
             onClose();
         } catch (err) {
-            console.error("Failed to save contact:", err);
+            if (import.meta.env.DEV) console.error("Failed to save contact:", err);
         } finally {
             setLoading(false);
         }

@@ -44,6 +44,27 @@ function FeedbackModalContent() {
 
     const submitFeedback = useMutation(api.feedback.submit);
 
+    // iOS-safe scroll lock
+    useEffect(() => {
+        if (!isOpen) return;
+        const scrollY = window.scrollY;
+        const body = document.body;
+        body.style.position = 'fixed';
+        body.style.top = `-${scrollY}px`;
+        body.style.left = '0';
+        body.style.right = '0';
+        body.style.overflow = 'hidden';
+
+        return () => {
+            body.style.position = '';
+            body.style.top = '';
+            body.style.left = '';
+            body.style.right = '';
+            body.style.overflow = '';
+            window.scrollTo(0, scrollY);
+        };
+    }, [isOpen]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!message.trim()) return;
@@ -52,12 +73,12 @@ function FeedbackModalContent() {
 
         try {
             await submitFeedback({
-                type,
+                type: type === 'praise' ? 'other' : type as 'bug' | 'feature' | 'other',
                 message,
                 metadata: {
-                    url: window.location.pathname,
-                    userAgent: navigator.userAgent,
-                    timestamp: new Date().toISOString()
+                    page: window.location.pathname,
+                    browser: navigator.userAgent,
+                    screen: `${window.innerWidth}x${window.innerHeight}`
                 }
             });
 
@@ -72,7 +93,7 @@ function FeedbackModalContent() {
             }, 2000);
 
         } catch (error) {
-            console.error("Feedback submission failed:", error);
+            if (import.meta.env.DEV) console.error("Feedback submission failed:", error);
             // Ideally show error toast here
         } finally {
             setIsSubmitting(false);
@@ -106,7 +127,7 @@ function FeedbackModalContent() {
             {/* Modal */}
             <AnimatePresence>
                 {isOpen && (
-                    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
+                    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4" style={{ height: '100dvh' }}>
                         {/* Backdrop */}
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -121,7 +142,7 @@ function FeedbackModalContent() {
                             initial={{ y: 100, opacity: 0, scale: 0.95 }}
                             animate={{ y: 0, opacity: 1, scale: 1 }}
                             exit={{ y: 20, opacity: 0, scale: 0.95 }}
-                            className="relative w-full max-w-md bg-surface/95 backdrop-blur-xl border border-glass-border rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden"
+                            className="relative w-full max-w-md max-h-[85dvh] sm:max-h-[90dvh] bg-surface/95 backdrop-blur-xl border border-glass-border rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-y-auto overscroll-contain"
                         >
                             {/* Success State Overlay */}
                             <AnimatePresence>
@@ -150,7 +171,7 @@ function FeedbackModalContent() {
                                 </div>
                                 <button
                                     onClick={() => setIsOpen(false)}
-                                    className="relative p-2 rounded-xl hover:bg-glass-surface text-text-muted hover:text-text-primary transition-all duration-300 group cursor-pointer"
+                                    className="relative p-2 rounded-xl hover:bg-glass-surface text-text-muted hover:text-text-primary transition-all duration-300 group cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                                 >
                                     <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
                                 </button>
@@ -218,7 +239,7 @@ function FeedbackModalContent() {
                                         <button
                                             type="button"
                                             onClick={() => setIsOpen(false)}
-                                            className="px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+                                            className="px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-primary transition-colors cursor-pointer min-h-[44px]"
                                         >
                                             Annuleren
                                         </button>

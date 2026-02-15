@@ -47,7 +47,7 @@ export const SocialGridIsland = memo(function SocialGridIsland({
 }: Props) {
     // Real-time Convex data (takes over from SSR once loaded)
     const featuredPost = useQuery(api.socialPosts.getFeatured);
-    const thumbnailPosts = useQuery(api.socialPosts.getThumbnails, { limit: 7 });
+    const thumbnailPosts = useQuery(api.socialPosts.getThumbnails, {});
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPostIndex, setSelectedPostIndex] = useState(0);

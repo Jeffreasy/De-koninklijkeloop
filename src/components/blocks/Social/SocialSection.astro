@@ -20,9 +20,7 @@ if (convexUrl) {
     try {
         const convex = new ConvexHttpClient(convexUrl);
         featuredPost = await convex.query(api.socialPosts.getFeatured);
-        thumbnailPosts = await convex.query(api.socialPosts.getThumbnails, {
-            limit: 7,
-        });
+        thumbnailPosts = await convex.query(api.socialPosts.getThumbnails, {});
     } catch (e) {
         console.warn("[SocialSection] Convex SSR fetch failed:", e);
     }

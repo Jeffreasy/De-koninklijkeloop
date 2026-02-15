@@ -40,18 +40,30 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
 
     const isBegeleider = registration.role === "begeleider";
 
-    // Escape key + scroll lock
+    // Escape key + iOS-safe scroll lock
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === "Escape") onClose();
         };
         document.addEventListener("keydown", handleEscape);
-        document.body.style.overflow = "hidden";
+
+        const scrollY = window.scrollY;
+        const body = document.body;
+        body.style.position = 'fixed';
+        body.style.top = `-${scrollY}px`;
+        body.style.left = '0';
+        body.style.right = '0';
+        body.style.overflow = 'hidden';
         modalRef.current?.focus();
 
         return () => {
             document.removeEventListener("keydown", handleEscape);
-            document.body.style.overflow = "";
+            body.style.position = '';
+            body.style.top = '';
+            body.style.left = '';
+            body.style.right = '';
+            body.style.overflow = '';
+            window.scrollTo(0, scrollY);
         };
     }, [onClose]);
 
@@ -87,7 +99,7 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
 
     const modalContent = (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+            className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6 animate-in fade-in duration-200"
             role="dialog"
             aria-modal="true"
             aria-labelledby="edit-modal-title"
@@ -101,14 +113,14 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
             <div
                 ref={modalRef}
                 tabIndex={-1}
-                className="relative w-full max-w-lg bg-surface/95 dark:bg-surface/90 backdrop-blur-xl rounded-2xl border border-glass-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200 outline-none"
+                className="relative w-full h-dvh md:h-auto max-w-lg bg-surface/95 dark:bg-surface/90 backdrop-blur-xl md:rounded-2xl border-0 md:border md:border-glass-border shadow-2xl overflow-hidden flex flex-col md:max-h-[90dvh] animate-in zoom-in-95 duration-200 outline-none"
             >
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-glass-border flex items-center justify-between bg-glass-bg">
                     <h2 id="edit-modal-title" className="text-xl font-bold text-text-primary">Gegevens Wijzigen</h2>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-xl hover:bg-glass-surface/50 text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+                        className="p-2 rounded-xl hover:bg-glass-surface/50 text-text-muted hover:text-text-primary transition-colors cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                         aria-label="Sluit modal"
                     >
                         <X className="w-5 h-5" />
@@ -116,7 +128,7 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 overscroll-contain">
                     {error && (
                         <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3 text-red-400 text-sm">
                             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
@@ -243,14 +255,14 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
                 <div className="px-6 py-4 border-t border-glass-border bg-glass-bg flex items-center justify-end gap-3">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-glass-surface/50 transition-colors font-medium text-sm cursor-pointer"
+                        className="px-4 py-2.5 rounded-xl text-text-muted hover:text-text-primary hover:bg-glass-surface/50 transition-colors font-medium text-sm cursor-pointer min-h-[44px]"
                     >
                         Annuleren
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={isLoading}
-                        className="px-6 py-2 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95 cursor-pointer"
+                        className="px-6 py-2.5 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95 cursor-pointer min-h-[44px]"
                     >
                         {isLoading ? (
                             <>

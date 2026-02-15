@@ -246,6 +246,9 @@ export default defineSchema({
 
     // Social Media Posts (Manual Instagram Management)
     social_posts: defineTable({
+        // Edition
+        year: v.optional(v.string()),   // "2024", "2025", "2026" — optional for backfill compat
+
         // Post Content
         imageUrl: v.string(),           // Direct URL to Instagram image
         caption: v.string(),            // Instagram caption/description
@@ -266,7 +269,10 @@ export default defineSchema({
     })
         .index("by_display_order", ["displayOrder"])
         .index("by_featured", ["isFeatured"])
-        .index("by_visible", ["isVisible"]),
+        .index("by_visible", ["isVisible"])
+        .index("by_year", ["year"])
+        .index("by_year_visible", ["year", "isVisible"])
+        .index("by_year_featured", ["year", "isFeatured"]),
 
     // Social Post Reactions (User Engagement)
     social_reactions: defineTable({

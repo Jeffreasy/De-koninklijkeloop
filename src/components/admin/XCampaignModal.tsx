@@ -162,7 +162,7 @@ export function XCampaignModal({ isOpen, onClose, onSaved, editingCampaign }: Pr
                     <div>
                         {editingCampaign && (
                             <button type="button" onClick={handleDelete} disabled={deleting}
-                                className="text-sm text-red-400 hover:text-red-300 transition-colors cursor-pointer disabled:opacity-50"
+                                className="text-sm text-red-400 hover:text-red-300 transition-colors cursor-pointer disabled:opacity-50 min-h-[44px] inline-flex items-center"
                             >
                                 {deleting ? "Verwijderen..." : "Verwijderen"}
                             </button>
@@ -170,12 +170,12 @@ export function XCampaignModal({ isOpen, onClose, onSaved, editingCampaign }: Pr
                     </div>
                     <div className="flex gap-3">
                         <button type="button" onClick={onClose}
-                            className="px-4 py-2 rounded-xl border border-glass-border text-text-muted hover:text-text-primary hover:bg-glass-bg/30 transition-all cursor-pointer text-sm"
+                            className="px-4 py-2 rounded-xl border border-glass-border text-text-muted hover:text-text-primary hover:bg-glass-bg/30 transition-all cursor-pointer text-sm min-h-[44px]"
                         >
                             Annuleren
                         </button>
                         <button type="submit" disabled={saving}
-                            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 cursor-pointer disabled:opacity-50 text-sm"
+                            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 cursor-pointer disabled:opacity-50 text-sm min-h-[44px]"
                         >
                             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                             {editingCampaign ? "Bijwerken" : "Aanmaken"}

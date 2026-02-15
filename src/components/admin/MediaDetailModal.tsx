@@ -30,17 +30,17 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
 
         setIsSaving(true);
         try {
-            console.log("[MediaDetailModal] Saving metadata:", {
+            if (import.meta.env.DEV) console.log("[MediaDetailModal] Saving metadata:", {
                 publicId: image.public_id,
                 altText,
                 title,
                 tags
             });
             await onSave(image.public_id, altText, title || undefined, tags.length > 0 ? tags : undefined);
-            console.log("[MediaDetailModal] Save successful, closing modal");
+            if (import.meta.env.DEV) console.log("[MediaDetailModal] Save successful, closing modal");
             onClose();
         } catch (error) {
-            console.error("[MediaDetailModal] Failed to save metadata", error);
+            if (import.meta.env.DEV) console.error("[MediaDetailModal] Failed to save metadata", error);
             alert("Kon metadata niet opslaan. Probeer opnieuw.");
         } finally {
             setIsSaving(false);
@@ -133,7 +133,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                             href={image.secure_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1 px-4 py-2 rounded-xl bg-glass-border/30 text-text-primary hover:bg-glass-border/50 transition-colors text-center text-sm font-medium cursor-pointer"
+                            className="flex-1 px-4 py-2 rounded-xl bg-glass-border/30 text-text-primary hover:bg-glass-border/50 transition-colors text-center text-sm font-medium cursor-pointer min-h-[44px]"
                         >
                             <div className="flex items-center justify-center gap-2">
                                 <iconify-icon icon="lucide:external-link" width="16" />
@@ -142,7 +142,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                         </a>
                         <button
                             onClick={() => navigator.clipboard.writeText(image.secure_url)}
-                            className="flex-1 px-4 py-2 rounded-xl bg-glass-border/30 text-text-primary hover:bg-glass-border/50 transition-colors text-center text-sm font-medium cursor-pointer"
+                            className="flex-1 px-4 py-2 rounded-xl bg-glass-border/30 text-text-primary hover:bg-glass-border/50 transition-colors text-center text-sm font-medium cursor-pointer min-h-[44px]"
                         >
                             <div className="flex items-center justify-center gap-2">
                                 <iconify-icon icon="lucide:copy" width="16" />

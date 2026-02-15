@@ -3,6 +3,7 @@ import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { AdminModal, AdminModalFooterButtons } from './AdminModal';
 import { routes } from '../../lib/routeData';
+import { addToast } from '../../lib/toast';
 import { Flag, Play, Bus, MapPin, Coffee, Trophy, PartyPopper, Circle, HelpCircle } from 'lucide-react';
 import type { Id } from '../../../convex/_generated/dataModel';
 
@@ -97,8 +98,8 @@ export const MinuteModal = ({ isOpen, onClose, initialData }: MinuteModalProps) 
             }
             onClose();
         } catch (error) {
-            console.error("Failed to save minute:", error);
-            alert("Er is een fout opgetreden bij het opslaan.");
+            if (import.meta.env.DEV) console.error("Failed to save minute:", error);
+            addToast("Er is een fout opgetreden bij het opslaan.", "error");
         } finally {
             setIsLoading(false);
         }
@@ -248,8 +249,8 @@ export const ScheduleModal = ({ isOpen, onClose, initialData }: ScheduleModalPro
             });
             onClose();
         } catch (error) {
-            console.error("Failed to save schedule item:", error);
-            alert("Er is een fout opgetreden.");
+            if (import.meta.env.DEV) console.error("Failed to save schedule item:", error);
+            addToast("Er is een fout opgetreden.", "error");
         } finally {
             setIsLoading(false);
         }

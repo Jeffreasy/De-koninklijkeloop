@@ -226,14 +226,26 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [isOpen, handleClose, handlePrev, handleNext, isExpanded]);
 
-    // Lock body scroll
+    // iOS-safe scroll lock
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "";
-        }
-        return () => { document.body.style.overflow = ""; };
+        if (!isOpen) return;
+
+        const scrollY = window.scrollY;
+        const body = document.body;
+        body.style.position = 'fixed';
+        body.style.top = `-${scrollY}px`;
+        body.style.left = '0';
+        body.style.right = '0';
+        body.style.overflow = 'hidden';
+
+        return () => {
+            body.style.position = '';
+            body.style.top = '';
+            body.style.left = '';
+            body.style.right = '';
+            body.style.overflow = '';
+            window.scrollTo(0, scrollY);
+        };
     }, [isOpen]);
 
     if (!isOpen || !post) return null;
@@ -361,7 +373,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     </div>
 
                     {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6 overscroll-contain">
                         <div className="p-4 rounded-2xl bg-surface border border-glass-border">
                             <ReactionPicker
                                 postId={post._id}

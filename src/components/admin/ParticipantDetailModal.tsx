@@ -95,13 +95,30 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
         }
     };
 
-    // Close on escape
+    // Close on escape + iOS-safe scroll lock
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
         };
         window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
+
+        const scrollY = window.scrollY;
+        const body = document.body;
+        body.style.position = 'fixed';
+        body.style.top = `-${scrollY}px`;
+        body.style.left = '0';
+        body.style.right = '0';
+        body.style.overflow = 'hidden';
+
+        return () => {
+            window.removeEventListener('keydown', handleEsc);
+            body.style.position = '';
+            body.style.top = '';
+            body.style.left = '';
+            body.style.right = '';
+            body.style.overflow = '';
+            window.scrollTo(0, scrollY);
+        };
     }, [onClose]);
 
     if (showDeleteConfirm) {
@@ -141,13 +158,13 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6">
             <div
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             />
 
-            <div className="relative w-full max-w-2xl bg-surface/95 dark:bg-surface/90 backdrop-blur-xl rounded-2xl border border-glass-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+            <div className="relative w-full h-dvh md:h-auto max-w-2xl bg-surface/95 dark:bg-surface/90 backdrop-blur-xl md:rounded-2xl border-0 md:border md:border-glass-border shadow-2xl overflow-hidden flex flex-col md:max-h-[90dvh] animate-in fade-in zoom-in-95 duration-200">
 
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-glass-border flex items-center justify-between bg-glass-surface/30">
@@ -166,14 +183,14 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-xl hover:bg-glass-surface/50 text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+                        className="p-2 rounded-xl hover:bg-glass-surface/50 text-text-muted hover:text-text-primary transition-colors cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                     >
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 {/* Content - Scrollable Form */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 overscroll-contain">
 
                     {/* Primary Info Group */}
                     <div className="space-y-4">
@@ -319,14 +336,14 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                     <div className="flex items-center gap-3">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-glass-surface/50 transition-colors text-sm font-medium cursor-pointer"
+                            className="px-4 py-2.5 rounded-xl text-text-muted hover:text-text-primary hover:bg-glass-surface/50 transition-colors text-sm font-medium cursor-pointer min-h-[44px]"
                         >
                             Annuleren
                         </button>
                         <button
                             onClick={handleSave}
                             disabled={isLoading}
-                            className="px-6 py-2 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
+                            className="px-6 py-2.5 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all shadow-lg shadow-brand-orange/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95 min-h-[44px]"
                         >
                             {isLoading && !isDeleting ? (
                                 <>

@@ -28,6 +28,7 @@ export interface SocialPostFormData {
     displayOrder: number;
     isVisible: boolean;
     postedDate?: string;
+    year?: string;
 }
 
 export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props) {
@@ -164,7 +165,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                     </div>
                 )}
                 {/* Scrollable content area */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto overscroll-contain">
                     {/* Single column on mobile, grid on tablet+ */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         {/* Left Column: Form Fields */}
@@ -347,20 +348,20 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                 {/* Display Order */}
                                 <div>
                                     <label className="block text-xs md:text-sm text-text-primary mb-1.5">
-                                        Volgorde ({formData.displayOrder})
+                                        Volgorde
                                     </label>
                                     <input
-                                        type="range"
+                                        type="number"
                                         min="1"
                                         max="100"
                                         value={formData.displayOrder}
                                         onChange={(e) =>
                                             setFormData({
                                                 ...formData,
-                                                displayOrder: parseInt(e.target.value),
+                                                displayOrder: parseInt(e.target.value) || 1,
                                             })
                                         }
-                                        className="w-full h-2 bg-glass-border rounded-lg appearance-none cursor-pointer accent-brand-orange"
+                                        className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                                     />
                                 </div>
                             </div>
@@ -373,14 +374,14 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                     <button
                         type="button"
                         onClick={onClose}
-                        className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-all duration-200 text-sm md:text-base font-medium cursor-pointer"
+                        className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-all duration-200 text-sm md:text-base font-medium cursor-pointer min-h-[44px]"
                         disabled={isSaving || isUploading}
                     >
                         Annuleren
                     </button>
                     <button
                         type="submit"
-                        className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all duration-200 shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base cursor-pointer"
+                        className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all duration-200 shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base cursor-pointer min-h-[44px]"
                         disabled={isSaving || isUploading}
                     >
                         {isUploading ? (
