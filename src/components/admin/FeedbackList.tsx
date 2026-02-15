@@ -71,8 +71,8 @@ export default function FeedbackList() {
                     {['all', 'open', 'closed'].map((f) => (
                         <button
                             key={f}
-                            onClick={() => setFilter(f as any)}
-                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${filter === f
+                            onClick={() => setFilter(f as 'all' | 'open' | 'closed')}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${filter === f
                                 ? 'bg-brand-orange text-white shadow-sm'
                                 : 'text-text-muted hover:text-text-body hover:bg-black/5'
                                 }`}
@@ -93,7 +93,7 @@ export default function FeedbackList() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {filteredFeedback.map((item) => (
-                            <div key={item._id} className="group relative bg-glass-bg/40 backdrop-blur-md border border-glass-border hover:border-brand-orange/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden">
+                            <div key={item._id} className="group relative bg-glass-bg/40 backdrop-blur-md border border-glass-border hover:border-brand-orange/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-xl overflow-hidden">
                                 {/* Gradient Glow */}
                                 <div className="absolute inset-0 bg-linear-to-br from-glass-border/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
@@ -147,8 +147,9 @@ export default function FeedbackList() {
                                         {item.status !== 'rejected' && (
                                             <button
                                                 onClick={() => handleStatusChange(item._id, 'rejected')}
-                                                className="px-3 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold transition-colors border border-red-500/10 hover:border-red-500/30"
+                                                className="px-3 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold transition-colors border border-red-500/10 hover:border-red-500/30 cursor-pointer"
                                                 title="Afwijzen"
+                                                aria-label="Afwijzen"
                                             >
                                                 <XCircle className="w-3.5 h-3.5" />
                                             </button>

@@ -61,7 +61,7 @@ export default function TelegramConfigIsland() {
                     setConfigError(`Kan configuratie niet ophalen (${response.status}): ${errorText}`);
                 }
             } catch (error) {
-                console.error("Error fetching telegram config:", error);
+                if (import.meta.env.DEV) console.error("Error fetching telegram config:", error);
                 setConfigError("Kan geen verbinding maken met de backend. Controleer of de server draait.");
             } finally {
                 setLoading(false);
@@ -117,7 +117,7 @@ export default function TelegramConfigIsland() {
         } catch (error) {
             setStatus({
                 type: 'error',
-                message: error instanceof Error ? error.message : 'Kon instellingen niet opslaan'
+                message: error instanceof Error ? error.message.split('\n')[0] : 'Kon instellingen niet opslaan'
             });
         } finally {
             setSaving(false);
@@ -143,7 +143,7 @@ export default function TelegramConfigIsland() {
         } catch (error) {
             setStatus({
                 type: 'error',
-                message: error instanceof Error ? error.message : 'Test bericht mislukt'
+                message: error instanceof Error ? error.message.split('\n')[0] : 'Test bericht mislukt'
             });
         } finally {
             setTesting(false);
@@ -168,7 +168,15 @@ export default function TelegramConfigIsland() {
             }
 
             setStatus({ type: 'success', message: 'Telegram configuratie verwijderd.' });
-            setConfig({ configured: false, chat_id: '', bot_token_masked: '', enabled: false, notify_contact: true, notify_registration: true, notify_email: true });
+            setConfig({
+                configured: false,
+                chat_id: '',
+                bot_token_masked: '',
+                enabled: false,
+                notify_contact: true,
+                notify_registration: true,
+                notify_email: true,
+            });
             setChatId('');
             setBotToken('');
             setEnabled(true);
@@ -178,7 +186,7 @@ export default function TelegramConfigIsland() {
         } catch (error) {
             setStatus({
                 type: 'error',
-                message: error instanceof Error ? error.message : 'Kon configuratie niet verwijderen'
+                message: error instanceof Error ? error.message.split('\n')[0] : 'Kon configuratie niet verwijderen'
             });
         } finally {
             setDeleting(false);
@@ -216,9 +224,12 @@ export default function TelegramConfigIsland() {
             {/* Status Message */}
             {status && (
                 <div className={`flex items-center gap-3 p-4 rounded-xl text-sm ${status.type === 'success'
-                        ? 'bg-green-500/10 border border-green-500/20 text-green-400'
-                        : 'bg-red-500/10 border border-red-500/20 text-red-400'
-                    }`}>
+                    ? 'bg-green-500/10 border border-green-500/20 text-green-400'
+                    : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                    }`}
+                    role="alert"
+                    aria-live="polite"
+                >
                     {status.type === 'success'
                         ? <CheckCircle2 className="w-5 h-5 shrink-0" />
                         : <XCircle className="w-5 h-5 shrink-0" />
@@ -231,8 +242,8 @@ export default function TelegramConfigIsland() {
             {config?.configured && (
                 <div className="flex items-center gap-3 text-sm">
                     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${config.enabled
-                            ? 'bg-green-500/10 border-green-500/20 text-green-400'
-                            : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                        ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                        : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
                         }`}>
                         <div className={`w-2 h-2 rounded-full ${config.enabled ? 'bg-green-400 animate-pulse' : 'bg-amber-400'}`} />
                         {config.enabled ? 'Actief' : 'Gepauzeerd'}
@@ -402,9 +413,7 @@ function ToggleRow({ label, description, checked, onChange, accentColor = 'brand
     const activeClasses = accentColor === 'sky'
         ? 'bg-sky-500 border-sky-400'
         : 'bg-brand-orange border-brand-orange';
-    const dotActiveClasses = accentColor === 'sky'
-        ? 'translate-x-5 bg-white'
-        : 'translate-x-5 bg-white';
+    const dotActiveClass = 'translate-x-5 bg-white';
 
     return (
         <div className="flex items-center justify-between gap-4">
@@ -416,11 +425,12 @@ function ToggleRow({ label, description, checked, onChange, accentColor = 'brand
                 type="button"
                 role="switch"
                 aria-checked={checked}
+                aria-label={label}
                 onClick={() => onChange(!checked)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 shrink-0 cursor-pointer border ${checked ? activeClasses : 'bg-glass-bg border-glass-border'
                     }`}
             >
-                <span className={`inline-block h-4 w-4 transform rounded-full transition-transform duration-200 ${checked ? dotActiveClasses : 'translate-x-1 bg-text-muted'
+                <span className={`inline-block h-4 w-4 transform rounded-full transition-transform duration-200 ${checked ? dotActiveClass : 'translate-x-1 bg-text-muted'
                     }`} />
             </button>
         </div>

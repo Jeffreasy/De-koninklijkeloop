@@ -73,7 +73,7 @@ export default function MailConfigIsland() {
                     setConfigError(`Kan configuratie niet ophalen (${response.status}): ${errorText}`);
                 }
             } catch (error) {
-                console.error("Error fetching mail config:", error);
+                if (import.meta.env.DEV) console.error("Error fetching mail config:", error);
                 setConfigError("Kan geen verbinding maken met de backend. Controleer of de server draait.");
             } finally {
                 setLoading(false);
@@ -121,7 +121,7 @@ export default function MailConfigIsland() {
         } catch (error) {
             setStatus({
                 type: 'error',
-                message: error instanceof Error ? error.message : 'Kon instellingen niet opslaan'
+                message: error instanceof Error ? error.message.split('\n')[0] : 'Kon instellingen niet opslaan'
             });
         } finally {
             setSaving(false);
@@ -160,6 +160,8 @@ export default function MailConfigIsland() {
             {status && (
                 <div
                     className={`p-4 rounded-xl text-sm ${status.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}
+                    role="alert"
+                    aria-live="polite"
                 >
                     {status.message}
                 </div>
@@ -209,7 +211,7 @@ export default function MailConfigIsland() {
                             <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                             <select
                                 value={config.encryption}
-                                onChange={e => setConfig({ ...config, encryption: e.target.value as any })}
+                                onChange={e => setConfig({ ...config, encryption: e.target.value as 'none' | 'ssl' | 'tls' })}
                                 className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50 appearance-none [&>option]:bg-gray-900 [&>option]:text-white"
                             >
                                 <option value="none">Geen (Onveilig)</option>
@@ -225,7 +227,7 @@ export default function MailConfigIsland() {
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                             <select
                                 value={config.auth_type}
-                                onChange={e => setConfig({ ...config, auth_type: e.target.value as any })}
+                                onChange={e => setConfig({ ...config, auth_type: e.target.value as 'none' | 'plain' | 'login' })}
                                 className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50 appearance-none [&>option]:bg-gray-900 [&>option]:text-white"
                             >
                                 <option value="none">Geen</option>
@@ -318,7 +320,7 @@ export default function MailConfigIsland() {
                 <button
                     type="submit"
                     disabled={saving}
-                    className="flex items-center gap-2 px-8 py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 disabled:opacity-50"
+                    className="flex items-center gap-2 px-8 py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                     {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                     <span>{saving ? 'Opslaan...' : 'Configuratie Opslaan'}</span>

@@ -83,10 +83,10 @@ export default function EventSettingsForm() {
 
             setStatus({ type: 'success', message: 'Instellingen opgeslagen!' });
         } catch (error) {
-            console.error("Error saving settings:", error);
+            if (import.meta.env.DEV) console.error("Error saving settings:", error);
             setStatus({
                 type: 'error',
-                message: error instanceof Error ? error.message : 'Kon instellingen niet opslaan'
+                message: error instanceof Error ? error.message.split('\n')[0] : 'Kon instellingen niet opslaan'
             });
         } finally {
             setSaving(false);
@@ -286,7 +286,7 @@ export default function EventSettingsForm() {
                         <input
                             type="number"
                             value={formData.max_participants}
-                            onChange={(e) => setFormData({ ...formData, max_participants: parseInt(e.target.value) })}
+                            onChange={(e) => setFormData({ ...formData, max_participants: parseInt(e.target.value, 10) || 500 })}
                             className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none"
                             placeholder="500"
                         />
@@ -322,8 +322,8 @@ export default function EventSettingsForm() {
                             </label>
                             <select
                                 value={formData.mobile_app_status}
-                                onChange={(e) => setFormData({ ...formData, mobile_app_status: e.target.value as any })}
-                                className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none [&>option]:bg-gray-900 [&>option]:text-white"
+                                onChange={(e) => setFormData({ ...formData, mobile_app_status: e.target.value as "coming_soon" | "live" | "beta" })}
+                                className="w-full px-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 focus:outline-none [&>option]:bg-gray-900 [&>option]:text-white cursor-pointer"
                             >
                                 <option value="coming_soon">Binnenkort Beschikbaar (Coming Soon)</option>
                                 <option value="beta">Beta Test</option>
@@ -353,7 +353,7 @@ export default function EventSettingsForm() {
                 <button
                     type="submit"
                     disabled={saving || !accessToken}
-                    className="w-full md:w-auto px-6 md:px-8 py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                    className="w-full md:w-auto px-6 md:px-8 py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] cursor-pointer"
                     aria-label="Evenement instellingen opslaan"
                 >
                     {saving ? "Opslaan..." : "Instellingen Opslaan"}
