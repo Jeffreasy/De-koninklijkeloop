@@ -9,6 +9,15 @@ import { Loader2, Plus, ListFilter, Megaphone, Send } from "lucide-react";
 
 type PostStatus = "all" | "draft" | "approved" | "queued" | "published" | "failed";
 
+const STATUS_TABS: { value: PostStatus; label: string }[] = [
+    { value: "all", label: "Alle" },
+    { value: "draft", label: "Concept" },
+    { value: "approved", label: "Goedgekeurd" },
+    { value: "queued", label: "Wachtrij" },
+    { value: "published", label: "Gepubliceerd" },
+    { value: "failed", label: "Mislukt" },
+];
+
 export default function XPosterIsland() {
     // Data
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -114,14 +123,7 @@ export default function XPosterIsland() {
         { all: 0, draft: 0, approved: 0, queued: 0, published: 0, failed: 0 } as Record<PostStatus, number>
     );
 
-    const STATUS_TABS: { value: PostStatus; label: string }[] = [
-        { value: "all", label: "Alle" },
-        { value: "draft", label: "Concept" },
-        { value: "approved", label: "Goedgekeurd" },
-        { value: "queued", label: "Wachtrij" },
-        { value: "published", label: "Gepubliceerd" },
-        { value: "failed", label: "Mislukt" },
-    ];
+
 
     if (loading) {
         return (
@@ -179,7 +181,8 @@ export default function XPosterIsland() {
                         <select
                             value={selectedCampaign}
                             onChange={(e) => setSelectedCampaign(e.target.value)}
-                            className="w-full px-3 py-2 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm focus:border-brand-orange/50 outline-none cursor-pointer"
+                            aria-label="Filter op campagne"
+                            className="w-full px-3 py-2 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base md:text-sm focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none cursor-pointer"
                         >
                             <option value="all">Alle Campagnes</option>
                             {campaigns.map((c) => (
@@ -192,7 +195,7 @@ export default function XPosterIsland() {
 
             {/* Campaigns Preview Strip */}
             {campaigns.length > 0 && (
-                <div className="flex gap-3 overflow-x-auto pb-2">
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-glass-border scrollbar-track-transparent">
                     {campaigns.map((c) => (
                         <button
                             key={c.id}

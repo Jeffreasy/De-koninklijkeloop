@@ -67,13 +67,31 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
             setMediaUrl(editingPost.media_url || "");
             setLinkUrl(editingPost.link_url || "");
         } else {
-            setContent(""); setContentType("tweet"); setCampaignId(""); setScheduledFor(""); setArchetype("hero");
-            setMediaUrl(""); setLinkUrl(""); setThreadMode(false); setThreadContent([]); setCampaignContext("");
+            setContent("");
+            setContentType("tweet");
+            setCampaignId("");
+            setScheduledFor("");
+            setArchetype("hero");
+            setMediaUrl("");
+            setLinkUrl("");
+            setThreadMode(false);
+            setThreadContent([]);
+            setCampaignContext("");
         }
     }, [editingPost, isOpen]);
 
     const charCount = content.length;
     const charColor = charCount > maxChars ? "text-red-400" : charCount > maxChars * 0.9 ? "text-amber-400" : "text-green-400";
+
+    const buildPostBody = (postContent: string, postContentType: ContentType) => ({
+        content: postContent,
+        content_type: postContentType,
+        scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : new Date().toISOString(),
+        campaign_id: campaignId || undefined,
+        archetype,
+        media_url: mediaUrl || undefined,
+        link_url: linkUrl || undefined,
+    });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -97,11 +115,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                 let parentId: string | null = null;
                 for (let i = 0; i < threadContent.length; i++) {
                     const body = {
-                        content: threadContent[i],
-                        content_type: "tweet" as const,
-                        scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : new Date().toISOString(),
-                        campaign_id: campaignId || undefined,
-                        archetype,
+                        ...buildPostBody(threadContent[i], "tweet"),
                         parent_id: parentId,
                         media_url: i === 0 ? mediaUrl || undefined : undefined,
                         link_url: i === threadContent.length - 1 ? linkUrl || undefined : undefined,
@@ -113,33 +127,14 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                     if (i === 0) parentId = res.id;
                 }
             } else if (editingPost) {
-                // #7: PUT existing post instead of creating duplicate
-                const body = {
-                    content,
-                    content_type: contentType,
-                    scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : new Date().toISOString(),
-                    campaign_id: campaignId || undefined,
-                    archetype,
-                    media_url: mediaUrl || undefined,
-                    link_url: linkUrl || undefined,
-                };
                 await apiRequest(`/admin/social/posts/${editingPost.id}`, {
                     method: "PUT",
-                    body: JSON.stringify(body),
+                    body: JSON.stringify(buildPostBody(content, contentType)),
                 });
             } else {
-                const body = {
-                    content,
-                    content_type: contentType,
-                    scheduled_for: scheduledFor ? new Date(scheduledFor).toISOString() : new Date().toISOString(),
-                    campaign_id: campaignId || undefined,
-                    archetype,
-                    media_url: mediaUrl || undefined,
-                    link_url: linkUrl || undefined,
-                };
                 await apiRequest("/admin/social/posts", {
                     method: "POST",
-                    body: JSON.stringify(body),
+                    body: JSON.stringify(buildPostBody(content, contentType)),
                 });
             }
             addToast(editingPost ? "Post bijgewerkt" : "Post opgeslagen als concept", "success");
@@ -235,7 +230,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                         value={campaignContext}
                         onChange={(e) => setCampaignContext(e.target.value)}
                         placeholder="Beschrijf de context (bijv. 'Inclusief wandelevenement door Apeldoorn richting Paleis Het Loo')"
-                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all resize-none"
+                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base md:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all resize-none"
                         rows={2}
                     />
                     <div className="flex items-center gap-3">
@@ -268,8 +263,9 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                                         setThreadContent(updated);
                                     }}
                                     aria-label={`Tweet ${i + 1} van ${threadContent.length}`}
-                                    className="w-full px-4 pt-6 pb-2 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm focus:border-brand-orange/50 outline-none transition-all resize-none"
+                                    className="w-full px-4 pt-6 pb-2 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base md:text-sm focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all resize-none"
                                     rows={3}
+                                    maxLength={280}
                                 />
                                 <span className={`absolute right-3 bottom-2 text-xs font-mono ${tweet.length > 280 ? "text-red-400" : "text-text-muted/50"}`}>{tweet.length}/280</span>
                             </div>
@@ -282,9 +278,10 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                         </label>
                         <div className="relative">
                             <textarea id="xp-content" value={content} onChange={(e) => setContent(e.target.value)} required
-                                className="w-full px-4 py-3 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all resize-none"
+                                className="w-full px-4 py-3 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base md:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all resize-none"
                                 rows={contentType === "tweet" ? 4 : contentType === "verhaal" ? 8 : 12}
                                 placeholder={`Schrijf je ${contentType}...`}
+                                maxLength={maxChars}
                             />
                             <span className={`absolute right-3 bottom-3 text-xs font-mono ${charColor}`}>{charCount}/{maxChars}</span>
                         </div>
@@ -296,7 +293,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                     <div>
                         <label htmlFor="xp-campaign" className="block text-sm font-medium text-text-muted mb-1.5">Campagne</label>
                         <select id="xp-campaign" value={campaignId} onChange={(e) => setCampaignId(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm focus:border-brand-orange/50 outline-none cursor-pointer"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base md:text-sm focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none cursor-pointer"
                         >
                             <option value="">Geen campagne</option>
                             {campaigns.map((c) => (
@@ -307,7 +304,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                     <div>
                         <label htmlFor="xp-archetype" className="block text-sm font-medium text-text-muted mb-1.5">Archetype</label>
                         <select id="xp-archetype" value={archetype} onChange={(e) => setArchetype(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm focus:border-brand-orange/50 outline-none cursor-pointer capitalize"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base md:text-sm focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none cursor-pointer capitalize"
                         >
                             <option value="hero">Hero</option>
                             <option value="ruler">Ruler</option>
@@ -322,7 +319,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                 <div>
                     <label htmlFor="xp-schedule" className="block text-sm font-medium text-text-muted mb-1.5">Inplannen</label>
                     <input id="xp-schedule" type="datetime-local" value={scheduledFor} onChange={(e) => setScheduledFor(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm focus:border-brand-orange/50 outline-none transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base md:text-sm focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                     />
                 </div>
 
@@ -333,7 +330,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                             <Image className="w-3.5 h-3.5" /> Media URL
                         </label>
                         <input id="xp-media" type="url" value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base md:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                             placeholder="https://..." />
                     </div>
                     <div>
@@ -341,7 +338,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                             <Link2 className="w-3.5 h-3.5" /> Link URL
                         </label>
                         <input id="xp-link" type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all"
+                            className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base md:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                             placeholder="https://..." />
                     </div>
                 </div>

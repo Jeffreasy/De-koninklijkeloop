@@ -44,7 +44,10 @@ export function XCampaignModal({ isOpen, onClose, onSaved, editingCampaign }: Pr
             setArchetype(editingCampaign.archetype);
             setActive(editingCampaign.active);
         } else {
-            setName(""); setUtmCampaign(""); setArchetype("hero"); setActive(true);
+            setName("");
+            setUtmCampaign("");
+            setArchetype("hero");
+            setActive(true);
         }
     }, [editingCampaign, isOpen]);
 
@@ -110,7 +113,7 @@ export function XCampaignModal({ isOpen, onClose, onSaved, editingCampaign }: Pr
                 <div>
                     <label htmlFor="xc-name" className="block text-sm font-medium text-text-muted mb-1.5">Campagne Naam</label>
                     <input id="xc-name" type="text" value={name} onChange={(e) => handleNameChange(e.target.value)} required
-                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-sm"
+                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-base md:text-sm"
                         placeholder="bijv. Winterloop 2026" />
                 </div>
 
@@ -118,7 +121,7 @@ export function XCampaignModal({ isOpen, onClose, onSaved, editingCampaign }: Pr
                 <div>
                     <label htmlFor="xc-utm" className="block text-sm font-medium text-text-muted mb-1.5">UTM Campaign</label>
                     <input id="xc-utm" type="text" value={utmCampaign} onChange={(e) => setUtmCampaign(e.target.value)} required
-                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary font-mono text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary font-mono text-base md:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                         placeholder="winterloop-2026" />
                 </div>
 

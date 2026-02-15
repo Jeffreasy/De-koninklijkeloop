@@ -23,8 +23,22 @@ export default function XBudgetWidget() {
 
     useEffect(() => {
         fetchBudget();
-        const interval = setInterval(fetchBudget, 60_000);
-        return () => clearInterval(interval);
+        let interval = setInterval(fetchBudget, 60_000);
+
+        const handleVisibility = () => {
+            if (document.hidden) {
+                clearInterval(interval);
+            } else {
+                fetchBudget();
+                interval = setInterval(fetchBudget, 60_000);
+            }
+        };
+        document.addEventListener("visibilitychange", handleVisibility);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener("visibilitychange", handleVisibility);
+        };
     }, [fetchBudget]);
 
     if (!budget) return null;

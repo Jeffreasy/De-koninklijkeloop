@@ -62,7 +62,7 @@ export default function XConfigPanel() {
             await fetchConfig();
         } catch (err) {
             if (import.meta.env.DEV) console.error("[XConfig] Save failed:", err);
-            const message = err instanceof Error ? err.message : "Opslaan mislukt";
+            const message = err instanceof Error ? err.message.split('\n')[0] : "Opslaan mislukt";
             setTestResult({ status: "failed", error: message });
         } finally {
             setSaving(false);
@@ -77,7 +77,7 @@ export default function XConfigPanel() {
             setTestResult(data);
         } catch (err) {
             if (import.meta.env.DEV) console.error("[XConfig] Test failed:", err);
-            const message = err instanceof Error ? err.message : "Verbinding testen mislukt";
+            const message = err instanceof Error ? err.message.split('\n')[0] : "Verbinding testen mislukt";
             setTestResult({ status: "failed", error: message });
         } finally {
             setTesting(false);
@@ -94,7 +94,7 @@ export default function XConfigPanel() {
             setTestResult(null);
         } catch (err) {
             if (import.meta.env.DEV) console.error("[XConfig] Delete failed:", err);
-            const message = err instanceof Error ? err.message : "Verwijderen mislukt";
+            const message = err instanceof Error ? err.message.split('\n')[0] : "Verwijderen mislukt";
             setTestResult({ status: "failed", error: message });
         } finally {
             setDeleting(false);
@@ -213,25 +213,25 @@ export default function XConfigPanel() {
                             <div>
                                 <label htmlFor="xc-api-key" className="block text-sm font-medium text-text-muted mb-1.5">API Key</label>
                                 <input id="xc-api-key" type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} required
-                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-sm"
+                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-base md:text-sm"
                                     placeholder="Jouw X API Key" />
                             </div>
                             <div>
                                 <label htmlFor="xc-api-secret" className="block text-sm font-medium text-text-muted mb-1.5">API Secret</label>
                                 <input id="xc-api-secret" type="password" value={apiSecret} onChange={(e) => setApiSecret(e.target.value)} required
-                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-sm"
+                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-base md:text-sm"
                                     placeholder="Jouw X API Secret" />
                             </div>
                             <div>
                                 <label htmlFor="xc-access-token" className="block text-sm font-medium text-text-muted mb-1.5">Access Token</label>
                                 <input id="xc-access-token" type="password" value={accessToken} onChange={(e) => setAccessToken(e.target.value)} required
-                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-sm"
+                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-base md:text-sm"
                                     placeholder="Jouw Access Token" />
                             </div>
                             <div>
                                 <label htmlFor="xc-access-secret" className="block text-sm font-medium text-text-muted mb-1.5">Access Secret</label>
                                 <input id="xc-access-secret" type="password" value={accessSecret} onChange={(e) => setAccessSecret(e.target.value)} required
-                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-sm"
+                                    className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all text-base md:text-sm"
                                     placeholder="Jouw Access Secret" />
                             </div>
                         </div>
