@@ -30,16 +30,13 @@
   /* Border Radius */
   --radius-action: 0.75rem;
 
-  /* Glass Variables (Mapped) */
-  --glass-bg: var(--glass-bg);
-  --glass-border: var(--glass-border);
 
   /* Admin Status Colors */
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-error: var(--error);
   --color-info: var(--info);
-  --color-muted: var(--muted);
+
 }
 
 /* --- 3. Variabele Definities (Values) --- */
@@ -70,11 +67,11 @@
   --glass-border: rgba(148, 163, 184, 0.08);
 
   /* Admin Status Colors (RGB/HSL compatible) */
-  --success: 34 197 94;
-  --warning: 234 179 8;
-  --error: 239 68 68;
-  --info: 59 130 246;
-  --muted: 100 116 139;
+  --success: rgb(34, 197, 94);
+  --warning: rgb(234, 179, 8);
+  --error: rgb(239, 68, 68);
+  --info: rgb(59, 130, 246);
+  --muted: rgb(100, 116, 139);
 }
 
 /* Light Mode Overrides (Clear Sky — Admin-optimized) */
@@ -204,7 +201,9 @@ iconify-icon {
 
   html,
   body {
-    @apply h-full w-full antialiased transition-colors duration-300;
+    @apply h-full w-full antialiased;
+    transition-property: background-color, color;
+    transition-duration: 300ms;
     color: var(--text-primary);
     font-family: var(--font-body);
     margin: 0;
@@ -224,23 +223,6 @@ iconify-icon {
     background-attachment: fixed;
   }
 
-  /* Mobile: disable fixed attachment (causes jank on iOS/Android) */
-  /* Use viewport-relative sizing so gradient doesn't stretch to full document height */
-  @media (max-width: 768px) {
-    body {
-      background-attachment: scroll;
-      background-size: 100vw 100vh;
-      background-repeat: no-repeat;
-    }
-
-    /* Light mode needs explicit override due to higher specificity selector */
-    html[data-theme="light"] body {
-      background-attachment: scroll;
-      background-size: 100vw 100vh;
-      background-repeat: no-repeat;
-    }
-  }
-
   /* Light Mode: Royal Path Pattern (Clean Ambient) */
   html[data-theme="light"] body {
     background-color: var(--bg-body);
@@ -252,25 +234,20 @@ iconify-icon {
     background-attachment: fixed;
   }
 
-  /* Remove Blobs */
-  html[data-theme="light"] body::before,
-  html[data-theme="light"] body::after {
-    display: none;
-    animation: none;
-  }
+  /* Mobile: disable fixed attachment (causes jank on iOS/Android) */
+  /* Use viewport-relative sizing so gradient doesn't stretch to full document height */
+  @media (max-width: 768px) {
+    body {
+      background-attachment: scroll;
+      background-size: 100vw 100vh;
+      background-repeat: no-repeat;
+    }
 
-  /* Ensure content stays above blobs */
-  html[data-theme="light"] body>* {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Typography Utilities */
-  .font-header {
-    font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+    html[data-theme="light"] body {
+      background-attachment: scroll;
+      background-size: 100vw 100vh;
+      background-repeat: no-repeat;
+    }
   }
 }
 
@@ -294,7 +271,13 @@ iconify-icon {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, var(--color-brand-orange), var(--color-orange-500));
+  background: linear-gradient(to bottom, var(--color-brand-orange), hsl(30, 100%, 50%));
+}
+
+/* Firefox scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-orange) transparent;
 }
 
 /* --- Light Mode Admin Enhancements --- */
@@ -424,8 +407,10 @@ iconify-icon {
 }
 
 /* ── Soften colored glow blobs in light mode ── */
-[data-theme="light"] [class*="blur-3xl"],
-[data-theme="light"] [class*="blur-2xl"] {
+[data-theme="light"] .blur-3xl,
+[data-theme="light"] .blur-2xl,
+[data-theme="light"] .blur-\[120px\],
+[data-theme="light"] .blur-\[128px\] {
   opacity: 0.4;
 }
 
@@ -444,47 +429,5 @@ iconify-icon {
   to {
     transform: translateY(0);
     opacity: 1;
-  }
-}
-
-/* --- 7. Light Mode Gradient Blob Animations --- */
-@keyframes float-blob-1 {
-
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-
-  33% {
-    transform: translate(10%, -10%) scale(1.05);
-  }
-
-  66% {
-    transform: translate(-5%, 5%) scale(0.95);
-  }
-}
-
-@keyframes float-blob-2 {
-
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-
-  33% {
-    transform: translate(-8%, 8%) scale(1.05);
-  }
-
-  66% {
-    transform: translate(5%, -5%) scale(0.95);
-  }
-}
-
-/* Accessibility: Disable animations for users who prefer reduced motion */
-@media (prefers-reduced-motion: reduce) {
-
-  :root[data-theme="light"] body::before,
-  :root[data-theme="light"] body::after {
-    animation: none;
   }
 }
