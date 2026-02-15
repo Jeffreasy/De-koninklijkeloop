@@ -225,9 +225,19 @@ iconify-icon {
   }
 
   /* Mobile: disable fixed attachment (causes jank on iOS/Android) */
+  /* Use viewport-relative sizing so gradient doesn't stretch to full document height */
   @media (max-width: 768px) {
     body {
       background-attachment: scroll;
+      background-size: 100vw 100vh;
+      background-repeat: no-repeat;
+    }
+
+    /* Light mode needs explicit override due to higher specificity selector */
+    html[data-theme="light"] body {
+      background-attachment: scroll;
+      background-size: 100vw 100vh;
+      background-repeat: no-repeat;
     }
   }
 
