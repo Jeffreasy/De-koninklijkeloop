@@ -68,7 +68,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
             setLinkUrl(editingPost.link_url || "");
         } else {
             setContent(""); setContentType("tweet"); setCampaignId(""); setScheduledFor(""); setArchetype("hero");
-            setMediaUrl(""); setLinkUrl(""); setThreadMode(false); setThreadContent([]);
+            setMediaUrl(""); setLinkUrl(""); setThreadMode(false); setThreadContent([]); setCampaignContext("");
         }
     }, [editingPost, isOpen]);
 
@@ -188,23 +188,21 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
             title={editingPost ? "Post Bewerken" : "Nieuwe X Post"}
         >
             <form onSubmit={handleSubmit} className="space-y-5">
-                {/* AI Generation Section */}
-                <div className="p-4 rounded-xl bg-glass-bg/30 border border-glass-border space-y-3">
-                    <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
-                        <Sparkles className="w-4 h-4 text-amber-400" />
-                        AI Content Generatie
-                    </div>
-
-                    {/* Content Type Selector */}
+                {/* Content Type Selector — standalone form field */}
+                <div>
+                    <label className="block text-sm font-medium text-text-muted mb-1.5">Content Type</label>
                     <div className="flex gap-2">
                         {CONTENT_TYPES.map((ct) => (
                             <button
                                 key={ct.value}
                                 type="button"
                                 onClick={() => setContentType(ct.value)}
-                                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border ${contentType === ct.value
-                                        ? "bg-brand-orange/20 border-brand-orange/50 text-brand-orange"
-                                        : "bg-glass-bg/30 border-glass-border text-text-muted hover:text-text-primary hover:border-glass-border/80"
+                                disabled={threadMode}
+                                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border ${threadMode
+                                        ? "opacity-50 cursor-not-allowed bg-glass-bg/20 border-glass-border text-text-muted"
+                                        : contentType === ct.value
+                                            ? "bg-brand-orange/20 border-brand-orange/50 text-brand-orange"
+                                            : "bg-glass-bg/30 border-glass-border text-text-muted hover:text-text-primary hover:border-glass-border/80"
                                     }`}
                             >
                                 <div className="flex items-center justify-center gap-1.5">
@@ -216,6 +214,17 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                                 </div>
                             </button>
                         ))}
+                    </div>
+                    {threadMode && (
+                        <p className="text-xs text-text-muted/60 mt-1">Thread posts zijn altijd tweets (280 tekens)</p>
+                    )}
+                </div>
+
+                {/* AI Generation Section */}
+                <div className="p-4 rounded-xl bg-glass-bg/30 border border-glass-border space-y-3">
+                    <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
+                        <Sparkles className="w-4 h-4 text-amber-400" />
+                        AI Content Generatie
                     </div>
 
                     <textarea
@@ -233,7 +242,7 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                             {threadMode ? "Thread Genereren" : `${CONTENT_TYPES.find(ct => ct.value === contentType)?.label ?? "Tweet"} Genereren`}
                         </button>
                         <label htmlFor="xp-thread-mode" className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
-                            <input id="xp-thread-mode" type="checkbox" checked={threadMode} onChange={(e) => setThreadMode(e.target.checked)}
+                            <input id="xp-thread-mode" type="checkbox" checked={threadMode} onChange={(e) => { setThreadMode(e.target.checked); if (e.target.checked) setContentType("tweet"); }}
                                 className="rounded border-glass-border text-brand-orange focus:ring-brand-orange/30" />
                             Thread modus
                         </label>
@@ -272,7 +281,6 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                                 className="w-full px-4 py-3 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 outline-none transition-all resize-none"
                                 rows={contentType === "tweet" ? 4 : contentType === "verhaal" ? 8 : 12}
                                 placeholder={`Schrijf je ${contentType}...`}
-                                maxLength={maxChars}
                             />
                             <span className={`absolute right-3 bottom-3 text-xs font-mono ${charColor}`}>{charCount}/{maxChars}</span>
                         </div>
