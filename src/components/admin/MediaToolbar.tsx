@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Search, Sparkles, Loader2 } from "lucide-react";
 import { ImageKitUploadButton } from "./ImageKitUploadButton.tsx";
 
 interface Props {
@@ -14,6 +14,10 @@ interface Props {
     allSelected: boolean;
     onUploadSuccess: (url: string) => void;
     onDelete: () => void;
+    onAiGenerate?: () => void;
+    onAiCancel?: () => void;
+    isAiGenerating?: boolean;
+    availableYears?: string[];
 }
 
 
@@ -29,7 +33,11 @@ export function MediaToolbar({
     onSelectAll,
     allSelected,
     onUploadSuccess,
-    onDelete
+    onDelete,
+    onAiGenerate,
+    onAiCancel,
+    isAiGenerating,
+    availableYears = ['2024', '2025']
 }: Props) {
     return (
         <div className="glass-card p-4">
@@ -55,8 +63,9 @@ export function MediaToolbar({
                         className="px-3 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-sm text-text-primary focus:ring-1 focus:ring-brand-orange/50"
                     >
                         <option value="all">Alle Mappen</option>
-                        <option value="2024">DKLFoto's 2024</option>
-                        <option value="2025">DKLFoto's 2025</option>
+                        {availableYears.map(year => (
+                            <option key={year} value={year}>DKLFoto's {year}</option>
+                        ))}
                     </select>
 
                     {/* Select All Checkbox */}
@@ -92,6 +101,31 @@ export function MediaToolbar({
                                 <iconify-icon icon="lucide:edit-3" width="16" />
                                 <span className="hidden sm:inline">Bulk Bewerken</span>
                             </button>
+                            {onAiGenerate && (
+                                <button
+                                    onClick={onAiGenerate}
+                                    disabled={isAiGenerating}
+                                    className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-linear-to-r from-brand-orange to-orange-400 text-white font-medium hover:from-orange-400 hover:to-brand-orange transition-all shadow-lg shadow-brand-orange/20 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                                    aria-label="AI metadata genereren voor geselecteerde afbeeldingen"
+                                >
+                                    {isAiGenerating ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <Sparkles className="w-4 h-4" />
+                                    )}
+                                    <span className="hidden sm:inline">{isAiGenerating ? 'Genereren...' : 'AI Metadata'}</span>
+                                </button>
+                            )}
+                            {isAiGenerating && onAiCancel && (
+                                <button
+                                    onClick={onAiCancel}
+                                    className="flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-colors font-medium cursor-pointer text-sm"
+                                    aria-label="Stop AI generatie"
+                                >
+                                    <iconify-icon icon="lucide:square" width="14" />
+                                    <span className="hidden sm:inline">Stop</span>
+                                </button>
+                            )}
                             <button
                                 onClick={onDelete}
                                 className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-colors font-medium cursor-pointer"

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { $accessToken } from "../../lib/auth";
@@ -48,6 +48,7 @@ export default function MediaManagerIsland() {
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState<MergedImage | null>(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [isAiGenerating, setIsAiGenerating] = useState(false);
 
     // Convex hooks
     const accessToken = useStore($accessToken);
@@ -83,7 +84,7 @@ export default function MediaManagerIsland() {
 
             setImages(merged);
         } catch (error) {
-            console.error("Failed to fetch ImageKit images", error);
+            if (import.meta.env.DEV) console.error("Failed to fetch ImageKit images", error);
         } finally {
             setIsLoading(false);
         }
@@ -147,7 +148,7 @@ export default function MediaManagerIsland() {
 
     const handleDetailModalSave = async (publicId: string, altText: string, title?: string, tags?: string[]) => {
         if (!accessToken) {
-            console.error("[MediaManagerIsland] No access token available");
+            if (import.meta.env.DEV) console.error("[MediaManagerIsland] No access token available");
             addToast("Geen toegangstoken beschikbaar", "error");
             return;
         }
@@ -171,7 +172,7 @@ export default function MediaManagerIsland() {
 
             addToast("Wijzigingen opgeslagen", "success");
         } catch (error) {
-            console.error("[MediaManagerIsland] Failed to save metadata", error);
+            if (import.meta.env.DEV) console.error("[MediaManagerIsland] Failed to save metadata", error);
             addToast("Kon wijzigingen niet opslaan", "error");
             throw error;
         }
@@ -247,11 +248,97 @@ export default function MediaManagerIsland() {
             addToast(`${result.deleted} afbeeldingen verwijderd`, "success");
 
         } catch (error) {
-            console.error("Delete failed", error);
+            if (import.meta.env.DEV) console.error("Delete failed", error);
             addToast("Kon afbeeldingen niet verwijderen", "error");
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // Bulk AI metadata generation with abort support
+    const abortRef = useRef<AbortController | null>(null);
+
+    const handleAiGenerate = async () => {
+        if (selectedIds.size === 0) return;
+
+        const selected = images.filter(img => selectedIds.has(img.public_id));
+
+        // M2: Confirm overwrite if existing metadata found
+        const withExisting = selected.filter(img => img.hasAltText);
+        if (withExisting.length > 0) {
+            if (!confirm(`${withExisting.length} van ${selected.length} foto's hebben al metadata. Overschrijven?`)) return;
+        }
+
+        const controller = new AbortController();
+        abortRef.current = controller;
+        setIsAiGenerating(true);
+        let success = 0;
+        let failed = 0;
+
+        addToast(`AI metadata genereren voor ${selected.length} foto's...`, "info");
+
+        for (const img of selected) {
+            // H3: Check if aborted
+            if (controller.signal.aborted) break;
+
+            try {
+                const response = await fetch('/api/admin/media/generate-metadata', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        imageUrl: img.secure_url,
+                        filename: img.public_id.split('/').pop(),
+                        folder: img.folder,
+                    }),
+                    signal: controller.signal,
+                });
+
+                if (!response.ok) {
+                    failed++;
+                    continue;
+                }
+
+                const data = await response.json();
+                if (data.alt_text && accessToken) {
+                    await saveAltTextMutation({
+                        cloudinary_public_id: img.public_id,
+                        alt_text: data.alt_text,
+                        title: data.title || undefined,
+                        tags: data.tags?.length ? data.tags : undefined,
+                        folder: img.folder,
+                        token: accessToken,
+                    });
+
+                    // Update local state
+                    setImages(prev => prev.map(i =>
+                        i.public_id === img.public_id
+                            ? { ...i, alt_text: data.alt_text, title: data.title, tags: data.tags, hasAltText: true }
+                            : i
+                    ));
+                    success++;
+                }
+            } catch (err) {
+                if (err instanceof DOMException && err.name === 'AbortError') {
+                    addToast(`Gestopt na ${success} foto's`, "info");
+                    break;
+                }
+                failed++;
+            }
+        }
+
+        abortRef.current = null;
+        setIsAiGenerating(false);
+        setSelectedIds(new Set());
+
+        if (success > 0) {
+            addToast(`${success} foto's verwerkt${failed > 0 ? `, ${failed} mislukt` : ''}`, "success");
+        } else if (!controller.signal.aborted) {
+            addToast("AI generatie mislukt voor alle foto's", "error");
+        }
+    };
+
+    const handleAiCancel = () => {
+        abortRef.current?.abort();
     };
 
     if (isLoading) {
@@ -286,6 +373,10 @@ export default function MediaManagerIsland() {
                 allSelected={selectedIds.size === paginatedImages.length && paginatedImages.length > 0}
                 onUploadSuccess={handleUploadSuccess}
                 onDelete={handleDelete}
+                onAiGenerate={handleAiGenerate}
+                onAiCancel={handleAiCancel}
+                isAiGenerating={isAiGenerating}
+                availableYears={[...new Set(images.map(img => img.folder?.match(/\d{4}/)?.[0]).filter(Boolean) as string[])].sort()}
             />
 
             {/* Media Grid */}

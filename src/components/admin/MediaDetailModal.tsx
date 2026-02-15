@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { Loader2, Sparkles } from "lucide-react";
 import type { MergedImage } from "./MediaManagerIsland.tsx";
 import { AdminModal, AdminModalFooterButtons } from "./AdminModal.tsx";
+import { addToast } from "../../lib/toast.ts";
 
 interface Props {
     isOpen: boolean;
@@ -15,6 +17,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
     const [title, setTitle] = useState(image?.public_id.split('/').pop() || "");
     const [tags, setTags] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     // Reset form when image changes
     useEffect(() => {
@@ -41,9 +44,41 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
             onClose();
         } catch (error) {
             if (import.meta.env.DEV) console.error("[MediaDetailModal] Failed to save metadata", error);
-            alert("Kon metadata niet opslaan. Probeer opnieuw.");
+            addToast("Kon metadata niet opslaan. Probeer opnieuw.", "error");
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleAiGenerate = async () => {
+        if (!image) return;
+        setIsGenerating(true);
+        try {
+            const response = await fetch('/api/admin/media/generate-metadata', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    imageUrl: image.secure_url,
+                    filename: image.public_id.split('/').pop(),
+                    folder: image.folder,
+                }),
+            });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({ error: 'Unknown error' }));
+                throw new Error(err.error || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.alt_text) setAltText(data.alt_text);
+            if (data.title) setTitle(data.title);
+            if (data.tags?.length) setTags(data.tags);
+            addToast("AI metadata gegenereerd — controleer en sla op", "success");
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : 'AI generatie mislukt';
+            addToast(msg, "error");
+        } finally {
+            setIsGenerating(false);
         }
     };
 
@@ -61,7 +96,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
             {/* Year Badge + Filename */}
             <div className="flex items-center gap-4 mb-4 pb-4 border-b border-glass-border">
                 <div className="px-3 py-1.5 rounded-lg text-sm font-bold bg-accent-secondary/90 text-white dark:bg-accent-secondary/80">
-                    {image.folder?.includes('2024') ? '2024' : '2025'}
+                    {image.folder?.match(/\d{4}/)?.[0] || 'Onbekend'}
                 </div>
                 <p className="text-text-muted text-sm flex-1 min-w-0 truncate" title={image.public_id}>
                     {image.public_id.split('/').pop()}
@@ -154,7 +189,21 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
 
                 {/* Right Column: Edit Form */}
                 <div className="space-y-5">
-                    <h3 className="text-lg font-semibold text-text-primary">Metadata Bewerken</h3>
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-text-primary">Metadata Bewerken</h3>
+                        <button
+                            onClick={handleAiGenerate}
+                            disabled={isGenerating}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-linear-to-r from-brand-orange to-orange-400 text-white text-sm font-medium hover:from-orange-400 hover:to-brand-orange transition-all shadow-lg shadow-brand-orange/20 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer min-h-[44px]"
+                        >
+                            {isGenerating ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <Sparkles className="w-4 h-4" />
+                            )}
+                            {isGenerating ? 'Analyseren...' : 'AI Genereer'}
+                        </button>
+                    </div>
 
                     {/* Alt Text Field */}
                     <div className="space-y-2">
@@ -223,19 +272,19 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                         </div>
                         <ul className="space-y-1.5 text-xs text-text-muted">
                             <li className="flex items-start gap-2">
-                                <span className="text-brand-orange shrink-0">✓</span>
+                                <iconify-icon icon="lucide:check" width="12" className="text-brand-orange shrink-0 mt-0.5" />
                                 <span>Beschrijf wat je ziet, niet "foto van"</span>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-brand-orange shrink-0">✓</span>
+                                <iconify-icon icon="lucide:check" width="12" className="text-brand-orange shrink-0 mt-0.5" />
                                 <span>Wees specifiek: "Lopers bij De Grote Kerk"</span>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-brand-orange shrink-0">✓</span>
+                                <iconify-icon icon="lucide:check" width="12" className="text-brand-orange shrink-0 mt-0.5" />
                                 <span>Vermijd "afbeelding van" of "plaatje"</span>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-brand-orange shrink-0">✓</span>
+                                <iconify-icon icon="lucide:check" width="12" className="text-brand-orange shrink-0 mt-0.5" />
                                 <span>Houd het kort maar informatief</span>
                             </li>
                         </ul>
@@ -265,7 +314,7 @@ export function MediaDetailModal({ isOpen, image, onClose, onSave, accessToken }
                         onConfirm={handleSave}
                         confirmText="Wijzigingen Opslaan"
                         isLoading={isSaving}
-                        confirmDisabled={!altText}
+                        confirmDisabled={!altText || isGenerating}
                     />
                 </div>
             </div>
