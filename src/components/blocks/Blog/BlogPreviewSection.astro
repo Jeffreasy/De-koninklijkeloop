@@ -25,13 +25,20 @@ interface BlogPost {
 let posts: BlogPost[] = [];
 let featuredPost: BlogPost | null = null;
 
+// Fetch posts and config in parallel for fast SSR
+let blogEnabled = true;
 try {
-    // Query Convex directly — SSR can't self-fetch reliably
-    const data = await convexClient.query(api.blog.listPosts, {
-        status: "published",
-        limit: 4,
-    });
-    const allPosts: BlogPost[] = (data.posts || []).map((p: any) => ({
+    const [postsData, configData] = await Promise.all([
+        convexClient.query(api.blog.listPosts, {
+            status: "published",
+            limit: 4,
+        }),
+        convexClient.query(api.blog.getConfig),
+    ]);
+
+    blogEnabled = configData?.enabled !== false;
+
+    const allPosts: BlogPost[] = (postsData.posts || []).map((p: any) => ({
         ...p,
         published_at: p.published_at
             ? new Date(p.published_at).toISOString()
@@ -42,7 +49,8 @@ try {
         allPosts.find((p: BlogPost) => p.is_featured) || allPosts[0] || null;
     posts = allPosts.filter((p: BlogPost) => p !== featuredPost).slice(0, 3);
 } catch (err) {
-    console.error("[BlogPreview] Failed to fetch posts:", err);
+    if (import.meta.env.DEV)
+        console.error("[BlogPreview] Failed to fetch posts:", err);
 }
 
 const formatDate = (dateStr?: string) => {
@@ -54,7 +62,7 @@ const formatDate = (dateStr?: string) => {
     });
 };
 
-const hasContent = featuredPost || posts.length > 0;
+const hasContent = blogEnabled && (featuredPost || posts.length > 0);
 ---
 
 {

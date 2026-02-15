@@ -9,6 +9,7 @@ import { AdminModal } from "./AdminModal";
 import {
     Loader2, Save, Bold, Italic, Heading2, Heading3, List, ListOrdered,
     Link2, ImageIcon, Code, Quote, Undo, Redo, ChevronDown, ChevronUp,
+    Strikethrough, Minus, X,
 } from "lucide-react";
 
 export interface BlogPost {
@@ -21,17 +22,12 @@ export interface BlogPost {
     tags: string[];
     cover_image_url: string | null;
     status: string;
-    visibility: string;
     is_featured: boolean;
-    is_pinned: boolean;
     seo_title: string | null;
     seo_description: string | null;
-    og_image_url: string | null;
     published_at: string | null;
-    scheduled_for: string | null;
     reading_time_minutes: number;
-    view_count: number;
-    author_id: string;
+    author_name: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -42,6 +38,7 @@ interface Props {
     onSaved: () => void;
     editingPost: BlogPost | null;
     categories: BlogCategory[];
+    authorName?: string;
 }
 
 function ToolbarButton({ active, onClick, children, title }: { active?: boolean; onClick: () => void; children: React.ReactNode; title: string }) {
@@ -54,14 +51,107 @@ function ToolbarButton({ active, onClick, children, title }: { active?: boolean;
     );
 }
 
-function EditorToolbar({ editor }: { editor: Editor }) {
+/** Inline modal for inserting links */
+function LinkInsertModal({ isOpen, onClose, onInsert }: {
+    isOpen: boolean;
+    onClose: () => void;
+    onInsert: (url: string) => void;
+}) {
+    const [url, setUrl] = useState("");
+    if (!isOpen) return null;
+
     return (
-        <div className="flex flex-wrap gap-0.5 p-1.5 border-b border-glass-border bg-glass-bg/20 rounded-t-xl">
+        <div className="absolute top-full left-0 mt-1 z-50 w-80 p-3 rounded-xl bg-glass-bg border border-glass-border shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-text-muted">Link invoegen</span>
+                <button type="button" onClick={onClose} className="p-1 rounded hover:bg-glass-border/30 text-text-muted cursor-pointer">
+                    <X className="w-3 h-3" />
+                </button>
+            </div>
+            <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://..."
+                autoFocus
+                className="w-full px-3 py-2 rounded-lg bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none mb-2"
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" && url) { e.preventDefault(); onInsert(url); setUrl(""); onClose(); }
+                    if (e.key === "Escape") onClose();
+                }}
+            />
+            <button
+                type="button"
+                disabled={!url}
+                onClick={() => { onInsert(url); setUrl(""); onClose(); }}
+                className="w-full px-3 py-1.5 rounded-lg bg-brand-orange text-white text-xs font-medium hover:bg-orange-400 transition-all cursor-pointer disabled:opacity-50"
+            >
+                Invoegen
+            </button>
+        </div>
+    );
+}
+
+/** Inline modal for inserting images */
+function ImageInsertModal({ isOpen, onClose, onInsert }: {
+    isOpen: boolean;
+    onClose: () => void;
+    onInsert: (url: string) => void;
+}) {
+    const [url, setUrl] = useState("");
+    if (!isOpen) return null;
+
+    return (
+        <div className="absolute top-full right-0 mt-1 z-50 w-80 p-3 rounded-xl bg-glass-bg border border-glass-border shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-text-muted">Afbeelding invoegen</span>
+                <button type="button" onClick={onClose} className="p-1 rounded hover:bg-glass-border/30 text-text-muted cursor-pointer">
+                    <X className="w-3 h-3" />
+                </button>
+            </div>
+            <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://... (afbeelding URL)"
+                autoFocus
+                className="w-full px-3 py-2 rounded-lg bg-glass-bg/30 border border-glass-border text-text-primary text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none mb-2"
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" && url) { e.preventDefault(); onInsert(url); setUrl(""); onClose(); }
+                    if (e.key === "Escape") onClose();
+                }}
+            />
+            {url && /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(url) && (
+                <div className="mb-2 rounded-lg border border-glass-border overflow-hidden">
+                    <img src={url} alt="Preview" className="w-full max-h-32 object-cover" />
+                </div>
+            )}
+            <button
+                type="button"
+                disabled={!url}
+                onClick={() => { onInsert(url); setUrl(""); onClose(); }}
+                className="w-full px-3 py-1.5 rounded-lg bg-brand-orange text-white text-xs font-medium hover:bg-orange-400 transition-all cursor-pointer disabled:opacity-50"
+            >
+                Invoegen
+            </button>
+        </div>
+    );
+}
+
+function EditorToolbar({ editor }: { editor: Editor }) {
+    const [linkOpen, setLinkOpen] = useState(false);
+    const [imageOpen, setImageOpen] = useState(false);
+
+    return (
+        <div className="relative flex flex-wrap gap-0.5 p-1.5 border-b border-glass-border bg-glass-bg/20 rounded-t-xl">
             <ToolbarButton active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} title="Vet">
                 <Bold className="w-4 h-4" />
             </ToolbarButton>
             <ToolbarButton active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} title="Cursief">
                 <Italic className="w-4 h-4" />
+            </ToolbarButton>
+            <ToolbarButton active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()} title="Doorhalen">
+                <Strikethrough className="w-4 h-4" />
             </ToolbarButton>
             <div className="w-px h-6 bg-glass-border mx-1 self-center" />
             <ToolbarButton active={editor.isActive("heading", { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} title="Heading 2">
@@ -83,19 +173,30 @@ function EditorToolbar({ editor }: { editor: Editor }) {
             <ToolbarButton active={editor.isActive("codeBlock")} onClick={() => editor.chain().focus().toggleCodeBlock().run()} title="Code">
                 <Code className="w-4 h-4" />
             </ToolbarButton>
+            <ToolbarButton onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontale lijn">
+                <Minus className="w-4 h-4" />
+            </ToolbarButton>
             <div className="w-px h-6 bg-glass-border mx-1 self-center" />
-            <ToolbarButton onClick={() => {
-                const url = prompt("Link URL:");
-                if (url) editor.chain().focus().setLink({ href: url }).run();
-            }} title="Link" active={editor.isActive("link")}>
-                <Link2 className="w-4 h-4" />
-            </ToolbarButton>
-            <ToolbarButton onClick={() => {
-                const url = prompt("Afbeelding URL:");
-                if (url) editor.chain().focus().setImage({ src: url }).run();
-            }} title="Afbeelding">
-                <ImageIcon className="w-4 h-4" />
-            </ToolbarButton>
+            <div className="relative">
+                <ToolbarButton onClick={() => { setLinkOpen(!linkOpen); setImageOpen(false); }} title="Link" active={editor.isActive("link")}>
+                    <Link2 className="w-4 h-4" />
+                </ToolbarButton>
+                <LinkInsertModal
+                    isOpen={linkOpen}
+                    onClose={() => setLinkOpen(false)}
+                    onInsert={(url) => editor.chain().focus().setLink({ href: url }).run()}
+                />
+            </div>
+            <div className="relative">
+                <ToolbarButton onClick={() => { setImageOpen(!imageOpen); setLinkOpen(false); }} title="Afbeelding">
+                    <ImageIcon className="w-4 h-4" />
+                </ToolbarButton>
+                <ImageInsertModal
+                    isOpen={imageOpen}
+                    onClose={() => setImageOpen(false)}
+                    onInsert={(url) => editor.chain().focus().setImage({ src: url }).run()}
+                />
+            </div>
             <div className="w-px h-6 bg-glass-border mx-1 self-center" />
             <ToolbarButton onClick={() => editor.chain().focus().undo().run()} title="Ongedaan maken">
                 <Undo className="w-4 h-4" />
@@ -107,16 +208,14 @@ function EditorToolbar({ editor }: { editor: Editor }) {
     );
 }
 
-export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, categories }: Props) {
+export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, categories, authorName }: Props) {
     const [title, setTitle] = useState("");
     const [slug, setSlug] = useState("");
     const [excerpt, setExcerpt] = useState("");
     const [categoryId, setCategoryId] = useState("");
     const [tags, setTags] = useState("");
     const [coverImageUrl, setCoverImageUrl] = useState("");
-    const [visibility, setVisibility] = useState("public");
     const [isFeatured, setIsFeatured] = useState(false);
-    const [isPinned, setIsPinned] = useState(false);
     const [seoTitle, setSeoTitle] = useState("");
     const [seoDescription, setSeoDescription] = useState("");
     const [showSeo, setShowSeo] = useState(false);
@@ -146,24 +245,22 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
             setCategoryId(editingPost.category_id || "");
             setTags(editingPost.tags?.join(", ") || "");
             setCoverImageUrl(editingPost.cover_image_url || "");
-            setVisibility(editingPost.visibility || "public");
             setIsFeatured(editingPost.is_featured);
-            setIsPinned(editingPost.is_pinned);
             setSeoTitle(editingPost.seo_title || "");
             setSeoDescription(editingPost.seo_description || "");
-            editor?.commands.setContent(editingPost.content || "");
+            if (editor?.isEditable) editor.commands.setContent(editingPost.content || "");
         } else {
             setTitle(""); setSlug(""); setExcerpt(""); setCategoryId(""); setTags("");
-            setCoverImageUrl(""); setVisibility("public"); setIsFeatured(false); setIsPinned(false);
+            setCoverImageUrl(""); setIsFeatured(false);
             setSeoTitle(""); setSeoDescription("");
-            editor?.commands.setContent("");
+            if (editor?.isEditable) editor.commands.setContent("");
         }
     }, [editingPost, isOpen, editor]);
 
     const handleTitleChange = (val: string) => {
         setTitle(val);
         if (!editingPost) {
-            setSlug(val.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-"));
+            setSlug(val.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-"));
         }
     };
 
@@ -180,11 +277,10 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
             category_id: categoryId || undefined,
             tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
             cover_image_url: coverImageUrl || undefined,
-            visibility,
             is_featured: isFeatured,
-            is_pinned: isPinned,
             seo_title: seoTitle || undefined,
             seo_description: seoDescription || undefined,
+            author_name: authorName || undefined,
             status: statusMap[saveAction],
         };
 
@@ -202,7 +298,7 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
             }
             onSaved();
         } catch (err) {
-            console.error("[BlogEditor] Save failed:", err);
+            if (import.meta.env.DEV) console.error("[BlogEditor]", err);
         } finally {
             setSaving(false);
         }
@@ -275,21 +371,6 @@ export default function BlogPostEditor({ isOpen, onClose, onSaved, editingPost, 
                         <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)}
                             className="rounded border-glass-border text-brand-orange focus:ring-brand-orange/30" />
                         Uitgelicht
-                    </label>
-                    <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
-                        <input type="checkbox" checked={isPinned} onChange={(e) => setIsPinned(e.target.checked)}
-                            className="rounded border-glass-border text-brand-orange focus:ring-brand-orange/30" />
-                        Vastgezet
-                    </label>
-                    <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
-                        <select value={visibility} onChange={(e) => setVisibility(e.target.value)}
-                            aria-label="Zichtbaarheid"
-                            className="rounded-lg bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm px-3 py-1.5 cursor-pointer transition-all focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none">
-                            <option value="public">Openbaar</option>
-                            <option value="private">Privé</option>
-                            <option value="unlisted">Niet opgelijst</option>
-                        </select>
-                        Zichtbaarheid
                     </label>
                 </div>
 

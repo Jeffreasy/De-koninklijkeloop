@@ -35,7 +35,7 @@ export default function BlogCommentMod({ onCountChange }: Props) {
                 onCountChange(data.total || 0);
             }
         } catch (err) {
-            console.error("[BlogComments] Fetch failed:", err);
+            if (import.meta.env.DEV) console.error("[BlogComments]", err);
         } finally {
             setLoading(false);
         }
@@ -53,7 +53,7 @@ export default function BlogCommentMod({ onCountChange }: Props) {
             }
             fetchComments();
         } catch (err) {
-            console.error("[BlogComments] Action failed:", err);
+            if (import.meta.env.DEV) console.error("[BlogComments]", err);
         } finally {
             setActionLoading(null);
         }

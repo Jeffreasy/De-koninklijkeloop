@@ -5,6 +5,7 @@ import Footer from "../../components/blocks/Global/Footer.astro";
 import CommentSection from "../../components/blocks/Blog/CommentSection";
 import { getConvexClient } from "../../lib/convex-server";
 import { api } from "../../../convex/_generated/api";
+import { sanitizeBlogHtml } from "../../lib/sanitize";
 
 export const prerender = false;
 
@@ -25,12 +26,28 @@ try {
         };
     }
 } catch (err) {
-    console.error("[Blog] SSR post fetch failed:", err);
+    if (import.meta.env.DEV)
+        console.error("[Blog] SSR post fetch failed:", err);
 }
 
 if (!post) {
     return Astro.redirect("/blog");
 }
+
+// Fetch blog config for enabled/comments checks
+let blogConfig: any = { enabled: true, comments_enabled: true };
+try {
+    blogConfig = await convex.query(api.blog.getConfig);
+} catch {
+    /* defaults */
+}
+
+if (!blogConfig.enabled) {
+    return Astro.redirect("/");
+}
+
+// Sanitize HTML to prevent XSS from stored TipTap content
+const safeContent = sanitizeBlogHtml(post.content || "");
 
 const publishedDate = post.published_at
     ? new Date(post.published_at).toLocaleDateString("nl-NL", {
@@ -46,10 +63,29 @@ const publishedDate = post.published_at
     description={post.seo_description ||
         post.excerpt ||
         `Lees "${post.title}" op het De Koninklijke Loop blog.`}
-    ogImage={post.og_image_url || post.cover_image_url}
+    ogImage={post.cover_image_url}
     ogType="article"
 >
     <Navbar />
+    {/* JSON-LD BlogPosting structured data */}
+    <script
+        type="application/ld+json"
+        set:html={JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: post.title,
+            description: post.seo_description || post.excerpt || "",
+            ...(post.cover_image_url && { image: post.cover_image_url }),
+            ...(post.published_at && { datePublished: post.published_at }),
+            ...(post.author_name && {
+                author: { "@type": "Person", name: post.author_name },
+            }),
+            publisher: {
+                "@type": "Organization",
+                name: "De Koninklijke Loop",
+            },
+        })}
+    />
     <main class="min-h-screen bg-body pt-28 pb-16">
         <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Back Link */}
@@ -157,21 +193,27 @@ const publishedDate = post.published_at
                     prose-blockquote:border-l-brand-orange prose-blockquote:bg-glass-bg/20 prose-blockquote:rounded-r-xl prose-blockquote:py-1
                     prose-code:text-brand-orange prose-code:bg-glass-bg/30 prose-code:rounded prose-code:px-1.5 prose-code:py-0.5
                     prose-pre:bg-glass-bg/30 prose-pre:border prose-pre:border-glass-border prose-pre:rounded-xl"
-                set:html={post.content}
+                set:html={safeContent}
             />
 
             {/* Divider */}
             <hr class="my-12 border-glass-border/50" />
 
             {/* Comments */}
-            <section id="comments">
-                <h2
-                    class="text-2xl font-display font-bold text-text-primary mb-6"
-                >
-                    Reacties
-                </h2>
-                <CommentSection client:visible slug={slug!} postId={post.id} />
-            </section>
+            {
+                blogConfig.comments_enabled && (
+                    <section id="comments">
+                        <h2 class="text-2xl font-display font-bold text-text-primary mb-6">
+                            Reacties
+                        </h2>
+                        <CommentSection
+                            client:visible
+                            slug={slug!}
+                            postId={post.id}
+                        />
+                    </section>
+                )
+            }
         </article>
     </main>
     <Footer />

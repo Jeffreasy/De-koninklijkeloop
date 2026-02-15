@@ -7,7 +7,7 @@ import BlogConfigPanel from "./BlogConfigPanel";
 import { Loader2, Plus, FileText, FolderOpen, MessageCircle, Trash2, Send, Archive, Settings } from "lucide-react";
 
 type Tab = "posts" | "categories" | "comments" | "config";
-type PostStatus = "all" | "draft" | "review" | "published" | "scheduled" | "archived";
+type PostStatus = "all" | "draft" | "review" | "published" | "archived";
 
 export default function BlogManagerIsland() {
     const [activeTab, setActiveTab] = useState<Tab>("posts");
@@ -26,7 +26,7 @@ export default function BlogManagerIsland() {
             const data = await apiRequest(`/blog/posts?${params}`);
             setPosts(data.posts || []);
         } catch (err) {
-            console.error("[Blog] Fetch posts failed:", err);
+            if (import.meta.env.DEV) console.error("[Blog]", err);
         }
     }, [statusFilter]);
 
@@ -35,7 +35,7 @@ export default function BlogManagerIsland() {
             const data = await apiRequest("/blog/categories");
             setCategories(data.categories || []);
         } catch (err) {
-            console.error("[Blog] Fetch categories failed:", err);
+            if (import.meta.env.DEV) console.error("[Blog]", err);
         }
     }, []);
 
@@ -63,7 +63,7 @@ export default function BlogManagerIsland() {
             await apiRequest(`/blog/posts/${id}`, { method: "DELETE" });
             fetchPosts();
         } catch (err) {
-            console.error("[Blog] Delete failed:", err);
+            if (import.meta.env.DEV) console.error("[Blog]", err);
         }
     };
 
@@ -75,7 +75,7 @@ export default function BlogManagerIsland() {
             });
             fetchPosts();
         } catch (err) {
-            console.error("[Blog] Publish failed:", err);
+            if (import.meta.env.DEV) console.error("[Blog]", err);
         }
     };
 
@@ -87,7 +87,7 @@ export default function BlogManagerIsland() {
             });
             fetchPosts();
         } catch (err) {
-            console.error("[Blog] Archive failed:", err);
+            if (import.meta.env.DEV) console.error("[Blog]", err);
         }
     };
 
@@ -96,7 +96,6 @@ export default function BlogManagerIsland() {
         { value: "draft", label: "Concept" },
         { value: "review", label: "Review" },
         { value: "published", label: "Gepubliceerd" },
-        { value: "scheduled", label: "Ingepland" },
         { value: "archived", label: "Gearchiveerd" },
     ];
 
@@ -104,7 +103,6 @@ export default function BlogManagerIsland() {
         draft: "bg-slate-500/10 text-slate-400 border-slate-500/20",
         review: "bg-sky-500/10 text-sky-400 border-sky-500/20",
         published: "bg-green-500/10 text-green-400 border-green-500/20",
-        scheduled: "bg-amber-500/10 text-amber-400 border-amber-500/20",
         archived: "bg-neutral-500/10 text-neutral-400 border-neutral-500/20",
     };
 
@@ -276,6 +274,7 @@ export default function BlogManagerIsland() {
                 onSaved={() => { fetchPosts(); setEditorOpen(false); setEditingPost(null); }}
                 editingPost={editingPost}
                 categories={categories}
+                authorName={typeof document !== "undefined" ? (() => { const m = document.cookie.match(/dkl_user_name=([^;]+)/); return m ? decodeURIComponent(m[1]) : undefined; })() : undefined}
             />
         </div>
     );

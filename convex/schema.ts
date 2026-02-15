@@ -601,7 +601,8 @@ export default defineSchema({
     })
         .index("by_post", ["post_id"])
         .index("by_status", ["status"])
-        .index("by_post_status", ["post_id", "status"]),
+        .index("by_post_status", ["post_id", "status"])
+        .index("by_parent", ["parent_id"]),
 
     blog_config: defineTable({
         enabled: v.boolean(),

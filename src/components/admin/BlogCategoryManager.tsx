@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { apiRequest } from "../../lib/api";
-import { Plus, Save, Trash2, Loader2, GripVertical, Pencil } from "lucide-react";
+import { Plus, Save, Trash2, Loader2, Pencil } from "lucide-react";
 
 export interface BlogCategory {
     id: string;
     name: string;
     slug: string;
     description: string | null;
-    sort_order: number;
     post_count?: number;
 }
 
@@ -41,7 +40,7 @@ export default function BlogCategoryManager({ categories, onRefresh }: Props) {
     const handleNameChange = (val: string) => {
         setName(val);
         if (!editingId) {
-            setSlug(val.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
+            setSlug(val.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-"));
         }
     };
 
@@ -58,7 +57,7 @@ export default function BlogCategoryManager({ categories, onRefresh }: Props) {
             setEditingId(null);
             onRefresh();
         } catch (err) {
-            console.error("[BlogCategory] Save failed:", err);
+            if (import.meta.env.DEV) console.error("[BlogCategory]", err);
         } finally {
             setSaving(false);
         }
@@ -70,7 +69,7 @@ export default function BlogCategoryManager({ categories, onRefresh }: Props) {
             await apiRequest(`/blog/categories/${id}`, { method: "DELETE" });
             onRefresh();
         } catch (err) {
-            console.error("[BlogCategory] Delete failed:", err);
+            if (import.meta.env.DEV) console.error("[BlogCategory]", err);
         }
     };
 
@@ -157,7 +156,6 @@ export default function BlogCategoryManager({ categories, onRefresh }: Props) {
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-4">
-                                    <GripVertical className="w-4 h-4 text-text-muted/50 shrink-0" />
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
                                             <span className="text-sm font-semibold text-text-primary">{cat.name}</span>

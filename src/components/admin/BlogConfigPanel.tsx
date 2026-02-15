@@ -20,7 +20,7 @@ export default function BlogConfigPanel() {
             const data = await apiRequest("/blog/config");
             setConfig(data);
         } catch (err) {
-            console.error("[BlogConfig] Failed to load:", err);
+            if (import.meta.env.DEV) console.error("[BlogConfig]", err);
             setConfig({ enabled: false, comments_enabled: true, posts_per_page: 12 });
         } finally {
             setLoading(false);
@@ -41,7 +41,7 @@ export default function BlogConfigPanel() {
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
         } catch (err) {
-            console.error("[BlogConfig] Save failed:", err);
+            if (import.meta.env.DEV) console.error("[BlogConfig]", err);
         } finally {
             setSaving(false);
         }
@@ -76,6 +76,8 @@ export default function BlogConfigPanel() {
                     </div>
                     <button
                         type="button"
+                        role="switch"
+                        aria-checked={config.enabled}
                         onClick={() => setConfig({ ...config, enabled: !config.enabled })}
                         className={`relative w-12 h-6 rounded-full transition-all cursor-pointer ${config.enabled ? "bg-green-500" : "bg-glass-border"}`}
                         aria-label="Blog inschakelen"
@@ -92,6 +94,8 @@ export default function BlogConfigPanel() {
                     </div>
                     <button
                         type="button"
+                        role="switch"
+                        aria-checked={config.comments_enabled}
                         onClick={() => setConfig({ ...config, comments_enabled: !config.comments_enabled })}
                         className={`relative w-12 h-6 rounded-full transition-all cursor-pointer ${config.comments_enabled ? "bg-green-500" : "bg-glass-border"}`}
                         aria-label="Reacties inschakelen"

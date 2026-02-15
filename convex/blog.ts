@@ -11,23 +11,23 @@ export const listPosts = query({
         limit: v.optional(v.number()),
     },
     handler: async (ctx, { status, limit }) => {
-        let posts;
+        let q;
 
         if (status && status !== "all") {
-            posts = await ctx.db
+            q = ctx.db
                 .query("blog_posts")
-                .withIndex("by_status", (q) => q.eq("status", status as any))
-                .order("desc")
-                .collect();
+                .withIndex("by_status", (f) => f.eq("status", status as any))
+                .order("desc");
         } else {
-            posts = await ctx.db
+            q = ctx.db
                 .query("blog_posts")
-                .order("desc")
-                .collect();
+                .order("desc");
         }
 
+        const posts = limit ? await q.take(limit) : await q.collect();
+
         return {
-            posts: limit ? posts.slice(0, limit) : posts,
+            posts,
             total: posts.length,
         };
     },
@@ -52,6 +52,8 @@ export const getPostById = query({
 
 function generateSlug(title: string): string {
     return title
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, "")
         .replace(/\s+/g, "-")
@@ -155,6 +157,7 @@ export const updatePost = mutation({
         tags: v.optional(v.array(v.string())),
         seo_title: v.optional(v.string()),
         seo_description: v.optional(v.string()),
+        author_name: v.optional(v.string()),
     },
     handler: async (ctx, { id, ...updates }) => {
         const existing = await ctx.db.get(id);
@@ -196,6 +199,7 @@ export const updatePost = mutation({
         if (updates.tags !== undefined) patch.tags = updates.tags;
         if (updates.seo_title !== undefined) patch.seo_title = updates.seo_title;
         if (updates.seo_description !== undefined) patch.seo_description = updates.seo_description;
+        if (updates.author_name !== undefined) patch.author_name = updates.author_name;
 
         await ctx.db.patch(id, patch);
         return { success: true };
@@ -282,7 +286,7 @@ export const deleteCategory = mutation({
             .withIndex("by_category", (q) => q.eq("category_id", id))
             .collect();
         for (const post of posts) {
-            await ctx.db.patch(post._id, { category_id: undefined, category_name: undefined });
+            await ctx.db.patch(post._id, { category_id: undefined, category_name: undefined, category_slug: undefined });
         }
         await ctx.db.delete(id);
         return { success: true };
@@ -389,15 +393,18 @@ export const moderateComment = mutation({
 export const deleteComment = mutation({
     args: { id: v.id("blog_comments") },
     handler: async (ctx, { id }) => {
-        // Delete child replies
-        const replies = await ctx.db
-            .query("blog_comments")
-            .filter((q) => q.eq(q.field("parent_id"), id))
-            .collect();
-        for (const reply of replies) {
-            await ctx.db.delete(reply._id);
-        }
-        await ctx.db.delete(id);
+        // Recursively delete all nested replies
+        const deleteRecursive = async (commentId: typeof id) => {
+            const replies = await ctx.db
+                .query("blog_comments")
+                .withIndex("by_parent", (q) => q.eq("parent_id", commentId))
+                .collect();
+            for (const reply of replies) {
+                await deleteRecursive(reply._id);
+            }
+            await ctx.db.delete(commentId);
+        };
+        await deleteRecursive(id);
         return { success: true };
     },
 });

@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../convex/_generated/api";
+import { verifyApiAdmin } from "../../../lib/apiAuth";
 
 export const prerender = false;
 
@@ -21,8 +22,16 @@ const POST_CREATE_FIELDS = [
 const POST_UPDATE_FIELDS = [
     "title", "slug", "content", "excerpt", "cover_image_url",
     "category_id", "status", "is_featured", "tags",
-    "seo_title", "seo_description",
+    "seo_title", "seo_description", "author_name",
 ] as const;
+
+const CATEGORY_FIELDS = ["name", "slug", "description"] as const;
+
+const COMMENT_CREATE_FIELDS = [
+    "post_id", "author_name", "author_email", "content", "parent_id",
+] as const;
+
+const CONFIG_FIELDS = ["enabled", "comments_enabled", "posts_per_page"] as const;
 
 function pick(obj: Record<string, any>, keys: readonly string[]): Record<string, any> {
     const result: Record<string, any> = {};
@@ -60,6 +69,19 @@ export const ALL: APIRoute = async ({ request, params }) => {
     const method = request.method;
     const segments = path.split("/").filter(Boolean);
     const url = new URL(request.url);
+
+    // Auth guard: mutations require admin/editor auth, reads are public
+    // Exception: POST /api/blog/comments is public (visitors submit comments for moderation)
+    const isPublicCommentPost = method === "POST" && segments[0] === "comments" && !segments[1];
+    if (method !== "GET" && !isPublicCommentPost) {
+        const user = await verifyApiAdmin(request);
+        if (!user) {
+            return new Response(JSON.stringify({ error: "Unauthorized" }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    }
 
     try {
         // ─── POSTS ──────────────────────────────────────
@@ -116,7 +138,7 @@ export const ALL: APIRoute = async ({ request, params }) => {
 
             if (method === "POST" && !catId) {
                 const body = await request.json();
-                const result = await convex.mutation(api.blog.createCategory, body);
+                const result = await convex.mutation(api.blog.createCategory, pick(body, CATEGORY_FIELDS) as any);
                 return json(normalize(result), 201);
             }
 
@@ -124,7 +146,7 @@ export const ALL: APIRoute = async ({ request, params }) => {
                 const body = await request.json();
                 const result = await convex.mutation(api.blog.updateCategory, {
                     id: catId as any,
-                    ...body,
+                    ...pick(body, CATEGORY_FIELDS),
                 });
                 return json(normalize(result));
             }
@@ -156,7 +178,7 @@ export const ALL: APIRoute = async ({ request, params }) => {
 
             if (method === "POST" && !commentId) {
                 const body = await request.json();
-                const result = await convex.mutation(api.blog.createComment, body);
+                const result = await convex.mutation(api.blog.createComment, pick(body, COMMENT_CREATE_FIELDS) as any);
                 return json(normalize(result), 201);
             }
 
@@ -185,15 +207,15 @@ export const ALL: APIRoute = async ({ request, params }) => {
             }
             if (method === "POST") {
                 const body = await request.json();
-                const result = await convex.mutation(api.blog.updateConfig, body);
+                const result = await convex.mutation(api.blog.updateConfig, pick(body, CONFIG_FIELDS) as any);
                 return json(result);
             }
         }
 
         return json({ error: "Blog route not found" }, 404);
     } catch (err: any) {
-        console.error("[Blog API]", err);
-        return json({ error: err.message || "Internal server error" }, 500);
+        if (import.meta.env.DEV) console.error("[Blog API]", err);
+        return json({ error: "Internal server error" }, 500);
     }
 };
 

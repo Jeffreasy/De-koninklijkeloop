@@ -26,6 +26,7 @@ export default function CommentSection({ slug, postId }: Props) {
     const [replyTo, setReplyTo] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [honeypot, setHoneypot] = useState("");
 
     const fetchComments = useCallback(async () => {
         try {
@@ -35,7 +36,7 @@ export default function CommentSection({ slug, postId }: Props) {
                 setComments(data.comments || []);
             }
         } catch (err) {
-            console.error("[Comments] Fetch failed:", err);
+            if (import.meta.env.DEV) console.error("[Comments]", err);
         } finally {
             setLoading(false);
         }
@@ -45,6 +46,8 @@ export default function CommentSection({ slug, postId }: Props) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        // Honeypot: if filled, silently drop (bots auto-fill hidden fields)
+        if (honeypot) { setSubmitted(true); return; }
         setSubmitting(true);
         try {
             const res = await fetch(`/api/blog/comments`, {
@@ -65,7 +68,7 @@ export default function CommentSection({ slug, postId }: Props) {
                 setTimeout(() => setSubmitted(false), 5000);
             }
         } catch (err) {
-            console.error("[Comments] Submit failed:", err);
+            if (import.meta.env.DEV) console.error("[Comments]", err);
         } finally {
             setSubmitting(false);
         }
@@ -134,6 +137,17 @@ export default function CommentSection({ slug, postId }: Props) {
                                 className="w-full px-4 py-2.5 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all"
                                 placeholder="E-mail (optioneel)" />
                         </div>
+                        {/* Honeypot — hidden from humans, catches bots */}
+                        <input
+                            type="text"
+                            name="website"
+                            value={honeypot}
+                            onChange={(e) => setHoneypot(e.target.value)}
+                            autoComplete="off"
+                            tabIndex={-1}
+                            aria-hidden="true"
+                            style={{ position: "absolute", left: "-9999px", opacity: 0, height: 0 }}
+                        />
                         <textarea value={content} onChange={(e) => setContent(e.target.value)} required
                             aria-label="Reactie"
                             className="w-full px-4 py-3 rounded-xl bg-glass-bg/30 border border-glass-border text-text-primary text-base sm:text-sm placeholder:text-text-muted/50 focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/30 outline-none transition-all resize-none"
