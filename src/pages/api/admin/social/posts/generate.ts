@@ -1,4 +1,6 @@
 import type { APIRoute } from 'astro';
+import { getConvexClient } from '../../../../../lib/convex-server';
+import { api } from '../../../../../../convex/_generated/api';
 
 export const prerender = false;
 
@@ -28,53 +30,128 @@ const CONTENT_LIMITS: Record<string, { maxChars: number; maxTokens: number }> = 
 const VALID_ARCHETYPES = ["hero", "ruler", "caregiver", "sage", "explorer"] as const;
 const VALID_CONTENT_TYPES = ["tweet", "verhaal", "artikel"] as const;
 
-// ─── Event context (synced 1:1 from Go archetypes.go eventContext) ───────────
-const EVENT_CONTEXT = `=== EVENEMENT: DE KONINKLIJKE LOOP (DKL) ===
+// ─── Event context: STATIC narrative + DYNAMIC facts from Convex ────────────
+
+// Per-archetype temperature: factual archetypes get lower temps to reduce hallucination
+const ARCHETYPE_TEMPERATURES: Record<string, number> = {
+    hero: 0.7,      // Creative storytelling
+    ruler: 0.5,     // Formal, no room for improvisation
+    caregiver: 0.65, // Warm but consistent
+    sage: 0.4,      // Factual, zero tolerance for fabrication
+    explorer: 0.7,  // Atmospheric descriptions can be creative
+};
+
+// Types for Convex data (lightweight, no full schema import needed)
+interface EventData {
+    finish_location: string;
+    location_city: string;
+    event_date_display: string;
+    max_participants: number | null;
+    current_participants: number;
+    available_distances: Array<{ km: string; label: string; description?: string }>;
+    campaignTitle: string | null;
+    campaignAmount: number | null;
+    campaignTarget: number | null;
+}
+
+const EVENT_DATA_DEFAULTS: EventData = {
+    finish_location: "Grote Kerk Apeldoorn",
+    location_city: "Apeldoorn",
+    event_date_display: "zaterdag 16 mei 2026",
+    max_participants: 150,
+    current_participants: 0,
+    available_distances: [
+        { km: "2.5", label: "Roll & Stroll" },
+        { km: "6", label: "Hoog Soeren" },
+        { km: "10", label: "Asselse Heide" },
+        { km: "15.6", label: "Kootwijk – Apeldoorn" },
+    ],
+    campaignTitle: "Sportclub Only Friends",
+    campaignAmount: null,
+    campaignTarget: null,
+};
+
+async function fetchEventData(): Promise<EventData> {
+    try {
+        const convex = getConvexClient();
+        const [settings, campaign] = await Promise.all([
+            convex.query(api.eventSettings.getActiveSettings),
+            convex.query(api.donations.getActiveCampaign),
+        ]);
+
+        return {
+            finish_location: settings?.finish_location || EVENT_DATA_DEFAULTS.finish_location,
+            location_city: settings?.location_city || EVENT_DATA_DEFAULTS.location_city,
+            event_date_display: settings?.event_date_display || EVENT_DATA_DEFAULTS.event_date_display,
+            max_participants: settings?.max_participants ?? EVENT_DATA_DEFAULTS.max_participants,
+            current_participants: settings?.current_participants ?? 0,
+            available_distances: settings?.available_distances?.length
+                ? settings.available_distances
+                : EVENT_DATA_DEFAULTS.available_distances,
+            campaignTitle: campaign?.title || EVENT_DATA_DEFAULTS.campaignTitle,
+            campaignAmount: campaign?.current_amount ?? null,
+            campaignTarget: campaign?.target_amount ?? null,
+        };
+    } catch (err) {
+        console.error("[EventData] Convex fetch failed, using defaults:", err);
+        return EVENT_DATA_DEFAULTS;
+    }
+}
+
+function buildEventContext(data: EventData): string {
+    // Format distances from DB
+    const routeLines = data.available_distances.map(d =>
+        `- ${d.km} km "${d.label}"${d.description ? `: ${d.description}` : ""}`
+    ).join("\n");
+
+    // Campaign info line (only if we have live data)
+    const campaignLine = data.campaignAmount !== null
+        ? `\nHuidig opgehaald bedrag: €${data.campaignAmount.toLocaleString("nl-NL")}${data.campaignTarget ? ` (doel: €${data.campaignTarget.toLocaleString("nl-NL")})` : ""}`
+        : "";
+
+    return `=== EVENEMENT: DE KONINKLIJKE LOOP (DKL) ===
 
 KERNIDENTITEIT:
-De Koninklijke Loop is een inclusief wandelevenement en sponsorloop in APELDOORN.
+De Koninklijke Loop is een inclusief wandelevenement en sponsorloop in ${data.location_city.toUpperCase()}.
 Het is GEEN hardloopwedstrijd. Het is een wandelevenement waar inclusiviteit,
 verbinding en rolstoelvriendelijkheid centraal staan.
 
-Op 16 mei 2026 (3e editie) brengt De Koninklijke Loop verleden, heden en toekomst samen.
+Op ${data.event_date_display} (3e editie) brengt De Koninklijke Loop verleden, heden en toekomst samen.
 Deelnemers wandelen over de Koninklijke Weg — een rolstoelvriendelijke route bedacht
 door oud-wethouder Aalt van de Glind (rond 2006-2010, hij overleed in 2018) — richting
-de finish bij de Grote Kerk Apeldoorn.
+de finish bij ${data.finish_location}.
 
 HET VERHAAL (KERN — altijd gebruiken):
 Wat dit evenement uniek maakt, is de organisatie: een samenwerking tussen de
 Apeldoornse rapper Salih Toprak en de bewoners van 's Heeren Loo.
 De bewoners staan niet aan de zijlijn, maar nemen de leiding. Hiermee draaien
 ze de rollen om: van zorgontvangers naar organisatoren en sporters.
-Samen halen zij geld op voor Sportclub Only Friends, zodat ook andere jongeren
+Samen halen zij geld op voor ${data.campaignTitle || "Sportclub Only Friends"}, zodat ook andere jongeren
 met een beperking de kracht van sport kunnen ervaren.
 Een evenement voor iedereen, door iedereen.
 
 EVENEMENT HISTORIE (gebruik deze feiten bij content over groei/doorontwikkeling):
 - 2024: 1e editie. Goede doel: Liliane Fonds. Opbrengst: €2.000.
 - 2025: 2e editie. Opbrengst: €2.285. Groei in deelnemers en vrijwilligers.
-- 2026: 3e editie. Goede doel: Sportclub Only Friends. Ambitie om verder te groeien.
+- 2026: 3e editie. Goede doel: ${data.campaignTitle || "Sportclub Only Friends"}. Ambitie om verder te groeien.
 
 FEITEN (NIET WIJZIGEN):
-- Datum: Zaterdag 16 mei 2026
-- Locatie: APELDOORN (niet Dordrecht, niet Den Haag, niet Amsterdam — APELDOORN)
-- Finish: De Grote Kerk Apeldoorn (NIET Paleis Het Loo — het paleis ligt nabij, maar is niet de finish)
+- Datum: ${data.event_date_display}
+- Locatie: ${data.location_city.toUpperCase()} (niet Dordrecht, niet Den Haag, niet Amsterdam — ${data.location_city.toUpperCase()})
+- Finish: ${data.finish_location} (NIET Paleis Het Loo — het paleis ligt nabij, maar is niet de finish)
 - Route: De Koninklijke Weg, bedacht door Aalt van de Glind (~2006-2010). Dit is een MODERN initiatief (15-20 jaar oud), GEEN eeuwenoud historisch pad.
 - Deelname: GRATIS
 - Website: www.dekoninklijkeloop.nl
 - Organisatie: Salih Toprak + bewoners van 's Heeren Loo
-- Schaal: Compact evenement, max ~150 deelnemers + begeleiders per editie
+- Schaal: Compact evenement, max ~${data.max_participants || 150} deelnemers + begeleiders per editie${data.current_participants > 0 ? ` (huidig: ${data.current_participants} aangemeld)` : ""}
 - Transport: Deelnemers worden per bus naar startpunten gebracht
 
 Routes (allemaal over de Koninklijke Weg):
-- 2,5 km "Roll & Stroll": Volledig rolstoelvriendelijk, door groene buitenwijken bij de Grote Kerk
-- 6 km "Hoog Soeren": Heuvelachtig landschap, geschikt voor licht getrainde wandelaars
-- 10 km "Asselse Heide": Vanaf halte Assel over Asselse heide, heuvelachtig terrein
-- 15,6 km "Kootwijk – Apeldoorn": De volledige Koninklijke Weg vanaf het kerkje in Kootwijk
+${routeLines}
 
-Goede doel 2026: Sportclub Only Friends
+Goede doel 2026: ${data.campaignTitle || "Sportclub Only Friends"}
 - Maakt sporten mogelijk voor kinderen en jongeren met een beperking
-- Bij Only Friends ben je geen uitzondering, maar de norm
+- Bij Only Friends ben je geen uitzondering, maar de norm${campaignLine}
 
 Kernwaarden:
 - Inclusief sportklimaat: een evenement zonder drempels, iedere Apeldoorner kan meedoen
@@ -87,15 +164,16 @@ Slogan: "De sponsorloop van mensen met een beperking voor een goed doel. Samen m
 
 ABSOLUTE REGELS VOOR HET AI MODEL:
 1. Dit is een WANDELEVENEMENT — NOOIT "hardlopen" of "rennen" gebruiken.
-2. De locatie is ALTIJD Apeldoorn — NOOIT een andere stad noemen.
-3. De finish is ALTIJD de Grote Kerk Apeldoorn — NOOIT Paleis Het Loo als finish noemen.
+2. De locatie is ALTIJD ${data.location_city} — NOOIT een andere stad noemen.
+3. De finish is ALTIJD ${data.finish_location} — NOOIT Paleis Het Loo als finish noemen.
 4. Het goede doel is ALTIJD Only Friends (2026) — NOOIT een ander doel noemen.
 5. Deelname is ALTIJD GRATIS — NOOIT suggereren dat het geld kost.
 6. Verzin NOOIT feiten, namen, locaties, cijfers of statistieken die niet in deze context staan.
 7. Noem ALTIJD Salih Toprak en/of 's Heeren Loo als organisatoren.
 8. De Koninklijke Weg is GEEN eeuwenoud pad — het is een modern initiatief van Aalt van de Glind (~2006-2010).
-9. Er zijn max ~150 deelnemers — NOOIT grotere aantallen suggereren ("honderden", "duizenden").
-10. Paleis Het Loo ligt NABIJ de finish maar IS NIET de finish. De finish is de Grote Kerk.`;
+9. Er zijn max ~${data.max_participants || 150} deelnemers — NOOIT grotere aantallen suggereren ("honderden", "duizenden").
+10. Paleis Het Loo ligt NABIJ de finish maar IS NIET de finish. De finish is ${data.finish_location}.`;
+}
 
 // ─── Base instructions (synced 1:1 from Go archetypes.go baseInstructions) ──
 const BASE_INSTRUCTIONS = `
@@ -280,9 +358,9 @@ VERBODEN:
 };
 
 // ─── Prompt builders ────────────────────────────────────────────────────────
-function buildSystemPrompt(archetype: string): string {
+function buildSystemPrompt(archetype: string, eventContext: string): string {
     const voice = ARCHETYPE_VOICES[archetype] || ARCHETYPE_VOICES.hero;
-    return `${EVENT_CONTEXT}\n${voice}\n${BASE_INSTRUCTIONS}`;
+    return `${eventContext}\n\n${BASE_INSTRUCTIONS}\n\n${voice}`;
 }
 
 function buildUserPrompt(contentType: string, campaignContext: string): string {
@@ -409,7 +487,7 @@ interface AIProvider {
     model: string;
 }
 
-async function callAI(providers: AIProvider[], systemPrompt: string, userPrompt: string, maxTokens: number): Promise<string> {
+async function callAI(providers: AIProvider[], systemPrompt: string, userPrompt: string, maxTokens: number, temperature: number = 0.7): Promise<string> {
     for (const provider of providers) {
         try {
             const response = await fetch(provider.url, {
@@ -425,7 +503,7 @@ async function callAI(providers: AIProvider[], systemPrompt: string, userPrompt:
                         { role: "user", content: userPrompt },
                     ],
                     max_tokens: maxTokens,
-                    temperature: 0.7,
+                    temperature,
                 }),
             });
 
@@ -544,7 +622,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const archetype = body.archetype || "hero";
     const contentType = body.content_type || "tweet";
-    const campaignContext = body.campaign_context || "Inclusief wandelevenement door Apeldoorn richting Paleis Het Loo";
+    const campaignContext = body.campaign_context || "Inclusief wandelevenement door Apeldoorn richting de Grote Kerk";
     const threadMode = body.thread_mode || false;
 
     // M3: Archetype validation
@@ -571,14 +649,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         return new Response(JSON.stringify({ error: "No AI API key configured" }), { status: 500 });
     }
 
-    const systemPrompt = buildSystemPrompt(archetype);
+    // Fetch live event data from Convex (parallel with provider setup)
+    const [eventData] = await Promise.all([fetchEventData()]);
+    const eventContext = buildEventContext(eventData);
+    const systemPrompt = buildSystemPrompt(archetype, eventContext);
+    const temperature = ARCHETYPE_TEMPERATURES[archetype] || 0.7;
 
     try {
         // C1: Thread mode support
         if (threadMode) {
             const threadPrompt = buildThreadPrompt(campaignContext);
             // 800 tokens: 3 NL tweets (~280 chars each) + formatting = ~500-600 tokens minimum
-            const text = await callAI(providers, systemPrompt, threadPrompt, 800);
+            const text = await callAI(providers, systemPrompt, threadPrompt, 800, temperature);
             const tweets = parseThreadResponse(text);
 
             if (tweets.length < 3) {
@@ -600,7 +682,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         // Single draft mode
         const limits = CONTENT_LIMITS[contentType] || CONTENT_LIMITS.tweet;
         const userPrompt = buildUserPrompt(contentType, campaignContext);
-        const text = await callAI(providers, systemPrompt, userPrompt, limits.maxTokens);
+        const text = await callAI(providers, systemPrompt, userPrompt, limits.maxTokens, temperature);
 
         // Clean up response (synced from Go GenerateDraft)
         let draft = text.trim();
