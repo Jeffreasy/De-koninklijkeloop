@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiRequest } from "../../lib/api";
+import { apiRequest, ApiError } from "../../lib/api";
 import { addToast } from "../../lib/toast";
 import { AdminModal } from "./AdminModal";
 import { Loader2, Save, Sparkles, Link2, Image, FileText } from "lucide-react";
@@ -175,7 +175,11 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
             }
         } catch (err) {
             if (import.meta.env.DEV) console.error("[XPost] AI generate failed:", err);
-            addToast("AI generatie mislukt", "error");
+            if (err instanceof ApiError && err.status === 429) {
+                addToast("Budget limiet bereikt (17 posts/24u). Probeer later opnieuw.", "error");
+            } else {
+                addToast("AI generatie mislukt", "error");
+            }
         } finally {
             setGenerating(false);
         }
@@ -199,10 +203,10 @@ export function XPostEditor({ isOpen, onClose, onSaved, editingPost, campaigns }
                                 onClick={() => setContentType(ct.value)}
                                 disabled={threadMode}
                                 className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border ${threadMode
-                                        ? "opacity-50 cursor-not-allowed bg-glass-bg/20 border-glass-border text-text-muted"
-                                        : contentType === ct.value
-                                            ? "bg-brand-orange/20 border-brand-orange/50 text-brand-orange"
-                                            : "bg-glass-bg/30 border-glass-border text-text-muted hover:text-text-primary hover:border-glass-border/80"
+                                    ? "opacity-50 cursor-not-allowed bg-glass-bg/20 border-glass-border text-text-muted"
+                                    : contentType === ct.value
+                                        ? "bg-brand-orange/20 border-brand-orange/50 text-brand-orange"
+                                        : "bg-glass-bg/30 border-glass-border text-text-muted hover:text-text-primary hover:border-glass-border/80"
                                     }`}
                             >
                                 <div className="flex items-center justify-center gap-1.5">

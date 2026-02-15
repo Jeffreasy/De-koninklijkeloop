@@ -5,6 +5,15 @@ const API_URL = "/api";
 // Multi-tenant configuration
 const TENANT_ID = import.meta.env.PUBLIC_TENANT_ID || "b2727666-7230-4689-b58b-ceab8c2898d5";
 
+export class ApiError extends Error {
+    status: number;
+    constructor(message: string, status: number) {
+        super(message);
+        this.name = "ApiError";
+        this.status = status;
+    }
+}
+
 export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     const headers = new Headers(options.headers || {});
     headers.set("Content-Type", "application/json");
@@ -40,18 +49,20 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
                 });
             } else {
                 if (import.meta.env.DEV) console.error("[API] Refresh Failed. Redirecting to login.");
-                throw new Error("Session expired");
+                throw new ApiError("Session expired", 401);
             }
         } catch (e) {
             // Force Logout on Refresh Failure
-            window.location.href = "/login?expired=true";
+            if (!(e instanceof ApiError)) {
+                window.location.href = "/login?expired=true";
+            }
             throw e;
         }
     }
 
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: "Er is een onbekende fout opgetreden." }));
-        throw new Error(errorData.error || `Request failed with status ${res.status}`);
+        throw new ApiError(errorData.error || `Request failed with status ${res.status}`, res.status);
     }
 
     // Handle empty JSON bodies gracefully

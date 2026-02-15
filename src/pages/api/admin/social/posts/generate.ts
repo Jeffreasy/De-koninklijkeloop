@@ -404,7 +404,7 @@ async function callAI(providers: AIProvider[], systemPrompt: string, userPrompt:
                         { role: "user", content: userPrompt },
                     ],
                     max_tokens: maxTokens,
-                    temperature: 0.8,
+                    temperature: 0.7,
                 }),
             });
 

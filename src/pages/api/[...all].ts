@@ -74,7 +74,7 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
             body = rawBody;
         }
 
-        // 55s timeout — generous for AI generation, but still fails cleanly
+        // 55s timeout for backend API calls (AI generation uses dedicated generate.ts endpoint)
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 55_000);
 
