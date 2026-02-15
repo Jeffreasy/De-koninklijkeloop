@@ -191,7 +191,8 @@ function exportToCSV(pages: GoPage[], referrers: GoReferrer[], timeseries: GoTim
     lines.push("Referrer,Aantal");
     referrers.forEach((r) => lines.push(`${r.referrer || "Direct"},${r.count}`));
 
-    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const bom = '\uFEFF';
+    const blob = new Blob([bom + lines.join("\n")], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -300,9 +301,10 @@ export default function AnalyticsDashboard() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => exportToCSV(pages, referrers, timeseries, period.label)}
-                        className="p-2 rounded-xl bg-glass-border/20 text-text-muted hover:text-text-primary hover:bg-glass-border/40 transition-all cursor-pointer"
+                        className="p-2 rounded-xl bg-glass-border/20 text-text-muted hover:text-text-primary hover:bg-glass-border/40 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                         title="Export CSV"
-                        disabled={loading}
+                        aria-label="Export CSV"
+                        disabled={loading || (pages.length === 0 && referrers.length === 0 && timeseries.length === 0)}
                     >
                         <Download className="w-4 h-4" />
                     </button>
@@ -310,10 +312,11 @@ export default function AnalyticsDashboard() {
                         onClick={() => refetch()}
                         className="p-2 rounded-xl bg-glass-border/20 text-text-muted hover:text-text-primary hover:bg-glass-border/40 transition-all cursor-pointer"
                         title="Ververs data"
+                        aria-label="Ververs data"
                     >
-                        <RefreshCw className="w-4 h-4" />
+                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                     </button>
-                    <div className="flex bg-glass-border/30 rounded-xl p-1 border border-glass-border">
+                    <div className="flex bg-glass-border/30 rounded-xl p-1 border border-glass-border" role="group" aria-label="Periode selectie">
                         {PERIOD_OPTIONS.map((opt) => (
                             <button
                                 key={opt.value}
@@ -333,7 +336,7 @@ export default function AnalyticsDashboard() {
 
             {/* Error banner */}
             {error && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-sm text-red-600 flex items-center justify-between gap-3">
+                <div role="alert" aria-live="polite" className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-sm text-red-600 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4 shrink-0" />
                         <span>Go backend niet bereikbaar: {error}. Live feed via Convex werkt nog wel.</span>
@@ -376,7 +379,7 @@ export default function AnalyticsDashboard() {
                 <KPICard
                     icon={<Activity className="w-4 h-4" />}
                     label="Events Totaal"
-                    value={totalEvents}
+                    value={totalEvents.toLocaleString('nl-NL')}
                     accent="#F97316"
                     loading={loading}
                     trend={prevDashboard ? calcTrend(totalEvents, prevTotalEvents) : undefined}
@@ -435,6 +438,7 @@ export default function AnalyticsDashboard() {
                                         width={30}
                                     />
                                     <Tooltip
+                                        cursor={{ stroke: 'var(--glass-border, rgba(148, 163, 184, 0.15))', strokeWidth: 1 }}
                                         contentStyle={{
                                             background: "var(--bg-surface, #0f172a)",
                                             border: "1px solid var(--glass-border, rgba(148, 163, 184, 0.08))",
@@ -714,7 +718,7 @@ export default function AnalyticsDashboard() {
                                             <div className="flex-1">
                                                 <div className="flex justify-between text-xs mb-1">
                                                     <span className="font-medium text-text-primary capitalize">{d.device_type}</span>
-                                                    <span className="text-text-muted font-mono">{pct}%</span>
+                                                    <span className="text-text-muted font-mono">{d.count.toLocaleString('nl-NL')} ({pct}%)</span>
                                                 </div>
                                                 <div className="h-1.5 w-full bg-glass-border/30 rounded-full overflow-hidden">
                                                     <div
@@ -753,7 +757,7 @@ export default function AnalyticsDashboard() {
                         ) : recentEvents.length === 0 ? (
                             <div className="p-8 text-center text-xs text-text-muted">Nog geen events geregistreerd</div>
                         ) : (
-                            recentEvents.map((event: { _id: string; event: string; path: string; timestamp: number; sessionId: string; metadata?: any }) => (
+                            recentEvents.map((event) => (
                                 <div key={event._id} className="p-3 px-5 flex items-center gap-4 hover:bg-glass-surface/50 transition-colors">
                                     <div
                                         className="w-8 h-8 rounded-xl flex items-center justify-center border"
@@ -773,12 +777,15 @@ export default function AnalyticsDashboard() {
                                             {event.path}
                                         </div>
                                     </div>
-                                    <span className="text-[10px] font-mono text-text-muted opacity-60 whitespace-nowrap">
+                                    <time
+                                        dateTime={new Date(event.timestamp).toISOString()}
+                                        className="text-[10px] font-mono text-text-muted opacity-60 whitespace-nowrap"
+                                    >
                                         {new Date(event.timestamp).toLocaleTimeString("nl-NL", {
                                             hour: "2-digit",
                                             minute: "2-digit",
                                         })}
-                                    </span>
+                                    </time>
                                 </div>
                             ))
                         )}
@@ -800,7 +807,6 @@ function GlassCard({ icon, title, accentColor, children }: {
     return (
         <div
             className="relative overflow-hidden bg-glass-bg/40 backdrop-blur-xl border border-glass-border rounded-3xl p-6 shadow-xl group hover:shadow-2xl transition-all duration-500"
-            style={{ '--hover-accent': `${accentColor}30` } as React.CSSProperties}
         >
             <div
                 className="absolute top-0 right-0 w-48 h-48 blur-3xl rounded-full -mr-10 -mt-10 pointer-events-none transition-all"
@@ -916,7 +922,12 @@ function SkeletonRows({ count }: { count: number }) {
 }
 
 function EmptyState({ text }: { text: string }) {
-    return <div className="text-center py-8 text-xs text-text-muted">{text}</div>;
+    return (
+        <div className="text-center py-8 text-xs text-text-muted space-y-2">
+            <BarChart3 className="w-5 h-5 mx-auto opacity-40" />
+            <p>{text}</p>
+        </div>
+    );
 }
 
 function EventIcon({ event }: { event: string }) {
