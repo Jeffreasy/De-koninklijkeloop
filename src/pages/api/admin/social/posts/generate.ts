@@ -63,7 +63,7 @@ FEITEN (NIET WIJZIGEN):
 - Deelname: GRATIS
 - Website: www.dekoninklijkeloop.nl
 - Organisatie: Salih Toprak + bewoners van 's Heeren Loo
-- Schaal: Compact evenement, max ~75 deelnemers + begeleiders per editie
+- Schaal: Compact evenement, max ~150 deelnemers + begeleiders per editie
 - Transport: Deelnemers worden per bus naar startpunten gebracht
 
 Routes (allemaal over de Koninklijke Weg):
@@ -94,7 +94,7 @@ ABSOLUTE REGELS VOOR HET AI MODEL:
 6. Verzin NOOIT feiten, namen, locaties, cijfers of statistieken die niet in deze context staan.
 7. Noem ALTIJD Salih Toprak en/of 's Heeren Loo als organisatoren.
 8. De Koninklijke Weg is GEEN eeuwenoud pad — het is een modern initiatief van Aalt van de Glind (~2006-2010).
-9. Er zijn max ~75 deelnemers — NOOIT grotere aantallen suggereren ("honderden", "duizenden").
+9. Er zijn max ~150 deelnemers — NOOIT grotere aantallen suggereren ("honderden", "duizenden").
 10. Paleis Het Loo ligt NABIJ de finish maar IS NIET de finish. De finish is de Grote Kerk.`;
 
 // ─── Base instructions (synced 1:1 from Go archetypes.go baseInstructions) ──
@@ -168,7 +168,7 @@ VERBODEN:
 - Geen toxic positivity ("Alles is mogelijk!")
 - Geen militaristische taal ("Versla", "strijd", "overwin de concurrent")
 - Geen suggestie dat het een competitie is — het is samen, niet tegen elkaar
-- Geen overdreven aantallen — het is een compact evenement (~75 deelnemers)`,
+- Geen overdreven aantallen — het is een compact evenement (~150 deelnemers)`,
 
     ruler: `=== ARCHETYPE: DE KONING/KONINGIN ===
 
