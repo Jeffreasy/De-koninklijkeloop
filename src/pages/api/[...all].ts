@@ -88,14 +88,15 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
 
         clearTimeout(timeoutId);
 
-        const responseText = await response.text();
-
         const responseHeaders = new Headers(response.headers);
         responseHeaders.delete('content-encoding');
         responseHeaders.delete('content-length');
         responseHeaders.delete('set-cookie');
 
-        return new Response(responseText, {
+        // Stream the response body directly — this converts to a Vercel Streaming
+        // Function which has longer timeout than buffered functions (critical for
+        // grok-3-mini AI generation which takes 13-18s).
+        return new Response(response.body, {
             status: response.status,
             headers: responseHeaders
         });
