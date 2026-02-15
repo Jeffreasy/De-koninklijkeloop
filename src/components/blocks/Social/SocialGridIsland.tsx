@@ -3,19 +3,13 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { Instagram, AlertCircle, RefreshCw, Star, Maximize2, ArrowRight } from "lucide-react";
 import { SocialPostShowcaseModal } from "./SocialPostShowcaseModal";
+import { ik, ikSrcSet } from "../../../lib/imagekit";
 import { useStore } from "@nanostores/react";
 import { $accessToken, $user } from "../../../lib/auth";
 import type { SSRPost } from "./types";
 
-// ─── ImageKit URL helper ───
-
-function ik(url: string, width: number): string {
-    if (!url.includes("imagekit.io")) return url;
-    return url.replace("/De%20Koninklijkeloop/", `/tr:w-${width},q-80,f-auto/De%20Koninklijkeloop/`);
-}
-
 function srcSet(url: string, widths: number[]): string {
-    return widths.map((w) => `${ik(url, w)} ${w}w`).join(", ");
+    return ikSrcSet(url, widths);
 }
 
 // ─── Props ───
@@ -25,17 +19,25 @@ interface Props {
     ssrThumbnails?: SSRPost[];
 }
 
-// ─── Bento size map (alternating sizes for visual rhythm) ───
+const BENTO_SIZE = "col-span-1 row-span-1";
 
-const BENTO_SIZES = [
-    "col-span-1 row-span-1",
-    "col-span-1 row-span-1",
-    "col-span-1 row-span-1",
-    "col-span-1 row-span-1",
-    "col-span-1 row-span-1",
-    "col-span-1 row-span-1",
-    "col-span-1 row-span-1",
-] as const;
+// ─── Section Shell (extracted for clean render) ───
+
+function SectionShell({ children }: { children: React.ReactNode }) {
+    return (
+        <section className="py-20 md:py-28 relative overflow-hidden" aria-label="Instagram social media">
+            {/* Royal Ambient Background */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-brand-orange/4 rounded-full blur-[120px]" />
+                <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-brand-blue/3 rounded-full blur-[100px]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-orange/2 rounded-full blur-[150px] rotate-12" />
+            </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+                {children}
+            </div>
+        </section>
+    );
+}
 
 // ─── Main Component ───
 
@@ -95,21 +97,7 @@ export const SocialGridIsland = memo(function SocialGridIsland({
         [allPosts.length]
     );
 
-    // ─── Section Shell ───
 
-    const SectionShell = useCallback(({ children }: { children: React.ReactNode }) => (
-        <section className="py-20 md:py-28 relative overflow-hidden" aria-label="Instagram social media">
-            {/* Royal Ambient Background */}
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-brand-orange/4 rounded-full blur-[120px]" />
-                <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-brand-blue/3 rounded-full blur-[100px]" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-orange/2 rounded-full blur-[150px] rotate-12" />
-            </div>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-                {children}
-            </div>
-        </section>
-    ), []);
 
     // ─── Section Header ───
 
@@ -266,7 +254,7 @@ export const SocialGridIsland = memo(function SocialGridIsland({
                     <button
                         key={post._id}
                         onClick={() => handlePostClick(post._id)}
-                        className={`${BENTO_SIZES[i] || "col-span-1 row-span-1"} group relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border/50 hover:border-brand-orange/30 transition-all duration-500 shadow-md hover:shadow-xl cursor-pointer active:scale-[0.97]`}
+                        className={`${BENTO_SIZE} group relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border/50 hover:border-brand-orange/30 transition-all duration-500 shadow-md hover:shadow-xl cursor-pointer active:scale-[0.97]`}
                         style={{ animationDelay: `${i * 60}ms` }}
                     >
                         <img

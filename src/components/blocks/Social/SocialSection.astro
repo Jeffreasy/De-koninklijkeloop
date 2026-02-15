@@ -10,6 +10,7 @@
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../convex/_generated/api";
 import SocialGridWrapper from "./SocialGridWrapper";
+import { ik } from "../../../lib/imagekit";
 
 const convexUrl = import.meta.env.PUBLIC_CONVEX_URL;
 let featuredPost: any = null;
@@ -48,21 +49,12 @@ const serializedFeatured = serialize(featuredPost);
 const serializedThumbnails = thumbnailPosts
     .map(serialize)
     .filter((p): p is NonNullable<typeof p> => p !== null);
-
-// ImageKit transform for SEO images
-function ik(url: string, width: number): string {
-    if (!url || !url.includes("imagekit.io")) return url;
-    return url.replace(
-        "/De%20Koninklijkeloop/",
-        `/tr:w-${width},q-80,f-auto/De%20Koninklijkeloop/`,
-    );
-}
 ---
 
 {/* SEO: Crawlable content — visually hidden but indexable by search engines */}
 {
     allPosts.length > 0 && (
-        <div class="sr-only" aria-hidden="true">
+        <div class="sr-only">
             <h2>De Koninklijke Loop — Instagram</h2>
             {allPosts.map((post) => (
                 <article>

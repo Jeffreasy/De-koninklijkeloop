@@ -38,6 +38,21 @@ export default imagekit;
 // ─── URL Endpoint for client-side usage ────────────────────────
 export const IMAGEKIT_URL_ENDPOINT = import.meta.env.PUBLIC_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/a0oim4e3e';
 
+// ─── Client-side URL transforms (full-URL based) ──────────────
+/** Transform a full ImageKit URL with width/quality/format params */
+export function ik(url: string, width: number): string {
+    if (!url || !url.includes("imagekit.io")) return url;
+    return url.replace(
+        "/De%20Koninklijkeloop/",
+        `/tr:w-${width},q-80,f-auto/De%20Koninklijkeloop/`,
+    );
+}
+
+/** Generate a srcSet string for responsive images */
+export function ikSrcSet(url: string, widths: number[]): string {
+    return widths.map((w) => `${ik(url, w)} ${w}w`).join(", ");
+}
+
 // ─── Cache ─────────────────────────────────────────────────────
 const CACHE_TTL = 1000 * 60 * 60; // 1 hour
 const cache = new Map<string, { data: any[]; timestamp: number }>();

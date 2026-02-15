@@ -4,14 +4,26 @@ import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { SocialPostCard } from "./SocialPostCard";
 import { SocialPostModal, type SocialPostFormData } from "./SocialPostModal";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, Instagram } from "lucide-react";
 import { useStore } from "@nanostores/react";
-import { $accessToken } from "../../lib/auth";
+import { $accessToken, $user } from "../../lib/auth";
 
 type FilterType = "all" | "visible" | "hidden" | "featured";
 
+type EditingPost = {
+    _id: Id<"social_posts">;
+    imageUrl: string;
+    caption: string;
+    instagramUrl: string;
+    isFeatured: boolean;
+    isVisible: boolean;
+    displayOrder: number;
+    postedDate?: string;
+} | null;
+
 export function SocialManagerIsland() {
     const accessToken = useStore($accessToken);
+    const user = useStore($user);
 
     // Convex hooks
     const posts = useQuery(api.socialPosts.listAll);
@@ -24,7 +36,7 @@ export function SocialManagerIsland() {
     // Local state
     const [filter, setFilter] = useState<FilterType>("all");
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingPost, setEditingPost] = useState<any>(null);
+    const [editingPost, setEditingPost] = useState<EditingPost>(null);
 
     // Filter posts
     const filteredPosts = posts?.filter((post) => {
@@ -50,7 +62,7 @@ export function SocialManagerIsland() {
     };
 
     const handleSave = async (formData: SocialPostFormData) => {
-        const updatedBy = "admin@dkl.nl"; // TODO: Get from auth context
+        const updatedBy = user?.email || "admin@dkl.nl";
 
         if (editingPost) {
             // Update existing
@@ -77,14 +89,14 @@ export function SocialManagerIsland() {
     const handleToggleVisibility = async (id: Id<"social_posts">) => {
         await toggleVisibility({
             id,
-            updatedBy: "admin@dkl.nl" // TODO: Get from auth
+            updatedBy: user?.email || "admin@dkl.nl"
         });
     };
 
     const handleToggleFeatured = async (id: Id<"social_posts">) => {
         await toggleFeatured({
             id,
-            updatedBy: "admin@dkl.nl" // TODO: Get from auth
+            updatedBy: user?.email || "admin@dkl.nl"
         });
     };
 
@@ -155,7 +167,7 @@ export function SocialManagerIsland() {
                 <div className="glass-card p-12 text-center">
                     <div className="max-w-md mx-auto space-y-4">
                         <div className="w-16 h-16 mx-auto rounded-full bg-glass-border/30 flex items-center justify-center">
-                            <iconify-icon icon="lucide:instagram" width="32" className="text-text-muted opacity-50" />
+                            <Instagram className="w-8 h-8 text-text-muted opacity-50" />
                         </div>
                         <h3 className="text-xl font-display font-bold text-text-primary">
                             Nog geen posts

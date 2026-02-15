@@ -125,7 +125,7 @@ function ShareButton({ post }: { post: SocialPost }) {
             {showMenu && (
                 <>
                     <div
-                        className="fixed inset-0 z-40"
+                        className="fixed inset-0 z-40 cursor-pointer"
                         onClick={() => setShowMenu(false)}
                     />
                     <div className="absolute bottom-full right-0 mb-2 z-50 min-w-48 p-2 rounded-2xl bg-surface border border-glass-border shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-2 duration-200">
@@ -133,8 +133,9 @@ function ShareButton({ post }: { post: SocialPost }) {
                             href={`https://wa.me/?text=${encodeURIComponent(shareData.text + " " + shareData.url)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary cursor-pointer"
                             onClick={() => setShowMenu(false)}
+                            aria-label="Deel via WhatsApp"
                         >
                             <MessageCircle className="w-4 h-4 text-green-500" />
                             WhatsApp
@@ -143,15 +144,17 @@ function ShareButton({ post }: { post: SocialPost }) {
                             href={`https://x.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary cursor-pointer"
                             onClick={() => setShowMenu(false)}
+                            aria-label="Deel op X (Twitter)"
                         >
                             <span className="text-lg">𝕏</span>
                             X (Twitter)
                         </a>
                         <button
                             onClick={handleCopy}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary w-full text-left"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary w-full text-left cursor-pointer"
+                            aria-label="Link kopiëren naar klembord"
                         >
                             <Copy className="w-4 h-4" />
                             Link kopiëren
@@ -349,7 +352,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                     href={post.instagramUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2.5 rounded-xl bg-linear-to-br from-brand-orange to-amber-400 text-white hover:shadow-lg hover:scale-105 transition-all"
+                                    className="p-2.5 rounded-xl bg-linear-to-br from-brand-orange to-amber-400 text-white hover:shadow-lg hover:brightness-110 transition-all cursor-pointer"
                                 >
                                     <ExternalLink className="w-5 h-5" />
                                 </a>

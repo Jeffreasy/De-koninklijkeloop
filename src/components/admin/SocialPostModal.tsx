@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { AdminModal } from "./AdminModal";
 import { ServerSideUploadButton, uploadFileToImageKit } from "./ServerSideUploadButton";
+import { ImageIcon, Loader2 } from "lucide-react";
 
 interface Props {
     isOpen: boolean;
@@ -46,6 +47,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [urlError, setUrlError] = useState("");
+    const [formError, setFormError] = useState("");
 
     // Populate form when editing
     useEffect(() => {
@@ -86,12 +88,13 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
         e.preventDefault();
 
         // Validation
+        setFormError("");
         if (!formData.imageUrl.trim() && !selectedFile) {
-            alert("Voeg een afbeelding toe (upload een bestand of plak een URL)");
+            setFormError("Voeg een afbeelding toe (upload een bestand of plak een URL)");
             return;
         }
         if (!formData.caption.trim()) {
-            alert("Voeg een caption toe");
+            setFormError("Voeg een caption toe");
             return;
         }
         if (!validateInstagramUrl(formData.instagramUrl)) {
@@ -107,13 +110,13 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
             if (selectedFile) {
                 setIsUploading(true);
                 try {
-                    if (import.meta.env.DEV) console.log('📤 Uploading file before saving...');
+                    if (import.meta.env.DEV) console.log('Uploading file before saving...');
                     finalImageUrl = await uploadFileToImageKit(selectedFile);
-                    if (import.meta.env.DEV) console.log('✅ File uploaded:', finalImageUrl);
+                    if (import.meta.env.DEV) console.log('File uploaded:', finalImageUrl);
                 } catch (uploadError) {
                     const msg = uploadError instanceof Error ? uploadError.message : 'Onbekend';
-                    console.error('❌ Upload failed:', msg);
-                    alert(`Upload mislukt: ${msg}`);
+                    if (import.meta.env.DEV) console.error('Upload failed:', msg);
+                    setFormError(`Upload mislukt: ${msg}`);
                     setIsUploading(false);
                     setIsSaving(false);
                     return;
@@ -127,8 +130,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
             onClose();
             setSelectedFile(null);
         } catch (error) {
-            console.error("Error saving post:", error);
-            alert("Fout bij opslaan. Probeer opnieuw.");
+            if (import.meta.env.DEV) console.error("Error saving post:", error);
+            setFormError("Fout bij opslaan. Probeer opnieuw.");
         } finally {
             setIsSaving(false);
         }
@@ -153,6 +156,13 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
             showFooter={false}
         >
             <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                {/* Inline Error Banner */}
+                {formError && (
+                    <div className="mx-0 mb-4 px-4 py-3 rounded-xl bg-[rgb(var(--error))]/10 border border-[rgb(var(--error))]/20 text-[rgb(var(--error))] text-sm font-medium flex items-center gap-2">
+                        <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
+                        {formError}
+                    </div>
+                )}
                 {/* Scrollable content area */}
                 <div className="flex-1 overflow-y-auto">
                     {/* Single column on mobile, grid on tablet+ */}
@@ -218,6 +228,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     }
                                     placeholder="Schrijf een pakkende caption..."
                                     rows={4}
+                                    maxLength={500}
                                     className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50 resize-none"
                                     required
                                 />
@@ -278,11 +289,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     ) : (
                                         <div className="absolute inset-0 flex items-center justify-center text-text-muted">
                                             <div className="text-center p-4">
-                                                <iconify-icon
-                                                    icon="lucide:image"
-                                                    width="48"
-                                                    className="mx-auto mb-3 opacity-30"
-                                                />
+                                                <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
                                                 <p className="text-xs md:text-sm">Geen afbeelding geselecteerd</p>
                                             </div>
                                         </div>
@@ -304,14 +311,18 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     <span className="text-xs md:text-sm text-text-primary group-hover:text-brand-orange transition-colors">
                                         Uitgelicht
                                     </span>
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.isFeatured}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, isFeatured: e.target.checked })
-                                        }
-                                        className="w-10 h-6 bg-glass-border rounded-full appearance-none cursor-pointer transition-all duration-200 relative checked:bg-brand-orange"
-                                    />
+                                    <div className="relative inline-block w-10 h-6">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.isFeatured}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, isFeatured: e.target.checked })
+                                            }
+                                            className="peer sr-only"
+                                        />
+                                        <div className="w-10 h-6 bg-glass-border rounded-full cursor-pointer transition-colors duration-200 peer-checked:bg-brand-orange" />
+                                        <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 peer-checked:translate-x-4 pointer-events-none" />
+                                    </div>
                                 </label>
 
                                 {/* Visibility Toggle */}
@@ -319,14 +330,18 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     <span className="text-xs md:text-sm text-text-primary group-hover:text-brand-orange transition-colors">
                                         Zichtbaar
                                     </span>
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.isVisible}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, isVisible: e.target.checked })
-                                        }
-                                        className="w-10 h-6 bg-glass-border rounded-full appearance-none cursor-pointer transition-all duration-200 relative checked:bg-brand-orange"
-                                    />
+                                    <div className="relative inline-block w-10 h-6">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.isVisible}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, isVisible: e.target.checked })
+                                            }
+                                            className="peer sr-only"
+                                        />
+                                        <div className="w-10 h-6 bg-glass-border rounded-full cursor-pointer transition-colors duration-200 peer-checked:bg-brand-orange" />
+                                        <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 peer-checked:translate-x-4 pointer-events-none" />
+                                    </div>
                                 </label>
 
                                 {/* Display Order */}
@@ -370,12 +385,12 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                     >
                         {isUploading ? (
                             <span className="flex items-center justify-center gap-2">
-                                <iconify-icon icon="lucide:loader-2" width="16" className="animate-spin" />
+                                <Loader2 className="w-4 h-4 animate-spin" />
                                 Uploaden...
                             </span>
                         ) : isSaving ? (
                             <span className="flex items-center justify-center gap-2">
-                                <iconify-icon icon="lucide:loader-2" width="16" className="animate-spin" />
+                                <Loader2 className="w-4 h-4 animate-spin" />
                                 Opslaan...
                             </span>
                         ) : (

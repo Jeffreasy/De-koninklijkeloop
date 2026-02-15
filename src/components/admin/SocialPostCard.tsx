@@ -1,4 +1,5 @@
 import type { Id } from "../../../convex/_generated/dataModel";
+import { Edit3, Eye, EyeOff, Star, StarOff, Trash2, ExternalLink, Instagram } from "lucide-react";
 
 interface Props {
     post: {
@@ -38,7 +39,7 @@ export function SocialPostCard({
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     src={post.imageUrl}
                     alt={truncatedCaption}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 will-change-transform"
                     loading="lazy"
                 />
 
@@ -47,7 +48,7 @@ export function SocialPostCard({
                     {post.isFeatured && (
                         <div className="px-2 py-1 rounded-lg bg-brand-orange text-white text-xs font-bold shadow-lg backdrop-blur-sm">
                             <div className="flex items-center gap-1">
-                                <iconify-icon icon="lucide:star" width="12" />
+                                <Star className="w-3 h-3 fill-current" />
                                 Featured
                             </div>
                         </div>
@@ -73,7 +74,7 @@ export function SocialPostCard({
                         title="Bewerken"
                         aria-label="Post bewerken"
                     >
-                        <iconify-icon icon="lucide:edit-3" width="20" />
+                        <Edit3 className="w-5 h-5" />
                     </button>
                     <button
                         onClick={() => onToggleVisibility(post._id)}
@@ -81,7 +82,7 @@ export function SocialPostCard({
                         title={post.isVisible ? "Verbergen" : "Tonen"}
                         aria-label={post.isVisible ? "Post verbergen" : "Post tonen"}
                     >
-                        <iconify-icon icon={post.isVisible ? "lucide:eye-off" : "lucide:eye"} width="20" />
+                        {post.isVisible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                     <button
                         onClick={() => onToggleFeatured(post._id)}
@@ -89,7 +90,7 @@ export function SocialPostCard({
                         title={post.isFeatured ? "Unfeatured" : "Maak Featured"}
                         aria-label={post.isFeatured ? "Featured status verwijderen" : "Als featured markeren"}
                     >
-                        <iconify-icon icon={post.isFeatured ? "lucide:star-off" : "lucide:star"} width="20" />
+                        {post.isFeatured ? <StarOff className="w-5 h-5" /> : <Star className="w-5 h-5" />}
                     </button>
                     <button
                         onClick={() => onDelete(post._id)}
@@ -97,7 +98,7 @@ export function SocialPostCard({
                         title="Verwijderen"
                         aria-label="Post verwijderen"
                     >
-                        <iconify-icon icon="lucide:trash-2" width="20" />
+                        <Trash2 className="w-5 h-5" />
                     </button>
                 </div>
 
@@ -109,7 +110,7 @@ export function SocialPostCard({
                 >
                     <div className="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/70 via-black/20 to-transparent p-3 pt-8">
                         <span className="text-white text-xs font-medium flex items-center gap-1.5 justify-center opacity-80">
-                            <iconify-icon icon="lucide:tap" width="14" />
+                            <ExternalLink className="w-3.5 h-3.5" />
                             Tik om te bewerken
                         </span>
                     </div>
@@ -128,7 +129,7 @@ export function SocialPostCard({
                     className="inline-flex items-center gap-1 text-xs text-brand-orange hover:text-orange-400 transition-colors cursor-pointer"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <iconify-icon icon="lucide:external-link" width="12" />
+                    <ExternalLink className="w-3 h-3" />
                     Bekijk op Instagram
                 </a>
             </div>
@@ -140,7 +141,7 @@ export function SocialPostCard({
                     className="flex-1 flex items-center justify-center gap-1.5 py-3 text-text-muted active:bg-brand-orange/10 active:text-brand-orange active:scale-95 transition-all cursor-pointer min-h-[48px]"
                     aria-label="Post bewerken"
                 >
-                    <iconify-icon icon="lucide:edit-3" width="16" />
+                    <Edit3 className="w-4 h-4" />
                     <span className="text-xs font-medium">Bewerk</span>
                 </button>
                 <div className="w-px h-6 bg-glass-border" />
@@ -152,7 +153,7 @@ export function SocialPostCard({
                         }`}
                     aria-label={post.isVisible ? "Post verbergen" : "Post tonen"}
                 >
-                    <iconify-icon icon={post.isVisible ? "lucide:eye-off" : "lucide:eye"} width="16" />
+                    {post.isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     <span className="text-xs font-medium">{post.isVisible ? "Verberg" : "Toon"}</span>
                 </button>
                 <div className="w-px h-6 bg-glass-border" />
@@ -164,7 +165,7 @@ export function SocialPostCard({
                         }`}
                     aria-label={post.isFeatured ? "Featured status verwijderen" : "Als featured markeren"}
                 >
-                    <iconify-icon icon={post.isFeatured ? "lucide:star-off" : "lucide:star"} width="16" />
+                    {post.isFeatured ? <StarOff className="w-4 h-4" /> : <Star className="w-4 h-4" />}
                     <span className="text-xs font-medium">{post.isFeatured ? "Unfeature" : "Feature"}</span>
                 </button>
                 <div className="w-px h-6 bg-glass-border" />
@@ -173,7 +174,7 @@ export function SocialPostCard({
                     className="flex-1 flex items-center justify-center gap-1.5 py-3 text-red-400 active:bg-red-500/10 active:scale-95 transition-all cursor-pointer min-h-[48px]"
                     aria-label="Post verwijderen"
                 >
-                    <iconify-icon icon="lucide:trash-2" width="16" />
+                    <Trash2 className="w-4 h-4" />
                     <span className="text-xs font-medium">Wis</span>
                 </button>
             </div>
