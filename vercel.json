@@ -87,11 +87,6 @@
             ]
         }
     ],
-    "functions": {
-        "api/**": {
-            "maxDuration": 60
-        }
-    },
     "rewrites": [
         {
             "source": "/api/v1/(.*)",
