@@ -304,8 +304,8 @@ export default function EmailManagerIsland() {
                 </div>
             </div>
 
-            {/* Middle Panel - Email List */}
-            <div className="lg:col-span-2">
+            {/* Middle Panel - Email List (hidden when detail is shown on large screens) */}
+            <div className={`lg:col-span-2 ${selectedEmail ? 'hidden lg:hidden' : ''}`}>
                 <div className="glass-card overflow-hidden">
                     {/* Header */}
                     <div className="px-6 py-4 border-b border-glass-border bg-white/5">
@@ -368,7 +368,7 @@ export default function EmailManagerIsland() {
                                 <p className="text-red-400">{error}</p>
                                 <button
                                     onClick={() => fetchEmails(1)}
-                                    className="mt-4 px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-lg hover:bg-brand-orange/20 transition"
+                                    className="mt-4 px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-lg hover:bg-brand-orange/20 transition cursor-pointer"
                                 >
                                     Opnieuw proberen
                                 </button>
@@ -437,7 +437,7 @@ export default function EmailManagerIsland() {
 
             {/* Right Panel - Email Detail (if selected) */}
             {selectedEmail && (
-                <div className="lg:col-span-3">
+                <div className="lg:col-span-2">
                     <EmailDetailPanel
                         email={selectedEmail}
                         onClose={() => setSelectedEmail(null)}
@@ -484,6 +484,8 @@ export default function EmailManagerIsland() {
             {/* Toast Notification */}
             {toast && (
                 <div
+                    role="alert"
+                    aria-live="assertive"
                     className="fixed bottom-6 right-6 z-50 glass-card px-6 py-4 rounded-xl shadow-2xl border-l-4
                                flex items-center gap-3 animate-slide-up"
                     style={{
@@ -502,8 +504,8 @@ export default function EmailManagerIsland() {
                     <span className="text-sm font-medium text-text-primary">{toast.message}</span>
                     <button
                         onClick={() => setToast(null)}
-                        className="ml-2 text-text-muted hover:text-text-primary transition-colors"
-                        aria-label="Close notification"
+                        className="ml-2 text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+                        aria-label="Melding sluiten"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

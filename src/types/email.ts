@@ -1,5 +1,5 @@
 // Shared Email types for admin email components
-// Single source of truth — used by EmailManagerIsland, ReplyModal, ComposeModal
+// Single source of truth — used by EmailManagerIsland, ComposeModal, EmailDetailPanel
 
 export interface Email {
     id: string;

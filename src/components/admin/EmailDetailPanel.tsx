@@ -91,7 +91,7 @@ export function EmailDetailPanel({ email, onClose, onReply, onMarkUnread, onTogg
                         onClick={() => { if (fullEmail) onReply(fullEmail); }}
                         disabled={!fullEmail}
                         aria-label="Beantwoorden"
-                        className="px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-lg hover:bg-brand-orange/20 transition-[background-color] duration-200 text-sm font-medium cursor-pointer"
+                        className="px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-lg hover:bg-brand-orange/20 transition-[background-color] duration-200 text-sm font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Beantwoorden
                     </button>

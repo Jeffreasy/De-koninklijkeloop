@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { X, Search, Users, Building2, ChevronDown } from 'lucide-react';
@@ -67,13 +67,22 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
         return () => document.removeEventListener('mousedown', handleClick);
     }, []);
 
-    // Already-selected emails set
-    const selectedEmails = new Set(recipients.map(r => r.email.toLowerCase()));
+    // Already-selected emails set (memoized to prevent useCallback invalidation)
+    const selectedEmails = useMemo(
+        () => new Set(recipients.map(r => r.email.toLowerCase())),
+        [recipients]
+    );
 
     // Filter out already-selected contacts
     const availableContacts = (contacts ?? []).filter(
         c => !selectedEmails.has(c.email.toLowerCase())
     );
+
+    // Active index for keyboard navigation
+    const [activeIndex, setActiveIndex] = useState(-1);
+
+    // Reset active index when dropdown contacts change
+    useEffect(() => { setActiveIndex(-1); }, [availableContacts.length]);
 
     const addRecipient = useCallback((r: Recipient) => {
         if (!selectedEmails.has(r.email.toLowerCase())) {
@@ -81,6 +90,7 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
         }
         setSearch('');
         setShowDropdown(false);
+        setActiveIndex(-1);
         inputRef.current?.focus();
     }, [recipients, onChange, selectedEmails]);
 
@@ -88,14 +98,31 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
         onChange(recipients.filter(r => r.email.toLowerCase() !== email.toLowerCase()));
     }, [recipients, onChange]);
 
-    // Handle Enter: add typed email as manual recipient
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && search.includes('@') && search.includes('.')) {
+        if (e.key === 'Enter') {
             e.preventDefault();
-            addRecipient({ email: search.trim(), isManual: true });
+            if (activeIndex >= 0 && activeIndex < availableContacts.length) {
+                const c = availableContacts[activeIndex];
+                addRecipient({ email: c.email, naam: c.naam, organizationNaam: c.organizationNaam, organizationSector: c.organizationSector });
+            } else if (search.includes('@') && search.includes('.')) {
+                addRecipient({ email: search.trim(), isManual: true });
+            }
         }
         if (e.key === 'Backspace' && search === '' && recipients.length > 0) {
             removeRecipient(recipients[recipients.length - 1].email);
+        }
+        if (e.key === 'ArrowDown' && showDropdown && availableContacts.length > 0) {
+            e.preventDefault();
+            setActiveIndex(prev => Math.min(prev + 1, availableContacts.length - 1));
+        }
+        if (e.key === 'ArrowUp' && showDropdown) {
+            e.preventDefault();
+            setActiveIndex(prev => Math.max(prev - 1, 0));
+        }
+        if (e.key === 'Escape') {
+            setShowDropdown(false);
+            setShowGroupSelector(false);
+            setActiveIndex(-1);
         }
     };
 
@@ -172,6 +199,11 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
                     placeholder={recipients.length === 0 ? 'Zoek contact of typ email...' : 'Voeg toe...'}
                     disabled={disabled}
                     autoComplete="off"
+                    aria-label="Zoek contacten of typ emailadres"
+                    role="combobox"
+                    aria-expanded={showDropdown && debouncedSearch.length >= 2}
+                    aria-controls="contact-picker-listbox"
+                    aria-activedescendant={activeIndex >= 0 ? `contact-option-${activeIndex}` : undefined}
                 />
 
                 {/* Group selector toggle */}
@@ -180,8 +212,8 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
                     onClick={() => { setShowGroupSelector(!showGroupSelector); setShowDropdown(false); }}
                     disabled={disabled}
                     className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${showGroupSelector
-                            ? 'bg-brand-orange/15 text-brand-orange'
-                            : 'text-text-muted hover:text-brand-orange hover:bg-brand-orange/10'
+                        ? 'bg-brand-orange/15 text-brand-orange'
+                        : 'text-text-muted hover:text-brand-orange hover:bg-brand-orange/10'
                         }`}
                     title="Selecteer groep"
                     aria-label="Selecteer contactgroep"
@@ -193,7 +225,7 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
 
             {/* Search results dropdown */}
             {showDropdown && debouncedSearch.length >= 2 && (
-                <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-[240px] overflow-y-auto bg-glass-bg/95 backdrop-blur-xl border border-glass-border rounded-xl shadow-2xl">
+                <div id="contact-picker-listbox" role="listbox" className="absolute top-full left-0 right-0 z-50 mt-1 max-h-[240px] overflow-y-auto bg-glass-bg/95 backdrop-blur-xl border border-glass-border rounded-xl shadow-2xl">
                     {contacts === undefined && (
                         <div className="px-4 py-3 text-xs text-text-muted">Zoeken...</div>
                     )}
@@ -202,17 +234,21 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
                             Geen contacten gevonden. Druk Enter om "{search}" handmatig toe te voegen.
                         </div>
                     )}
-                    {availableContacts.map(c => (
+                    {availableContacts.map((c, idx) => (
                         <button
                             key={c._id}
+                            id={`contact-option-${idx}`}
                             type="button"
+                            role="option"
+                            aria-selected={idx === activeIndex}
                             onClick={() => addRecipient({
                                 email: c.email,
                                 naam: c.naam,
                                 organizationNaam: c.organizationNaam,
                                 organizationSector: c.organizationSector,
                             })}
-                            className="w-full text-left px-4 py-2.5 hover:bg-brand-orange/10 transition-colors flex items-center gap-3 cursor-pointer"
+                            className={`w-full text-left px-4 py-2.5 transition-colors flex items-center gap-3 cursor-pointer ${idx === activeIndex ? 'bg-brand-orange/15' : 'hover:bg-brand-orange/10'
+                                }`}
                         >
                             <div className="w-8 h-8 rounded-full bg-brand-orange/15 flex items-center justify-center text-brand-orange text-xs font-bold shrink-0">
                                 {(c.naam || c.email)[0].toUpperCase()}

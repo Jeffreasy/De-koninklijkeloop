@@ -57,7 +57,7 @@ export function EmailListItem({ email, isSelected, onClick }: EmailListItemProps
                         {email.subject || '(Geen onderwerp)'}
                     </div>
 
-                    {/* Preview */}
+                    {/* Preview — Email type has no preview_text field, show address as fallback */}
                     <div className="text-xs text-text-muted line-clamp-1">
                         {email.from_address}
                     </div>

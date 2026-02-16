@@ -4,7 +4,7 @@ import { AdminModal } from './AdminModal';
 import ContactPicker, { type Recipient } from './ContactPicker';
 import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
-import type { FullEmail } from '../../types/email';
+import type { FullEmail, Account } from '../../types/email';
 
 interface ComposeModalProps {
     onClose: () => void;
@@ -42,11 +42,8 @@ export default function ComposeModal({ onClose, onSuccess, defaultTo = '', mode 
         return defaultTo ? [{ email: defaultTo, isManual: true }] : [];
     };
 
-    const [fromAccount, setFromAccount] = useState<string>(ACCOUNTS[0].value);
+    const [fromAccount, setFromAccount] = useState<Account>(ACCOUNTS[0].value);
     const [recipients, setRecipients] = useState<Recipient[]>(initialRecipients);
-    const [cc, setCc] = useState('');
-    const [bcc, setBcc] = useState('');
-    const [showCcBcc, setShowCcBcc] = useState(false);
     const [subject, setSubject] = useState(isReply ? `Re: ${replyToEmail.subject}` : '');
     const [body, setBody] = useState('');
     const [sending, setSending] = useState(false);
@@ -126,7 +123,7 @@ export default function ComposeModal({ onClose, onSuccess, defaultTo = '', mode 
         } finally {
             setAiGenerating(false);
         }
-    }, [subject, aiTone, body]);
+    }, [subject, aiTone, body, threadContext]);
 
     const handleAiUndo = () => {
         if (previousBody !== null) {
@@ -157,6 +154,7 @@ export default function ComposeModal({ onClose, onSuccess, defaultTo = '', mode 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...(isReply ? {} : { to: toEmails }),
+                    from: fromAccount,
                     subject: subject.trim(),
                     body: body.trim(),
                 }),
@@ -212,7 +210,7 @@ export default function ComposeModal({ onClose, onSuccess, defaultTo = '', mode 
                     <div className="relative flex-1">
                         <select
                             value={fromAccount}
-                            onChange={(e) => setFromAccount(e.target.value)}
+                            onChange={(e) => setFromAccount(e.target.value as Account)}
                             disabled={sending}
                             className="w-full appearance-none bg-glass-bg/50 border border-glass-border rounded-lg px-3 py-2 pr-8 text-sm text-text-primary cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 transition-[border-color,box-shadow] duration-200"
                             aria-label="Afzender account"
@@ -230,54 +228,16 @@ export default function ComposeModal({ onClose, onSuccess, defaultTo = '', mode 
                     <label htmlFor="compose-to" className="text-sm font-medium text-text-muted w-16 shrink-0 pt-1.5">
                         Aan
                     </label>
-                    <div className="flex-1 flex items-center gap-2">
+                    <div className="flex-1">
                         <ContactPicker
                             recipients={recipients}
                             onChange={(r) => { setRecipients(r); setError(null); }}
                             disabled={sending}
                             id="compose-to"
                         />
-                        {!showCcBcc && (
-                            <button
-                                type="button"
-                                onClick={() => setShowCcBcc(true)}
-                                className="text-xs text-text-muted hover:text-brand-orange transition-colors cursor-pointer px-2 py-1 rounded-md hover:bg-brand-orange/10 shrink-0"
-                            >
-                                CC/BCC
-                            </button>
-                        )}
                     </div>
                 </div>
 
-                {/* CC / BCC (expandable) */}
-                {showCcBcc && (
-                    <>
-                        <div className="flex items-center gap-3 py-3 border-b border-glass-border">
-                            <label htmlFor="compose-cc" className="text-sm font-medium text-text-muted w-16 shrink-0">CC</label>
-                            <input
-                                id="compose-cc"
-                                type="email"
-                                value={cc}
-                                onChange={(e) => setCc(e.target.value)}
-                                className="flex-1 bg-transparent text-sm text-text-primary placeholder-text-muted focus:outline-none py-1"
-                                placeholder="cc@example.com"
-                                disabled={sending}
-                            />
-                        </div>
-                        <div className="flex items-center gap-3 py-3 border-b border-glass-border">
-                            <label htmlFor="compose-bcc" className="text-sm font-medium text-text-muted w-16 shrink-0">BCC</label>
-                            <input
-                                id="compose-bcc"
-                                type="email"
-                                value={bcc}
-                                onChange={(e) => setBcc(e.target.value)}
-                                className="flex-1 bg-transparent text-sm text-text-primary placeholder-text-muted focus:outline-none py-1"
-                                placeholder="bcc@example.com"
-                                disabled={sending}
-                            />
-                        </div>
-                    </>
-                )}
 
                 {/* Subject */}
                 <div className="flex items-center gap-3 py-3 border-b border-glass-border">
@@ -370,6 +330,7 @@ export default function ComposeModal({ onClose, onSuccess, defaultTo = '', mode 
                             onClick={handleAiUndo}
                             className="px-2 py-1.5 text-xs text-text-muted hover:text-amber-400 hover:bg-amber-400/10 rounded-lg transition-colors cursor-pointer"
                             title="AI concept ongedaan maken"
+                            aria-label="AI concept ongedaan maken"
                         >
                             Undo AI
                         </button>
@@ -527,8 +488,8 @@ Je kunt **vet**, _cursief_ en [links](url) gebruiken."
                                 </>
                             ) : (
                                 <>
-                                    <Send className="w-4 h-4" />
-                                    Versturen
+                                    {isReply ? <Reply className="w-4 h-4" /> : <Send className="w-4 h-4" />}
+                                    {isReply ? 'Beantwoorden' : 'Versturen'}
                                 </>
                             )}
                         </button>
