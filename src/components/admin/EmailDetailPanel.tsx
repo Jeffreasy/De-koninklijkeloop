@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Paperclip, Download, X, AlertCircle } from 'lucide-react';
+import { Loader2, Paperclip, Download, X, AlertCircle, Star, MailOpen, Archive } from 'lucide-react';
 import type { Email, FullEmail } from '../../types/email';
 
 interface EmailDetailPanelProps {
     email: Email;
     onClose: () => void;
     onReply: () => void;
+    onMarkUnread?: () => void;
+    onToggleStar?: () => void;
+    onArchive?: () => void;
 }
 
-export function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
+export function EmailDetailPanel({ email, onClose, onReply, onMarkUnread, onToggleStar, onArchive }: EmailDetailPanelProps) {
     const [fullEmail, setFullEmail] = useState<FullEmail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -49,18 +52,52 @@ export function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelPr
                         Van: {email.from_name || email.from_address}
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                    {onToggleStar && (
+                        <button
+                            onClick={onToggleStar}
+                            aria-label={email.is_starred ? 'Ster verwijderen' : 'Ster toevoegen'}
+                            title={email.is_starred ? 'Ster verwijderen' : 'Ster toevoegen'}
+                            className={`p-2 rounded-lg transition-colors duration-200 cursor-pointer ${email.is_starred
+                                    ? 'text-amber-400 hover:text-amber-300 bg-amber-400/10'
+                                    : 'text-text-muted hover:text-amber-400 hover:bg-amber-400/10'
+                                }`}
+                        >
+                            <Star className="w-4 h-4" fill={email.is_starred ? 'currentColor' : 'none'} />
+                        </button>
+                    )}
+                    {onMarkUnread && (
+                        <button
+                            onClick={onMarkUnread}
+                            aria-label="Markeer als ongelezen"
+                            title="Markeer als ongelezen"
+                            className="p-2 text-text-muted hover:text-brand-orange hover:bg-brand-orange/10 rounded-lg transition-colors duration-200 cursor-pointer"
+                        >
+                            <MailOpen className="w-4 h-4" />
+                        </button>
+                    )}
+                    {onArchive && (
+                        <button
+                            onClick={onArchive}
+                            aria-label="Archiveren"
+                            title="Archiveren"
+                            className="p-2 text-text-muted hover:text-brand-orange hover:bg-brand-orange/10 rounded-lg transition-colors duration-200 cursor-pointer"
+                        >
+                            <Archive className="w-4 h-4" />
+                        </button>
+                    )}
+                    <div className="w-px h-6 bg-glass-border mx-1" />
                     <button
                         onClick={onReply}
-                        aria-label="Reply to this email"
-                        className="px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-lg hover:bg-brand-orange/20 transition-[background-color] duration-200 text-sm font-medium"
+                        aria-label="Beantwoorden"
+                        className="px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-lg hover:bg-brand-orange/20 transition-[background-color] duration-200 text-sm font-medium cursor-pointer"
                     >
                         Beantwoorden
                     </button>
                     <button
                         onClick={onClose}
-                        aria-label="Close email detail"
-                        className="p-2 text-text-muted hover:text-text-primary transition-colors duration-200"
+                        aria-label="Sluiten"
+                        className="p-2 text-text-muted hover:text-text-primary transition-colors duration-200 cursor-pointer"
                     >
                         <X className="w-5 h-5" />
                     </button>

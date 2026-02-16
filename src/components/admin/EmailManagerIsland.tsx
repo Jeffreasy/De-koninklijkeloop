@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { Loader2, Mail, Inbox, Star, Plus, RefreshCw, Search, AlertTriangle } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Loader2, Mail, Inbox, Star, Plus, RefreshCw, Search } from 'lucide-react';
 import ReplyModal from './ReplyModal';
+import ComposeModal from './ComposeModal';
 import { EmailListItem } from './EmailListItem';
 import { EmailDetailPanel } from './EmailDetailPanel';
 import type { Email, EmailStats, Account } from '../../types/email';
@@ -14,6 +15,7 @@ export default function EmailManagerIsland() {
     const [emails, setEmails] = useState<Email[]>([]);
     const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
     const [showReplyModal, setShowReplyModal] = useState(false);
+    const [showComposeModal, setShowComposeModal] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [accountStats, setAccountStats] = useState<Record<Account, EmailStats | null>>({ info: null, inschrijving: null });
     const [page, setPage] = useState(1);
@@ -95,7 +97,7 @@ export default function EmailManagerIsland() {
 
         try {
             const response = await fetch(
-                `/api/email/inbox/${selectedAccount}?page=${fetchPage}&per_page=${EMAILS_PER_PAGE}`
+                `/api/email/inbox/${selectedAccount}?page=${fetchPage}&per_page=${EMAILS_PER_PAGE}&archived=false`
             );
 
             if (!response.ok) {
@@ -158,6 +160,59 @@ export default function EmailManagerIsland() {
         }
     };
 
+    const handleMarkUnread = useCallback(async (emailId: string) => {
+        try {
+            await fetch(`/api/email/message/${emailId}/read`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_read: false })
+            });
+            setEmails(prev => prev.map(e =>
+                e.id === emailId ? { ...e, is_read: false } : e
+            ));
+            setSelectedEmail(prev => prev?.id === emailId ? { ...prev, is_read: false } : prev);
+            fetchStats(selectedAccount);
+            setToast({ message: 'Gemarkeerd als ongelezen', type: 'success' });
+        } catch (err) {
+            if (import.meta.env.DEV) console.error('[EmailManager] Mark unread error:', err);
+            setToast({ message: 'Kon niet markeren als ongelezen', type: 'error' });
+        }
+    }, [selectedAccount]);
+
+    const handleToggleStar = useCallback(async (emailId: string, currentStarred: boolean) => {
+        try {
+            await fetch(`/api/email/message/${emailId}/star`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_starred: !currentStarred })
+            });
+            setEmails(prev => prev.map(e =>
+                e.id === emailId ? { ...e, is_starred: !currentStarred } : e
+            ));
+            setSelectedEmail(prev => prev?.id === emailId ? { ...prev, is_starred: !currentStarred } : prev);
+            fetchStats(selectedAccount);
+        } catch (err) {
+            if (import.meta.env.DEV) console.error('[EmailManager] Star toggle error:', err);
+            setToast({ message: 'Ster wijzigen mislukt', type: 'error' });
+        }
+    }, [selectedAccount]);
+
+    const handleArchive = useCallback(async (emailId: string) => {
+        try {
+            await fetch(`/api/email/message/${emailId}/archive`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            setEmails(prev => prev.filter(e => e.id !== emailId));
+            if (selectedEmail?.id === emailId) setSelectedEmail(null);
+            fetchStats(selectedAccount);
+            setToast({ message: 'Email gearchiveerd', type: 'success' });
+        } catch (err) {
+            if (import.meta.env.DEV) console.error('[EmailManager] Archive error:', err);
+            setToast({ message: 'Archiveren mislukt', type: 'error' });
+        }
+    }, [selectedAccount, selectedEmail]);
+
     const accountDisplayName = {
         info: 'info@dekoninklijkeloop.nl',
         inschrijving: 'inschrijving@dekoninklijkeloop.nl'
@@ -175,15 +230,11 @@ export default function EmailManagerIsland() {
                         </h3>
 
                         <button
-                            onClick={() => {
-                                setToast({ message: 'Compose is nog niet beschikbaar — gebruik Beantwoorden', type: 'error' });
-                            }}
-                            className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 bg-glass-bg border-2 border-dashed border-glass-border text-text-muted font-medium rounded-xl hover:border-brand-orange/30 hover:text-text-secondary transition-colors cursor-pointer min-h-[44px]"
-                            title="Backend endpoint nog niet beschikbaar"
+                            onClick={() => setShowComposeModal(true)}
+                            className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 bg-brand-orange text-white font-medium rounded-xl hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 cursor-pointer min-h-[44px]"
                         >
                             <Plus className="w-5 h-5" />
                             Nieuw Bericht
-                            <AlertTriangle className="w-4 h-4 text-yellow-500" />
                         </button>
 
                         <div className="space-y-2">
@@ -390,6 +441,9 @@ export default function EmailManagerIsland() {
                         email={selectedEmail}
                         onClose={() => setSelectedEmail(null)}
                         onReply={() => setShowReplyModal(true)}
+                        onMarkUnread={() => handleMarkUnread(selectedEmail.id)}
+                        onToggleStar={() => handleToggleStar(selectedEmail.id, selectedEmail.is_starred)}
+                        onArchive={() => handleArchive(selectedEmail.id)}
                     />
                 </div>
             )}
@@ -404,6 +458,19 @@ export default function EmailManagerIsland() {
                         fetchEmails();
                         fetchStats(selectedAccount);
                     }}
+                />
+            )}
+
+            {/* Compose Modal */}
+            {showComposeModal && (
+                <ComposeModal
+                    onClose={() => setShowComposeModal(false)}
+                    onSuccess={() => {
+                        setToast({ message: 'Email verzonden', type: 'success' });
+                        fetchEmails();
+                        fetchStats(selectedAccount);
+                    }}
+                    defaultTo=""
                 />
             )}
 
