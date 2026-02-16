@@ -111,7 +111,7 @@ function ProgrammaContent() {
                     Editie 2026
                 </div>
 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary tracking-tight font-display mb-4">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary font-display mb-4">
                     Programma 2026
                 </h1>
                 <p className="text-text-muted text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed mb-6">
@@ -145,7 +145,7 @@ function ProgrammaContent() {
             {/* ── Meldtijden Quick Reference ── */}
             <section>
                 <div className="text-center mb-5">
-                    <h2 className="text-xl md:text-2xl font-bold text-text-primary tracking-tight font-display">
+                    <h2 className="text-xl md:text-2xl font-bold text-text-primary font-display">
                         Meldtijden
                     </h2>
                     <p className="text-text-muted text-sm mt-1">Meld je op tijd bij het coördinatiepunt (Grote Kerk)</p>
@@ -175,7 +175,7 @@ function ProgrammaContent() {
             <section className="relative rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md p-6 md:p-8 overflow-hidden">
                 <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-brand-orange/3 rounded-full blur-3xl -z-10 -translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-                <h2 className="text-xl md:text-2xl font-bold text-text-primary tracking-tight font-display mb-5">
+                <h2 className="text-xl md:text-2xl font-bold text-text-primary font-display mb-5">
                     Praktische Informatie
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -236,7 +236,7 @@ function ProgrammaContent() {
             {/* ── Route Detail Cards ── */}
             <section>
                 <div className="text-center mb-6">
-                    <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight font-display mb-2">
+                    <h2 className="text-2xl md:text-3xl font-bold text-text-primary font-display mb-2">
                         Kies je route
                     </h2>
                     <p className="text-text-muted text-sm md:text-base max-w-lg mx-auto">
@@ -366,7 +366,7 @@ function ProgrammaContent() {
                 <div className="max-w-3xl mx-auto">
                     {/* Section Header */}
                     <div className="text-center mb-8">
-                        <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-2 tracking-tight font-display">
+                        <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-2 font-display">
                             Dagprogramma
                         </h2>
                         <p className="text-text-muted text-sm md:text-base max-w-lg mx-auto">

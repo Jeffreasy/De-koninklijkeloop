@@ -166,7 +166,7 @@ function FeedbackModalContent() {
                             <div className="relative p-6 border-b border-glass-border flex items-center justify-between bg-glass-surface/50">
                                 <div className="absolute inset-0 bg-linear-to-r from-brand-orange/5 to-transparent pointer-events-none" />
                                 <div className="relative">
-                                    <h3 className="font-bold font-display text-xl text-text-primary tracking-tight">Feedback & Ideeën</h3>
+                                    <h3 className="font-bold font-display text-xl text-text-primary">Feedback & Ideeën</h3>
                                     <p className="text-xs text-text-muted mt-0.5 font-medium">Help ons het platform te verbeteren 🚀</p>
                                 </div>
                                 <button

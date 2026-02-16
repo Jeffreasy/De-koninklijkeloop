@@ -107,7 +107,7 @@ export const SocialGridIsland = memo(function SocialGridIsland({
                 <Instagram className="w-3.5 h-3.5" />
                 @koninklijkeloop
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-text-primary tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-text-primary">
                 Volg ons op{" "}
                 <span className="bg-linear-to-r from-brand-orange via-amber-400 to-brand-orange bg-clip-text text-transparent">
                     Instagram

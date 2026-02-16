@@ -26,6 +26,7 @@
   /* Typography */
   --font-display: "Bebas Neue", sans-serif;
   --font-body: "Source Sans 3", sans-serif;
+  --font-admin: "Inter", system-ui, sans-serif;
 
   /* Border Radius */
   --radius-action: 0.75rem;
@@ -210,6 +211,12 @@ iconify-icon {
     padding: 0;
     min-height: 100vh;
     text-rendering: optimizeLegibility;
+  }
+
+  /* Bebas Neue is a condensed font — needs extra letter-spacing and line-height */
+  .font-display {
+    letter-spacing: 0.02em;
+    line-height: 1.15;
   }
 
   /* Dark Mode: Royal Path Pattern (Clean Ambient) */

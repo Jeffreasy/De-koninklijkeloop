@@ -140,7 +140,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                             <Sparkles className="w-3 h-3" />
                             2026 Editie
                         </div>
-                        <h3 className="text-3xl md:text-4xl font-bold text-text-primary mb-3 tracking-tight font-display">
+                        <h3 className="text-3xl md:text-4xl font-bold text-text-primary mb-3 font-display">
                             Dagprogramma
                         </h3>
                         <p className="text-text-muted text-base md:text-lg max-w-xl mx-auto font-light leading-relaxed">

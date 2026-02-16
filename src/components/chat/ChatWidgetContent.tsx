@@ -120,7 +120,7 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
                         </button>
                     )}
                     <div>
-                        <h3 className="font-bold text-lg text-text-primary font-display tracking-tight flex items-center gap-2">
+                        <h3 className="font-bold text-lg text-text-primary font-display flex items-center gap-2">
                             {chatView === 'list' && 'Berichten'}
                             {chatView === 'dm' && activeDmUser?.name}
                             {chatView === 'group' && activeGroup?.name}

@@ -100,7 +100,7 @@ function DonationWidgetContent() {
             <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                        <h2 className="text-3xl lg:text-4xl font-bold text-text-primary font-display tracking-tight text-shadow-sm">
+                        <h2 className="text-3xl lg:text-4xl font-bold text-text-primary font-display text-shadow-sm">
                             {activeCampaign.title}
                         </h2>
                         <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange text-xs font-bold border border-brand-orange/20 shadow-[0_0_15px_rgba(255,147,40,0.15)] backdrop-blur-md">

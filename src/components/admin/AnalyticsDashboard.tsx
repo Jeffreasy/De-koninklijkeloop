@@ -291,7 +291,7 @@ export default function AnalyticsDashboard() {
             {/* ═══════ Header + Period Selector + Export ═══════ */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-display font-bold text-text-primary tracking-tight">
+                    <h2 className="text-2xl font-display font-bold text-text-primary">
                         Analytics
                     </h2>
                     <p className="text-xs text-text-muted mt-1">
@@ -850,7 +850,7 @@ function KPICard({ icon, label, value, accent, loading, trend }: {
                 {loading ? (
                     <div className="h-9 w-24 bg-glass-border/20 rounded-lg animate-pulse" />
                 ) : (
-                    <div className="text-3xl md:text-4xl font-display font-bold text-text-primary tracking-tight">
+                    <div className="text-3xl md:text-4xl font-display font-bold text-text-primary">
                         {value}
                     </div>
                 )}
@@ -899,7 +899,7 @@ function ComingSoonKPI({ icon, label, tooltip }: {
                         <span>Soon</span>
                     </div>
                 </div>
-                <div className="text-3xl md:text-4xl font-display font-bold text-text-muted tracking-tight">
+                <div className="text-3xl md:text-4xl font-display font-bold text-text-muted">
                     —
                 </div>
                 <p className="text-xs text-text-muted mt-1 font-medium">{label}</p>

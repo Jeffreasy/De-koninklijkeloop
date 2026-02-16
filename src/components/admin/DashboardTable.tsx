@@ -100,7 +100,7 @@ export default function DashboardTable() {
                     <UserCheck className="w-8 h-8" />
                 </div>
                 <div>
-                    <h2 className="text-2xl font-display font-bold text-text-primary tracking-tight">Toegang Beveiligd</h2>
+                    <h2 className="text-2xl font-display font-bold text-text-primary">Toegang Beveiligd</h2>
                     <p className="text-text-muted mt-2 max-w-md mx-auto">Je moet ingelogd zijn als beheerder om toegang te krijgen tot deze gevoelige informatie.</p>
                 </div>
                 <a href="/login"><Button className="mt-6 bg-brand-orange hover:bg-orange-600 text-white rounded-xl px-8 py-6 text-lg shadow-xl shadow-brand-orange/20 transition-all hover:scale-105">Inloggen</Button></a>
@@ -166,7 +166,7 @@ export default function DashboardTable() {
             {/* ═══════ 0. Edition Toolbar ═══════ */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-display font-bold text-text-primary tracking-tight">
+                    <h2 className="text-2xl font-display font-bold text-text-primary">
                         Overzicht {editionFilter}
                     </h2>
                     {editionFilter === "2026" && daysUntilEvent > 0 && (
@@ -210,7 +210,7 @@ export default function DashboardTable() {
                                 </span>
                             )}
                         </div>
-                        <div className="text-3xl md:text-4xl font-display font-bold text-text-primary tracking-tight">
+                        <div className="text-3xl md:text-4xl font-display font-bold text-text-primary">
                             {stats.totalParticipants}
                         </div>
                         <p className="text-xs text-text-muted mt-1 font-medium">Totaal Deelnemers</p>
@@ -226,7 +226,7 @@ export default function DashboardTable() {
                                 <UserPlus className="w-4 h-4" />
                             </div>
                         </div>
-                        <div className="text-3xl md:text-4xl font-display font-bold text-text-primary tracking-tight">
+                        <div className="text-3xl md:text-4xl font-display font-bold text-text-primary">
                             {stats.newToday}
                         </div>
                         <p className="text-xs text-text-muted mt-1 font-medium">Nieuw Vandaag</p>
@@ -294,7 +294,7 @@ export default function DashboardTable() {
                         </div>
 
                         <div className="mt-6">
-                            <h3 className="text-5xl font-display font-bold text-text-primary tracking-tight">
+                            <h3 className="text-5xl font-display font-bold text-text-primary">
                                 {stats.uniqueReach}
                             </h3>
                             <p className="text-sm font-medium text-text-muted mt-1">Unieke E-mailadressen ({editionFilter})</p>
@@ -458,7 +458,7 @@ export default function DashboardTable() {
                                             <span className="font-medium text-text-secondary">
                                                 {dist} km
                                                 {isLeading && count > 0 && (
-                                                    <span className="ml-1.5 text-[9px] text-brand-orange font-bold uppercase">populair</span>
+                                                    <span className="ml-1.5 text-[10px] text-brand-orange font-bold uppercase">populair</span>
                                                 )}
                                             </span>
                                             <span className="text-text-muted font-mono">{count} <span className="opacity-60">({percentage}%)</span></span>

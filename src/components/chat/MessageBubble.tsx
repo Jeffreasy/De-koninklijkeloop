@@ -57,7 +57,7 @@ export const MessageBubble = memo(function MessageBubble({ message, isMe, curren
                         <div className="text-[10px] font-bold text-brand-orange mb-1">{groupMsg.senderName}</div>
                     )}
                     <p className="leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
-                    <div className={`text-[9px] mt-1 text-right opacity-60 ${isMe ? 'text-white' : 'text-text-muted'}`}>
+                    <div className={`text-[10px] mt-1 text-right opacity-60 ${isMe ? 'text-white' : 'text-text-muted'}`}>
                         {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         {isMe && dmMsg && (
                             <span className="ml-1 inline-block">

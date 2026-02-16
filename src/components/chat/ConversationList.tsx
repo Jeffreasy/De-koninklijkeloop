@@ -168,7 +168,7 @@ const UserListItem = memo(function UserListItem({ user, unreadCount, onClick, is
                     <div className="flex items-center gap-1.5">
                         <span className="text-sm font-bold text-text-primary truncate">{user.name}</span>
                         {user.role && (
-                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide ${user.role === 'admin'
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide ${user.role === 'admin'
                                 ? 'bg-red-500/20 text-red-600 border border-red-500/30'
                                 : 'bg-blue-500/20 text-blue-600 border border-blue-500/30'
                                 }`}>

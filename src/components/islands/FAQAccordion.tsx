@@ -88,7 +88,7 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
                     {/* Active Category Title (Mobile Only context) */}
                     <div className="mb-8 md:hidden flex items-center gap-3 border-b border-white/5 pb-4">
                         <span className="text-3xl filter drop-shadow-lg">{activeCategory.icon}</span>
-                        <h3 className="text-2xl font-display font-bold text-primary tracking-tight">{activeCategory.title}</h3>
+                        <h3 className="text-2xl font-display font-bold text-primary">{activeCategory.title}</h3>
                     </div>
 
                     <div className="space-y-4">
