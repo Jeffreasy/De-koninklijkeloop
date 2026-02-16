@@ -106,6 +106,11 @@ export const siteConfig = {
 
 
 
+    // Search Engine Verification
+    verification: {
+        google: "MgoU-tokPcYm6Kij9I9zDRGPOXzZ6ENBuDoWubZj9HE",
+    },
+
     // Page Metadata Templates
     meta: {
         titleSuffix: " | De Koninklijke Loop",

@@ -137,6 +137,16 @@ const allSchemas = [
     {/* Robots */}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
+    {/* Search Engine Verification */}
+    {
+        siteConfig.verification?.google && (
+            <meta
+                name="google-site-verification"
+                content={siteConfig.verification.google}
+            />
+        )
+    }
+
     {/* Open Graph */}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
