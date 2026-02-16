@@ -15,9 +15,17 @@ export const prerender = true;
 
 const eventJsonLd = {
 	"@context": "https://schema.org",
-	"@type": "Event",
+	"@type": "SportsEvent",
 	name: "De Koninklijke Loop 2026",
-	alternateName: ["DKL", "DKL26", "De Koninklijke Loop", "Koninklijke Loop"],
+	sport: "Wandelen",
+	alternateName: [
+		"DKL",
+		"DKL26",
+		"De Koninklijke Loop",
+		"Koninklijke Loop",
+		"Wandeltocht Apeldoorn",
+		"Loop Apeldoorn",
+	],
 	description:
 		"Inclusief wandelevenement voor en door mensen met een beperking. Routes van 2,5 tot 15 km over de Koninklijke Weg. Goede doel: Only Friends.",
 	image: [
@@ -79,8 +87,8 @@ const eventJsonLd = {
 ---
 
 <BaseLayout
-	title="De Koninklijke Loop (DKL) 2026 | Inclusief Wandelevenement Apeldoorn"
-	description="De Koninklijke Loop (DKL) is een inclusief wandelevenement op 16 mei 2026 over de Koninklijke Weg in Kootwijk–Apeldoorn. Gratis deelname, routes van 2,5 tot 15 km. Goede doel: Only Friends."
+	title="De Koninklijke Loop 2026 | Wandelen in Apeldoorn — Gratis Inclusief Wandelevenement"
+	description="De Koninklijke Loop (DKL) is een gratis wandeltocht op 16 mei 2026 over de Koninklijke Weg van Kootwijk naar Apeldoorn. Wandelen over de Veluwe met routes van 2,5 tot 15 km. Rolstoelvriendelijk. Goede doel: Only Friends."
 	ogImage="https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
 	jsonLd={eventJsonLd}
 >

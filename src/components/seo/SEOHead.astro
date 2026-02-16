@@ -137,6 +137,18 @@ const allSchemas = [
     {/* Robots */}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
+    {/* Browser Theme Color (mobile tab bar) */}
+    <meta
+        name="theme-color"
+        content="#0c0e16"
+        media="(prefers-color-scheme: dark)"
+    />
+    <meta
+        name="theme-color"
+        content="#ffffff"
+        media="(prefers-color-scheme: light)"
+    />
+
     {/* Search Engine Verification */}
     {
         siteConfig.verification?.google && (
