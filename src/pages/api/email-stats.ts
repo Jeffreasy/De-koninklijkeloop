@@ -6,7 +6,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     const API_URL = import.meta.env.PUBLIC_API_URL || 'https://laventecareauthsystems.onrender.com/api/v1';
 
     // Get auth token from cookie
-    const token = cookies.get('access_token')?.value;
+    const token = cookies.get('access_token')?.value || cookies.get('dkl_auth_token')?.value;
 
     if (!token) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -28,6 +28,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
         const headers = new Headers();
         headers.set('Authorization', `Bearer ${token}`);
         headers.set('X-Tenant-ID', tenantID);
+        headers.set('X-Requested-With', 'XMLHttpRequest');
         headers.set('Content-Type', 'application/json');
 
         const response = await fetch(backendUrl, {
@@ -37,7 +38,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 
         const data = await response.text();
 
-        if (!response.ok) {
+        if (!response.ok && import.meta.env.DEV) {
             console.error(`[Email Stats Proxy] Backend error ${response.status}:`, data.substring(0, 500));
         }
 
@@ -48,7 +49,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
             },
         });
     } catch (error) {
-        console.error('[Email Stats Proxy] Backend request failed:', error);
+        if (import.meta.env.DEV) console.error('[Email Stats Proxy] Backend request failed:', error);
         return new Response(JSON.stringify({ error: 'Backend unavailable' }), {
             status: 503,
             headers: { 'Content-Type': 'application/json' }

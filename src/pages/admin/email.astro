@@ -10,9 +10,20 @@ import NotificationMonitor from "../../components/admin/NotificationMonitor";
         <header class="flex items-center justify-between">
             <div>
                 <h1
-                    class="text-2xl md:text-3xl font-display font-bold text-text-primary mb-2"
+                    class="text-2xl md:text-3xl font-display font-bold text-text-primary mb-2 flex items-center gap-3"
                 >
-                    📧 Email Management
+                    <svg
+                        class="w-7 h-7 text-brand-orange"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
+                        ></path>
+                    </svg>
+                    Email Management
                 </h1>
                 <p class="text-text-secondary">
                     Inbox overzicht voor info@ en
@@ -27,9 +38,25 @@ import NotificationMonitor from "../../components/admin/NotificationMonitor";
         <!-- Notification Monitor Section -->
         <section class="mt-12">
             <h2
-                class="text-xl md:text-2xl font-display font-bold text-text-primary mb-4"
+                class="text-xl md:text-2xl font-display font-bold text-text-primary mb-4 flex items-center gap-3"
             >
-                🤖 Verzonden Notificaties
+                <svg
+                    class="w-6 h-6 text-brand-orange"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path d="M12 8V4H8"></path><rect
+                        width="16"
+                        height="12"
+                        x="4"
+                        y="8"
+                        rx="2"></rect><path d="M2 14h2"></path><path
+                        d="M20 14h2"></path><path d="M15 13v2"></path><path
+                        d="M9 13v2"></path>
+                </svg>
+                Verzonden Notificaties
             </h2>
             <NotificationMonitor client:load />
         </section>

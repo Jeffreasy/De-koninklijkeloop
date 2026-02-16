@@ -1,22 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Send, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
-
-interface EmailOutboxItem {
-    id: string;
-    status: 'pending' | 'processing' | 'sent' | 'failed';
-    payload: {
-        to: string;
-        template: string;
-        subject?: string;
-    };
-    retry_count: number;
-    last_error?: string;
-    created_at: string;
-    processed_at?: string;
-}
+import { Loader2, Send, XCircle, Clock } from 'lucide-react';
 
 export default function NotificationMonitor() {
-    const [notifications, setNotifications] = useState<EmailOutboxItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
         pending: 0,
@@ -26,9 +11,23 @@ export default function NotificationMonitor() {
 
     useEffect(() => {
         fetchNotifications();
-        // Poll every 10 seconds
-        const interval = setInterval(fetchNotifications, 10000);
-        return () => clearInterval(interval);
+        // Poll every 10 seconds, but only when tab is visible
+        let interval: ReturnType<typeof setInterval> | null = setInterval(fetchNotifications, 10000);
+
+        const handleVisibility = () => {
+            if (document.hidden) {
+                if (interval) { clearInterval(interval); interval = null; }
+            } else {
+                fetchNotifications();
+                interval = setInterval(fetchNotifications, 10000);
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibility);
+        return () => {
+            if (interval) clearInterval(interval);
+            document.removeEventListener('visibilitychange', handleVisibility);
+        };
     }, []);
 
     const fetchNotifications = async () => {
@@ -38,8 +37,6 @@ export default function NotificationMonitor() {
 
             if (response.ok) {
                 const data = await response.json();
-                // email-stats returns: { queue: { pending, sent, failed }, delivery: {...} }
-                setNotifications([]); // No individual notifications from stats endpoint
                 setStats({
                     pending: data.queue?.pending || 0,
                     sent: data.queue?.sent || 0,
@@ -47,50 +44,10 @@ export default function NotificationMonitor() {
                 });
             }
         } catch (err) {
-            console.error('[NotificationMonitor] Fetch error:', err);
+            if (import.meta.env.DEV) console.error('[NotificationMonitor] Fetch error:', err);
         } finally {
             setLoading(false);
         }
-    };
-
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case 'sent':
-                return <CheckCircle className="w-5 h-5 text-[rgb(var(--success))]" />;
-            case 'failed':
-                return <XCircle className="w-5 h-5 text-[rgb(var(--error))]" />;
-            case 'processing':
-                return <Loader2 className="w-5 h-5 text-[rgb(var(--info))] animate-spin" />;
-            case 'pending':
-                return <Clock className="w-5 h-5 text-[rgb(var(--warning))]" />;
-            default:
-                return <AlertCircle className="w-5 h-5 text-text-muted" />;
-        }
-    };
-
-    const getStatusBadge = (status: string) => {
-        const styles = {
-            sent: 'bg-[rgb(var(--success))]/10 text-[rgb(var(--success))] border-[rgb(var(--success))]/20',
-            failed: 'bg-[rgb(var(--error))]/10 text-[rgb(var(--error))] border-[rgb(var(--error))]/20',
-            processing: 'bg-[rgb(var(--info))]/10 text-[rgb(var(--info))] border-[rgb(var(--info))]/20',
-            pending: 'bg-[rgb(var(--warning))]/10 text-[rgb(var(--warning))] border-[rgb(var(--warning))]/20'
-        };
-
-        return (
-            <span className={`px-2 py-1 text-xs font-medium rounded-lg border ${styles[status as keyof typeof styles] || 'bg-white/5 text-text-muted border-glass-border'}`}>
-                {status}
-            </span>
-        );
-    };
-
-    const formatTemplate = (template: string) => {
-        const templates = {
-            'registration_confirmation': 'Registratie Bevestiging',
-            'invite_user': 'Gebruiker Uitnodiging',
-            'password_reset': 'Wachtwoord Reset',
-            'plain_reply': 'Email Antwoord'
-        };
-        return templates[template as keyof typeof templates] || template;
     };
 
     return (
@@ -142,7 +99,7 @@ export default function NotificationMonitor() {
 
             {/* Notification Table */}
             <div className="glass-card overflow-hidden">
-                <div className="px-6 py-4 border-b border-glass-border bg-white/2">
+                <div className="px-6 py-4 border-b border-glass-border bg-white/5">
                     <h3 className="text-lg font-display font-bold text-text-primary">
                         Recente Notificaties
                     </h3>
@@ -153,67 +110,21 @@ export default function NotificationMonitor() {
 
                 <div className="overflow-x-auto">
                     {loading ? (
-                        <div className="flex items-center justify-center py-12">
+                        <div
+                            className="flex items-center justify-center py-12"
+                            role="status"
+                            aria-live="polite"
+                        >
                             <Loader2 className="w-6 h-6 text-brand-orange animate-spin" />
                             <span className="ml-3 text-text-muted">Notificaties laden...</span>
-                        </div>
-                    ) : notifications.length === 0 ? (
-                        <div className="p-12 text-center">
-                            <Send className="w-12 h-12 text-text-muted mx-auto mb-4" />
-                            <p className="text-text-muted">Geen recente notificaties</p>
+                            <span className="sr-only">Notificaties worden geladen...</span>
                         </div>
                     ) : (
-                        <table className="w-full">
-                            <thead className="bg-white/2 border-b border-glass-border">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                                        Ontvanger
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                                        Template
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                                        Verzonden
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                                        Pogingen
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-glass-border">
-                                {notifications.map((notif) => (
-                                    <tr key={notif.id} className="hover:bg-white/2 transition">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-2">
-                                                {getStatusIcon(notif.status)}
-                                                {getStatusBadge(notif.status)}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-text-secondary">
-                                            {notif.payload.to}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-text-secondary">
-                                            {formatTemplate(notif.payload.template)}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-text-muted">
-                                            {new Date(notif.created_at).toLocaleString('nl-NL')}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm">
-                                            {notif.retry_count > 0 ? (
-                                                <span className="text-yellow-500">
-                                                    {notif.retry_count} pogingen
-                                                </span>
-                                            ) : (
-                                                <span className="text-text-muted">-</span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <div className="p-12 text-center">
+                            <Send className="w-12 h-12 text-text-muted mx-auto mb-4" />
+                            <p className="text-text-muted">Individuele notificatie-tracking komt binnenkort</p>
+                            <p className="text-xs text-text-muted mt-2">Gebruik de statistieken hierboven voor het huidige overzicht</p>
+                        </div>
                     )}
                 </div>
             </div>

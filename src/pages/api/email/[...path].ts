@@ -58,12 +58,12 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
         const data = await response.text();
 
         // Log errors for debugging
-        if (!response.ok) {
+        if (!response.ok && import.meta.env.DEV) {
             console.error(`[Email Proxy] Backend error ${response.status}:`, {
                 url: backendUrl,
                 status: response.status,
                 statusText: response.statusText,
-                response: data.substring(0, 500) // First 500 chars
+                response: data.substring(0, 500)
             });
         }
 
@@ -84,7 +84,7 @@ export const ALL: APIRoute = async ({ params, request, cookies, locals }) => {
             },
         });
     } catch (error) {
-        console.error('[Email Proxy] Backend request failed:', error);
+        if (import.meta.env.DEV) console.error('[Email Proxy] Backend request failed:', error);
         return new Response(JSON.stringify({ error: 'Backend unavailable' }), {
             status: 503,
             headers: { 'Content-Type': 'application/json' }

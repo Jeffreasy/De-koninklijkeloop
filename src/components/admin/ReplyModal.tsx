@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import { AdminModal } from './AdminModal';
-
-interface Email {
-    id: string;
-    subject: string;
-    from_address: string;
-    from_name?: string;
-}
+import type { Email } from '../../types/email';
 
 interface ReplyModalProps {
     email: Email;
@@ -23,7 +17,7 @@ export default function ReplyModal({ email, onClose, onSuccess }: ReplyModalProp
 
     const handleSend = async () => {
         if (!body.trim()) {
-            setError('Email body cannot be empty');
+            setError('Het berichtveld mag niet leeg zijn');
             return;
         }
 

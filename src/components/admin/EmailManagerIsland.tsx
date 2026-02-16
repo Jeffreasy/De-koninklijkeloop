@@ -2,32 +2,7 @@ import { useState, useEffect } from 'react';
 import { Loader2, Mail, Inbox, Star, Plus, Paperclip, Download } from 'lucide-react';
 import ReplyModal from './ReplyModal';
 import ComposeModal from './ComposeModal';
-
-// Types
-interface Email {
-    id: string;
-    account: string;
-    message_id: string;
-    subject: string;
-    from_address: string;
-    from_name?: string;
-    to_addresses: string[];
-    has_attachments: boolean;
-    is_read: boolean;
-    is_starred: boolean;
-    is_archived: boolean;
-    thread_id?: string;
-    received_at: string;
-}
-
-interface EmailStats {
-    unread_count: number;
-    starred_count: number;
-    total_count: number;
-    archived_count: number;
-}
-
-type Account = 'info' | 'inschrijving';
+import type { Email, EmailStats, FullEmail, Account } from '../../types/email';
 
 export default function EmailManagerIsland() {
     // State
@@ -37,7 +12,7 @@ export default function EmailManagerIsland() {
     const [showReplyModal, setShowReplyModal] = useState(false);
     const [showComposeModal, setShowComposeModal] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-    const [stats, setStats] = useState<EmailStats | null>(null);
+    const [accountStats, setAccountStats] = useState<Record<Account, EmailStats | null>>({ info: null, inschrijving: null });
 
     // Auto-dismiss toast after 3 seconds
     useEffect(() => {
@@ -53,8 +28,14 @@ export default function EmailManagerIsland() {
     // Fetch emails when account changes
     useEffect(() => {
         fetchEmails();
-        fetchStats();
+        fetchStats(selectedAccount);
     }, [selectedAccount]);
+
+    // Fetch stats for both accounts on mount
+    useEffect(() => {
+        fetchStats('info');
+        fetchStats('inschrijving');
+    }, []);
 
     const fetchEmails = async () => {
         setLoading(true);
@@ -71,21 +52,21 @@ export default function EmailManagerIsland() {
             setEmails(data.emails || []);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load emails');
-            console.error('[EmailManager] Fetch error:', err);
+            if (import.meta.env.DEV) console.error('[EmailManager] Fetch error:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchStats = async () => {
+    const fetchStats = async (account: Account) => {
         try {
-            const response = await fetch(`/api/email/inbox/${selectedAccount}/stats`);
+            const response = await fetch(`/api/email/inbox/${account}/stats`);
             if (response.ok) {
                 const data = await response.json();
-                setStats(data);
+                setAccountStats(prev => ({ ...prev, [account]: data }));
             }
         } catch (err) {
-            console.error('[EmailManager] Stats fetch error:', err);
+            if (import.meta.env.DEV) console.error('[EmailManager] Stats fetch error:', err);
         }
     };
 
@@ -107,9 +88,9 @@ export default function EmailManagerIsland() {
                 ));
 
                 // Refresh stats
-                fetchStats();
+                fetchStats(selectedAccount);
             } catch (err) {
-                console.error('[EmailManager] Mark as read error:', err);
+                if (import.meta.env.DEV) console.error('[EmailManager] Mark as read error:', err);
             }
         }
     };
@@ -160,7 +141,7 @@ export default function EmailManagerIsland() {
                                                 {account}@
                                             </div>
                                             <div className="text-xs text-text-muted">
-                                                {stats && selectedAccount === account ? `${stats.unread_count} ongelezen` : ''}
+                                                {accountStats[account] ? `${accountStats[account]!.unread_count} ongelezen` : ''}
                                             </div>
                                         </div>
                                     </div>
@@ -170,7 +151,7 @@ export default function EmailManagerIsland() {
                     </div>
 
                     {/* Stats */}
-                    {stats && (
+                    {accountStats[selectedAccount] && (
                         <div className="pt-4 border-t border-glass-border space-y-3">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 text-text-muted">
@@ -178,7 +159,7 @@ export default function EmailManagerIsland() {
                                     <span className="text-sm">Totaal</span>
                                 </div>
                                 <span className="text-sm font-medium text-text-primary">
-                                    {stats.total_count}
+                                    {accountStats[selectedAccount]!.total_count}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
@@ -187,7 +168,7 @@ export default function EmailManagerIsland() {
                                     <span className="text-sm">Ongelezen</span>
                                 </div>
                                 <span className="text-sm font-medium text-brand-orange">
-                                    {stats.unread_count}
+                                    {accountStats[selectedAccount]!.unread_count}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
@@ -196,7 +177,7 @@ export default function EmailManagerIsland() {
                                     <span className="text-sm">Met ster</span>
                                 </div>
                                 <span className="text-sm font-medium text-text-primary">
-                                    {stats.starred_count}
+                                    {accountStats[selectedAccount]!.starred_count}
                                 </span>
                             </div>
                         </div>
@@ -208,12 +189,12 @@ export default function EmailManagerIsland() {
             <div className="lg:col-span-2">
                 <div className="glass-card overflow-hidden">
                     {/* Header */}
-                    <div className="px-6 py-4 border-b border-glass-border bg-white/2">
+                    <div className="px-6 py-4 border-b border-glass-border bg-white/5">
                         <h2 className="text-base md:text-lg font-display font-bold text-text-primary">
                             {accountDisplayName[selectedAccount]}
                         </h2>
                         <p className="text-sm text-text-muted">
-                            {stats ? `${stats.total_count} berichten` : 'Laden...'}
+                            {accountStats[selectedAccount] ? `${accountStats[selectedAccount]!.total_count} berichten` : 'Laden...'}
                         </p>
                     </div>
 
@@ -256,7 +237,6 @@ export default function EmailManagerIsland() {
                                 email={email}
                                 isSelected={selectedEmail?.id === email.id}
                                 onClick={() => handleEmailClick(email)}
-                                aria-label={`Email from ${email.from_name || email.from_address}, subject: ${email.subject || 'No subject'}, ${email.is_read ? 'read' : 'unread'}`}
                             />
                         ))}
                     </div>
@@ -280,9 +260,9 @@ export default function EmailManagerIsland() {
                     email={selectedEmail}
                     onClose={() => setShowReplyModal(false)}
                     onSuccess={() => {
-                        setToast({ message: 'Antwoord verzonden! ✉️', type: 'success' });
+                        setToast({ message: 'Antwoord verzonden', type: 'success' });
                         fetchEmails();
-                        fetchStats();
+                        fetchStats(selectedAccount);
                     }}
                 />
             )}
@@ -292,9 +272,9 @@ export default function EmailManagerIsland() {
                 <ComposeModal
                     onClose={() => setShowComposeModal(false)}
                     onSuccess={() => {
-                        setToast({ message: 'Email verzonden! 🚀', type: 'success' });
+                        setToast({ message: 'Email verzonden', type: 'success' });
                         fetchEmails();
-                        fetchStats();
+                        fetchStats(selectedAccount);
                     }}
                     defaultTo=""
                 />
@@ -306,8 +286,7 @@ export default function EmailManagerIsland() {
                     className="fixed bottom-6 right-6 z-50 glass-card px-6 py-4 rounded-xl shadow-2xl border-l-4
                                flex items-center gap-3 animate-slide-up"
                     style={{
-                        borderLeftColor: toast.type === 'success' ? 'var(--color-brand-orange)' : '#ef4444',
-                        animation: 'slideUp 0.3s ease-out'
+                        borderLeftColor: toast.type === 'success' ? 'var(--color-brand-orange)' : '#ef4444'
                     }}
                 >
                     {toast.type === 'success' ? (
@@ -367,7 +346,7 @@ function EmailListItem({ email, isSelected, onClick }: EmailListItemProps) {
                 w-full text-left px-6 py-4 transition-[background-color,border-color] duration-200 cursor-pointer
                 ${isSelected
                     ? 'bg-brand-orange/5 border-l-2 border-brand-orange'
-                    : 'hover:bg-white/3'
+                    : 'hover:bg-white/5'
                 }
                 ${!email.is_read
                     ? 'bg-brand-orange/2 border-l-2 border-brand-orange/40'
@@ -425,7 +404,7 @@ interface EmailDetailPanelProps {
 }
 
 function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
-    const [fullEmail, setFullEmail] = useState<any>(null);
+    const [fullEmail, setFullEmail] = useState<FullEmail | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -440,7 +419,7 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
                 setFullEmail(data);
             }
         } catch (err) {
-            console.error('[EmailDetail] Fetch error:', err);
+            if (import.meta.env.DEV) console.error('[EmailDetail] Fetch error:', err);
         } finally {
             setLoading(false);
         }
@@ -449,7 +428,7 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
     return (
         <div className="glass-card overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-glass-border bg-white/2 flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-glass-border bg-white/5 flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                     <h3 className="text-base md:text-lg font-display font-bold text-text-primary truncate">
                         {email.subject || '(Geen onderwerp)'}
@@ -487,8 +466,8 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
                             Bijlagen ({fullEmail.attachments.length})
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {fullEmail.attachments.map((att: any, i: number) => (
-                                <div key={i} className="flex items-center gap-3 p-3 bg-white/5 border border-glass-border rounded-lg group hover:border-brand-orange/50 transition-colors">
+                            {fullEmail.attachments.map((att, i) => (
+                                <div key={i} className="flex items-center gap-3 p-3 bg-white/5 border border-glass-border rounded-lg group hover:border-brand-orange/50 transition-colors cursor-pointer">
                                     <div className="p-2 bg-white/5 rounded-lg text-brand-orange">
                                         <Paperclip className="w-4 h-4" />
                                     </div>
@@ -531,7 +510,7 @@ function EmailDetailPanel({ email, onClose, onReply }: EmailDetailPanelProps) {
                         {fullEmail.body_html ? (
                             <iframe
                                 srcDoc={fullEmail.body_html}
-                                sandbox="allow-same-origin"
+                                sandbox="allow-popups allow-popups-to-escape-sandbox"
                                 className="w-full min-h-[400px] border-0 bg-white rounded-lg"
                                 title="Email Content"
                                 style={{
