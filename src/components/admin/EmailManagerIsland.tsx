@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Loader2, Mail, Inbox, Star, Plus } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Loader2, Mail, Inbox, Star, Plus, RefreshCw, Search, AlertTriangle } from 'lucide-react';
 import ReplyModal from './ReplyModal';
-import ComposeModal from './ComposeModal';
 import { EmailListItem } from './EmailListItem';
 import { EmailDetailPanel } from './EmailDetailPanel';
 import type { Email, EmailStats, Account } from '../../types/email';
 
 const EMAILS_PER_PAGE = 30;
+const POLL_INTERVAL_MS = 60_000;
 
 export default function EmailManagerIsland() {
     // State
@@ -14,7 +14,6 @@ export default function EmailManagerIsland() {
     const [emails, setEmails] = useState<Email[]>([]);
     const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
     const [showReplyModal, setShowReplyModal] = useState(false);
-    const [showComposeModal, setShowComposeModal] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [accountStats, setAccountStats] = useState<Record<Account, EmailStats | null>>({ info: null, inschrijving: null });
     const [page, setPage] = useState(1);
@@ -22,6 +21,9 @@ export default function EmailManagerIsland() {
     const [loadingMore, setLoadingMore] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
+    const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // Auto-dismiss toast after 3 seconds
     useEffect(() => {
@@ -45,6 +47,43 @@ export default function EmailManagerIsland() {
         fetchStats('info');
         fetchStats('inschrijving');
     }, []);
+
+    // Auto-poll inbox every 60s (visibility-aware)
+    useEffect(() => {
+        const startPoll = () => {
+            if (pollRef.current) clearInterval(pollRef.current);
+            pollRef.current = setInterval(() => {
+                fetchEmails(1);
+                fetchStats(selectedAccount);
+            }, POLL_INTERVAL_MS);
+        };
+        const stopPoll = () => {
+            if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+        };
+        const handleVisibility = () => { document.hidden ? stopPoll() : startPoll(); };
+
+        startPoll();
+        document.addEventListener('visibilitychange', handleVisibility);
+        return () => { stopPoll(); document.removeEventListener('visibilitychange', handleVisibility); };
+    }, [selectedAccount]);
+
+    // Filtered emails based on search query
+    const filteredEmails = useMemo(() => {
+        if (!searchQuery.trim()) return emails;
+        const q = searchQuery.toLowerCase();
+        return emails.filter(e =>
+            (e.subject || '').toLowerCase().includes(q) ||
+            (e.from_name || '').toLowerCase().includes(q) ||
+            (e.from_address || '').toLowerCase().includes(q)
+        );
+    }, [emails, searchQuery]);
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await fetchEmails(1);
+        await fetchStats(selectedAccount);
+        setRefreshing(false);
+    };
 
     const fetchEmails = async (fetchPage: number = 1) => {
         if (fetchPage === 1) {
@@ -136,11 +175,15 @@ export default function EmailManagerIsland() {
                         </h3>
 
                         <button
-                            onClick={() => setShowComposeModal(true)}
-                            className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 bg-brand-orange text-white font-medium rounded-xl hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20"
+                            onClick={() => {
+                                setToast({ message: 'Compose is nog niet beschikbaar — gebruik Beantwoorden', type: 'error' });
+                            }}
+                            className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 bg-glass-bg border-2 border-dashed border-glass-border text-text-muted font-medium rounded-xl hover:border-brand-orange/30 hover:text-text-secondary transition-colors cursor-pointer min-h-[44px]"
+                            title="Backend endpoint nog niet beschikbaar"
                         >
                             <Plus className="w-5 h-5" />
                             Nieuw Bericht
+                            <AlertTriangle className="w-4 h-4 text-yellow-500" />
                         </button>
 
                         <div className="space-y-2">
@@ -214,25 +257,57 @@ export default function EmailManagerIsland() {
                 <div className="glass-card overflow-hidden">
                     {/* Header */}
                     <div className="px-6 py-4 border-b border-glass-border bg-white/5">
-                        <h2 className="text-base md:text-lg font-display font-bold text-text-primary">
-                            {accountDisplayName[selectedAccount]}
-                        </h2>
-                        <p className="text-sm text-text-muted">
-                            {accountStats[selectedAccount] ? `${accountStats[selectedAccount]!.total_count} berichten` : 'Laden...'}
-                        </p>
+                        <div className="flex items-center justify-between mb-2">
+                            <div>
+                                <h2 className="text-base md:text-lg font-display font-bold text-text-primary">
+                                    {accountDisplayName[selectedAccount]}
+                                </h2>
+                                <p className="text-sm text-text-muted">
+                                    {accountStats[selectedAccount] ? `${accountStats[selectedAccount]!.total_count} berichten` : 'Laden...'}
+                                </p>
+                            </div>
+                            <button
+                                onClick={handleRefresh}
+                                disabled={refreshing}
+                                className="p-2.5 text-text-muted hover:text-brand-orange hover:bg-brand-orange/10 rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
+                                aria-label="Inbox vernieuwen"
+                                title="Inbox vernieuwen"
+                            >
+                                <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+                            </button>
+                        </div>
+
+                        {/* Search Bar */}
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Zoek in emails..."
+                                className="w-full pl-10 pr-4 py-2.5 text-sm bg-glass-bg border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 focus-visible:border-brand-orange transition-[border-color,box-shadow] duration-200"
+                                aria-label="Zoek emails op onderwerp of afzender"
+                            />
+                        </div>
                     </div>
 
                     {/* Email List */}
                     <div className="divide-y divide-glass-border max-h-[500px] overflow-y-auto">
                         {loading && (
-                            <div
-                                className="flex items-center justify-center py-12"
-                                role="status"
-                                aria-live="polite"
-                            >
-                                <Loader2 className="w-6 h-6 text-brand-orange animate-spin" />
-                                <span className="ml-3 text-text-muted">Emails laden...</span>
+                            <div role="status" aria-live="polite">
                                 <span className="sr-only">Email inbox wordt geladen...</span>
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <div key={i} className="px-6 py-4 animate-pulse">
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-10 h-10 bg-glass-border rounded-full shrink-0" />
+                                            <div className="flex-1 space-y-2">
+                                                <div className="h-4 bg-glass-border rounded w-1/3" />
+                                                <div className="h-3 bg-glass-border rounded w-2/3" />
+                                                <div className="h-3 bg-glass-border rounded w-1/4" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         )}
 
@@ -250,12 +325,23 @@ export default function EmailManagerIsland() {
 
                         {!loading && !error && emails.length === 0 && (
                             <div className="p-12 text-center">
-                                <Inbox className="w-12 h-12 text-text-muted mx-auto mb-4" />
-                                <p className="text-text-muted">Geen emails gevonden</p>
+                                <div className="w-16 h-16 mx-auto mb-4 bg-brand-orange/10 rounded-2xl flex items-center justify-center">
+                                    <Inbox className="w-8 h-8 text-brand-orange" />
+                                </div>
+                                <p className="text-lg font-medium text-text-primary mb-1">Inbox is leeg</p>
+                                <p className="text-sm text-text-muted">
+                                    Er zijn nog geen emails voor {accountDisplayName[selectedAccount]}
+                                </p>
+                                <button
+                                    onClick={handleRefresh}
+                                    className="mt-4 px-4 py-2 text-sm text-brand-orange bg-brand-orange/10 rounded-lg hover:bg-brand-orange/20 transition-colors cursor-pointer"
+                                >
+                                    Vernieuwen
+                                </button>
                             </div>
                         )}
 
-                        {!loading && !error && emails.map((email) => (
+                        {!loading && !error && filteredEmails.map((email) => (
                             <EmailListItem
                                 key={email.id}
                                 email={email}
@@ -263,6 +349,16 @@ export default function EmailManagerIsland() {
                                 onClick={() => handleEmailClick(email)}
                             />
                         ))}
+
+                        {/* Search: no results */}
+                        {!loading && !error && emails.length > 0 && filteredEmails.length === 0 && (
+                            <div className="p-8 text-center">
+                                <Search className="w-8 h-8 text-text-muted mx-auto mb-3" />
+                                <p className="text-sm text-text-muted">
+                                    Geen resultaten voor “{searchQuery}”
+                                </p>
+                            </div>
+                        )}
 
                         {/* Load More */}
                         {hasMore && !loading && !error && (
@@ -311,18 +407,6 @@ export default function EmailManagerIsland() {
                 />
             )}
 
-            {/* Compose Modal */}
-            {showComposeModal && (
-                <ComposeModal
-                    onClose={() => setShowComposeModal(false)}
-                    onSuccess={() => {
-                        setToast({ message: 'Email verzonden', type: 'success' });
-                        fetchEmails();
-                        fetchStats(selectedAccount);
-                    }}
-                    defaultTo=""
-                />
-            )}
 
             {/* Toast Notification */}
             {toast && (
