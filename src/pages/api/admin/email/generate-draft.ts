@@ -56,7 +56,7 @@ ${eventContext}`;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
     try {
-        const token = cookies.get('auth_token')?.value;
+        const token = cookies.get('access_token')?.value || cookies.get('dkl_auth_token')?.value;
         if (!token) {
             return new Response(JSON.stringify({ error: 'Niet ingelogd' }), {
                 status: 401,
