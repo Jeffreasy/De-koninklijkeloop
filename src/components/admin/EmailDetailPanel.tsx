@@ -5,7 +5,7 @@ import type { Email, FullEmail } from '../../types/email';
 interface EmailDetailPanelProps {
     email: Email;
     onClose: () => void;
-    onReply: () => void;
+    onReply: (fullEmail: FullEmail) => void;
     onMarkUnread?: () => void;
     onToggleStar?: () => void;
     onArchive?: () => void;
@@ -59,8 +59,8 @@ export function EmailDetailPanel({ email, onClose, onReply, onMarkUnread, onTogg
                             aria-label={email.is_starred ? 'Ster verwijderen' : 'Ster toevoegen'}
                             title={email.is_starred ? 'Ster verwijderen' : 'Ster toevoegen'}
                             className={`p-2 rounded-lg transition-colors duration-200 cursor-pointer ${email.is_starred
-                                    ? 'text-amber-400 hover:text-amber-300 bg-amber-400/10'
-                                    : 'text-text-muted hover:text-amber-400 hover:bg-amber-400/10'
+                                ? 'text-amber-400 hover:text-amber-300 bg-amber-400/10'
+                                : 'text-text-muted hover:text-amber-400 hover:bg-amber-400/10'
                                 }`}
                         >
                             <Star className="w-4 h-4" fill={email.is_starred ? 'currentColor' : 'none'} />
@@ -88,7 +88,8 @@ export function EmailDetailPanel({ email, onClose, onReply, onMarkUnread, onTogg
                     )}
                     <div className="w-px h-6 bg-glass-border mx-1" />
                     <button
-                        onClick={onReply}
+                        onClick={() => { if (fullEmail) onReply(fullEmail); }}
+                        disabled={!fullEmail}
                         aria-label="Beantwoorden"
                         className="px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-lg hover:bg-brand-orange/20 transition-[background-color] duration-200 text-sm font-medium cursor-pointer"
                     >

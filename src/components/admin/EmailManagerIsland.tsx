@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Loader2, Mail, Inbox, Star, Plus, RefreshCw, Search } from 'lucide-react';
-import ReplyModal from './ReplyModal';
 import ComposeModal from './ComposeModal';
 import { EmailListItem } from './EmailListItem';
 import { EmailDetailPanel } from './EmailDetailPanel';
-import type { Email, EmailStats, Account } from '../../types/email';
+import { ConvexClientProvider } from '../islands/ConvexClientProvider';
+import type { Email, FullEmail, EmailStats, Account } from '../../types/email';
 
 const EMAILS_PER_PAGE = 30;
 const POLL_INTERVAL_MS = 60_000;
@@ -15,6 +15,7 @@ export default function EmailManagerIsland() {
     const [emails, setEmails] = useState<Email[]>([]);
     const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
     const [showReplyModal, setShowReplyModal] = useState(false);
+    const [replyToFullEmail, setReplyToFullEmail] = useState<FullEmail | null>(null);
     const [showComposeModal, setShowComposeModal] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [accountStats, setAccountStats] = useState<Record<Account, EmailStats | null>>({ info: null, inschrijving: null });
@@ -440,7 +441,7 @@ export default function EmailManagerIsland() {
                     <EmailDetailPanel
                         email={selectedEmail}
                         onClose={() => setSelectedEmail(null)}
-                        onReply={() => setShowReplyModal(true)}
+                        onReply={(fullEmail) => { setReplyToFullEmail(fullEmail); setShowReplyModal(true); }}
                         onMarkUnread={() => handleMarkUnread(selectedEmail.id)}
                         onToggleStar={() => handleToggleStar(selectedEmail.id, selectedEmail.is_starred)}
                         onArchive={() => handleArchive(selectedEmail.id)}
@@ -448,30 +449,35 @@ export default function EmailManagerIsland() {
                 </div>
             )}
 
-            {/* Reply Modal */}
-            {showReplyModal && selectedEmail && (
-                <ReplyModal
-                    email={selectedEmail}
-                    onClose={() => setShowReplyModal(false)}
-                    onSuccess={() => {
-                        setToast({ message: 'Antwoord verzonden', type: 'success' });
-                        fetchEmails();
-                        fetchStats(selectedAccount);
-                    }}
-                />
+            {/* Reply Modal (unified ComposeModal in reply mode) */}
+            {showReplyModal && replyToFullEmail && (
+                <ConvexClientProvider>
+                    <ComposeModal
+                        mode="reply"
+                        replyToEmail={replyToFullEmail}
+                        onClose={() => { setShowReplyModal(false); setReplyToFullEmail(null); }}
+                        onSuccess={() => {
+                            setToast({ message: 'Antwoord verzonden', type: 'success' });
+                            fetchEmails();
+                            fetchStats(selectedAccount);
+                        }}
+                    />
+                </ConvexClientProvider>
             )}
 
-            {/* Compose Modal */}
+            {/* Compose Modal (wrapped in Convex for contact picker) */}
             {showComposeModal && (
-                <ComposeModal
-                    onClose={() => setShowComposeModal(false)}
-                    onSuccess={() => {
-                        setToast({ message: 'Email verzonden', type: 'success' });
-                        fetchEmails();
-                        fetchStats(selectedAccount);
-                    }}
-                    defaultTo=""
-                />
+                <ConvexClientProvider>
+                    <ComposeModal
+                        onClose={() => setShowComposeModal(false)}
+                        onSuccess={() => {
+                            setToast({ message: 'Email verzonden', type: 'success' });
+                            fetchEmails();
+                            fetchStats(selectedAccount);
+                        }}
+                        defaultTo=""
+                    />
+                </ConvexClientProvider>
             )}
 
 
