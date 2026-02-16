@@ -45,7 +45,7 @@ export default function ReplyModal({ email, onClose, onSuccess }: ReplyModalProp
             onSuccess();
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to send reply');
+            setError(err instanceof Error ? err.message : 'Kan antwoord niet verzenden');
         } finally {
             setSending(false);
         }
@@ -125,7 +125,7 @@ export default function ReplyModal({ email, onClose, onSuccess }: ReplyModalProp
                     onClick={handleSend}
                     disabled={sending || !body.trim()}
                     className="px-6 py-2.5 text-sm font-medium text-white bg-brand-orange hover:bg-orange-400 disabled:bg-glass-border disabled:text-text-muted disabled:cursor-not-allowed rounded-xl transition-[background-color,opacity] duration-200 flex items-center gap-2 shadow-lg shadow-brand-orange/20 min-h-[44px] cursor-pointer"
-                    aria-label={sending ? "Sending reply..." : "Send reply"}
+                    aria-label={sending ? "Antwoord wordt verzonden..." : "Antwoord versturen"}
                 >
                     {sending ? (
                         <>
