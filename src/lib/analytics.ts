@@ -155,12 +155,10 @@ class Analytics {
     }
 
     /**
-     * Send event to Go backend via Vercel rewrite (same-origin, no CORS).
-     * IMPORTANT: tenant_id is sent in the body, NOT as X-Tenant-ID header.
-     * Sending X-Tenant-ID as a custom header triggers the Go CORS middleware
-     * which validates Origin against allowed_origins in the DB — causing 403.
-     * By keeping only standard headers (Content-Type: application/json),
-     * the CORS middleware skips the origin check entirely.
+     * Send event to Go backend via Astro BFF bypass → direct to Render.
+     * The [...all].ts proxy detects POST /api/v1/analytics and forwards
+     * directly WITHOUT X-Tenant-ID header or Authorization token.
+     * The Go backend uses Path B (tenant_id from body) for public ingestion.
      */
     private sendToGo(event: string, metadata?: EventMetadata): void {
         const payload = JSON.stringify({

@@ -22,6 +22,24 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         return new Response("Use /api/email proxy", { status: 404 });
     }
 
+    // Analytics ingestion — bypass proxy, forward directly to Go backend.
+    // The Go backend accepts tenant_id in the body (Path B) for CORS-safe public ingestion.
+    // Proxying would add X-Tenant-ID header, routing to Path A which requires RLS session
+    // setup — silently dropping INSERT for anonymous visitors.
+    if (path === 'v1/analytics' && request.method === 'POST') {
+        const API_BASE = import.meta.env.PUBLIC_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
+        const body = await request.text();
+        const res = await fetch(`${API_BASE}/analytics`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+        });
+        return new Response(res.body, {
+            status: res.status,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+
     // Clean up path to avoid double /v1/v1
     let cleanPath = path;
     if (API_URL.endsWith('/v1') && cleanPath.startsWith('v1/')) {
