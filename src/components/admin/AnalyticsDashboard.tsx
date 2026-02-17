@@ -7,14 +7,14 @@ import {
 import {
     Activity, Eye, Users, TrendingUp, ArrowRight, ArrowUpRight, ArrowDownRight, Minus,
     MousePointerClick, PlayCircle, UserPlus, Globe,
-    Smartphone, Monitor, Tablet, RefreshCw, Download, Clock, BarChart3, Lock, AlertTriangle
+    Smartphone, Monitor, Tablet, RefreshCw, Download, Clock, BarChart3, AlertTriangle
 } from "lucide-react";
 import { apiRequest } from "../../lib/api";
 
 // ─── Constants ───
 
 const PERIOD_OPTIONS = [
-    { label: "Vandaag", value: "today", days: 1 },
+    { label: "Vandaag", value: "today", days: 0 },
     { label: "7 dagen", value: "7d", days: 7 },
     { label: "30 dagen", value: "30d", days: 30 },
 ] as const;
@@ -90,6 +90,16 @@ interface GoSessionDuration {
     total_sessions: number;
 }
 
+/** Combined response from GET /v1/analytics/dashboard-full */
+interface GoDashboardFull {
+    dashboard: GoDashboard;
+    pages: GoPage[];
+    referrers: GoReferrer[];
+    timeseries: GoTimeseries[];
+    bounce_rate: GoBounceRate | null;
+    session_duration: GoSessionDuration | null;
+}
+
 // ─── Retry wrapper ───
 
 async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
@@ -104,7 +114,7 @@ async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> 
     throw new Error("Unreachable");
 }
 
-// ─── Custom hook: Go Backend data with polling ───
+// ─── Custom hook: Go Backend data with polling (Combined Endpoint) ───
 
 function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
     const [dashboard, setDashboard] = useState<GoDashboard | null>(null);
@@ -131,27 +141,27 @@ function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
             const params = `?from=${from}&to=${to}`;
             const prevParams = `?from=${prevFrom}&to=${prevTo}`;
 
-            const [dashRes, pagesRes, refRes, tsRes, prevDashRes, brRes, prevBrRes, sdRes, prevSdRes] = await Promise.allSettled([
-                fetchWithRetry(() => apiRequest(`/v1/analytics/dashboard${params}`)),
-                fetchWithRetry(() => apiRequest(`/v1/analytics/pages${params}`)),
-                fetchWithRetry(() => apiRequest(`/v1/analytics/referrers${params}`)),
-                fetchWithRetry(() => apiRequest(`/v1/analytics/timeseries${params}`)),
-                fetchWithRetry(() => apiRequest(`/v1/analytics/dashboard${prevParams}`)),
-                fetchWithRetry(() => apiRequest(`/v1/analytics/bounce-rate${params}`)),
-                fetchWithRetry(() => apiRequest(`/v1/analytics/bounce-rate${prevParams}`)),
-                fetchWithRetry(() => apiRequest(`/v1/analytics/session-duration${params}`)),
-                fetchWithRetry(() => apiRequest(`/v1/analytics/session-duration${prevParams}`)),
+            // Combined endpoint: 2 requests instead of 9
+            const [currentRes, prevRes] = await Promise.allSettled([
+                fetchWithRetry(() => apiRequest<GoDashboardFull>(`/v1/analytics/dashboard-full${params}`)),
+                fetchWithRetry(() => apiRequest<GoDashboardFull>(`/v1/analytics/dashboard-full${prevParams}`)),
             ]);
 
-            if (dashRes.status === 'fulfilled') setDashboard(dashRes.value);
-            if (pagesRes.status === 'fulfilled') setPages(pagesRes.value || []);
-            if (refRes.status === 'fulfilled') setReferrers(refRes.value || []);
-            if (tsRes.status === 'fulfilled') setTimeseries(tsRes.value || []);
-            if (prevDashRes.status === 'fulfilled') setPrevDashboard(prevDashRes.value);
-            if (brRes.status === 'fulfilled') setBounceRate(brRes.value);
-            if (prevBrRes.status === 'fulfilled') setPrevBounceRate(prevBrRes.value);
-            if (sdRes.status === 'fulfilled') setSessionDuration(sdRes.value);
-            if (prevSdRes.status === 'fulfilled') setPrevSessionDuration(prevSdRes.value);
+            if (currentRes.status === 'fulfilled') {
+                const data = currentRes.value;
+                setDashboard(data.dashboard);
+                setPages(data.pages || []);
+                setReferrers(data.referrers || []);
+                setTimeseries(data.timeseries || []);
+                setBounceRate(data.bounce_rate);
+                setSessionDuration(data.session_duration);
+            }
+            if (prevRes.status === 'fulfilled') {
+                const prev = prevRes.value;
+                setPrevDashboard(prev.dashboard);
+                setPrevBounceRate(prev.bounce_rate);
+                setPrevSessionDuration(prev.session_duration);
+            }
         } catch (err: any) {
             setError(err.message || 'Failed to fetch analytics');
         } finally {
@@ -257,19 +267,22 @@ export default function AnalyticsDashboard() {
 
     const totalDevices = deviceData.reduce((sum, d) => sum + d.count, 0) || 1;
 
+    // Registration funnel: started → completed (proper conversion rate)
     const conversionRate = useMemo(() => {
-        if (!dashboard?.total_views || !dashboard.events_by_type) return 0;
+        if (!dashboard?.events_by_type) return 0;
+        const started = dashboard.events_by_type['registration_started'] || 0;
         const completed = dashboard.events_by_type['registration_completed'] || 0;
-        return dashboard.total_views > 0
-            ? Math.round((completed / dashboard.total_views) * 100)
+        return started > 0
+            ? Math.round((completed / started) * 100)
             : 0;
     }, [dashboard]);
 
     const prevConversionRate = useMemo(() => {
-        if (!prevDashboard?.total_views || !prevDashboard.events_by_type) return 0;
+        if (!prevDashboard?.events_by_type) return 0;
+        const started = prevDashboard.events_by_type['registration_started'] || 0;
         const completed = prevDashboard.events_by_type['registration_completed'] || 0;
-        return prevDashboard.total_views > 0
-            ? Math.round((completed / prevDashboard.total_views) * 100)
+        return started > 0
+            ? Math.round((completed / started) * 100)
             : 0;
     }, [prevDashboard]);
 
@@ -881,34 +894,6 @@ function TrendBadge({ trend }: { trend: { pct: number; direction: "up" | "down" 
         </div>
     );
 }
-
-function ComingSoonKPI({ icon, label, tooltip }: {
-    icon: React.ReactNode;
-    label: string;
-    tooltip: string;
-}) {
-    return (
-        <div className="relative overflow-hidden bg-glass-bg/20 backdrop-blur-xl border border-glass-border/50 rounded-2xl p-4 md:p-5 opacity-60 group" title={tooltip}>
-            <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3">
-                    <div className="p-2 rounded-xl border bg-glass-border/10 border-glass-border/30 text-text-muted">
-                        {icon}
-                    </div>
-                    <div className="flex items-center gap-1 text-[10px] font-mono text-text-muted bg-glass-border/20 px-2 py-0.5 rounded-full border border-glass-border/30">
-                        <Lock className="w-2.5 h-2.5" />
-                        <span>Soon</span>
-                    </div>
-                </div>
-                <div className="text-3xl md:text-4xl font-display font-bold text-text-muted">
-                    —
-                </div>
-                <p className="text-xs text-text-muted mt-1 font-medium">{label}</p>
-            </div>
-        </div>
-    );
-}
-
-
 
 
 function SkeletonRows({ count }: { count: number }) {

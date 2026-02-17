@@ -161,13 +161,17 @@ class Analytics {
      * The Go backend uses Path B (tenant_id from body) for public ingestion.
      */
     private sendToGo(event: string, metadata?: EventMetadata): void {
+        // Parse UTM parameters from URL for campaign attribution
+        const utmParams = this.getUTMParams();
+        const enrichedMetadata = { ...(metadata || {}), ...utmParams };
+
         const payload = JSON.stringify({
             event,
             path: window.location.pathname,
             referrer: document.referrer || undefined,
             session_id: this.sessionId,
             tenant_id: this.tenantId,
-            metadata: metadata || {},
+            metadata: enrichedMetadata,
         });
 
         fetch('/api/v1/analytics', {
@@ -176,6 +180,18 @@ class Analytics {
             body: payload,
             keepalive: true,
         }).catch(() => { /* fire-and-forget */ });
+    }
+
+    /** Extract UTM parameters from the current URL for campaign attribution. */
+    private getUTMParams(): Record<string, string> {
+        if (typeof window === 'undefined') return {};
+        const params = new URLSearchParams(window.location.search);
+        const utm: Record<string, string> = {};
+        for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref']) {
+            const val = params.get(key);
+            if (val) utm[key] = val;
+        }
+        return utm;
     }
 
 

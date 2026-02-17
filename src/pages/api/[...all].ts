@@ -29,9 +29,15 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
     if (path === 'v1/analytics' && request.method === 'POST') {
         const API_BASE = import.meta.env.PUBLIC_API_URL || "https://laventecareauthsystems.onrender.com/api/v1";
         const body = await request.text();
+
+        // Forward Vercel geo headers for server-side GeoIP resolution
+        const geoHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+        const country = request.headers.get('x-vercel-ip-country');
+        if (country) geoHeaders['X-Geo-Country'] = country;
+
         const res = await fetch(`${API_BASE}/analytics`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: geoHeaders,
             body,
         });
         return new Response(res.body, {
