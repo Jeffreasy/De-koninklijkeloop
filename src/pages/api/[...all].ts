@@ -59,7 +59,9 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         cleanPath = cleanPath.substring(1);
     }
 
-    const targetUrl = `${API_URL}/${cleanPath}`;
+    // Preserve query parameters (e.g. ?from=&to= for analytics date ranges)
+    const queryString = new URL(request.url).search; // includes leading '?'
+    const targetUrl = `${API_URL}/${cleanPath}${queryString}`;
 
     try {
         // Inject Authorization header from cookie if valid
