@@ -38,11 +38,32 @@ export default imagekit;
 // ─── URL Endpoint for client-side usage ────────────────────────
 export const IMAGEKIT_URL_ENDPOINT = import.meta.env.PUBLIC_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/a0oim4e3e';
 
+// ─── Video URL detection ───────────────────────────────────────
+const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.avi', '.mkv'];
+
+/** Check if a URL points to a video file */
+export function isVideoUrl(url: string): boolean {
+    if (!url) return false;
+    const lower = url.toLowerCase().split('?')[0];
+    return VIDEO_EXTENSIONS.some(ext => lower.endsWith(ext));
+}
+
+/** Get a displayable thumbnail URL for any media URL */
+export function getVideoThumbnail(url: string): string {
+    if (!url || !isVideoUrl(url)) return url;
+    // ImageKit generates video thumbnails with /ik-thumbnail.jpg
+    if (url.includes('imagekit.io')) return url + '/ik-thumbnail.jpg';
+    return url;
+}
+
 // ─── Client-side URL transforms (full-URL based) ──────────────
-/** Transform a full ImageKit URL with width/quality/format params */
+/** Transform a full ImageKit URL with width/quality/format params.
+ *  For video URLs, automatically uses the thumbnail instead. */
 export function ik(url: string, width: number): string {
     if (!url || !url.includes("imagekit.io")) return url;
-    return url.replace(
+    // Video URLs: use ImageKit thumbnail, then apply image transforms
+    const imgUrl = isVideoUrl(url) ? url + '/ik-thumbnail.jpg' : url;
+    return imgUrl.replace(
         "/De%20Koninklijkeloop/",
         `/tr:w-${width},q-80,f-auto/De%20Koninklijkeloop/`,
     );

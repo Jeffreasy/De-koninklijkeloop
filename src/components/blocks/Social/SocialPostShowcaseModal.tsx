@@ -2,6 +2,7 @@ import { X, ChevronLeft, ChevronRight, ExternalLink, Calendar, Maximize2, Minimi
 import { useEffect, useMemo, useCallback, memo, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { ReactionPicker } from "./ReactionPicker";
+import { ik } from "../../../lib/imagekit";
 import type { Id } from "../../../../convex/_generated/dataModel";
 
 interface SocialPost {
@@ -309,7 +310,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                 )
                             ) : (
                                 <img
-                                    src={post.imageUrl.includes("imagekit.io") ? post.imageUrl.replace("/De%20Koninklijkeloop/", "/tr:w-1200,q-85,f-auto/De%20Koninklijkeloop/") : post.imageUrl}
+                                    src={post.imageUrl.includes("imagekit.io") ? ik(post.imageUrl, 1200) : post.imageUrl}
                                     alt={post.caption.slice(0, 100)}
                                     className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02] object-contain"
                                 />
