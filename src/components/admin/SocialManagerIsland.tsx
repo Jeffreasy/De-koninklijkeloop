@@ -10,8 +10,16 @@ import { $accessToken, $user } from "../../lib/auth";
 
 type FilterType = "all" | "visible" | "hidden" | "featured";
 
-const AVAILABLE_YEARS = ["2026", "2025", "2024"] as const;
-type YearType = typeof AVAILABLE_YEARS[number];
+const EDITIONS = [
+    { value: "2026", label: "25/26" },
+    { value: "2025", label: "24/25" },
+    { value: "2024", label: "23/24" },
+] as const;
+type YearType = typeof EDITIONS[number]["value"];
+
+function editionLabel(year: string): string {
+    return EDITIONS.find(e => e.value === year)?.label ?? year;
+}
 
 type EditingPost = {
     _id: Id<"social_posts">;
@@ -30,7 +38,7 @@ export function SocialManagerIsland() {
     const user = useStore($user);
 
     // Year state — default to most recent
-    const [selectedYear, setSelectedYear] = useState<YearType>("2025");
+    const [selectedYear, setSelectedYear] = useState<YearType>("2026");
 
     // Convex hooks — scoped by year
     const posts = useQuery(api.socialPosts.listAll, { year: selectedYear });
@@ -128,26 +136,26 @@ export function SocialManagerIsland() {
                 <div className="flex items-center gap-3">
                     <Calendar className="w-4 h-4 text-text-muted shrink-0" />
                     <div className="flex items-center gap-1.5 p-1 bg-glass-border/20 rounded-xl w-full sm:w-auto">
-                        {AVAILABLE_YEARS.map((year) => (
+                        {EDITIONS.map((edition) => (
                             <button
-                                key={year}
+                                key={edition.value}
                                 onClick={() => {
-                                    setSelectedYear(year);
-                                    setFilter("all"); // Reset filter on year switch
+                                    setSelectedYear(edition.value);
+                                    setFilter("all");
                                 }}
-                                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 min-h-[40px] cursor-pointer ${selectedYear === year
+                                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 min-h-[40px] cursor-pointer ${selectedYear === edition.value
                                     ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
                                     : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
                                     }`}
-                                aria-label={`Toon posts van editie ${year}`}
-                                aria-pressed={selectedYear === year}
+                                aria-label={`Toon posts van editie ${edition.label}`}
+                                aria-pressed={selectedYear === edition.value}
                             >
-                                {year}
+                                {edition.label}
                             </button>
                         ))}
                     </div>
                     <span className="text-xs text-text-muted hidden sm:inline ml-auto">
-                        Editie {selectedYear}
+                        Editie {editionLabel(selectedYear)}
                     </span>
                 </div>
             </div>
@@ -207,11 +215,11 @@ export function SocialManagerIsland() {
                             <Instagram className="w-8 h-8 text-text-muted opacity-50" />
                         </div>
                         <h3 className="text-xl font-display font-bold text-text-primary">
-                            Nog geen posts in {selectedYear}
+                            Nog geen posts in editie {editionLabel(selectedYear)}
                         </h3>
                         <p className="text-text-muted">
                             {filter === "all"
-                                ? `Voeg je eerste Instagram post toe voor editie ${selectedYear}.`
+                                ? `Voeg je eerste Instagram post toe voor editie ${editionLabel(selectedYear)}.`
                                 : `Geen posts gevonden met filter: ${filter}`
                             }
                         </p>
