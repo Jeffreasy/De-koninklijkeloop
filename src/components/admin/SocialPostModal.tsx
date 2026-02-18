@@ -112,14 +112,16 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
         // Validation
         setFormError("");
         if (!formData.imageUrl.trim() && !selectedFile) {
-            setFormError(mediaType === "video" ? "Voeg een thumbnail afbeelding toe" : "Voeg een afbeelding toe (upload een bestand of plak een URL)");
+            setFormError("Voeg een bestand toe (upload of plak een URL)");
             return;
         }
-        if (mediaType === "video" && !formData.videoUrl?.trim()) {
-            setFormError("Voeg een Streamable URL toe");
+        // Only require Streamable URL if explicitly in video mode AND no video file uploaded
+        const isUploadedVideo = selectedFile?.type.startsWith("video/");
+        if (mediaType === "video" && !isUploadedVideo && !formData.videoUrl?.trim()) {
+            setFormError("Upload een video of voeg een Streamable URL toe");
             return;
         }
-        if (mediaType === "video" && formData.videoUrl && !extractStreamableShortcode(formData.videoUrl)) {
+        if (mediaType === "video" && formData.videoUrl && !isUploadedVideo && !extractStreamableShortcode(formData.videoUrl)) {
             setFormError("Ongeldige Streamable URL (bijv. https://streamable.com/abc123)");
             return;
         }
@@ -155,8 +157,21 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                 }
             }
 
+            // Determine final mediaType based on uploaded file
+            const finalMediaType = selectedFile?.type.startsWith("video/") ? "video" : mediaType;
+            const finalVideoUrl = finalMediaType === "video" && selectedFile?.type.startsWith("video/")
+                ? finalImageUrl  // The uploaded video URL IS the videoUrl
+                : (finalMediaType === "video" ? formData.videoUrl : undefined);
+
             // Save post with uploaded URL
-            await onSave({ ...formData, imageUrl: finalImageUrl, mediaType, videoUrl: mediaType === "video" ? formData.videoUrl : undefined });
+            await onSave({
+                ...formData,
+                imageUrl: finalMediaType === "video" && selectedFile?.type.startsWith("video/")
+                    ? finalImageUrl  // For uploaded videos, imageUrl = video URL (ImageKit generates thumbnail)
+                    : finalImageUrl,
+                mediaType: finalMediaType,
+                videoUrl: finalVideoUrl,
+            });
             onClose();
             setSelectedFile(null);
         } catch (error) {
@@ -212,8 +227,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                             setFormData(prev => ({ ...prev, mediaType: "image" }));
                                         }}
                                         className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer min-h-[44px] ${mediaType === "image"
-                                                ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
-                                                : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
+                                            ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
+                                            : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
                                             }`}
                                     >
                                         <ImageLucide className="w-4 h-4" />
@@ -226,8 +241,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                             setFormData(prev => ({ ...prev, mediaType: "video" }));
                                         }}
                                         className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer min-h-[44px] ${mediaType === "video"
-                                                ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
-                                                : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
+                                            ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
+                                            : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
                                             }`}
                                     >
                                         <Film className="w-4 h-4" />
@@ -266,9 +281,15 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
 
                                 {/* Server-Side Upload Button */}
                                 <ServerSideUploadButton
+                                    acceptVideo={true}
                                     onFileSelect={(file) => {
                                         setSelectedFile(file);
                                         setImagePreviewError(false);
+                                        // Auto-detect mediaType from file
+                                        if (file.type.startsWith("video/")) {
+                                            setMediaType("video");
+                                            setFormData(prev => ({ ...prev, mediaType: "video" }));
+                                        }
                                         // Generate preview URL for the selected file
                                         const reader = new FileReader();
                                         reader.onloadend = () => {

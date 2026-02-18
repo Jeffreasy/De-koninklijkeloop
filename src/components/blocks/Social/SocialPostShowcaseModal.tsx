@@ -287,14 +287,26 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     >
                         <div className="relative w-full h-full md:rounded-2xl overflow-hidden shadow-2xl">
                             {post.mediaType === "video" && post.videoUrl ? (
-                                <iframe
-                                    src={`https://streamable.com/o/${post.videoUrl.match(/streamable\.com\/(?:o\/)?([a-zA-Z0-9]+)/)?.[1] || ""}?autoplay=1`}
-                                    className="w-full h-full"
-                                    style={{ border: "none" }}
-                                    allowFullScreen
-                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                    title={post.caption.slice(0, 60)}
-                                />
+                                post.videoUrl.includes("imagekit.io") ? (
+                                    <video
+                                        src={post.videoUrl}
+                                        className="w-full h-full object-contain"
+                                        controls
+                                        autoPlay
+                                        playsInline
+                                        preload="metadata"
+                                        title={post.caption.slice(0, 60)}
+                                    />
+                                ) : (
+                                    <iframe
+                                        src={`https://streamable.com/o/${post.videoUrl.match(/streamable\.com\/(?:o\/)?([a-zA-Z0-9]+)/)?.[1] || ""}?autoplay=1`}
+                                        className="w-full h-full"
+                                        style={{ border: "none" }}
+                                        allowFullScreen
+                                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                        title={post.caption.slice(0, 60)}
+                                    />
+                                )
                             ) : (
                                 <img
                                     src={post.imageUrl.includes("imagekit.io") ? post.imageUrl.replace("/De%20Koninklijkeloop/", "/tr:w-1200,q-85,f-auto/De%20Koninklijkeloop/") : post.imageUrl}
