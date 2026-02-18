@@ -1,4 +1,4 @@
-import { X, User, Mail, Phone, MapPin, StickyNote, Save, Trash2, AlertTriangle, Shield, Check } from "lucide-react";
+import { X, User, Mail, Phone, MapPin, StickyNote, Save, Trash2, AlertTriangle, Shield, Check, HeartHandshake, Accessibility, Bus, Building2, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -20,6 +20,13 @@ interface Registration {
     userType?: string;
     iceName?: string;
     icePhone?: string;
+    supportNeeded?: "ja" | "nee" | "anders";
+    supportDescription?: string;
+    city?: string;
+    wheelchairUser?: boolean;
+    shuttleBus?: "pendelbus" | "eigen-vervoer";
+    livesInFacility?: boolean;
+    participantType?: "doelgroep" | "verwant" | "anders";
     createdAt: number;
     notes?: string;
 }
@@ -42,6 +49,13 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
         status: registration.status,
         iceName: registration.iceName || "",
         icePhone: registration.icePhone || "",
+        supportNeeded: registration.supportNeeded || "nee",
+        supportDescription: registration.supportDescription || "",
+        city: registration.city || "",
+        wheelchairUser: registration.wheelchairUser ?? false,
+        shuttleBus: registration.shuttleBus || "eigen-vervoer",
+        livesInFacility: registration.livesInFacility ?? false,
+        participantType: registration.participantType || "doelgroep",
         notes: registration.notes || ""
     });
 
@@ -273,6 +287,110 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                     <option value="paid" className="bg-surface text-text-primary">✅ Geaccepteerd</option>
                                     <option value="pending" className="bg-surface text-text-primary">⏳ In behandeling</option>
                                     <option value="cancelled" className="bg-surface text-text-primary">❌ Geannuleerd</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Ondersteuning */}
+                    <div className="space-y-4 pt-2 border-t border-glass-border/50">
+                        <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <HeartHandshake className="w-3.5 h-3.5" />
+                            Ondersteuning
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Ondersteuning nodig?</label>
+                                <select
+                                    value={formData.supportNeeded}
+                                    onChange={(e) => handleChange("supportNeeded", e.target.value)}
+                                    className={`w-full px-3 py-2 rounded-xl border text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none ${formData.supportNeeded === 'ja' ? 'bg-brand-orange/10 text-brand-orange border-brand-orange/30' :
+                                        formData.supportNeeded === 'anders' ? 'bg-yellow-500/10 text-yellow-700 border-yellow-500/30' :
+                                            'bg-green-500/10 text-green-700 border-green-500/30'
+                                        }`}
+                                >
+                                    <option value="nee" className="bg-surface text-text-primary">Nee</option>
+                                    <option value="ja" className="bg-surface text-text-primary">Ja</option>
+                                    <option value="anders" className="bg-surface text-text-primary">Anders</option>
+                                </select>
+                            </div>
+                            {(formData.supportNeeded === "ja" || formData.supportNeeded === "anders") && (
+                                <div className="space-y-1.5 md:col-span-2">
+                                    <label className="text-xs font-semibold text-text-muted ml-1">Toelichting</label>
+                                    <textarea
+                                        value={formData.supportDescription}
+                                        onChange={(e) => handleChange("supportDescription", e.target.value)}
+                                        placeholder="Beschrijving van de benodigde ondersteuning..."
+                                        className="w-full min-h-[60px] bg-glass-surface/50 border border-glass-border rounded-xl p-3 text-sm text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none resize-none placeholder:text-text-muted/30"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Profiel Details */}
+                    <div className="space-y-4 pt-2 border-t border-glass-border/50">
+                        <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <Heart className="w-3.5 h-3.5" />
+                            Profiel Details
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Plaatsnaam</label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
+                                    <input
+                                        type="text"
+                                        value={formData.city}
+                                        onChange={(e) => handleChange("city", e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-sm focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
+                                        placeholder="Bijv. Amsterdam"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Rolstoelgebruiker</label>
+                                <select
+                                    value={formData.wheelchairUser ? "ja" : "nee"}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, wheelchairUser: e.target.value === "ja" }))}
+                                    className={`w-full px-3 py-2 rounded-xl border text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none ${formData.wheelchairUser ? 'bg-indigo-500/10 text-indigo-600 border-indigo-500/30' : 'bg-green-500/10 text-green-700 border-green-500/30'}`}
+                                >
+                                    <option value="nee" className="bg-surface text-text-primary">Nee</option>
+                                    <option value="ja" className="bg-surface text-text-primary">Ja</option>
+                                </select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Vervoer</label>
+                                <select
+                                    value={formData.shuttleBus}
+                                    onChange={(e) => handleChange("shuttleBus", e.target.value)}
+                                    className={`w-full px-3 py-2 rounded-xl border text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none ${formData.shuttleBus === 'pendelbus' ? 'bg-cyan-500/10 text-cyan-600 border-cyan-500/30' : 'bg-green-500/10 text-green-700 border-green-500/30'}`}
+                                >
+                                    <option value="eigen-vervoer" className="bg-surface text-text-primary">Eigen vervoer</option>
+                                    <option value="pendelbus" className="bg-surface text-text-primary">Pendelbus</option>
+                                </select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Wonend in instelling</label>
+                                <select
+                                    value={formData.livesInFacility ? "ja" : "nee"}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, livesInFacility: e.target.value === "ja" }))}
+                                    className={`w-full px-3 py-2 rounded-xl border text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none ${formData.livesInFacility ? 'bg-amber-500/10 text-amber-600 border-amber-500/30' : 'bg-green-500/10 text-green-700 border-green-500/30'}`}
+                                >
+                                    <option value="nee" className="bg-surface text-text-primary">Nee</option>
+                                    <option value="ja" className="bg-surface text-text-primary">Ja</option>
+                                </select>
+                            </div>
+                            <div className="space-y-1.5 md:col-span-2">
+                                <label className="text-xs font-semibold text-text-muted ml-1">Doelgroep</label>
+                                <select
+                                    value={formData.participantType}
+                                    onChange={(e) => handleChange("participantType", e.target.value)}
+                                    className={`w-full px-3 py-2 rounded-xl border text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none ${formData.participantType === 'doelgroep' ? 'bg-brand-orange/10 text-brand-orange border-brand-orange/30' : formData.participantType === 'verwant' ? 'bg-pink-500/10 text-pink-600 border-pink-500/30' : 'bg-glass-surface/50 text-text-primary border-glass-border'}`}
+                                >
+                                    <option value="doelgroep" className="bg-surface text-text-primary">Doelgroep</option>
+                                    <option value="verwant" className="bg-surface text-text-primary">Verwant</option>
+                                    <option value="anders" className="bg-surface text-text-primary">Anders</option>
                                 </select>
                             </div>
                         </div>

@@ -26,6 +26,13 @@ export const updateRegistration = action({
         distance: v.optional(v.union(v.literal("2.5"), v.literal("6"), v.literal("10"), v.literal("15"))),
         iceName: v.optional(v.string()),
         icePhone: v.optional(v.string()),
+        supportNeeded: v.optional(v.union(v.literal("ja"), v.literal("nee"), v.literal("anders"))),
+        supportDescription: v.optional(v.string()),
+        city: v.optional(v.string()),
+        wheelchairUser: v.optional(v.boolean()),
+        shuttleBus: v.optional(v.union(v.literal("pendelbus"), v.literal("eigen-vervoer"))),
+        livesInFacility: v.optional(v.boolean()),
+        participantType: v.optional(v.union(v.literal("doelgroep"), v.literal("verwant"), v.literal("anders"))),
     },
     handler: async (ctx, args) => {
         await verifyAuth(args.token, { requiredRoles: ["admin", "editor"] });
@@ -39,7 +46,14 @@ export const updateRegistration = action({
             role: args.role,
             distance: args.distance,
             iceName: args.iceName,
-            icePhone: args.icePhone
+            icePhone: args.icePhone,
+            supportNeeded: args.supportNeeded,
+            supportDescription: args.supportDescription,
+            city: args.city,
+            wheelchairUser: args.wheelchairUser,
+            shuttleBus: args.shuttleBus,
+            livesInFacility: args.livesInFacility,
+            participantType: args.participantType
         });
     },
 });

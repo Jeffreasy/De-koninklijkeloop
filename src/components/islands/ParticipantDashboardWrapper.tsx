@@ -60,7 +60,7 @@ import {
     Edit2, Calendar, MapPin, Footprints, Users, HeartHandshake,
     Camera, Clock, Navigation, ExternalLink, Shield, Loader2,
     ClipboardList, CheckCircle2, MapPinned, UserCheck, AlertTriangle,
-    Download, Trash2, FileJson, XCircle, X
+    Download, Trash2, FileJson, XCircle, X, Accessibility, Bus, Building2, Heart
 } from "lucide-react";
 import { routes, loadRoutePoints, START_POINT, type Route, type RoutePoint } from "../../lib/routeData";
 
@@ -291,6 +291,48 @@ function SharedWelcomeSection({
                         } border={false} />
                     )}
                 </div>
+
+                {/* Profile Info Card */}
+                {(registration.city || registration.wheelchairUser || registration.shuttleBus === "pendelbus" || registration.livesInFacility || registration.participantType) && (
+                    <div className="bg-glass-bg rounded-xl p-4 md:p-6 border border-glass-border">
+                        <h3 className="text-sm font-bold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <Heart className="w-4 h-4 text-brand-orange" />
+                            Profiel
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                            {registration.city && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                    <MapPin className="w-3 h-3" />
+                                    {registration.city}
+                                </span>
+                            )}
+                            {registration.participantType && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-brand-orange/10 text-brand-orange border border-brand-orange/20">
+                                    <Heart className="w-3 h-3" />
+                                    {registration.participantType === "doelgroep" ? "Doelgroep" : registration.participantType === "verwant" ? "Verwant" : "Anders"}
+                                </span>
+                            )}
+                            {registration.wheelchairUser && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                                    <Accessibility className="w-3 h-3" />
+                                    Rolstoel
+                                </span>
+                            )}
+                            {registration.shuttleBus === "pendelbus" && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                                    <Bus className="w-3 h-3" />
+                                    Pendelbus
+                                </span>
+                            )}
+                            {registration.livesInFacility && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                                    <Building2 className="w-3 h-3" />
+                                    Woont in instelling
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Right Column */}

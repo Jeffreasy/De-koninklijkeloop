@@ -1,4 +1,4 @@
-import { X, User, Phone, AlertCircle, Save, Users, Mail } from "lucide-react";
+import { X, User, Phone, AlertCircle, Save, Users, Mail, MapPin, Accessibility, Bus, Building2, Heart } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useAction } from "convex/react";
@@ -9,6 +9,11 @@ interface Registration {
     icePhone?: string;
     supportNeeded?: string;
     supportDescription?: string;
+    city?: string;
+    wheelchairUser?: boolean;
+    shuttleBus?: string;
+    livesInFacility?: boolean;
+    participantType?: string;
     role?: string;
     companionName?: string;
     companionEmail?: string;
@@ -28,6 +33,11 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
         icePhone: registration.icePhone || "",
         supportNeeded: registration.supportNeeded || "nee",
         supportDescription: registration.supportDescription || "",
+        city: registration.city || "",
+        wheelchairUser: registration.wheelchairUser ?? false,
+        shuttleBus: registration.shuttleBus || "eigen-vervoer",
+        livesInFacility: registration.livesInFacility ?? false,
+        participantType: registration.participantType || "doelgroep",
         companionName: registration.companionName || "",
         companionEmail: registration.companionEmail || "",
     });
@@ -82,6 +92,11 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
                 icePhone: formData.icePhone,
                 supportNeeded: formData.supportNeeded as "ja" | "nee" | "anders",
                 supportDescription: formData.supportDescription,
+                city: formData.city,
+                wheelchairUser: formData.wheelchairUser,
+                shuttleBus: formData.shuttleBus as "pendelbus" | "eigen-vervoer",
+                livesInFacility: formData.livesInFacility,
+                participantType: formData.participantType as "doelgroep" | "verwant" | "anders",
                 ...(isBegeleider ? {
                     companionName: formData.companionName,
                     companionEmail: formData.companionEmail,
@@ -247,6 +262,79 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
                                     />
                                 </div>
                             )}
+                        </div>
+                    </div>
+
+                    {/* Profiel */}
+                    <div className="space-y-4">
+                        <h3 className="text-sm font-bold text-text-muted uppercase tracking-wider border-b border-glass-border pb-2 flex items-center gap-2">
+                            <Heart className="w-4 h-4" />
+                            Profiel
+                        </h3>
+                        <div className="space-y-4">
+                            <div className="space-y-1.5">
+                                <label htmlFor="edit-city" className="text-sm font-medium text-text-primary">Plaatsnaam</label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
+                                    <input
+                                        id="edit-city"
+                                        type="text"
+                                        value={formData.city}
+                                        onChange={(e) => handleChange("city", e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-glass-bg border border-glass-border text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none transition-all placeholder:text-text-muted/30"
+                                        placeholder="Bijv. Amsterdam"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-text-primary">Rolstoel</label>
+                                    <select
+                                        value={formData.wheelchairUser ? "ja" : "nee"}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, wheelchairUser: e.target.value === "ja" }))}
+                                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg border border-glass-border text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
+                                    >
+                                        <option value="nee" className="bg-surface text-text-primary">Nee</option>
+                                        <option value="ja" className="bg-surface text-text-primary">Ja</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-text-primary">Vervoer</label>
+                                    <select
+                                        value={formData.shuttleBus}
+                                        onChange={(e) => handleChange("shuttleBus", e.target.value)}
+                                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg border border-glass-border text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
+                                    >
+                                        <option value="eigen-vervoer" className="bg-surface text-text-primary">Eigen vervoer</option>
+                                        <option value="pendelbus" className="bg-surface text-text-primary">Pendelbus</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-text-primary">Instelling</label>
+                                    <select
+                                        value={formData.livesInFacility ? "ja" : "nee"}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, livesInFacility: e.target.value === "ja" }))}
+                                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg border border-glass-border text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
+                                    >
+                                        <option value="nee" className="bg-surface text-text-primary">Nee</option>
+                                        <option value="ja" className="bg-surface text-text-primary">Ja</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-text-primary">Doelgroep</label>
+                                    <select
+                                        value={formData.participantType}
+                                        onChange={(e) => handleChange("participantType", e.target.value)}
+                                        className="w-full px-4 py-2.5 rounded-xl bg-glass-bg border border-glass-border text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
+                                    >
+                                        <option value="doelgroep" className="bg-surface text-text-primary">Doelgroep</option>
+                                        <option value="verwant" className="bg-surface text-text-primary">Verwant</option>
+                                        <option value="anders" className="bg-surface text-text-primary">Anders</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

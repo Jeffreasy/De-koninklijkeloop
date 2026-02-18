@@ -9,7 +9,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { cn } from "../../lib/utils";
-import { User, Mail, MapPin, Users, HeartHandshake, CheckCircle2, ChevronRight, Phone, Contact, Camera, Lock, UserPlus, Footprints, Route, Medal, Trophy, XCircle, HelpCircle, AlertTriangle } from "lucide-react";
+import { User, Mail, MapPin, Users, HeartHandshake, CheckCircle2, ChevronRight, Phone, Contact, Camera, Lock, UserPlus, Footprints, Route, Medal, Trophy, XCircle, HelpCircle, AlertTriangle, Building2, Accessibility, Bus, Home, Heart } from "lucide-react";
 
 // Zod Schema (Password removed)
 const schema = z.object({
@@ -29,6 +29,11 @@ const schema = z.object({
     }),
     // Password fields removed from validation
     supportDescription: z.string().optional(),
+    city: z.string().optional(),
+    wheelchairUser: z.boolean().optional(),
+    shuttleBus: z.enum(["pendelbus", "eigen-vervoer"]).optional(),
+    livesInFacility: z.boolean().optional(),
+    participantType: z.enum(["doelgroep", "verwant", "anders"]).optional(),
     iceName: z.string().min(2, "Naam contactpersoon is verplicht"),
     icePhone: z.string().min(10, "Geldig telefoonnummer is verplicht"),
     agreedToMedia: z.boolean().optional(),
@@ -61,12 +66,18 @@ export default function RegisterForm() {
             supportNeeded: "nee",
             role: "deelnemer",
             agreedToMedia: false,
+            wheelchairUser: false,
+            livesInFacility: false,
+            shuttleBus: "eigen-vervoer",
+            participantType: "doelgroep",
         }
     });
 
     const selectedRole = watch("role");
     const selectedDistance = watch("distance");
     const selectedSupport = watch("supportNeeded");
+    const selectedShuttle = watch("shuttleBus");
+    const selectedParticipantType = watch("participantType");
 
     const onSubmit = async (data: FormData) => {
         setIsSubmitting(true);
@@ -84,6 +95,11 @@ export default function RegisterForm() {
                     distance: data.distance,
                     supportNeeded: data.supportNeeded,
                     supportDescription: data.supportDescription,
+                    city: data.city,
+                    wheelchairUser: data.wheelchairUser,
+                    shuttleBus: data.shuttleBus,
+                    livesInFacility: data.livesInFacility,
+                    participantType: data.participantType,
                     iceName: data.iceName,
                     icePhone: data.icePhone,
                     agreedToTerms: data.agreedToTerms,
@@ -114,7 +130,12 @@ export default function RegisterForm() {
                             email: data.email,
                             role: data.role,
                             distance: data.distance || '',
-                            support_needed: !!data.supportNeeded
+                            support_needed: !!data.supportNeeded,
+                            city: data.city || '',
+                            wheelchair_user: !!data.wheelchairUser,
+                            shuttle_bus: data.shuttleBus || 'eigen-vervoer',
+                            lives_in_facility: !!data.livesInFacility,
+                            participant_type: data.participantType || 'doelgroep'
                         })
                     });
                 } catch (e) {
@@ -131,6 +152,11 @@ export default function RegisterForm() {
                     distance: data.distance,
                     supportNeeded: data.supportNeeded,
                     supportDescription: data.supportDescription,
+                    city: data.city,
+                    wheelchairUser: data.wheelchairUser,
+                    shuttleBus: data.shuttleBus,
+                    livesInFacility: data.livesInFacility,
+                    participantType: data.participantType,
                     iceName: data.iceName,
                     icePhone: data.icePhone,
                     agreedToTerms: data.agreedToTerms,
@@ -148,7 +174,12 @@ export default function RegisterForm() {
                             email: data.email,
                             role: data.role,
                             distance: data.distance || '',
-                            support_needed: !!data.supportNeeded
+                            support_needed: !!data.supportNeeded,
+                            city: data.city || '',
+                            wheelchair_user: !!data.wheelchairUser,
+                            shuttle_bus: data.shuttleBus || 'eigen-vervoer',
+                            lives_in_facility: !!data.livesInFacility,
+                            participant_type: data.participantType || 'doelgroep'
                         })
                     });
 
@@ -373,6 +404,141 @@ export default function RegisterForm() {
                         {errors.supportDescription && <p className="text-red-400 text-xs pl-1 mt-1">{errors.supportDescription?.message}</p>}
                     </div>
                 )}
+            </div>
+
+            {/* 4.5. Over jou */}
+            <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
+                        <Heart className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold font-display text-text-body">Over jou</h3>
+                        <p className="text-sm text-text-muted">Vertel ons meer zodat we je goed kunnen begeleiden.</p>
+                    </div>
+                </div>
+
+                <div className="space-y-5">
+                    {/* Plaatsnaam */}
+                    <div className="space-y-2 group/field">
+                        <Label htmlFor="city" className="transition-colors group-hover/field:text-brand-orange">Plaatsnaam</Label>
+                        <div className="relative transition-all duration-300">
+                            <MapPin className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted/50 transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
+                            <Input id="city" {...register("city")} placeholder="Bijv. Amsterdam, Utrecht..." className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-brand-orange/5" />
+                        </div>
+                    </div>
+
+                    {/* Rolstoelgebruiker */}
+                    <div className="space-y-2">
+                        <Label className="block">Rolstoelgebruiker?</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                            {[{ val: true, label: "Ja", icon: Accessibility }, { val: false, label: "Nee", icon: XCircle }].map((opt) => (
+                                <div
+                                    key={String(opt.val)}
+                                    onClick={() => setValue("wheelchairUser", opt.val)}
+                                    className={cn(
+                                        "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[80px]",
+                                        watch("wheelchairUser") === opt.val
+                                            ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                            : "border-glass-border glass-card hover:border-brand-orange/50"
+                                    )}
+                                >
+                                    {watch("wheelchairUser") === opt.val && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
+                                    <opt.icon className={cn("w-6 h-6 mb-1", watch("wheelchairUser") === opt.val ? "text-brand-orange" : "text-text-muted")} />
+                                    <div className={cn("font-bold text-sm", watch("wheelchairUser") === opt.val ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Pendelbus */}
+                    <div className="space-y-2">
+                        <Label className="block">Hoe kom je naar de startlocatie?</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                            {[
+                                { id: "pendelbus", label: "Pendelbus", icon: Bus, desc: "Ophalen bij instelling" },
+                                { id: "eigen-vervoer", label: "Eigen vervoer", icon: MapPin, desc: "Ik kom zelf" }
+                            ].map((opt) => (
+                                <div
+                                    key={opt.id}
+                                    onClick={() => setValue("shuttleBus", opt.id as any)}
+                                    className={cn(
+                                        "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[100px]",
+                                        selectedShuttle === opt.id
+                                            ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                            : "border-glass-border glass-card hover:border-brand-orange/50"
+                                    )}
+                                >
+                                    {selectedShuttle === opt.id && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
+                                    {selectedShuttle === opt.id && (
+                                        <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
+                                            <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
+                                        </div>
+                                    )}
+                                    <opt.icon className={cn("w-7 h-7 mb-1", selectedShuttle === opt.id ? "text-brand-orange" : "text-text-muted")} />
+                                    <div className={cn("font-bold text-sm", selectedShuttle === opt.id ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
+                                    <div className="text-[10px] md:text-xs text-text-muted mt-0.5 leading-tight">{opt.desc}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Wonend in instelling */}
+                    <div className="space-y-2">
+                        <Label className="block">Wonend in een instelling?</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                            {[{ val: true, label: "Ja", icon: Building2 }, { val: false, label: "Nee", icon: Home }].map((opt) => (
+                                <div
+                                    key={String(opt.val)}
+                                    onClick={() => setValue("livesInFacility", opt.val)}
+                                    className={cn(
+                                        "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[80px]",
+                                        watch("livesInFacility") === opt.val
+                                            ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                            : "border-glass-border glass-card hover:border-brand-orange/50"
+                                    )}
+                                >
+                                    {watch("livesInFacility") === opt.val && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
+                                    <opt.icon className={cn("w-6 h-6 mb-1", watch("livesInFacility") === opt.val ? "text-brand-orange" : "text-text-muted")} />
+                                    <div className={cn("font-bold text-sm", watch("livesInFacility") === opt.val ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Doelgroep */}
+                    <div className="space-y-2">
+                        <Label className="block">Wat beschrijft jou het best?</Label>
+                        <div className="grid grid-cols-3 gap-4">
+                            {[
+                                { id: "doelgroep", label: "Doelgroep", icon: Heart, desc: "Ik hoor bij de doelgroep" },
+                                { id: "verwant", label: "Verwant", icon: Users, desc: "Familie / naaste" },
+                                { id: "anders", label: "Anders", icon: HelpCircle, desc: "Geen van beide" }
+                            ].map((opt) => (
+                                <div
+                                    key={opt.id}
+                                    onClick={() => setValue("participantType", opt.id as any)}
+                                    className={cn(
+                                        "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[100px]",
+                                        selectedParticipantType === opt.id
+                                            ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                            : "border-glass-border glass-card hover:border-brand-orange/50"
+                                    )}
+                                >
+                                    {selectedParticipantType === opt.id && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
+                                    {selectedParticipantType === opt.id && (
+                                        <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
+                                            <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
+                                        </div>
+                                    )}
+                                    <opt.icon className={cn("w-7 h-7 mb-1", selectedParticipantType === opt.id ? "text-brand-orange" : "text-text-muted")} />
+                                    <div className={cn("font-bold text-sm leading-tight", selectedParticipantType === opt.id ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
+                                    <div className="text-[10px] md:text-xs text-text-muted mt-0.5 leading-tight">{opt.desc}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* 5. Noodcontact (ICE) */}

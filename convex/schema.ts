@@ -24,6 +24,13 @@ export default defineSchema({
         supportNeeded: v.union(v.literal("ja"), v.literal("nee"), v.literal("anders")),
         supportDescription: v.optional(v.string()),
 
+        // Participant Profile
+        city: v.optional(v.string()),
+        wheelchairUser: v.optional(v.boolean()),
+        shuttleBus: v.optional(v.union(v.literal("pendelbus"), v.literal("eigen-vervoer"))),
+        livesInFacility: v.optional(v.boolean()),
+        participantType: v.optional(v.union(v.literal("doelgroep"), v.literal("verwant"), v.literal("anders"))),
+
         // ICE (Noodcontact)
         iceName: v.string(),
         icePhone: v.string(),

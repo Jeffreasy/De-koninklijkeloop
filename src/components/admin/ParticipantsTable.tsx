@@ -1,15 +1,17 @@
-import { Users, Filter, Mail, Phone, MapPin, Search, ChevronLeft, ChevronRight, Download, ChevronsUpDown, ShieldCheck, UserCircle, User, Calendar, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { Users, Filter, Mail, Phone, MapPin, Search, ChevronLeft, ChevronRight, FileSpreadsheet, ChevronsUpDown, ShieldCheck, UserCircle, User, Calendar, MoreVertical, Edit2, Trash2, HeartHandshake, Accessibility, Bus, Building2, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { useState, useMemo, useEffect } from "react";
 import { useStore } from "@nanostores/react";
 import { $accessToken } from "../../lib/auth";
 import { useAction } from "convex/react";
+import * as XLSX from "xlsx";
 import ParticipantDetailModal from "./ParticipantDetailModal";
 
 type UserType = "all" | "authenticated" | "guest";
 type Role = "all" | "deelnemer" | "begeleider" | "vrijwilliger";
 type Status = "all" | "pending" | "paid" | "cancelled";
+type SupportFilter = "all" | "ja" | "nee" | "anders";
 type SortField = "name" | "createdAt" | "distance" | "status";
 type SortDirection = "asc" | "desc";
 
@@ -27,6 +29,13 @@ interface Registration {
     userType?: string;
     iceName?: string;
     icePhone?: string;
+    supportNeeded?: "ja" | "nee" | "anders";
+    supportDescription?: string;
+    city?: string;
+    wheelchairUser?: boolean;
+    shuttleBus?: "pendelbus" | "eigen-vervoer";
+    livesInFacility?: boolean;
+    participantType?: "doelgroep" | "verwant" | "anders";
     createdAt: number;
     notes?: string;
     edition?: string;
@@ -56,6 +65,7 @@ export default function ParticipantsTable() {
     const [userTypeFilter, setUserTypeFilter] = useState<UserType>("all");
     const [roleFilter, setRoleFilter] = useState<Role>("all");
     const [statusFilter, setStatusFilter] = useState<Status>("all");
+    const [supportFilter, setSupportFilter] = useState<SupportFilter>("all");
     const [editionFilter, setEditionFilter] = useState<string>("2026");
 
 
@@ -98,6 +108,9 @@ export default function ParticipantsTable() {
             // Status Filter
             if (statusFilter !== "all" && reg.status !== statusFilter) return false;
 
+            // Support Filter
+            if (supportFilter !== "all" && (reg.supportNeeded || "nee") !== supportFilter) return false;
+
             return true;
         });
 
@@ -131,7 +144,7 @@ export default function ParticipantsTable() {
         });
 
         return result;
-    }, [registrations, searchQuery, userTypeFilter, roleFilter, statusFilter, sortField, sortDirection, editionFilter]);
+    }, [registrations, searchQuery, userTypeFilter, roleFilter, statusFilter, supportFilter, sortField, sortDirection, editionFilter]);
 
     // Pagination Logic
     const totalPages = Math.ceil(processedRegistrations.length / itemsPerPage);
@@ -143,7 +156,7 @@ export default function ParticipantsTable() {
     // Reset pagination on filter change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, userTypeFilter, roleFilter, statusFilter, editionFilter]);
+    }, [searchQuery, userTypeFilter, roleFilter, statusFilter, supportFilter, editionFilter]);
 
 
     // Handlers
@@ -156,23 +169,78 @@ export default function ParticipantsTable() {
         }
     };
 
-    const handleExportCSV = () => {
+    const handleExportExcel = () => {
         if (!processedRegistrations.length) return;
 
-        const headers = ["ID,Naam,Email,Rol,Afstand,Status,Type,Aangemaakt,ICE Naam,ICE Telefoon"];
-        const rows = processedRegistrations.map(r =>
-            `"${r._id}","${r.name}","${r.email}","${r.role}","${r.distance || ''}","${r.status}","${r.userType || 'guest'}","${new Date(r.createdAt).toISOString()}","${r.iceName || ''}","${r.icePhone || ''}"`
-        );
+        const statusLabel = (s: string) =>
+            s === "paid" ? "Geaccepteerd" : s === "pending" ? "In behandeling" : "Geannuleerd";
+        const roleLabel = (r: string) =>
+            r === "deelnemer" ? "Deelnemer" : r === "begeleider" ? "Begeleider" : "Vrijwilliger";
+        const typeLabel = (t?: string) =>
+            t === "authenticated" ? "Account" : "Gast";
+        const formatDate = (ts: number) => {
+            const d = new Date(ts);
+            const dd = String(d.getDate()).padStart(2, "0");
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const yyyy = d.getFullYear();
+            const hh = String(d.getHours()).padStart(2, "0");
+            const min = String(d.getMinutes()).padStart(2, "0");
+            return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+        };
 
-        const csvContent = headers.concat(rows).join("\n");
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `registraties_export_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const supportLabel = (s?: string) =>
+            s === "ja" ? "Ja" : s === "anders" ? "Anders" : "Nee";
+        const shuttleLabel = (s?: string) =>
+            s === "pendelbus" ? "Pendelbus" : "Eigen vervoer";
+        const participantLabel = (s?: string) =>
+            s === "doelgroep" ? "Doelgroep" : s === "verwant" ? "Verwant" : "Anders";
+
+        const headers = ["Naam", "Email", "Rol", "Afstand", "Status", "Ondersteuning", "Toelichting", "Plaatsnaam", "Rolstoel", "Vervoer", "Instelling", "Doelgroep", "Type", "Aangemaakt", "Noodcontact Naam", "Noodcontact Telefoon"];
+
+        const rows = processedRegistrations.map(r => [
+            r.name,
+            r.email,
+            roleLabel(r.role),
+            r.distance ? `${r.distance} km` : "",
+            statusLabel(r.status),
+            supportLabel(r.supportNeeded),
+            r.supportDescription || "",
+            r.city || "",
+            r.wheelchairUser ? "Ja" : "Nee",
+            shuttleLabel(r.shuttleBus),
+            r.livesInFacility ? "Ja" : "Nee",
+            participantLabel(r.participantType),
+            typeLabel(r.userType),
+            formatDate(r.createdAt),
+            r.iceName || "",
+            r.icePhone || "",
+        ]);
+
+        // Summary row
+        const totalDeelnemers = processedRegistrations.filter(r => r.role === "deelnemer").length;
+        const totalBegeleiders = processedRegistrations.filter(r => r.role === "begeleider").length;
+        const totalVrijwilligers = processedRegistrations.filter(r => r.role === "vrijwilliger").length;
+
+        rows.push([]); // empty spacer row
+        rows.push([`Totaal: ${processedRegistrations.length}`, "", `D: ${totalDeelnemers} | B: ${totalBegeleiders} | V: ${totalVrijwilligers}`, "", "", "", "", "", ""]);
+
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+        // Column widths (auto-fit based on content)
+        const colWidths = headers.map((h, i) => {
+            const maxLen = Math.max(h.length, ...rows.map(r => String(r[i] || "").length));
+            return { wch: Math.min(maxLen + 4, 40) };
+        });
+        ws["!cols"] = colWidths;
+
+        // Autofilter on header row
+        ws["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }) };
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Deelnemers");
+
+        const today = new Date().toISOString().split("T")[0];
+        XLSX.writeFile(wb, `registraties_export_${today}.xlsx`);
     };
 
     // History Map (Loyalty)
@@ -321,16 +389,27 @@ export default function ParticipantsTable() {
                                 <option value="pending" className="bg-surface">In behandeling</option>
                                 <option value="cancelled" className="bg-surface">Geannuleerd</option>
                             </select>
+
+                            <select
+                                value={supportFilter}
+                                onChange={(e) => setSupportFilter(e.target.value as SupportFilter)}
+                                className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
+                            >
+                                <option value="all" className="bg-surface">Ondersteuning</option>
+                                <option value="ja" className="bg-surface">Ja - nodig</option>
+                                <option value="anders" className="bg-surface">Anders</option>
+                                <option value="nee" className="bg-surface">Nee</option>
+                            </select>
                         </div>
                     </div>
 
                     {/* Export Button */}
                     <button
-                        onClick={handleExportCSV}
+                        onClick={handleExportExcel}
                         className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-linear-to-r from-brand-orange/10 to-brand-orange/5 border border-brand-orange/20 text-brand-orange hover:from-brand-orange/20 hover:to-brand-orange/10 transition-all text-sm font-medium whitespace-nowrap shadow-lg shadow-brand-orange/5 group cursor-pointer"
                     >
-                        <Download className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                        Export CSV
+                        <FileSpreadsheet className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                        Export Excel
                     </button>
                 </div>
             </div>
@@ -345,7 +424,7 @@ export default function ParticipantsTable() {
                         <h3 className="text-xl font-bold text-text-primary mb-2">Geen deelnemers gevonden</h3>
                         <p className="text-text-muted max-w-md">Geen resultaten voor de huidige filters. Probeer een andere zoekopdracht of pas de filters aan.</p>
                         <button
-                            onClick={() => { setSearchQuery(""); setUserTypeFilter("all"); setRoleFilter("all"); setStatusFilter("all"); }}
+                            onClick={() => { setSearchQuery(""); setUserTypeFilter("all"); setRoleFilter("all"); setStatusFilter("all"); setSupportFilter("all"); }}
                             className="mt-6 px-6 py-2 bg-glass-surface/50 border border-glass-border text-text-primary rounded-xl hover:bg-glass-surface transition-colors text-sm font-medium cursor-pointer"
                         >
                             Filters wissen
@@ -368,6 +447,8 @@ export default function ParticipantsTable() {
                                         <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-text-primary transition-colors group select-none" onClick={() => handleSort("status")}>
                                             <div className="flex items-center gap-2">Status <ChevronsUpDown className={`w-3 h-3 ${sortField === "status" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-text-muted"}`} /></div>
                                         </th>
+                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider hidden lg:table-cell">Ondersteuning</th>
+                                        <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider hidden xl:table-cell">Profiel</th>
                                         <th className="text-right py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-text-primary transition-colors group select-none hidden xl:table-cell" onClick={() => handleSort("createdAt")}>
                                             <div className="flex items-center justify-end gap-2">Datum <ChevronsUpDown className={`w-3 h-3 ${sortField === "createdAt" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-text-muted"}`} /></div>
                                         </th>
@@ -436,6 +517,25 @@ export default function ParticipantsTable() {
                                                             {reg.status === "paid" ? "Geaccepteerd" : reg.status === "pending" ? "In behandeling" : "Geannuleerd"}
                                                         </span>
                                                     </td>
+                                                    <td className="py-4 px-6 hidden lg:table-cell">
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${(reg.supportNeeded || "nee") === "ja" ? "bg-brand-orange/10 text-brand-orange border-brand-orange/20" :
+                                                            (reg.supportNeeded || "nee") === "anders" ? "bg-yellow-500/10 text-yellow-700 border-yellow-500/20" :
+                                                                "bg-green-500/10 text-green-700 border-green-500/20"
+                                                            }`} title={reg.supportDescription || ""}>
+                                                            <HeartHandshake className="w-3 h-3" />
+                                                            {(reg.supportNeeded || "nee") === "ja" ? "Ja" : (reg.supportNeeded || "nee") === "anders" ? "Anders" : "Nee"}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-4 px-6 hidden xl:table-cell">
+                                                        <div className="flex items-center gap-1.5 flex-wrap" title={[reg.city, reg.wheelchairUser ? "Rolstoel" : null, reg.shuttleBus === "pendelbus" ? "Pendelbus" : null, reg.livesInFacility ? "Instelling" : null, reg.participantType === "doelgroep" ? "Doelgroep" : reg.participantType === "verwant" ? "Verwant" : null].filter(Boolean).join(" · ") || "Geen profiel"}>
+                                                            {reg.city && <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-blue-500/10 text-blue-600 border border-blue-500/15" title={reg.city}><MapPin className="w-2.5 h-2.5" />{reg.city.length > 8 ? reg.city.slice(0, 8) + ".." : reg.city}</span>}
+                                                            {reg.wheelchairUser && <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 border border-indigo-500/15" title="Rolstoelgebruiker"><Accessibility className="w-3 h-3" /></span>}
+                                                            {reg.shuttleBus === "pendelbus" && <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-cyan-500/10 text-cyan-600 border border-cyan-500/15" title="Pendelbus"><Bus className="w-3 h-3" /></span>}
+                                                            {reg.livesInFacility && <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 border border-amber-500/15" title="Wonend in instelling"><Building2 className="w-3 h-3" /></span>}
+                                                            {reg.participantType && reg.participantType !== "anders" && <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium border ${reg.participantType === "doelgroep" ? "bg-brand-orange/10 text-brand-orange border-brand-orange/15" : "bg-pink-500/10 text-pink-600 border-pink-500/15"}`}><Heart className="w-2.5 h-2.5" />{reg.participantType === "doelgroep" ? "DG" : "VW"}</span>}
+                                                            {!reg.city && !reg.wheelchairUser && reg.shuttleBus !== "pendelbus" && !reg.livesInFacility && <span className="text-text-muted/40 text-[10px]">—</span>}
+                                                        </div>
+                                                    </td>
                                                     <td className="py-4 px-6 text-right text-text-muted text-sm hidden xl:table-cell font-mono">
                                                         {new Date(reg.createdAt).toLocaleDateString()}
                                                     </td>
@@ -496,6 +596,17 @@ export default function ParticipantsTable() {
                                                     <div className="text-text-primary font-medium">{reg.distance ? `${reg.distance} km` : '-'}</div>
                                                 </div>
                                             </div>
+
+                                            {/* Profile Icons Row */}
+                                            {(reg.city || reg.wheelchairUser || reg.shuttleBus === "pendelbus" || reg.livesInFacility || (reg.participantType && reg.participantType !== "anders")) && (
+                                                <div className="flex items-center gap-1.5 flex-wrap mb-3">
+                                                    {reg.city && <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-blue-500/10 text-blue-600 border border-blue-500/15"><MapPin className="w-2.5 h-2.5" />{reg.city}</span>}
+                                                    {reg.wheelchairUser && <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] bg-indigo-500/10 text-indigo-600 border border-indigo-500/15"><Accessibility className="w-3 h-3" /></span>}
+                                                    {reg.shuttleBus === "pendelbus" && <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] bg-cyan-500/10 text-cyan-600 border border-cyan-500/15"><Bus className="w-3 h-3" /></span>}
+                                                    {reg.livesInFacility && <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] bg-amber-500/10 text-amber-600 border border-amber-500/15"><Building2 className="w-3 h-3" /></span>}
+                                                    {reg.participantType && reg.participantType !== "anders" && <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium border ${reg.participantType === "doelgroep" ? "bg-brand-orange/10 text-brand-orange border-brand-orange/15" : "bg-pink-500/10 text-pink-600 border-pink-500/15"}`}><Heart className="w-2.5 h-2.5" />{reg.participantType === "doelgroep" ? "Doelgroep" : "Verwant"}</span>}
+                                                </div>
+                                            )}
 
                                             <div className="flex justify-between items-center pt-2 border-t border-glass-border/50">
                                                 <span className="text-[10px] text-text-muted font-mono">{new Date(reg.createdAt).toLocaleDateString()}</span>
