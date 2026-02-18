@@ -259,6 +259,7 @@ export const SocialGridIsland = memo(function SocialGridIsland({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPostIndex, setSelectedPostIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
+    const [selectedYear, setSelectedYear] = useState(EDITIONS[0].value);
 
     // Auth state
     const accessToken = useStore($accessToken);
@@ -266,17 +267,20 @@ export const SocialGridIsland = memo(function SocialGridIsland({
     const isAuthenticated = !!accessToken && !!user;
     const userEmail = user?.email || null;
 
-    // For modal navigation: fetch all visible posts across editions
-    const allVisiblePosts = useQuery(api.socialPosts.listPublic, {});
+    // Fetch posts for selected year only (for modal navigation)
+    const yearPosts = useQuery(api.socialPosts.listPublic, { year: selectedYear });
 
-    // Combine with SSR fallback
+    // Combine with SSR fallback (only for default year)
     const allPosts = useMemo(() => {
-        if (allVisiblePosts && allVisiblePosts.length > 0) return allVisiblePosts as SSRPost[];
-        return [
-            ...(ssrFeatured ? [ssrFeatured] : []),
-            ...(ssrThumbnails ?? []),
-        ] as SSRPost[];
-    }, [allVisiblePosts, ssrFeatured, ssrThumbnails]);
+        if (yearPosts && yearPosts.length > 0) return yearPosts as SSRPost[];
+        if (selectedYear === EDITIONS[0].value) {
+            return [
+                ...(ssrFeatured ? [ssrFeatured] : []),
+                ...(ssrThumbnails ?? []),
+            ] as SSRPost[];
+        }
+        return [] as SSRPost[];
+    }, [yearPosts, ssrFeatured, ssrThumbnails, selectedYear]);
 
     const hasContent = allPosts.length > 0;
 
@@ -302,10 +306,15 @@ export const SocialGridIsland = memo(function SocialGridIsland({
         [allPosts.length]
     );
 
-    // ─── Section Header ───
+    const handleTabChange = useCallback((year: string) => {
+        setSelectedYear(year);
+        setSelectedPostIndex(0);
+    }, []);
+
+    // ─── Section Header + Tabs ───
 
     const SectionHeader = useCallback(() => (
-        <div className="text-center mb-12 md:mb-16 space-y-4">
+        <div className="text-center mb-12 md:mb-16 space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-xs font-bold uppercase tracking-widest">
                 <Instagram className="w-3.5 h-3.5" />
                 @koninklijkeloop
@@ -319,8 +328,30 @@ export const SocialGridIsland = memo(function SocialGridIsland({
             <p className="text-text-muted text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                 Blijf op de hoogte van de laatste updates, foto's en behind the scenes.
             </p>
+
+            {/* Year Tab Selector */}
+            <div className="flex items-center justify-center gap-2">
+                {EDITIONS.map((edition) => (
+                    <button
+                        key={edition.value}
+                        onClick={() => handleTabChange(edition.value)}
+                        className={`
+                            px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer
+                            ${selectedYear === edition.value
+                                ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
+                                : "bg-glass-bg/60 text-text-muted border border-glass-border hover:border-brand-orange/30 hover:text-text-primary"
+                            }
+                        `}
+                    >
+                        <span className="flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5" />
+                            Editie {edition.label}
+                        </span>
+                    </button>
+                ))}
+            </div>
         </div>
-    ), []);
+    ), [selectedYear, handleTabChange]);
 
     // ─── Error State ───
 
@@ -343,41 +374,19 @@ export const SocialGridIsland = memo(function SocialGridIsland({
         );
     }
 
-    // ─── Empty State ───
-
-    if (!hasContent && allVisiblePosts !== undefined) {
-        return (
-            <SectionShell>
-                <SectionHeader />
-                <div className="text-center py-12">
-                    <div className="max-w-md mx-auto space-y-4">
-                        <div className="w-16 h-16 mx-auto rounded-2xl bg-glass-bg/60 border border-glass-border flex items-center justify-center">
-                            <Instagram className="w-8 h-8 text-text-muted opacity-50" />
-                        </div>
-                        <p className="text-text-muted">Nog geen Instagram posts toegevoegd.</p>
-                    </div>
-                </div>
-            </SectionShell>
-        );
-    }
-
-    // ─── Main: Edition Rows ───
+    // ─── Main: Single Edition with Tabs ───
 
     return (
         <SectionShell>
             <SectionHeader />
 
-            {/* Edition Rows */}
-            <div className="space-y-10 md:space-y-14">
-                {EDITIONS.map((edition) => (
-                    <EditionRow
-                        key={edition.value}
-                        year={edition.value}
-                        label={`Editie ${edition.label}`}
-                        onPostClick={handlePostClick}
-                    />
-                ))}
-            </div>
+            {/* Single Edition Content */}
+            <EditionRow
+                key={selectedYear}
+                year={selectedYear}
+                label={`Editie ${EDITIONS.find(e => e.value === selectedYear)?.label || selectedYear}`}
+                onPostClick={handlePostClick}
+            />
 
             {/* Desktop CTA */}
             <div className="hidden md:flex justify-center mt-10">
