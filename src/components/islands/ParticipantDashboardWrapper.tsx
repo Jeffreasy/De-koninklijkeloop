@@ -66,6 +66,17 @@ import { routes, loadRoutePoints, START_POINT, type Route, type RoutePoint } fro
 
 const RouteMapInner = React.lazy(() => import("./RouteMapInner"));
 
+class MapErrorBoundary extends React.Component<
+    { children: React.ReactNode; fallback: React.ReactNode },
+    { hasError: boolean }
+> {
+    state = { hasError: false };
+    static getDerivedStateFromError() { return { hasError: true }; }
+    render() {
+        return this.state.hasError ? this.props.fallback : this.props.children;
+    }
+}
+
 function DashboardContent({ token }: { token: string }) {
     const getDashboardData = useAction(api.participant.getDashboardData);
     const confirmTask = useAction(api.participant.confirmVolunteerTask);
@@ -430,19 +441,26 @@ function SharedRouteCard({ registration }: { registration: Doc<"registrations"> 
             </div>
 
             <div className="rounded-xl overflow-hidden border border-glass-border bg-black/20 h-[200px] md:h-[280px] lg:h-[350px]">
-                <Suspense fallback={
-                    <div className="flex items-center justify-center h-full text-brand-orange bg-surface/50">
-                        <Loader2 className="w-8 h-8 animate-spin" />
+                <MapErrorBoundary fallback={
+                    <div className="flex flex-col items-center justify-center h-full text-text-muted bg-surface/50 gap-2">
+                        <MapPin className="w-6 h-6 opacity-40" />
+                        <p className="text-xs">Kaart kon niet laden</p>
                     </div>
                 }>
-                    {fullRoute ? (
-                        <RouteMapInner route={fullRoute} />
-                    ) : (
+                    <Suspense fallback={
                         <div className="flex items-center justify-center h-full text-brand-orange bg-surface/50">
                             <Loader2 className="w-8 h-8 animate-spin" />
                         </div>
-                    )}
-                </Suspense>
+                    }>
+                        {fullRoute ? (
+                            <RouteMapInner route={fullRoute} />
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-brand-orange bg-surface/50">
+                                <Loader2 className="w-8 h-8 animate-spin" />
+                            </div>
+                        )}
+                    </Suspense>
+                </MapErrorBoundary>
             </div>
 
             <a
