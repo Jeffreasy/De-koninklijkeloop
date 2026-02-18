@@ -251,11 +251,11 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                 </div>
                             </div>
 
-                            {/* Video URL (only for video type) */}
-                            {mediaType === "video" && (
+                            {/* Video URL (only when in video mode and NO video file uploaded) */}
+                            {mediaType === "video" && !selectedFile?.type.startsWith("video/") && (
                                 <div>
                                     <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
-                                        Streamable URL *
+                                        Streamable URL (optioneel)
                                     </label>
                                     <input
                                         type="url"
@@ -265,10 +265,9 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                         }
                                         placeholder="https://streamable.com/abc123"
                                         className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
-                                        required
                                     />
                                     <p className="mt-1.5 text-xs text-text-muted">
-                                        Plak de Streamable link (bijv. streamable.com/abc123)
+                                        Of upload een video via de knop hieronder
                                     </p>
                                 </div>
                             )}
@@ -276,7 +275,11 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                             {/* Image Upload/URL */}
                             <div>
                                 <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
-                                    {mediaType === "video" ? "Thumbnail afbeelding *" : "Afbeelding *"}
+                                    {mediaType === "video" && !selectedFile?.type.startsWith("video/")
+                                        ? "Thumbnail afbeelding *"
+                                        : mediaType === "video"
+                                            ? "Video *"
+                                            : "Afbeelding *"}
                                 </label>
 
                                 {/* Server-Side Upload Button */}
@@ -390,17 +393,35 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                 </label>
                                 <div className="relative aspect-square rounded-xl overflow-hidden bg-glass-bg/30 border border-glass-border">
                                     {(filePreviewUrl || formData.imageUrl) ? (
-                                        <img
-                                            src={filePreviewUrl || formData.imageUrl}
-                                            alt="Preview"
-                                            className="w-full h-full object-cover"
-                                            onError={() => setImagePreviewError(true)}
-                                        />
+                                        selectedFile?.type.startsWith("video/") || (mediaType === "video" && formData.imageUrl && (formData.imageUrl.endsWith(".mp4") || formData.imageUrl.endsWith(".webm") || formData.imageUrl.endsWith(".mov"))) ? (
+                                            <video
+                                                src={filePreviewUrl || formData.imageUrl}
+                                                className="w-full h-full object-cover"
+                                                muted
+                                                autoPlay
+                                                loop
+                                                playsInline
+                                                preload="metadata"
+                                            />
+                                        ) : (
+                                            <img
+                                                src={filePreviewUrl || formData.imageUrl}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                                onError={() => setImagePreviewError(true)}
+                                            />
+                                        )
                                     ) : (
                                         <div className="absolute inset-0 flex items-center justify-center text-text-muted">
                                             <div className="text-center p-4">
-                                                <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                                                <p className="text-xs md:text-sm">Geen afbeelding geselecteerd</p>
+                                                {mediaType === "video" ? (
+                                                    <Film className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                                                ) : (
+                                                    <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                                                )}
+                                                <p className="text-xs md:text-sm">
+                                                    {mediaType === "video" ? "Geen video geselecteerd" : "Geen afbeelding geselecteerd"}
+                                                </p>
                                             </div>
                                         </div>
                                     )}
