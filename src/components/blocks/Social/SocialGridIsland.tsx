@@ -70,9 +70,8 @@ function EditionRow({
     // Loading skeleton
     if (isLoading) {
         return (
-            <div className="space-y-4 animate-pulse">
-                <div className="h-6 w-32 rounded-lg bg-glass-border/20" />
-                <div className="hidden md:grid grid-cols-4 gap-3 auto-rows-[160px]">
+            <div className="animate-pulse">
+                <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[160px]">
                     <div className="col-span-2 row-span-2 rounded-2xl bg-glass-bg/40 border border-glass-border" />
                     {[...Array(4)].map((_, i) => (
                         <div key={i} className="rounded-xl bg-glass-bg/40 border border-glass-border" style={{ animationDelay: `${i * 80}ms` }} />
@@ -87,35 +86,17 @@ function EditionRow({
         );
     }
 
-    // No content for this edition — show empty placeholder
+    // No content for this edition
     if (!hasContent) {
         return (
-            <div className="space-y-4">
-                <div className="flex items-center gap-2.5">
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-glass-border/10 border border-glass-border/30">
-                        <Calendar className="w-3.5 h-3.5 text-text-muted/50" />
-                        <span className="text-sm font-bold text-text-muted/60">{label}</span>
-                    </div>
-                    <div className="flex-1 h-px bg-glass-border/20" />
-                </div>
-                <div className="flex items-center justify-center py-8 rounded-2xl border border-dashed border-glass-border/30 bg-glass-bg/20">
-                    <p className="text-sm text-text-muted/50">Nog geen posts voor deze editie</p>
-                </div>
+            <div className="flex items-center justify-center py-12 rounded-2xl border border-dashed border-glass-border/30 bg-glass-bg/20">
+                <p className="text-sm text-text-muted/50">Nog geen posts voor {label.toLowerCase()}</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-4">
-            {/* Edition Heading */}
-            <div className="flex items-center gap-2.5">
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-brand-orange/10 border border-brand-orange/20">
-                    <Calendar className="w-3.5 h-3.5 text-brand-orange" />
-                    <span className="text-sm font-bold text-brand-orange">{label}</span>
-                </div>
-                <div className="flex-1 h-px bg-glass-border/40" />
-            </div>
-
+        <div>
             {/* Desktop: Mini Bento Grid */}
             <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[160px]">
                 {/* Featured Post — spans 2×2 */}
@@ -250,7 +231,7 @@ function EditionRow({
                     ))}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 
