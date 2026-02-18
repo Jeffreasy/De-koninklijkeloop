@@ -87,7 +87,7 @@ function DashboardContent({ token }: { token: string }) {
             setData(result);
             setError(null);
         } catch (err: any) {
-            console.error("Dashboard load error:", err);
+            if (import.meta.env.DEV) console.error("Dashboard load error:", err);
             if (err.message?.includes("Unauthorized") || err.message?.includes("Auth verification failed")) {
                 logout();
                 setError("Toegang geweigerd. Log opnieuw in.");
@@ -129,7 +129,7 @@ function DashboardContent({ token }: { token: string }) {
     if (loading && !data) {
         return (
             <div className="space-y-8 animate-pulse" role="status" aria-live="polite" aria-label="Dashboard laden">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div className="space-y-6">
                         <div className="h-8 w-48 bg-glass-bg rounded-lg" />
                         <div className="h-5 w-64 bg-glass-bg rounded-lg" />
@@ -256,7 +256,7 @@ function SharedWelcomeSection({
     });
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 scroll-mt-20">
             <div className="space-y-6">
                 <div>
                     <h2 className="text-xl md:text-2xl font-bold text-text-body mb-2">
@@ -368,16 +368,14 @@ function SharedWelcomeSection({
                         <Edit2 className="w-4 h-4" />
                         Wijzig Gegevens
                     </Button>
-                    <div className="flex justify-center md:justify-end">
-                        <Button
-                            onClick={onLogout}
-                            variant="ghost"
-                            disabled={isLoggingOut}
-                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10 min-h-[44px] w-full md:w-auto cursor-pointer"
-                        >
-                            {isLoggingOut ? "Uitloggen..." : "Uitloggen"}
-                        </Button>
-                    </div>
+                    <Button
+                        onClick={onLogout}
+                        variant="ghost"
+                        disabled={isLoggingOut}
+                        className="text-text-muted hover:text-red-400 hover:bg-red-500/10 min-h-[44px] w-full text-xs cursor-pointer"
+                    >
+                        {isLoggingOut ? "Uitloggen..." : "Uitloggen"}
+                    </Button>
                 </div>
             </div>
         </div>
@@ -431,7 +429,7 @@ function SharedRouteCard({ registration }: { registration: Doc<"registrations"> 
                 <p className="text-text-muted text-sm">{matchedRoute.description}</p>
             </div>
 
-            <div className="rounded-xl overflow-hidden border border-glass-border bg-black/20 h-[280px] md:h-[350px]">
+            <div className="rounded-xl overflow-hidden border border-glass-border bg-black/20 h-[200px] md:h-[280px] lg:h-[350px]">
                 <Suspense fallback={
                     <div className="flex items-center justify-center h-full text-brand-orange bg-surface/50">
                         <Loader2 className="w-8 h-8 animate-spin" />
@@ -472,7 +470,7 @@ function BegeleiderSection({
     linkedDeelnemer: Doc<"registrations"> | null;
 }) {
     return (
-        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 md:p-6 space-y-4">
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 md:p-6 space-y-4 scroll-mt-20">
             <h3 className="text-lg font-bold text-text-body flex items-center gap-2">
                 <Users className="w-5 h-5 text-blue-400" />
                 Mijn Deelnemer(s)
@@ -544,7 +542,7 @@ function VrijwilligerSection({
     confirmingTaskId: string | null;
 }) {
     return (
-        <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-4 md:p-6 space-y-4">
+        <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-4 md:p-6 space-y-4 scroll-mt-20">
             <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-text-body flex items-center gap-2">
                     <ClipboardList className="w-5 h-5 text-green-400" />
@@ -734,15 +732,15 @@ function SharedAccountSection({ token }: { token: string }) {
 
     return (
         <>
-            <div className="bg-glass-bg border border-glass-border rounded-xl p-4 md:p-6 space-y-5">
+            <div className="bg-glass-bg border border-glass-border rounded-xl p-4 md:p-6 space-y-5 scroll-mt-20">
                 <h3 className="text-lg font-bold text-text-body flex items-center gap-2">
                     <Shield className="w-5 h-5 text-text-muted" />
                     Mijn Account
                 </h3>
 
                 {/* Data Export */}
-                <div className="flex items-center justify-between gap-4 p-4 bg-glass-surface/30 rounded-xl border border-glass-border">
-                    <div className="flex items-center gap-3 min-w-0">
+                <div className="p-4 bg-glass-surface/30 rounded-xl border border-glass-border space-y-3">
+                    <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-lg bg-sky-500/15 flex items-center justify-center shrink-0">
                             <FileJson className="w-4 h-4 text-sky-400" />
                         </div>
@@ -754,7 +752,7 @@ function SharedAccountSection({ token }: { token: string }) {
                     <button
                         onClick={handleExport}
                         disabled={exporting}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500/80 text-white text-sm font-medium hover:bg-sky-500 transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-sky-500/80 text-white text-sm font-medium hover:bg-sky-500 transition-colors disabled:opacity-50 cursor-pointer min-h-[44px]"
                     >
                         {exporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                         {exporting ? 'Bezig...' : 'Download'}
@@ -773,8 +771,8 @@ function SharedAccountSection({ token }: { token: string }) {
 
                 {/* Danger Zone */}
                 <div className="border-t border-glass-border pt-4">
-                    <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-red-500/20 bg-red-500/5">
-                        <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-4 rounded-xl border border-red-500/20 bg-red-500/5 space-y-3">
+                        <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center shrink-0">
                                 <Trash2 className="w-4 h-4 text-red-400" />
                             </div>
@@ -785,7 +783,7 @@ function SharedAccountSection({ token }: { token: string }) {
                         </div>
                         <button
                             onClick={() => setShowDeleteModal(true)}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-sm font-medium border border-red-500/30 hover:bg-red-500/30 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-red-500/20 text-red-400 text-sm font-medium border border-red-500/30 hover:bg-red-500/30 transition-colors cursor-pointer min-h-[44px]"
                         >
                             <Trash2 className="w-3.5 h-3.5" />
                             Verwijderen
@@ -796,9 +794,9 @@ function SharedAccountSection({ token }: { token: string }) {
 
             {/* Delete Account Modal */}
             {showDeleteModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={!deleting ? resetDeleteModal : undefined} />
-                    <div className="relative w-full max-w-md bg-glass-bg border border-red-500/20 rounded-2xl p-6 shadow-2xl">
+                <div className="fixed inset-0 z-50 flex items-start md:items-center justify-center p-4 pt-20 md:pt-4 overflow-y-auto">
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={!deleting ? resetDeleteModal : undefined} />
+                    <div className="relative w-full max-w-md bg-glass-bg border border-red-500/20 rounded-2xl p-5 md:p-6 shadow-2xl">
                         {deleteStep === 'done' ? (
                             <div className="text-center py-4">
                                 <div className="w-14 h-14 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
@@ -895,7 +893,7 @@ function DetailRow({
     border?: boolean;
 }) {
     return (
-        <div className={`flex justify-between items-center ${border ? "border-b border-glass-border pb-4" : ""}`}>
+        <div className={`flex flex-col xs:flex-row justify-between xs:items-center gap-1 xs:gap-0 ${border ? "border-b border-glass-border pb-3 md:pb-4" : ""}`}>
             <span className="text-text-muted flex items-center gap-1.5">
                 {icon}
                 {label}
