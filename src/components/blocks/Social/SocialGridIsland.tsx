@@ -83,8 +83,23 @@ function EditionRow({
         );
     }
 
-    // No content for this edition — hide row
-    if (!hasContent) return null;
+    // No content for this edition — show empty placeholder
+    if (!hasContent) {
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-glass-border/10 border border-glass-border/30">
+                        <Calendar className="w-3.5 h-3.5 text-text-muted/50" />
+                        <span className="text-sm font-bold text-text-muted/60">{label}</span>
+                    </div>
+                    <div className="flex-1 h-px bg-glass-border/20" />
+                </div>
+                <div className="flex items-center justify-center py-8 rounded-2xl border border-dashed border-glass-border/30 bg-glass-bg/20">
+                    <p className="text-sm text-text-muted/50">Nog geen posts voor deze editie</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-4">
