@@ -236,7 +236,7 @@ export default function ParticipantsTable() {
         const supportLabel = (s?: string) =>
             s === "ja" ? "Ja" : s === "anders" ? "Anders" : "Nee";
         const shuttleLabel = (s?: string) =>
-            s === "pendelbus" ? "Pendelbus" : "Eigen vervoer";
+            s === "pendelbus" ? "Ophaalbus (Kerk → Start)" : "Eigen vervoer";
         const participantLabel = (s?: string) =>
             s === "doelgroep" ? "Doelgroep" : s === "verwant" ? "Verwant" : "Anders";
 
@@ -354,7 +354,7 @@ export default function ParticipantsTable() {
                     { label: "Accounts", value: stats.authenticated, color: "text-purple-600", bg: "bg-purple-500/5", border: "border-purple-500/20", activeBorder: "ring-2 ring-purple-500/50", icon: ShieldCheck, isActive: userTypeFilter === "authenticated", onClick: () => setUserTypeFilter(userTypeFilter === "authenticated" ? "all" : "authenticated") },
                     { label: "Gasten", value: stats.guests, color: "text-pink-600", bg: "bg-pink-500/5", border: "border-pink-500/20", activeBorder: "ring-2 ring-pink-500/50", icon: User, isActive: userTypeFilter === "guest", onClick: () => setUserTypeFilter(userTypeFilter === "guest" ? "all" : "guest") },
                     { label: "Rolstoel", value: stats.wheelchair, color: "text-indigo-600", bg: "bg-indigo-500/5", border: "border-indigo-500/20", activeBorder: "ring-2 ring-indigo-500/50", icon: Accessibility, isActive: wheelchairFilter, onClick: () => setWheelchairFilter(!wheelchairFilter) },
-                    { label: "Pendelbus", value: stats.shuttleBus, color: "text-cyan-600", bg: "bg-cyan-500/5", border: "border-cyan-500/20", activeBorder: "ring-2 ring-cyan-500/50", icon: Bus, isActive: shuttleBusFilter, onClick: () => setShuttleBusFilter(!shuttleBusFilter) },
+                    { label: "Ophaalbus", value: stats.shuttleBus, color: "text-cyan-600", bg: "bg-cyan-500/5", border: "border-cyan-500/20", activeBorder: "ring-2 ring-cyan-500/50", icon: Bus, isActive: shuttleBusFilter, onClick: () => setShuttleBusFilter(!shuttleBusFilter) },
                     { label: "Instelling", value: stats.facility, color: "text-amber-600", bg: "bg-amber-500/5", border: "border-amber-500/20", activeBorder: "ring-2 ring-amber-500/50", icon: Building2, isActive: facilityFilter, onClick: () => setFacilityFilter(!facilityFilter) },
                 ].map((stat, idx) => (
                     <motion.div
@@ -553,7 +553,7 @@ export default function ParticipantsTable() {
                                                 onClick={() => setShuttleBusFilter(!shuttleBusFilter)}
                                                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer border ${shuttleBusFilter ? "bg-cyan-500/10 text-cyan-600 border-cyan-500/30 ring-1 ring-cyan-500/30" : "bg-glass-surface/50 text-text-muted border-glass-border hover:bg-glass-surface"}`}
                                             >
-                                                <Bus className="w-3.5 h-3.5" /> Pendelbus
+                                                <Bus className="w-3.5 h-3.5" /> Ophaalbus
                                             </button>
                                             <button
                                                 onClick={() => setFacilityFilter(!facilityFilter)}
@@ -617,7 +617,7 @@ export default function ParticipantsTable() {
                         )}
                         {shuttleBusFilter && (
                             <button onClick={() => setShuttleBusFilter(false)} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-cyan-500/10 text-cyan-600 border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors cursor-pointer shrink-0">
-                                <Bus className="w-2.5 h-2.5" /> Pendelbus <X className="w-2.5 h-2.5" />
+                                <Bus className="w-2.5 h-2.5" /> Ophaalbus <X className="w-2.5 h-2.5" />
                             </button>
                         )}
                         {facilityFilter && (
@@ -750,10 +750,10 @@ export default function ParticipantsTable() {
                                                         </span>
                                                     </td>
                                                     <td className="py-4 px-6 hidden xl:table-cell">
-                                                        <div className="flex items-center gap-1.5 flex-wrap" title={[reg.city, reg.wheelchairUser ? "Rolstoel" : null, reg.shuttleBus === "pendelbus" ? "Pendelbus" : null, reg.livesInFacility ? "Instelling" : null, reg.participantType === "doelgroep" ? "Doelgroep" : reg.participantType === "verwant" ? "Verwant" : null].filter(Boolean).join(" · ") || "Geen profiel"}>
+                                                        <div className="flex items-center gap-1.5 flex-wrap" title={[reg.city, reg.wheelchairUser ? "Rolstoel" : null, reg.shuttleBus === "pendelbus" ? "Ophaalbus (Kerk → Start)" : null, reg.livesInFacility ? "Instelling" : null, reg.participantType === "doelgroep" ? "Doelgroep" : reg.participantType === "verwant" ? "Verwant" : null].filter(Boolean).join(" · ") || "Geen profiel"}>
                                                             {reg.city && <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-blue-500/10 text-blue-600 border border-blue-500/15" title={reg.city}><MapPin className="w-2.5 h-2.5" />{reg.city.length > 8 ? reg.city.slice(0, 8) + ".." : reg.city}</span>}
                                                             {reg.wheelchairUser && <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 border border-indigo-500/15" title="Rolstoelgebruiker"><Accessibility className="w-3 h-3" /></span>}
-                                                            {reg.shuttleBus === "pendelbus" && <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-cyan-500/10 text-cyan-600 border border-cyan-500/15" title="Pendelbus"><Bus className="w-3 h-3" /></span>}
+                                                            {reg.shuttleBus === "pendelbus" && <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-cyan-500/10 text-cyan-600 border border-cyan-500/15" title="Ophaalbus (Kerk → Start)"><Bus className="w-3 h-3" /></span>}
                                                             {reg.livesInFacility && <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 border border-amber-500/15" title="Wonend in instelling"><Building2 className="w-3 h-3" /></span>}
                                                             {reg.participantType && reg.participantType !== "anders" && <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium border ${reg.participantType === "doelgroep" ? "bg-brand-orange/10 text-brand-orange border-brand-orange/15" : "bg-pink-500/10 text-pink-600 border-pink-500/15"}`}><Heart className="w-2.5 h-2.5" />{reg.participantType === "doelgroep" ? "DG" : "VW"}</span>}
                                                             {!reg.city && !reg.wheelchairUser && reg.shuttleBus !== "pendelbus" && !reg.livesInFacility && <span className="text-text-muted/40 text-[10px]">—</span>}

@@ -321,7 +321,7 @@ function SharedWelcomeSection({
                             {registration.shuttleBus === "pendelbus" && (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-teal-500/10 text-teal-400 border border-teal-500/20">
                                     <Bus className="w-3 h-3" />
-                                    Pendelbus
+                                    Ophaalbus (Kerk → Start)
                                 </span>
                             )}
                             {registration.livesInFacility && (

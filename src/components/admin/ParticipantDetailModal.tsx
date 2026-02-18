@@ -367,7 +367,7 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                     className={`w-full px-3 py-2 rounded-xl border text-sm font-medium focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none ${formData.shuttleBus === 'pendelbus' ? 'bg-cyan-500/10 text-cyan-600 border-cyan-500/30' : 'bg-green-500/10 text-green-700 border-green-500/30'}`}
                                 >
                                     <option value="eigen-vervoer" className="bg-surface text-text-primary">Eigen vervoer</option>
-                                    <option value="pendelbus" className="bg-surface text-text-primary">Pendelbus</option>
+                                    <option value="pendelbus" className="bg-surface text-text-primary">Ophaalbus (Kerk → Start)</option>
                                 </select>
                             </div>
                             <div className="space-y-1.5">

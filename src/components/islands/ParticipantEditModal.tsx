@@ -306,7 +306,7 @@ export default function ParticipantEditModal({ registration, token, tenantId, on
                                         className="w-full px-4 py-2.5 rounded-xl bg-glass-bg border border-glass-border text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none cursor-pointer appearance-none"
                                     >
                                         <option value="eigen-vervoer" className="bg-surface text-text-primary">Eigen vervoer</option>
-                                        <option value="pendelbus" className="bg-surface text-text-primary">Pendelbus</option>
+                                        <option value="pendelbus" className="bg-surface text-text-primary">Ophaalbus (Kerk → Start)</option>
                                     </select>
                                 </div>
                             </div>
