@@ -1,6 +1,6 @@
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Edit3, Eye, EyeOff, Star, StarOff, Trash2, ExternalLink, Instagram, Film } from "lucide-react";
-import { ik, ikSrcSet } from "../../lib/imagekit";
+import { ikSquare, ikSquareSrcSet } from "../../lib/imagekit";
 
 interface Props {
     post: {
@@ -35,9 +35,9 @@ export function SocialPostCard({
             {/* Image Preview */}
             <div className="relative aspect-square overflow-hidden bg-glass-bg/50">
                 <img
-                    srcSet={ikSrcSet(post.imageUrl, [400, 800, 1200])}
+                    srcSet={ikSquareSrcSet(post.imageUrl, [400, 800])}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    src={ik(post.imageUrl, 400)}
+                    src={ikSquare(post.imageUrl, 400)}
                     alt={truncatedCaption}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 will-change-transform"
                     loading="lazy"

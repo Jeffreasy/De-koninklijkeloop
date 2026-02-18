@@ -58,22 +58,40 @@ export function getVideoThumbnail(url: string): string {
 
 // ─── Client-side URL transforms (full-URL based) ──────────────
 /** Transform a full ImageKit URL with width/quality/format params.
- *  Works with ANY ImageKit folder path (not just /De%20Koninklijkeloop/).
- *  For video URLs, automatically uses the thumbnail instead. */
-export function ik(url: string, width: number): string {
+ *  Works with ANY ImageKit folder path.
+ *  For video URLs, automatically uses the thumbnail instead.
+ *  @param height — optional height for aspect-ratio crop (uses smart crop with focus) */
+export function ik(url: string, width: number, height?: number): string {
     if (!url || !url.includes("imagekit.io")) return url;
     // Video URLs: use ImageKit thumbnail
     const imgUrl = isVideoUrl(url) ? url + '/ik-thumbnail.jpg' : url;
     // Find the endpoint base: https://ik.imagekit.io/{id}/
-    // Insert transform after it: https://ik.imagekit.io/{id}/tr:w-400,q-80,f-auto/rest/of/path
     const match = imgUrl.match(/^(https:\/\/ik\.imagekit\.io\/[^/]+\/)(.*)/);
     if (!match) return imgUrl;
-    return `${match[1]}tr:w-${width},q-80,f-auto/${match[2]}`;
+    // Build transform string
+    const tr = height
+        ? `tr:w-${width},h-${height},c-maintain_ratio,fo-auto,q-80,f-auto`
+        : `tr:w-${width},q-80,f-auto`;
+    return `${match[1]}${tr}/${match[2]}`;
 }
 
-/** Generate a srcSet string for responsive images */
-export function ikSrcSet(url: string, widths: number[]): string {
-    return widths.map((w) => `${ik(url, w)} ${w}w`).join(", ");
+/** Generate a srcSet string for responsive images.
+ *  @param height — optional height per width (fixed aspect ratio) */
+export function ikSrcSet(url: string, widths: number[], height?: number): string {
+    return widths.map((w) => {
+        const h = height ? Math.round(w * (height / widths[0])) : undefined;
+        return `${ik(url, w, h)} ${w}w`;
+    }).join(", ");
+}
+
+/** Square-cropped version — ideal for grid cells */
+export function ikSquare(url: string, size: number): string {
+    return ik(url, size, size);
+}
+
+/** Square srcSet — for responsive square grid cells */
+export function ikSquareSrcSet(url: string, sizes: number[]): string {
+    return sizes.map((s) => `${ikSquare(url, s)} ${s}w`).join(", ");
 }
 
 // ─── Cache ─────────────────────────────────────────────────────

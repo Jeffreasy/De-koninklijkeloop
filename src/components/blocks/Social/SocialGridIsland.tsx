@@ -3,13 +3,17 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { Instagram, AlertCircle, RefreshCw, Star, Maximize2, ArrowRight, Calendar, Film } from "lucide-react";
 import { SocialPostShowcaseModal } from "./SocialPostShowcaseModal";
-import { ik, ikSrcSet } from "../../../lib/imagekit";
+import { ik, ikSrcSet, ikSquare, ikSquareSrcSet } from "../../../lib/imagekit";
 import { useStore } from "@nanostores/react";
 import { $accessToken, $user } from "../../../lib/auth";
 import type { SSRPost } from "./types";
 
 function srcSet(url: string, widths: number[]): string {
     return ikSrcSet(url, widths);
+}
+
+function squareSrcSet(url: string, sizes: number[]): string {
+    return ikSquareSrcSet(url, sizes);
 }
 
 // ─── Editions Config ───
@@ -121,8 +125,8 @@ function EditionRow({
                         className="col-span-2 row-span-2 group relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border/60 hover:border-brand-orange/40 transition-all duration-500 shadow-lg hover:shadow-2xl hover:shadow-brand-orange/10 cursor-pointer active:scale-[0.99]"
                     >
                         <img
-                            src={ik(activeFeatured.imageUrl, 800)}
-                            srcSet={srcSet(activeFeatured.imageUrl, [400, 800, 1200])}
+                            src={ik(activeFeatured.imageUrl, 800, 800)}
+                            srcSet={squareSrcSet(activeFeatured.imageUrl, [400, 800])}
                             sizes="(max-width: 1024px) 50vw, 33vw"
                             alt={activeFeatured.caption?.slice(0, 100) || "Featured Instagram post"}
                             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 will-change-transform"
@@ -172,8 +176,8 @@ function EditionRow({
                         className="col-span-1 row-span-1 group relative overflow-hidden rounded-xl bg-glass-bg border border-glass-border/50 hover:border-brand-orange/30 transition-all duration-500 shadow-md hover:shadow-xl cursor-pointer active:scale-[0.97]"
                     >
                         <img
-                            src={ik(post.imageUrl, 400)}
-                            srcSet={srcSet(post.imageUrl, [200, 400, 600])}
+                            src={ikSquare(post.imageUrl, 400)}
+                            srcSet={squareSrcSet(post.imageUrl, [200, 400])}
                             sizes="(max-width: 1024px) 33vw, 25vw"
                             alt={post.caption?.slice(0, 80) || "Instagram post"}
                             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 will-change-transform"
@@ -202,7 +206,7 @@ function EditionRow({
                             className="relative w-64 h-64 shrink-0 rounded-2xl overflow-hidden snap-start cursor-pointer active:scale-[0.97] transition-transform"
                         >
                             <img
-                                src={ik(activeFeatured.imageUrl, 600)}
+                                src={ikSquare(activeFeatured.imageUrl, 600)}
                                 alt={activeFeatured.caption?.slice(0, 80) || "Featured post"}
                                 className="w-full h-full object-cover"
                                 loading="lazy"
@@ -231,7 +235,7 @@ function EditionRow({
                             className="relative w-48 h-48 shrink-0 rounded-xl overflow-hidden snap-start cursor-pointer active:scale-[0.97] transition-transform"
                         >
                             <img
-                                src={ik(post.imageUrl, 400)}
+                                src={ikSquare(post.imageUrl, 400)}
                                 alt={post.caption?.slice(0, 60) || "Instagram post"}
                                 className="w-full h-full object-cover"
                                 loading="lazy"
