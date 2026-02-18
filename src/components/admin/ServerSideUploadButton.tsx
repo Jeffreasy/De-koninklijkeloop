@@ -160,16 +160,19 @@ export async function uploadFileToImageKit(file: File): Promise<string> {
             credentials: 'include',
         });
         if (!authResponse.ok) {
+            const errText = await authResponse.text().catch(() => '');
+            if (import.meta.env.DEV) console.error('Sign-imagekit failed:', authResponse.status, errText);
             throw new Error('Authenticatie mislukt. Probeer opnieuw.');
         }
         const authParams = await authResponse.json();
+        if (import.meta.env.DEV) console.log('Auth params received:', { hasSignature: !!authParams.signature, hasToken: !!authParams.token, hasPublicKey: !!authParams.publicKey, expire: authParams.expire });
 
         // 2. Upload directly to ImageKit (no Vercel size limit)
         const formData = new FormData();
         formData.append('file', file);
         formData.append('fileName', file.name);
         formData.append('folder', '/SocialmediaPosts');
-        formData.append('publicKey', import.meta.env.PUBLIC_IMAGEKIT_PUBLIC_KEY || '');
+        formData.append('publicKey', authParams.publicKey);
         formData.append('signature', authParams.signature);
         formData.append('expire', String(authParams.expire));
         formData.append('token', authParams.token);
@@ -181,11 +184,18 @@ export async function uploadFileToImageKit(file: File): Promise<string> {
         });
 
         if (!uploadResponse.ok) {
-            const errorData = await uploadResponse.json().catch(() => ({}));
-            throw new Error(errorData.message || `Upload mislukt (${uploadResponse.status})`);
+            const errorText = await uploadResponse.text().catch(() => '');
+            if (import.meta.env.DEV) console.error('ImageKit upload failed:', uploadResponse.status, errorText);
+            let errorMessage = `Upload mislukt (${uploadResponse.status})`;
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || errorMessage;
+            } catch { /* ignore parse error */ }
+            throw new Error(errorMessage);
         }
 
         const result = await uploadResponse.json();
+        if (import.meta.env.DEV) console.log('Upload success:', result.url);
         return result.url;
     }
 

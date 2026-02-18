@@ -18,8 +18,9 @@ export const POST: APIRoute = async ({ request }) => {
 
     try {
         const authParams = getAuthenticationParameters();
+        const publicKey = import.meta.env.PUBLIC_IMAGEKIT_PUBLIC_KEY || import.meta.env.IMAGEKIT_PUBLIC_KEY || '';
 
-        return new Response(JSON.stringify(authParams), {
+        return new Response(JSON.stringify({ ...authParams, publicKey }), {
             status: 200,
             headers: { "Content-Type": "application/json" }
         });
