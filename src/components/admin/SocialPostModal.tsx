@@ -163,12 +163,15 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                 ? finalImageUrl  // The uploaded video URL IS the videoUrl
                 : (finalMediaType === "video" ? formData.videoUrl : undefined);
 
+            // For uploaded videos: generate ImageKit thumbnail for grid display
+            const finalThumbnailUrl = finalMediaType === "video" && selectedFile?.type.startsWith("video/") && finalImageUrl
+                ? finalImageUrl + '/ik-thumbnail.jpg'
+                : finalImageUrl;
+
             // Save post with uploaded URL
             await onSave({
                 ...formData,
-                imageUrl: finalMediaType === "video" && selectedFile?.type.startsWith("video/")
-                    ? finalImageUrl  // For uploaded videos, imageUrl = video URL (ImageKit generates thumbnail)
-                    : finalImageUrl,
+                imageUrl: finalThumbnailUrl,
                 mediaType: finalMediaType,
                 videoUrl: finalVideoUrl,
             });
