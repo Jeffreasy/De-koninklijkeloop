@@ -58,15 +58,17 @@ export function getVideoThumbnail(url: string): string {
 
 // ─── Client-side URL transforms (full-URL based) ──────────────
 /** Transform a full ImageKit URL with width/quality/format params.
+ *  Works with ANY ImageKit folder path (not just /De%20Koninklijkeloop/).
  *  For video URLs, automatically uses the thumbnail instead. */
 export function ik(url: string, width: number): string {
     if (!url || !url.includes("imagekit.io")) return url;
-    // Video URLs: use ImageKit thumbnail, then apply image transforms
+    // Video URLs: use ImageKit thumbnail
     const imgUrl = isVideoUrl(url) ? url + '/ik-thumbnail.jpg' : url;
-    return imgUrl.replace(
-        "/De%20Koninklijkeloop/",
-        `/tr:w-${width},q-80,f-auto/De%20Koninklijkeloop/`,
-    );
+    // Find the endpoint base: https://ik.imagekit.io/{id}/
+    // Insert transform after it: https://ik.imagekit.io/{id}/tr:w-400,q-80,f-auto/rest/of/path
+    const match = imgUrl.match(/^(https:\/\/ik\.imagekit\.io\/[^/]+\/)(.*)/);
+    if (!match) return imgUrl;
+    return `${match[1]}tr:w-${width},q-80,f-auto/${match[2]}`;
 }
 
 /** Generate a srcSet string for responsive images */
