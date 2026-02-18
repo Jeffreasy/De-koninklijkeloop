@@ -1,4 +1,4 @@
-import { Users, Filter, Mail, Phone, MapPin, Search, ChevronLeft, ChevronRight, FileSpreadsheet, ChevronsUpDown, ShieldCheck, UserCircle, User, Calendar, MoreVertical, Edit2, Trash2, HeartHandshake, Accessibility, Bus, Building2, Heart } from "lucide-react";
+import { Users, Filter, Mail, Phone, MapPin, Search, ChevronLeft, ChevronRight, FileSpreadsheet, ChevronsUpDown, ShieldCheck, UserCircle, User, Calendar, MoreVertical, Edit2, Trash2, HeartHandshake, Accessibility, Bus, Building2, Heart, SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { useState, useMemo, useEffect } from "react";
@@ -12,6 +12,8 @@ type UserType = "all" | "authenticated" | "guest";
 type Role = "all" | "deelnemer" | "begeleider" | "vrijwilliger";
 type Status = "all" | "pending" | "paid" | "cancelled";
 type SupportFilter = "all" | "ja" | "nee" | "anders";
+type DistanceFilter = "all" | "2.5" | "6" | "10" | "15";
+type ParticipantTypeFilter = "all" | "doelgroep" | "verwant" | "anders";
 type SortField = "name" | "createdAt" | "distance" | "status";
 type SortDirection = "asc" | "desc";
 
@@ -67,10 +69,14 @@ export default function ParticipantsTable() {
     const [statusFilter, setStatusFilter] = useState<Status>("all");
     const [supportFilter, setSupportFilter] = useState<SupportFilter>("all");
     const [editionFilter, setEditionFilter] = useState<string>("2026");
+    const [distanceFilter, setDistanceFilter] = useState<DistanceFilter>("all");
+    const [wheelchairFilter, setWheelchairFilter] = useState(false);
+    const [shuttleBusFilter, setShuttleBusFilter] = useState(false);
+    const [facilityFilter, setFacilityFilter] = useState(false);
+    const [participantTypeFilter, setParticipantTypeFilter] = useState<ParticipantTypeFilter>("all");
 
-
-
-
+    // UI States
+    const [showFilterPanel, setShowFilterPanel] = useState(false);
 
     // Sort State
     const [sortField, setSortField] = useState<SortField>("createdAt");
@@ -78,20 +84,36 @@ export default function ParticipantsTable() {
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const [itemsPerPage, setItemsPerPage] = useState(25);
+
+    // Active filter count
+    const activeFilterCount = useMemo(() => {
+        let count = 0;
+        if (userTypeFilter !== "all") count++;
+        if (roleFilter !== "all") count++;
+        if (statusFilter !== "all") count++;
+        if (supportFilter !== "all") count++;
+        if (distanceFilter !== "all") count++;
+        if (wheelchairFilter) count++;
+        if (shuttleBusFilter) count++;
+        if (facilityFilter) count++;
+        if (participantTypeFilter !== "all") count++;
+        return count;
+    }, [userTypeFilter, roleFilter, statusFilter, supportFilter, distanceFilter, wheelchairFilter, shuttleBusFilter, facilityFilter, participantTypeFilter]);
 
     // Derived: Filtered & Sorted Registrations
     const processedRegistrations = useMemo(() => {
         if (!registrations) return [];
 
         let result = registrations.filter((reg) => {
-            // Text Search
+            // Text Search (incl. city)
             if (searchQuery) {
                 const query = searchQuery.toLowerCase();
                 const matchesName = reg.name.toLowerCase().includes(query);
                 const matchesEmail = reg.email.toLowerCase().includes(query);
                 const matchesID = reg._id.toLowerCase().includes(query);
-                if (!matchesName && !matchesEmail && !matchesID) return false;
+                const matchesCity = reg.city?.toLowerCase().includes(query);
+                if (!matchesName && !matchesEmail && !matchesID && !matchesCity) return false;
             }
 
             // Edition Filter (Treat undefined as "2026")
@@ -110,6 +132,15 @@ export default function ParticipantsTable() {
 
             // Support Filter
             if (supportFilter !== "all" && (reg.supportNeeded || "nee") !== supportFilter) return false;
+
+            // Distance Filter
+            if (distanceFilter !== "all" && reg.distance !== distanceFilter) return false;
+
+            // Profile Filters
+            if (wheelchairFilter && !reg.wheelchairUser) return false;
+            if (shuttleBusFilter && reg.shuttleBus !== "pendelbus") return false;
+            if (facilityFilter && !reg.livesInFacility) return false;
+            if (participantTypeFilter !== "all" && reg.participantType !== participantTypeFilter) return false;
 
             return true;
         });
@@ -144,19 +175,33 @@ export default function ParticipantsTable() {
         });
 
         return result;
-    }, [registrations, searchQuery, userTypeFilter, roleFilter, statusFilter, supportFilter, sortField, sortDirection, editionFilter]);
+    }, [registrations, searchQuery, userTypeFilter, roleFilter, statusFilter, supportFilter, sortField, sortDirection, editionFilter, distanceFilter, wheelchairFilter, shuttleBusFilter, facilityFilter, participantTypeFilter]);
 
     // Pagination Logic
     const totalPages = Math.ceil(processedRegistrations.length / itemsPerPage);
     const paginatedRegistrations = useMemo(() => {
         const start = (currentPage - 1) * itemsPerPage;
         return processedRegistrations.slice(start, start + itemsPerPage);
-    }, [processedRegistrations, currentPage]);
+    }, [processedRegistrations, currentPage, itemsPerPage]);
 
     // Reset pagination on filter change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, userTypeFilter, roleFilter, statusFilter, supportFilter, editionFilter]);
+    }, [searchQuery, userTypeFilter, roleFilter, statusFilter, supportFilter, editionFilter, distanceFilter, wheelchairFilter, shuttleBusFilter, facilityFilter, participantTypeFilter]);
+
+    // Clear all filters
+    const clearAllFilters = () => {
+        setSearchQuery("");
+        setUserTypeFilter("all");
+        setRoleFilter("all");
+        setStatusFilter("all");
+        setSupportFilter("all");
+        setDistanceFilter("all");
+        setWheelchairFilter(false);
+        setShuttleBusFilter(false);
+        setFacilityFilter(false);
+        setParticipantTypeFilter("all");
+    };
 
 
     // Handlers
@@ -268,7 +313,7 @@ export default function ParticipantsTable() {
 
     // Stats Computation (Based on Edition Filter, ignoring other filters for dashboard feel)
     const stats = useMemo(() => {
-        if (!registrations) return { total: 0, deelnemers: 0, begeleiders: 0, vrijwilligers: 0, authenticated: 0, guests: 0 };
+        if (!registrations) return { total: 0, deelnemers: 0, begeleiders: 0, vrijwilligers: 0, authenticated: 0, guests: 0, wheelchair: 0, shuttleBus: 0, facility: 0 };
 
         // Use filtered set based on edition
         const editionRegistrations = registrations.filter(r => (r.edition || "2026") === editionFilter);
@@ -280,8 +325,11 @@ export default function ParticipantsTable() {
             else if (r.role === "vrijwilliger") acc.vrijwilligers++;
             if (r.userType === "authenticated") acc.authenticated++;
             else if (r.userType === "guest") acc.guests++;
+            if (r.wheelchairUser) acc.wheelchair++;
+            if (r.shuttleBus === "pendelbus") acc.shuttleBus++;
+            if (r.livesInFacility) acc.facility++;
             return acc;
-        }, { total: 0, deelnemers: 0, begeleiders: 0, vrijwilligers: 0, authenticated: 0, guests: 0 });
+        }, { total: 0, deelnemers: 0, begeleiders: 0, vrijwilligers: 0, authenticated: 0, guests: 0, wheelchair: 0, shuttleBus: 0, facility: 0 });
     }, [registrations, editionFilter]);
 
 
@@ -296,52 +344,56 @@ export default function ParticipantsTable() {
 
     return (
         <div className="space-y-8 animate-fade-in">
-            {/* Stats Cards - Premium Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {/* Stats Cards - Clickable Quick Filters */}
+            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-9 gap-3">
                 {[
-                    { label: "Totaal", value: stats.total, color: "text-text-primary", bg: "bg-glass-surface/50", border: "border-glass-border" },
-                    { label: "Deelnemers", value: stats.deelnemers, color: "text-brand-orange", bg: "bg-brand-orange/5", border: "border-brand-orange/20" },
-                    { label: "Begeleiders", value: stats.begeleiders, color: "text-blue-600", bg: "bg-blue-500/5", border: "border-blue-500/20" },
-                    { label: "Vrijwilligers", value: stats.vrijwilligers, color: "text-green-600", bg: "bg-green-500/5", border: "border-green-500/20" },
-                    { label: "Accounts", value: stats.authenticated, color: "text-purple-600", bg: "bg-purple-500/5", border: "border-purple-500/20", icon: ShieldCheck },
-                    { label: "Gasten", value: stats.guests, color: "text-pink-600", bg: "bg-pink-500/5", border: "border-pink-500/20", icon: User }
+                    { label: "Totaal", value: stats.total, color: "text-text-primary", bg: "bg-glass-surface/50", border: "border-glass-border", activeBorder: "border-glass-border", isActive: false, onClick: () => { } },
+                    { label: "Deelnemers", value: stats.deelnemers, color: "text-brand-orange", bg: "bg-brand-orange/5", border: "border-brand-orange/20", activeBorder: "ring-2 ring-brand-orange/50", isActive: roleFilter === "deelnemer", onClick: () => setRoleFilter(roleFilter === "deelnemer" ? "all" : "deelnemer") },
+                    { label: "Begeleiders", value: stats.begeleiders, color: "text-blue-600", bg: "bg-blue-500/5", border: "border-blue-500/20", activeBorder: "ring-2 ring-blue-500/50", isActive: roleFilter === "begeleider", onClick: () => setRoleFilter(roleFilter === "begeleider" ? "all" : "begeleider") },
+                    { label: "Vrijwilligers", value: stats.vrijwilligers, color: "text-green-600", bg: "bg-green-500/5", border: "border-green-500/20", activeBorder: "ring-2 ring-green-500/50", isActive: roleFilter === "vrijwilliger", onClick: () => setRoleFilter(roleFilter === "vrijwilliger" ? "all" : "vrijwilliger") },
+                    { label: "Accounts", value: stats.authenticated, color: "text-purple-600", bg: "bg-purple-500/5", border: "border-purple-500/20", activeBorder: "ring-2 ring-purple-500/50", icon: ShieldCheck, isActive: userTypeFilter === "authenticated", onClick: () => setUserTypeFilter(userTypeFilter === "authenticated" ? "all" : "authenticated") },
+                    { label: "Gasten", value: stats.guests, color: "text-pink-600", bg: "bg-pink-500/5", border: "border-pink-500/20", activeBorder: "ring-2 ring-pink-500/50", icon: User, isActive: userTypeFilter === "guest", onClick: () => setUserTypeFilter(userTypeFilter === "guest" ? "all" : "guest") },
+                    { label: "Rolstoel", value: stats.wheelchair, color: "text-indigo-600", bg: "bg-indigo-500/5", border: "border-indigo-500/20", activeBorder: "ring-2 ring-indigo-500/50", icon: Accessibility, isActive: wheelchairFilter, onClick: () => setWheelchairFilter(!wheelchairFilter) },
+                    { label: "Pendelbus", value: stats.shuttleBus, color: "text-cyan-600", bg: "bg-cyan-500/5", border: "border-cyan-500/20", activeBorder: "ring-2 ring-cyan-500/50", icon: Bus, isActive: shuttleBusFilter, onClick: () => setShuttleBusFilter(!shuttleBusFilter) },
+                    { label: "Instelling", value: stats.facility, color: "text-amber-600", bg: "bg-amber-500/5", border: "border-amber-500/20", activeBorder: "ring-2 ring-amber-500/50", icon: Building2, isActive: facilityFilter, onClick: () => setFacilityFilter(!facilityFilter) },
                 ].map((stat, idx) => (
                     <motion.div
                         key={stat.label}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className={`glass-card p-4 border ${stat.border} ${stat.bg} relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 cursor-default`}
+                        transition={{ delay: idx * 0.03 }}
+                        onClick={stat.onClick}
+                        className={`glass-card p-3 border ${stat.border} ${stat.bg} relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 cursor-pointer select-none ${stat.isActive ? stat.activeBorder : ""}`}
                     >
-                        <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                            {stat.icon ? <stat.icon className="w-8 h-8" /> : <Users className="w-8 h-8" />}
+                        <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                            {stat.icon ? <stat.icon className="w-6 h-6" /> : <Users className="w-6 h-6" />}
                         </div>
-                        <div className="text-text-muted text-xs uppercase tracking-wider mb-1 font-medium z-10 relative">{stat.label}</div>
-                        <div className={`text-2xl font-bold font-display ${stat.color} z-10 relative`}>{stat.value}</div>
+                        <div className="text-text-muted text-[10px] uppercase tracking-wider mb-0.5 font-medium z-10 relative">{stat.label}</div>
+                        <div className={`text-xl font-bold font-display ${stat.color} z-10 relative`}>{stat.value}</div>
                     </motion.div>
                 ))}
             </div>
 
             {/* Main Action Bar */}
-            <div className="glass-card p-5 space-y-5 border border-glass-border shadow-2xl bg-glass-bg backdrop-blur-xl rounded-2xl">
-                <div className="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
-                    {/* Search & Filters Group */}
-                    <div className="flex flex-col md:flex-row gap-3 flex-1 w-full">
+            <div className="glass-card border border-glass-border shadow-2xl bg-glass-bg backdrop-blur-xl rounded-2xl overflow-hidden">
+                {/* Toolbar */}
+                <div className="p-4 md:p-5">
+                    <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
                         {/* Search */}
-                        <div className="relative flex-1 group">
+                        <div className="relative flex-1 w-full group">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <Search className="h-4 w-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
                             </div>
                             <input
                                 type="text"
-                                placeholder="Zoek op naam, email of ID..."
+                                placeholder="Zoek op naam, email, stad of ID..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="block w-full pl-10 pr-3 py-2.5 border border-glass-border rounded-xl leading-5 bg-glass-surface/50 text-text-primary placeholder-text-muted focus:outline-none focus:bg-glass-surface focus:ring-1 focus:ring-brand-orange/50 focus:border-brand-orange/50 sm:text-sm transition-all"
                             />
                         </div>
 
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                             {/* Edition Toggle */}
                             <div className="flex bg-glass-surface/30 rounded-xl p-1 border border-glass-border/50">
                                 {["2026", "2025"].map((year) => (
@@ -355,63 +407,234 @@ export default function ParticipantsTable() {
                                 ))}
                             </div>
 
-
-
-                            {/* Filters */}
-                            <select
-                                value={userTypeFilter}
-                                onChange={(e) => setUserTypeFilter(e.target.value as UserType)}
-                                className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
+                            {/* Filter Toggle Button */}
+                            <button
+                                onClick={() => setShowFilterPanel(!showFilterPanel)}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer border ${showFilterPanel || activeFilterCount > 0 ? "bg-brand-orange/10 text-brand-orange border-brand-orange/30" : "bg-glass-surface/50 text-text-muted border-glass-border hover:text-text-primary hover:bg-glass-surface"}`}
                             >
-                                <option value="all" className="bg-surface">Alle types</option>
-                                <option value="authenticated" className="bg-surface">Accounts</option>
-                                <option value="guest" className="bg-surface">Gasten</option>
-                            </select>
+                                <SlidersHorizontal className="w-3.5 h-3.5" />
+                                Filters
+                                {activeFilterCount > 0 && (
+                                    <span className="ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-orange text-white min-w-[18px] text-center">{activeFilterCount}</span>
+                                )}
+                                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${showFilterPanel ? "rotate-180" : ""}`} />
+                            </button>
 
-                            <select
-                                value={roleFilter}
-                                onChange={(e) => setRoleFilter(e.target.value as Role)}
-                                className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
-                            >
-                                <option value="all" className="bg-surface">Alle rollen</option>
-                                <option value="deelnemer" className="bg-surface">Deelnemer</option>
-                                <option value="begeleider" className="bg-surface">Begeleider</option>
-                                <option value="vrijwilliger" className="bg-surface">Vrijwilliger</option>
-                            </select>
+                            {/* Result Count */}
+                            <span className="text-xs text-text-muted hidden md:inline-flex items-center gap-1">
+                                <span className="font-bold text-text-primary">{processedRegistrations.length}</span> van {stats.total}
+                            </span>
 
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value as Status)}
-                                className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
+                            {/* Export Button */}
+                            <button
+                                onClick={handleExportExcel}
+                                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-linear-to-r from-brand-orange/10 to-brand-orange/5 border border-brand-orange/20 text-brand-orange hover:from-brand-orange/20 hover:to-brand-orange/10 transition-all text-xs font-medium whitespace-nowrap shadow-lg shadow-brand-orange/5 group cursor-pointer ml-auto md:ml-0"
                             >
-                                <option value="all" className="bg-surface">Alle statussen</option>
-                                <option value="paid" className="bg-surface">Geaccepteerd</option>
-                                <option value="pending" className="bg-surface">In behandeling</option>
-                                <option value="cancelled" className="bg-surface">Geannuleerd</option>
-                            </select>
-
-                            <select
-                                value={supportFilter}
-                                onChange={(e) => setSupportFilter(e.target.value as SupportFilter)}
-                                className="px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
-                            >
-                                <option value="all" className="bg-surface">Ondersteuning</option>
-                                <option value="ja" className="bg-surface">Ja - nodig</option>
-                                <option value="anders" className="bg-surface">Anders</option>
-                                <option value="nee" className="bg-surface">Nee</option>
-                            </select>
+                                <FileSpreadsheet className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                                <span className="hidden sm:inline">Export</span>
+                            </button>
                         </div>
                     </div>
-
-                    {/* Export Button */}
-                    <button
-                        onClick={handleExportExcel}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-linear-to-r from-brand-orange/10 to-brand-orange/5 border border-brand-orange/20 text-brand-orange hover:from-brand-orange/20 hover:to-brand-orange/10 transition-all text-sm font-medium whitespace-nowrap shadow-lg shadow-brand-orange/5 group cursor-pointer"
-                    >
-                        <FileSpreadsheet className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                        Export Excel
-                    </button>
                 </div>
+
+                {/* Collapsible Filter Panel */}
+                <AnimatePresence>
+                    {showFilterPanel && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                        >
+                            <div className="px-4 md:px-5 pb-4 md:pb-5 pt-0 border-t border-glass-border/50">
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pt-4">
+                                    {/* Role */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider ml-1">Rol</label>
+                                        <select
+                                            value={roleFilter}
+                                            onChange={(e) => setRoleFilter(e.target.value as Role)}
+                                            className="w-full px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
+                                        >
+                                            <option value="all" className="bg-surface">Alle rollen</option>
+                                            <option value="deelnemer" className="bg-surface">Deelnemer</option>
+                                            <option value="begeleider" className="bg-surface">Begeleider</option>
+                                            <option value="vrijwilliger" className="bg-surface">Vrijwilliger</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Status */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider ml-1">Status</label>
+                                        <select
+                                            value={statusFilter}
+                                            onChange={(e) => setStatusFilter(e.target.value as Status)}
+                                            className="w-full px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
+                                        >
+                                            <option value="all" className="bg-surface">Alle statussen</option>
+                                            <option value="paid" className="bg-surface">Geaccepteerd</option>
+                                            <option value="pending" className="bg-surface">In behandeling</option>
+                                            <option value="cancelled" className="bg-surface">Geannuleerd</option>
+                                        </select>
+                                    </div>
+
+                                    {/* User Type */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider ml-1">Type</label>
+                                        <select
+                                            value={userTypeFilter}
+                                            onChange={(e) => setUserTypeFilter(e.target.value as UserType)}
+                                            className="w-full px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
+                                        >
+                                            <option value="all" className="bg-surface">Alle types</option>
+                                            <option value="authenticated" className="bg-surface">Accounts</option>
+                                            <option value="guest" className="bg-surface">Gasten</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Support */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider ml-1">Ondersteuning</label>
+                                        <select
+                                            value={supportFilter}
+                                            onChange={(e) => setSupportFilter(e.target.value as SupportFilter)}
+                                            className="w-full px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
+                                        >
+                                            <option value="all" className="bg-surface">Alle</option>
+                                            <option value="ja" className="bg-surface">Ja - nodig</option>
+                                            <option value="anders" className="bg-surface">Anders</option>
+                                            <option value="nee" className="bg-surface">Nee</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Distance */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider ml-1">Afstand</label>
+                                        <select
+                                            value={distanceFilter}
+                                            onChange={(e) => setDistanceFilter(e.target.value as DistanceFilter)}
+                                            className="w-full px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
+                                        >
+                                            <option value="all" className="bg-surface">Alle afstanden</option>
+                                            <option value="2.5" className="bg-surface">2.5 km</option>
+                                            <option value="6" className="bg-surface">6 km</option>
+                                            <option value="10" className="bg-surface">10 km</option>
+                                            <option value="15" className="bg-surface">15 km</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Participant Type */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider ml-1">Doelgroep</label>
+                                        <select
+                                            value={participantTypeFilter}
+                                            onChange={(e) => setParticipantTypeFilter(e.target.value as ParticipantTypeFilter)}
+                                            className="w-full px-3 py-2 rounded-xl bg-glass-surface/50 border border-glass-border text-text-primary text-xs focus:ring-1 focus:ring-brand-orange/50 outline-none cursor-pointer hover:bg-glass-surface transition-colors"
+                                        >
+                                            <option value="all" className="bg-surface">Alle types</option>
+                                            <option value="doelgroep" className="bg-surface">Doelgroep</option>
+                                            <option value="verwant" className="bg-surface">Verwant</option>
+                                            <option value="anders" className="bg-surface">Anders</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Profile Toggle Chips */}
+                                    <div className="space-y-1 col-span-2 md:col-span-3 lg:col-span-4">
+                                        <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider ml-1">Profiel</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            <button
+                                                onClick={() => setWheelchairFilter(!wheelchairFilter)}
+                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer border ${wheelchairFilter ? "bg-indigo-500/10 text-indigo-600 border-indigo-500/30 ring-1 ring-indigo-500/30" : "bg-glass-surface/50 text-text-muted border-glass-border hover:bg-glass-surface"}`}
+                                            >
+                                                <Accessibility className="w-3.5 h-3.5" /> Rolstoel
+                                            </button>
+                                            <button
+                                                onClick={() => setShuttleBusFilter(!shuttleBusFilter)}
+                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer border ${shuttleBusFilter ? "bg-cyan-500/10 text-cyan-600 border-cyan-500/30 ring-1 ring-cyan-500/30" : "bg-glass-surface/50 text-text-muted border-glass-border hover:bg-glass-surface"}`}
+                                            >
+                                                <Bus className="w-3.5 h-3.5" /> Pendelbus
+                                            </button>
+                                            <button
+                                                onClick={() => setFacilityFilter(!facilityFilter)}
+                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer border ${facilityFilter ? "bg-amber-500/10 text-amber-600 border-amber-500/30 ring-1 ring-amber-500/30" : "bg-glass-surface/50 text-text-muted border-glass-border hover:bg-glass-surface"}`}
+                                            >
+                                                <Building2 className="w-3.5 h-3.5" /> Instelling
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Clear All */}
+                                {activeFilterCount > 0 && (
+                                    <div className="flex justify-end pt-3 mt-3 border-t border-glass-border/30">
+                                        <button
+                                            onClick={clearAllFilters}
+                                            className="text-xs text-text-muted hover:text-brand-orange transition-colors cursor-pointer flex items-center gap-1"
+                                        >
+                                            <X className="w-3 h-3" /> Wis alle filters ({activeFilterCount})
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Active Filter Chips Bar */}
+                {activeFilterCount > 0 && !showFilterPanel && (
+                    <div className="px-4 md:px-5 pb-3 flex items-center gap-2 overflow-x-auto scrollbar-hide">
+                        <span className="text-[10px] text-text-muted uppercase tracking-wider shrink-0">Actief:</span>
+                        {roleFilter !== "all" && (
+                            <button onClick={() => setRoleFilter("all")} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-brand-orange/10 text-brand-orange border border-brand-orange/20 hover:bg-brand-orange/20 transition-colors cursor-pointer shrink-0">
+                                Rol: {roleFilter} <X className="w-2.5 h-2.5" />
+                            </button>
+                        )}
+                        {statusFilter !== "all" && (
+                            <button onClick={() => setStatusFilter("all")} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-green-500/10 text-green-600 border border-green-500/20 hover:bg-green-500/20 transition-colors cursor-pointer shrink-0">
+                                Status: {statusFilter === "paid" ? "Geaccepteerd" : statusFilter === "pending" ? "Wachtend" : "Geannuleerd"} <X className="w-2.5 h-2.5" />
+                            </button>
+                        )}
+                        {userTypeFilter !== "all" && (
+                            <button onClick={() => setUserTypeFilter("all")} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-purple-500/10 text-purple-600 border border-purple-500/20 hover:bg-purple-500/20 transition-colors cursor-pointer shrink-0">
+                                {userTypeFilter === "authenticated" ? "Accounts" : "Gasten"} <X className="w-2.5 h-2.5" />
+                            </button>
+                        )}
+                        {supportFilter !== "all" && (
+                            <button onClick={() => setSupportFilter("all")} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-yellow-500/10 text-yellow-600 border border-yellow-500/20 hover:bg-yellow-500/20 transition-colors cursor-pointer shrink-0">
+                                Ondersteuning: {supportFilter} <X className="w-2.5 h-2.5" />
+                            </button>
+                        )}
+                        {distanceFilter !== "all" && (
+                            <button onClick={() => setDistanceFilter("all")} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-blue-500/10 text-blue-600 border border-blue-500/20 hover:bg-blue-500/20 transition-colors cursor-pointer shrink-0">
+                                {distanceFilter} km <X className="w-2.5 h-2.5" />
+                            </button>
+                        )}
+                        {wheelchairFilter && (
+                            <button onClick={() => setWheelchairFilter(false)} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors cursor-pointer shrink-0">
+                                <Accessibility className="w-2.5 h-2.5" /> Rolstoel <X className="w-2.5 h-2.5" />
+                            </button>
+                        )}
+                        {shuttleBusFilter && (
+                            <button onClick={() => setShuttleBusFilter(false)} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-cyan-500/10 text-cyan-600 border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors cursor-pointer shrink-0">
+                                <Bus className="w-2.5 h-2.5" /> Pendelbus <X className="w-2.5 h-2.5" />
+                            </button>
+                        )}
+                        {facilityFilter && (
+                            <button onClick={() => setFacilityFilter(false)} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20 hover:bg-amber-500/20 transition-colors cursor-pointer shrink-0">
+                                <Building2 className="w-2.5 h-2.5" /> Instelling <X className="w-2.5 h-2.5" />
+                            </button>
+                        )}
+                        {participantTypeFilter !== "all" && (
+                            <button onClick={() => setParticipantTypeFilter("all")} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-brand-orange/10 text-brand-orange border border-brand-orange/20 hover:bg-brand-orange/20 transition-colors cursor-pointer shrink-0">
+                                <Heart className="w-2.5 h-2.5" /> {participantTypeFilter} <X className="w-2.5 h-2.5" />
+                            </button>
+                        )}
+                        <button onClick={clearAllFilters} className="text-[10px] text-text-muted hover:text-brand-orange transition-colors cursor-pointer shrink-0 ml-1">
+                            Wis alles
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Data Display (Desktop Table / Mobile Cards) */}
@@ -424,7 +647,7 @@ export default function ParticipantsTable() {
                         <h3 className="text-xl font-bold text-text-primary mb-2">Geen deelnemers gevonden</h3>
                         <p className="text-text-muted max-w-md">Geen resultaten voor de huidige filters. Probeer een andere zoekopdracht of pas de filters aan.</p>
                         <button
-                            onClick={() => { setSearchQuery(""); setUserTypeFilter("all"); setRoleFilter("all"); setStatusFilter("all"); setSupportFilter("all"); }}
+                            onClick={clearAllFilters}
                             className="mt-6 px-6 py-2 bg-glass-surface/50 border border-glass-border text-text-primary rounded-xl hover:bg-glass-surface transition-colors text-sm font-medium cursor-pointer"
                         >
                             Filters wissen
@@ -435,8 +658,8 @@ export default function ParticipantsTable() {
                         {/* Desktop Table View (Hidden on mobile) */}
                         <div className="hidden md:block overflow-x-auto">
                             <table className="w-full">
-                                <thead>
-                                    <tr className="border-b border-glass-border bg-glass-surface/30">
+                                <thead className="sticky top-0 z-10">
+                                    <tr className="border-b border-glass-border bg-glass-surface/80 backdrop-blur-sm">
                                         <th className="text-left py-4 px-6 text-xs font-bold text-text-muted uppercase tracking-wider cursor-pointer hover:text-text-primary transition-colors group select-none" onClick={() => handleSort("name")}>
                                             <div className="flex items-center gap-2">Naam & Rol <ChevronsUpDown className={`w-3 h-3 ${sortField === "name" ? "text-brand-orange" : "text-text-muted/50 group-hover:text-text-muted"}`} /></div>
                                         </th>
@@ -623,28 +846,58 @@ export default function ParticipantsTable() {
                 )}
 
                 {/* Pagination Footer */}
-                <div className="px-6 py-4 border-t border-glass-border flex flex-col md:flex-row items-center justify-between gap-4 bg-glass-surface/20">
-                    <span className="text-xs text-text-muted text-center md:text-left">
-                        Tonen <span className="font-bold text-text-primary">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="font-bold text-text-primary">{Math.min(currentPage * itemsPerPage, processedRegistrations.length)}</span> van <span className="font-bold text-text-primary">{processedRegistrations.length}</span>
-                    </span>
-                    <div className="flex items-center gap-2 bg-glass-surface/30 p-1 rounded-xl border border-glass-border/50">
+                <div className="px-4 md:px-6 py-3 md:py-4 border-t border-glass-border flex flex-col md:flex-row items-center justify-between gap-3 bg-glass-surface/20">
+                    <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+                        <span className="text-xs text-text-muted">
+                            <span className="font-bold text-text-primary">{processedRegistrations.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span>–<span className="font-bold text-text-primary">{Math.min(currentPage * itemsPerPage, processedRegistrations.length)}</span> van <span className="font-bold text-text-primary">{processedRegistrations.length}</span>
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] text-text-muted uppercase tracking-wider">Rijen:</span>
+                            {([10, 25, 50] as const).map(n => (
+                                <button
+                                    key={n}
+                                    onClick={() => setItemsPerPage(n)}
+                                    className={`px-2 py-0.5 rounded-md text-[10px] font-medium transition-all cursor-pointer ${itemsPerPage === n ? "bg-brand-orange text-white" : "text-text-muted hover:text-text-primary hover:bg-glass-surface/50"}`}
+                                >
+                                    {n}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-1 bg-glass-surface/30 p-1 rounded-xl border border-glass-border/50">
+                        <button
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                            className="p-1.5 rounded-lg hover:bg-glass-surface text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer text-[10px] font-medium px-2"
+                        >
+                            1
+                        </button>
                         <button
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            className="p-2 rounded-lg hover:bg-glass-surface text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg hover:bg-glass-surface text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
                         >
-                            <ChevronLeft className="w-4 h-4" />
+                            <ChevronLeft className="w-3.5 h-3.5" />
                         </button>
-                        <span className="text-xs font-medium px-3 text-text-primary min-w-12 text-center">
-                            {currentPage} / {totalPages || 1}
+                        <span className="text-xs font-medium px-2 text-text-primary min-w-8 text-center">
+                            {currentPage}
                         </span>
                         <button
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            disabled={currentPage === totalPages}
-                            className="p-2 rounded-lg hover:bg-glass-surface text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                            disabled={currentPage >= totalPages}
+                            className="p-1.5 rounded-lg hover:bg-glass-surface text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
                         >
-                            <ChevronRight className="w-4 h-4" />
+                            <ChevronRight className="w-3.5 h-3.5" />
                         </button>
+                        {totalPages > 1 && (
+                            <button
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage >= totalPages}
+                                className="p-1.5 rounded-lg hover:bg-glass-surface text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer text-[10px] font-medium px-2"
+                            >
+                                {totalPages}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
