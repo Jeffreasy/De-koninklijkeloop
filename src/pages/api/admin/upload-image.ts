@@ -30,12 +30,13 @@ export const POST: APIRoute = async ({ request }) => {
 
         if (import.meta.env.DEV) console.log('📁 File:', file.name, file.type, file.size);
 
-        // Convert file to buffer for upload (avoid base64 inflation for large files)
+        // Convert file to buffer, then to base64 for ImageKit SDK v7
+        // (SDK v7 requires base64 string, not Buffer)
         const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+        const base64 = Buffer.from(arrayBuffer).toString('base64');
 
-        // Upload to ImageKit using buffer directly
-        const result = await uploadImage(buffer, file.name, '/SocialmediaPosts');
+        // Upload to ImageKit
+        const result = await uploadImage(base64, file.name, '/SocialmediaPosts');
 
         return new Response(
             JSON.stringify({
