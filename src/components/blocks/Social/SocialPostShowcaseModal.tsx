@@ -300,11 +300,11 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                     />
                                 ) : (
                                     <iframe
-                                        src={`https://streamable.com/o/${post.videoUrl.match(/streamable\.com\/(?:o\/)?([a-zA-Z0-9]+)/)?.[1] || ""}?autoplay=1`}
+                                        src={`https://streamable.com/e/${post.videoUrl.match(/streamable\.com\/(?:e\/|o\/)?([a-zA-Z0-9]+)/)?.[1] || ""}?autoplay=1`}
                                         className="w-full h-full"
                                         style={{ border: "none" }}
                                         allowFullScreen
-                                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                         title={post.caption.slice(0, 60)}
                                     />
                                 )
