@@ -274,16 +274,19 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     <X className="w-6 h-6" />
                 </button>
 
-                {/* Image Section (swipeable) */}
+                {/* Image/Video Section (swipeable for images, interactive for video) */}
                 <div
                     className={`relative w-full md:w-1/2 bg-black md:bg-linear-to-br md:from-black md:via-gray-900 md:to-black flex items-center justify-center overflow-hidden shrink-0 group transition-[height] duration-500 ease-in-out ${isExpanded ? 'h-full z-20' : 'h-[45vh] md:h-full'}`}
-                    onClick={() => toggleExpand()}
+                    onClick={() => {
+                        if (!(post.mediaType === "video" && post.videoUrl)) toggleExpand();
+                    }}
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
                 >
                     <div
-                        className="relative w-full h-full md:p-6 pointer-events-none md:pointer-events-auto transition-transform duration-200 ease-out"
+                        className={`relative w-full h-full md:p-6 transition-transform duration-200 ease-out ${post.mediaType === "video" && post.videoUrl ? '' : 'pointer-events-none md:pointer-events-auto'
+                            }`}
                         style={{ transform: swipeOffset ? `translateX(${swipeOffset}px)` : undefined }}
                     >
                         <div className="relative w-full h-full md:rounded-2xl overflow-hidden shadow-2xl">
