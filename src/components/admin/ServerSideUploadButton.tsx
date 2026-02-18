@@ -150,6 +150,46 @@ export function ServerSideUploadButton({ onFileSelect, onClearFile, currentUrl, 
 
 // Export upload function for use in modal
 export async function uploadFileToImageKit(file: File): Promise<string> {
+    const isVideo = file.type.startsWith('video/');
+
+    // Videos: upload directly to ImageKit (bypass Vercel 4.5MB body limit)
+    if (isVideo) {
+        // 1. Get auth params from our server
+        const authResponse = await fetch('/api/sign-imagekit', {
+            method: 'POST',
+            credentials: 'include',
+        });
+        if (!authResponse.ok) {
+            throw new Error('Authenticatie mislukt. Probeer opnieuw.');
+        }
+        const authParams = await authResponse.json();
+
+        // 2. Upload directly to ImageKit (no Vercel size limit)
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('fileName', file.name);
+        formData.append('folder', '/SocialmediaPosts');
+        formData.append('publicKey', import.meta.env.PUBLIC_IMAGEKIT_PUBLIC_KEY || '');
+        formData.append('signature', authParams.signature);
+        formData.append('expire', String(authParams.expire));
+        formData.append('token', authParams.token);
+        formData.append('useUniqueFileName', 'true');
+
+        const uploadResponse = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json().catch(() => ({}));
+            throw new Error(errorData.message || `Upload mislukt (${uploadResponse.status})`);
+        }
+
+        const result = await uploadResponse.json();
+        return result.url;
+    }
+
+    // Images: use server route (small files, no size issue)
     const formData = new FormData();
     formData.append('file', file);
 
