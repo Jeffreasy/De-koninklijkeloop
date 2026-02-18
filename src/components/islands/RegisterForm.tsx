@@ -456,7 +456,7 @@ export default function RegisterForm() {
                         <Label className="block">Hoe kom je naar de startlocatie?</Label>
                         <div className="grid grid-cols-2 gap-4">
                             {[
-                                { id: "pendelbus", label: "Pendelbus", icon: Bus, desc: "Ophalen bij instelling" },
+                                { id: "pendelbus", label: "Pendelbus", icon: Bus, desc: "Ophalen bij Grotekerk -> startlocatie" },
                                 { id: "eigen-vervoer", label: "Eigen vervoer", icon: MapPin, desc: "Ik kom zelf" }
                             ].map((opt) => (
                                 <div
