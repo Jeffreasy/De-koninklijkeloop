@@ -154,6 +154,8 @@ export const create = mutation({
         isVisible: v.boolean(),
         postedDate: v.optional(v.string()),
         year: v.optional(v.string()),
+        mediaType: v.optional(v.string()),
+        videoUrl: v.optional(v.string()),
         updatedBy: v.string(),
     },
     handler: async (ctx, args) => {
@@ -173,6 +175,8 @@ export const create = mutation({
         const now = Date.now();
         return await ctx.db.insert("social_posts", {
             year,
+            mediaType: args.mediaType || "image",
+            videoUrl: args.videoUrl,
             imageUrl: args.imageUrl,
             caption: args.caption,
             instagramUrl: args.instagramUrl,
@@ -201,6 +205,8 @@ export const update = mutation({
         isVisible: v.optional(v.boolean()),
         postedDate: v.optional(v.string()),
         year: v.optional(v.string()),
+        mediaType: v.optional(v.string()),
+        videoUrl: v.optional(v.string()),
         updatedBy: v.string(),
     },
     handler: async (ctx, args) => {

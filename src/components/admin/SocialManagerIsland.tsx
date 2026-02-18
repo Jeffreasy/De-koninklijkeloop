@@ -31,6 +31,8 @@ type EditingPost = {
     displayOrder: number;
     postedDate?: string;
     year?: string;
+    mediaType?: string;
+    videoUrl?: string;
 } | null;
 
 export function SocialManagerIsland() {

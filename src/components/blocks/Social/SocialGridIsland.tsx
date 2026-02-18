@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, memo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { Instagram, AlertCircle, RefreshCw, Star, Maximize2, ArrowRight, Calendar } from "lucide-react";
+import { Instagram, AlertCircle, RefreshCw, Star, Maximize2, ArrowRight, Calendar, Film } from "lucide-react";
 import { SocialPostShowcaseModal } from "./SocialPostShowcaseModal";
 import { ik, ikSrcSet } from "../../../lib/imagekit";
 import { useStore } from "@nanostores/react";
@@ -131,9 +131,17 @@ function EditionRow({
                             height={800}
                         />
                         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-                        <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-orange/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-lg">
-                            <Star className="w-3 h-3 fill-current" />
-                            Featured
+                        <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-orange/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-lg">
+                                <Star className="w-3 h-3 fill-current" />
+                                Featured
+                            </div>
+                            {activeFeatured.mediaType === "video" && (
+                                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold shadow-lg">
+                                    <Film className="w-3 h-3" />
+                                    Video
+                                </div>
+                            )}
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 p-4 text-white z-10">
                             <p className="text-sm line-clamp-2 mb-2 leading-relaxed text-white/90">
@@ -145,7 +153,13 @@ function EditionRow({
                             </div>
                         </div>
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center transition-all duration-500 opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 border border-white/20">
-                            <Maximize2 className="w-5 h-5 text-white" />
+                            {activeFeatured.mediaType === "video" ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-white ml-0.5">
+                                    <polygon points="5 3 19 12 5 21 5 3" />
+                                </svg>
+                            ) : (
+                                <Maximize2 className="w-5 h-5 text-white" />
+                            )}
                         </div>
                     </button>
                 )}

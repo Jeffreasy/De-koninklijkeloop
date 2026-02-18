@@ -11,6 +11,8 @@ interface SocialPost {
     instagramUrl: string;
     isFeatured: boolean;
     postedDate?: string;
+    mediaType?: string;
+    videoUrl?: string;
 }
 
 interface Props {
@@ -284,11 +286,22 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                         style={{ transform: swipeOffset ? `translateX(${swipeOffset}px)` : undefined }}
                     >
                         <div className="relative w-full h-full md:rounded-2xl overflow-hidden shadow-2xl">
-                            <img
-                                src={post.imageUrl.includes("imagekit.io") ? post.imageUrl.replace("/De%20Koninklijkeloop/", "/tr:w-1200,q-85,f-auto/De%20Koninklijkeloop/") : post.imageUrl}
-                                alt={post.caption.slice(0, 100)}
-                                className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02] object-contain"
-                            />
+                            {post.mediaType === "video" && post.videoUrl ? (
+                                <iframe
+                                    src={`https://streamable.com/o/${post.videoUrl.match(/streamable\.com\/(?:o\/)?([a-zA-Z0-9]+)/)?.[1] || ""}?autoplay=1`}
+                                    className="w-full h-full"
+                                    style={{ border: "none" }}
+                                    allowFullScreen
+                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                    title={post.caption.slice(0, 60)}
+                                />
+                            ) : (
+                                <img
+                                    src={post.imageUrl.includes("imagekit.io") ? post.imageUrl.replace("/De%20Koninklijkeloop/", "/tr:w-1200,q-85,f-auto/De%20Koninklijkeloop/") : post.imageUrl}
+                                    alt={post.caption.slice(0, 100)}
+                                    className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02] object-contain"
+                                />
+                            )}
                         </div>
                     </div>
 

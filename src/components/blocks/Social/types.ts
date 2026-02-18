@@ -10,4 +10,6 @@ export interface SSRPost {
     isVisible?: boolean;
     displayOrder?: number;
     postedDate?: string;
+    mediaType?: string;
+    videoUrl?: string;
 }

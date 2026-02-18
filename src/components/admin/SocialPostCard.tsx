@@ -1,5 +1,5 @@
 import type { Id } from "../../../convex/_generated/dataModel";
-import { Edit3, Eye, EyeOff, Star, StarOff, Trash2, ExternalLink, Instagram } from "lucide-react";
+import { Edit3, Eye, EyeOff, Star, StarOff, Trash2, ExternalLink, Instagram, Film } from "lucide-react";
 
 interface Props {
     post: {
@@ -10,6 +10,7 @@ interface Props {
         isFeatured: boolean;
         isVisible: boolean;
         displayOrder: number;
+        mediaType?: string;
     };
     onEdit: (id: Id<"social_posts">) => void;
     onDelete: (id: Id<"social_posts">) => void;
@@ -65,6 +66,14 @@ export function SocialPostCard({
                 <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white text-xs font-bold">
                     #{post.displayOrder}
                 </div>
+
+                {/* Video Play Badge */}
+                {(post.mediaType === "video") && (
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-white text-xs font-bold shadow-lg">
+                        <Film className="w-3 h-3" />
+                        Video
+                    </div>
+                )}
 
                 {/* Desktop: Hover Actions Overlay (hidden on mobile) */}
                 <div className="absolute inset-0 bg-brand-orange/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex items-center justify-center gap-2 p-4">

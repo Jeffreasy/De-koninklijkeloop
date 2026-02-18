@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { AdminModal } from "./AdminModal";
 import { ServerSideUploadButton, uploadFileToImageKit } from "./ServerSideUploadButton";
-import { ImageIcon, Loader2 } from "lucide-react";
+import { ImageIcon, Loader2, Film, Image as ImageLucide } from "lucide-react";
 
 interface Props {
     isOpen: boolean;
@@ -17,6 +17,8 @@ interface Props {
         displayOrder: number;
         isVisible: boolean;
         postedDate?: string;
+        mediaType?: string;
+        videoUrl?: string;
     } | null;
 }
 
@@ -29,6 +31,15 @@ export interface SocialPostFormData {
     isVisible: boolean;
     postedDate?: string;
     year?: string;
+    mediaType?: string;
+    videoUrl?: string;
+}
+
+type MediaType = "image" | "video";
+
+function extractStreamableShortcode(url: string): string | null {
+    const match = url.match(/streamable\.com\/(?:o\/)?([a-zA-Z0-9]+)/);
+    return match ? match[1] : null;
 }
 
 export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props) {
@@ -40,7 +51,11 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
         displayOrder: 1,
         isVisible: true,
         postedDate: "",
+        mediaType: "image",
+        videoUrl: "",
     });
+
+    const [mediaType, setMediaType] = useState<MediaType>("image");
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
@@ -53,6 +68,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
     // Populate form when editing
     useEffect(() => {
         if (editingPost) {
+            const mt = (editingPost.mediaType || "image") as MediaType;
+            setMediaType(mt);
             setFormData({
                 imageUrl: editingPost.imageUrl,
                 caption: editingPost.caption,
@@ -61,9 +78,11 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                 displayOrder: editingPost.displayOrder,
                 isVisible: editingPost.isVisible,
                 postedDate: editingPost.postedDate || "",
+                mediaType: mt,
+                videoUrl: editingPost.videoUrl || "",
             });
         } else {
-            // Reset for new post
+            setMediaType("image");
             setFormData({
                 imageUrl: "",
                 caption: "",
@@ -72,6 +91,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                 displayOrder: 1,
                 isVisible: true,
                 postedDate: "",
+                mediaType: "image",
+                videoUrl: "",
             });
         }
         setImagePreviewError(false);
@@ -91,7 +112,15 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
         // Validation
         setFormError("");
         if (!formData.imageUrl.trim() && !selectedFile) {
-            setFormError("Voeg een afbeelding toe (upload een bestand of plak een URL)");
+            setFormError(mediaType === "video" ? "Voeg een thumbnail afbeelding toe" : "Voeg een afbeelding toe (upload een bestand of plak een URL)");
+            return;
+        }
+        if (mediaType === "video" && !formData.videoUrl?.trim()) {
+            setFormError("Voeg een Streamable URL toe");
+            return;
+        }
+        if (mediaType === "video" && formData.videoUrl && !extractStreamableShortcode(formData.videoUrl)) {
+            setFormError("Ongeldige Streamable URL (bijv. https://streamable.com/abc123)");
             return;
         }
         if (!formData.caption.trim()) {
@@ -127,7 +156,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
             }
 
             // Save post with uploaded URL
-            await onSave({ ...formData, imageUrl: finalImageUrl });
+            await onSave({ ...formData, imageUrl: finalImageUrl, mediaType, videoUrl: mediaType === "video" ? formData.videoUrl : undefined });
             onClose();
             setSelectedFile(null);
         } catch (error) {
@@ -170,10 +199,69 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         {/* Left Column: Form Fields */}
                         <div className="space-y-4 md:space-y-5">
+                            {/* Media Type Toggle */}
+                            <div>
+                                <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
+                                    Type media
+                                </label>
+                                <div className="flex gap-2 p-1 bg-glass-border/20 rounded-xl">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setMediaType("image");
+                                            setFormData(prev => ({ ...prev, mediaType: "image" }));
+                                        }}
+                                        className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer min-h-[44px] ${mediaType === "image"
+                                                ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
+                                                : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
+                                            }`}
+                                    >
+                                        <ImageLucide className="w-4 h-4" />
+                                        Foto
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setMediaType("video");
+                                            setFormData(prev => ({ ...prev, mediaType: "video" }));
+                                        }}
+                                        className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer min-h-[44px] ${mediaType === "video"
+                                                ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
+                                                : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
+                                            }`}
+                                    >
+                                        <Film className="w-4 h-4" />
+                                        Video
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Video URL (only for video type) */}
+                            {mediaType === "video" && (
+                                <div>
+                                    <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
+                                        Streamable URL *
+                                    </label>
+                                    <input
+                                        type="url"
+                                        value={formData.videoUrl || ""}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, videoUrl: e.target.value })
+                                        }
+                                        placeholder="https://streamable.com/abc123"
+                                        className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
+                                        required
+                                    />
+                                    <p className="mt-1.5 text-xs text-text-muted">
+                                        Plak de Streamable link (bijv. streamable.com/abc123)
+                                    </p>
+                                </div>
+                            )}
+
                             {/* Image Upload/URL */}
                             <div>
                                 <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
-                                    Afbeelding *
+                                    {mediaType === "video" ? "Thumbnail afbeelding *" : "Afbeelding *"}
                                 </label>
 
                                 {/* Server-Side Upload Button */}

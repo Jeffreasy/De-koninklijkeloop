@@ -256,8 +256,12 @@ export default defineSchema({
         // Edition
         year: v.optional(v.string()),   // "2024", "2025", "2026" — optional for backfill compat
 
+        // Media Type
+        mediaType: v.optional(v.string()),  // "image" | "video" — defaults to "image"
+        videoUrl: v.optional(v.string()),   // Streamable URL (e.g. "https://streamable.com/abc123")
+
         // Post Content
-        imageUrl: v.string(),           // Direct URL to Instagram image
+        imageUrl: v.string(),           // Direct URL to image, or thumbnail for video
         caption: v.string(),            // Instagram caption/description
         instagramUrl: v.string(),       // Link to original Instagram post
 
