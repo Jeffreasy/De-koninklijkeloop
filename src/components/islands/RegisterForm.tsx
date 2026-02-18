@@ -109,7 +109,7 @@ export default function RegisterForm() {
 
                 // Trigger Password Reset Email (To set initial password)
                 try {
-                    const emailRes = await fetch('/api/debug-reset', {
+                    const emailRes = await fetch('/api/v1/auth/password/forgot', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: data.email })
