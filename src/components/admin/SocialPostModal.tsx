@@ -293,12 +293,17 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                             setMediaType("video");
                                             setFormData(prev => ({ ...prev, mediaType: "video" }));
                                         }
-                                        // Generate preview URL for the selected file
-                                        const reader = new FileReader();
-                                        reader.onloadend = () => {
-                                            setFilePreviewUrl(reader.result as string);
-                                        };
-                                        reader.readAsDataURL(file);
+                                        // Use blob URL for video (CSP-safe), FileReader for images
+                                        if (file.type.startsWith("video/")) {
+                                            const blobUrl = URL.createObjectURL(file);
+                                            setFilePreviewUrl(blobUrl);
+                                        } else {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                setFilePreviewUrl(reader.result as string);
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
                                     }}
                                     onClearFile={() => {
                                         setSelectedFile(null);

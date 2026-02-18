@@ -236,7 +236,7 @@ export async function deleteImage(fileId: string): Promise<boolean> {
 
 // ─── Upload image ──────────────────────────────────────────────
 export async function uploadImage(
-    file: string,
+    file: string | Buffer,
     fileName: string,
     folder: string
 ): Promise<{ url: string; fileId: string; filePath: string }> {

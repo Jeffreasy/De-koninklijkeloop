@@ -30,18 +30,12 @@ export const POST: APIRoute = async ({ request }) => {
 
         if (import.meta.env.DEV) console.log('📁 File:', file.name, file.type, file.size);
 
-        // Convert file to base64
+        // Convert file to buffer for upload (avoid base64 inflation for large files)
         const arrayBuffer = await file.arrayBuffer();
-        const bytes = new Uint8Array(arrayBuffer);
-        let binary = '';
-        for (let i = 0; i < bytes.byteLength; i++) {
-            binary += String.fromCharCode(bytes[i]);
-        }
-        const base64 = btoa(binary);
-        const dataURI = `data:${file.type};base64,${base64}`;
+        const buffer = Buffer.from(arrayBuffer);
 
-        // Upload to ImageKit
-        const result = await uploadImage(dataURI, file.name, '/SocialmediaPosts');
+        // Upload to ImageKit using buffer directly
+        const result = await uploadImage(buffer, file.name, '/SocialmediaPosts');
 
         return new Response(
             JSON.stringify({
