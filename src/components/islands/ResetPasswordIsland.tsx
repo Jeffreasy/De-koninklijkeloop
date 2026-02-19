@@ -79,9 +79,16 @@ export default function ResetPasswordIsland() {
                 </div>
 
                 {status === 'loading' && (
-                    <div className="text-center py-10">
-                        <div className="animate-spin w-8 h-8 border-4 border-brand-orange border-t-transparent rounded-full mx-auto mb-4"></div>
-                        <p className="text-text-muted">Token controleren...</p>
+                    <div className="space-y-6 pt-4 animate-pulse" aria-hidden="true">
+                        <div className="space-y-2">
+                            <div className="h-4 w-32 bg-glass-surface/50 rounded ml-1" />
+                            <div className="w-full h-[54px] bg-glass-surface/30 border border-glass-border rounded-xl" />
+                        </div>
+                        <div className="space-y-2">
+                            <div className="h-4 w-40 bg-glass-surface/50 rounded ml-1" />
+                            <div className="w-full h-[54px] bg-glass-surface/30 border border-glass-border rounded-xl" />
+                        </div>
+                        <div className="w-full h-[52px] rounded-xl bg-glass-surface/50" />
                     </div>
                 )}
 

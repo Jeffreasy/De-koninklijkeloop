@@ -80,9 +80,24 @@ export default function ProfileIsland() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center p-16 text-text-muted">
-                <Loader2 className="w-6 h-6 animate-spin mr-3" />
-                <span>Profiel laden...</span>
+            <div className="space-y-6 animate-pulse" aria-hidden="true">
+                {/* Profile Header Skeleton */}
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                    <div className="w-20 h-20 rounded-2xl bg-glass-surface/50 border border-glass-border shrink-0" />
+                    <div className="flex-1 space-y-3 w-full flex flex-col items-center sm:items-start">
+                        <div className="h-7 w-48 bg-glass-surface/50 rounded-lg" />
+                        <div className="h-4 w-64 bg-glass-surface/30 rounded" />
+                        <div className="flex gap-2 pt-1">
+                            <div className="h-6 w-24 bg-glass-surface/40 rounded-full" />
+                            <div className="h-6 w-32 bg-glass-surface/40 rounded-full" />
+                        </div>
+                    </div>
+                </div>
+                {/* Sections Skeletons */}
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-6 h-[104px]" />
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-6 h-[264px]" />
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-6 h-[120px]" />
+                <div className="rounded-2xl md:rounded-3xl p-6 h-[160px] border-2 border-red-500/10 bg-red-500/5" />
             </div>
         );
     }

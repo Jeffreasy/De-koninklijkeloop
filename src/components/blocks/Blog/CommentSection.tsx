@@ -164,8 +164,23 @@ export default function CommentSection({ slug, postId }: Props) {
 
             {/* Comments List */}
             {loading ? (
-                <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-brand-orange" />
+                <div className="space-y-2 animate-pulse" aria-hidden="true">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="glass-card p-4 mb-3">
+                            <div className="flex items-center justify-between gap-2 mb-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-glass-surface/50" />
+                                    <div className="h-4 w-32 bg-glass-surface/50 rounded" />
+                                </div>
+                                <div className="h-3 w-20 bg-glass-surface/30 rounded" />
+                            </div>
+                            <div className="space-y-2">
+                                <div className="h-3.5 w-full bg-glass-surface/40 rounded" />
+                                <div className="h-3.5 w-[80%] bg-glass-surface/40 rounded" />
+                            </div>
+                            <div className="mt-4 h-4 w-24 bg-glass-surface/30 rounded" />
+                        </div>
+                    ))}
                 </div>
             ) : comments.length === 0 ? (
                 <p className="text-center text-text-muted py-6 text-sm">
