@@ -88,8 +88,10 @@ export default function BlogCommentMod({ onCountChange }: Props) {
 
             {/* Comments List */}
             {loading ? (
-                <div className="flex items-center justify-center py-16">
-                    <Loader2 className="w-6 h-6 animate-spin text-brand-orange" />
+                <div className="space-y-3 animate-pulse" aria-hidden="true">
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="glass-card p-4 h-[140px]" />
+                    ))}
                 </div>
             ) : comments.length === 0 ? (
                 <div className="glass-card p-8 text-center">

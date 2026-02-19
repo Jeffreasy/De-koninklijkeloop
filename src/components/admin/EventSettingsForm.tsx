@@ -95,15 +95,13 @@ export default function EventSettingsForm() {
 
     if (settings === undefined) {
         return (
-            <div className="premium-glass rounded-2xl md:rounded-3xl p-6 md:p-8">
-                <div
-                    className="flex items-center justify-center"
-                    role="status"
-                    aria-live="polite"
-                >
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange"></div>
-                    <span className="ml-3 text-text-secondary">Laden...</span>
-                    <span className="sr-only">Evenement instellingen laden...</span>
+            <div className="space-y-6 animate-pulse" aria-hidden="true">
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-4 md:p-6 h-[250px]" />
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-4 md:p-6 h-[180px]" />
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-4 md:p-6 h-[200px]" />
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-4 md:p-6 h-[180px]" />
+                <div className="flex justify-center md:justify-end">
+                    <div className="w-full md:w-48 h-12 rounded-xl bg-glass-surface/50" />
                 </div>
             </div>
         );

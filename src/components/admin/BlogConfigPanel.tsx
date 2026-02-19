@@ -49,8 +49,22 @@ export default function BlogConfigPanel() {
 
     if (loading || !config) {
         return (
-            <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-6 h-6 animate-spin text-brand-orange" />
+            <div className="premium-glass rounded-2xl p-6 space-y-6 animate-pulse" aria-hidden="true">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-glass-surface/50" />
+                    <div className="space-y-2">
+                        <div className="h-5 w-40 bg-glass-surface/50 rounded" />
+                        <div className="h-3 w-48 bg-glass-surface/30 rounded" />
+                    </div>
+                </div>
+                <div className="space-y-5">
+                    <div className="h-[74px] rounded-xl bg-glass-bg/30 border border-glass-border" />
+                    <div className="h-[74px] rounded-xl bg-glass-bg/30 border border-glass-border" />
+                    <div className="h-[90px] rounded-xl bg-glass-bg/30 border border-glass-border" />
+                </div>
+                <div className="pt-2">
+                    <div className="h-10 w-32 rounded-xl bg-glass-surface/50" />
+                </div>
             </div>
         );
     }
