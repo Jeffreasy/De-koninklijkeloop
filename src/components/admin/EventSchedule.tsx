@@ -72,7 +72,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                 ].map((stat) => {
                     const colors = STAT_COLORS[stat.color];
                     return (
-                        <div key={stat.label} className="relative overflow-hidden p-4 rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md group hover:border-glass-border/80 transition-all duration-300">
+                        <div key={stat.label} className="relative overflow-hidden p-4 rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md transition-all duration-300">
                             <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full ${colors.glow} blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-xl ${colors.bg} ${colors.border} border`}>
@@ -96,7 +96,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                 {routes.map(route => (
                     <span
                         key={route.id}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border backdrop-blur-sm cursor-default transition-all duration-200 hover:scale-105"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border backdrop-blur-sm cursor-default"
                         style={{
                             color: route.color,
                             borderColor: `${route.color}25`,
@@ -156,7 +156,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                             [1, 2, 3, 4].map(i => (
                                 <div key={i} className="relative flex items-start gap-4 py-6">
                                     <div className="w-12 h-12 rounded-full bg-glass-surface animate-pulse shrink-0" />
-                                    <div className="flex-1 h-28 bg-glass-surface rounded-2xl animate-pulse" />
+                                    <div className="flex-1 h-40 bg-glass-surface rounded-2xl animate-pulse" />
                                 </div>
                             ))
                         ) : schedule.length === 0 ? (
@@ -168,7 +168,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                 {onAddClick && (
                                     <button
                                         onClick={onAddClick}
-                                        className="mt-4 px-5 py-2 bg-brand-orange text-white rounded-xl shadow-lg shadow-brand-orange/20 hover:bg-brand-orange-dark transition-colors font-medium text-sm flex items-center gap-2 mx-auto cursor-pointer"
+                                        className="mt-4 px-5 py-2 bg-brand-orange text-white rounded-xl shadow-lg shadow-brand-orange/20 hover:bg-brand-orange-dark transition-colors font-medium text-sm flex items-center gap-2 mx-auto cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     >
                                         <Plus className="w-4 h-4" /> Eerste item toevoegen
                                     </button>
@@ -202,7 +202,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                             </div>
 
                                             {/* Spacer for mobile (left-aligned) */}
-                                            <div className="w-16 shrink-0 md:hidden" />
+                                            <div className="w-18 shrink-0 md:hidden" />
 
                                             {/* Desktop spacer */}
                                             <div className={`hidden md:block md:w-[calc(50%-1.5rem)] ${isLeft ? 'order-last' : ''}`} />
@@ -311,7 +311,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                                             {onEditClick && (
                                                                 <button
                                                                     onClick={(e) => { e.stopPropagation(); onEditClick(item); }}
-                                                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted hover:text-brand-orange bg-glass-bg rounded-lg border border-glass-border hover:border-brand-orange/30 transition-all cursor-pointer"
+                                                                    className="flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium text-text-muted hover:text-brand-orange bg-glass-bg rounded-lg border border-glass-border hover:border-brand-orange/30 transition-all cursor-pointer min-h-[44px]"
                                                                 >
                                                                     <Edit3 className="w-3.5 h-3.5" />
                                                                     Bewerk
@@ -320,7 +320,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                                             {onAddClick && (
                                                                 <button
                                                                     onClick={(e) => handleDelete(e, item._id)}
-                                                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted hover:text-red-500 bg-glass-bg rounded-lg border border-glass-border hover:border-red-500/30 transition-all cursor-pointer"
+                                                                    className="flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium text-text-muted hover:text-red-500 bg-glass-bg rounded-lg border border-glass-border hover:border-red-500/30 transition-all cursor-pointer min-h-[44px]"
                                                                 >
                                                                     <Trash2 className="w-3.5 h-3.5" />
                                                                     Verwijder
@@ -340,12 +340,12 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                     {/* Footer: Total Duration */}
                     {schedule && schedule.length > 1 && (
                         <div className="mt-12 pt-6 border-t border-glass-border/30">
-                            <div className="flex items-center justify-center gap-6 text-sm text-text-muted">
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-text-muted">
                                 <span className="flex items-center gap-1.5">
                                     <Timer className="w-4 h-4 text-brand-orange" />
                                     <span className="font-medium">{schedule[0]?.time} — {schedule[schedule.length - 1]?.time}</span>
                                 </span>
-                                <span className="w-px h-4 bg-glass-border" />
+                                <span className="w-px h-4 bg-glass-border hidden sm:block" />
                                 <span className="flex items-center gap-1.5">
                                     <CalendarDays className="w-4 h-4" />
                                     <span className="tabular-nums">{schedule.length} momenten</span>

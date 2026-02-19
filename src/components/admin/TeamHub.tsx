@@ -60,7 +60,7 @@ const TeamHubContent = () => {
             <div className="flex p-1 bg-glass-surface/50 rounded-xl border border-glass-border/50 backdrop-blur-md overflow-x-auto no-scrollbar">
                 <button
                     onClick={() => setActiveTab('minutes')}
-                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap min-h-[44px] ${activeTab === 'minutes'
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-1 ${activeTab === 'minutes'
                         ? 'bg-brand-orange text-white shadow-md'
                         : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
                         }`}
@@ -69,7 +69,7 @@ const TeamHubContent = () => {
                 </button>
                 <button
                     onClick={() => setActiveTab('schedule')}
-                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap min-h-[44px] ${activeTab === 'schedule'
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-1 ${activeTab === 'schedule'
                         ? 'bg-brand-orange text-white shadow-md'
                         : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
                         }`}
@@ -78,7 +78,7 @@ const TeamHubContent = () => {
                 </button>
                 <button
                     onClick={() => setActiveTab('volunteers')}
-                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap min-h-[44px] ${activeTab === 'volunteers'
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-1 ${activeTab === 'volunteers'
                         ? 'bg-green-500 text-white shadow-md'
                         : 'text-text-muted hover:text-text-primary hover:bg-glass-surface'
                         }`}

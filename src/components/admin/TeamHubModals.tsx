@@ -129,7 +129,7 @@ export const MinuteModal = ({ isOpen, onClose, initialData }: MinuteModalProps) 
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                             placeholder="Bijv. Vergadering Bestuur"
                         />
                     </div>
@@ -139,7 +139,7 @@ export const MinuteModal = ({ isOpen, onClose, initialData }: MinuteModalProps) 
                             type="date"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
-                            className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                         />
                     </div>
                 </div>
@@ -150,7 +150,7 @@ export const MinuteModal = ({ isOpen, onClose, initialData }: MinuteModalProps) 
                         <select
                             value={type}
                             onChange={(e) => setType(e.target.value as any)}
-                            className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                         >
                             <option value="meeting">Vergadering</option>
                             <option value="agenda">Agenda Punt</option>
@@ -162,7 +162,7 @@ export const MinuteModal = ({ isOpen, onClose, initialData }: MinuteModalProps) 
                         <select
                             value={status}
                             onChange={(e) => setStatus(e.target.value as any)}
-                            className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                         >
                             <option value="concept">Concept</option>
                             <option value="final">Definitief</option>
@@ -176,7 +176,7 @@ export const MinuteModal = ({ isOpen, onClose, initialData }: MinuteModalProps) 
                         type="text"
                         value={tags}
                         onChange={(e) => setTags(e.target.value)}
-                        className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                        className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                         placeholder="bijv. bestuur, financieel, 2026"
                     />
                 </div>
@@ -187,7 +187,7 @@ export const MinuteModal = ({ isOpen, onClose, initialData }: MinuteModalProps) 
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         rows={8}
-                        className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none font-mono text-sm md:min-h-[300px]"
+                        className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none font-mono md:min-h-[300px]"
                         placeholder="# Agenda Puten\n\n1. Opening\n2. Mededelingen..."
                     />
                 </div>
@@ -280,7 +280,7 @@ export const ScheduleModal = ({ isOpen, onClose, initialData }: ScheduleModalPro
                             type="text"
                             value={time}
                             onChange={(e) => setTime(e.target.value)}
-                            className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                             placeholder="10:00"
                         />
                     </div>
@@ -290,7 +290,7 @@ export const ScheduleModal = ({ isOpen, onClose, initialData }: ScheduleModalPro
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                             placeholder="Start 15km"
                         />
                     </div>
@@ -302,7 +302,7 @@ export const ScheduleModal = ({ isOpen, onClose, initialData }: ScheduleModalPro
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={3}
-                        className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                        className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                         placeholder="Korte toelichting..."
                     />
                 </div>
@@ -313,7 +313,7 @@ export const ScheduleModal = ({ isOpen, onClose, initialData }: ScheduleModalPro
                         <select
                             value={type}
                             onChange={(e) => setType(e.target.value as any)}
-                            className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                         >
                             <option value="event">Evenement</option>
                             <option value="logistics">Logistiek</option>
@@ -325,7 +325,7 @@ export const ScheduleModal = ({ isOpen, onClose, initialData }: ScheduleModalPro
                         <select
                             value={routeId}
                             onChange={(e) => setRouteId(e.target.value)}
-                            className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                            className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                         >
                             <option value="">Geen route</option>
                             {routes.map(r => (
@@ -337,13 +337,13 @@ export const ScheduleModal = ({ isOpen, onClose, initialData }: ScheduleModalPro
 
                 <div>
                     <label className="block text-sm font-medium text-text-muted mb-2">Icoon</label>
-                    <div className="grid grid-cols-4 sm:grid-cols-9 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-9 gap-2">
                         {ICON_OPTIONS.map((opt) => (
                             <button
                                 key={opt.value}
                                 type="button"
                                 onClick={() => setIcon(opt.value)}
-                                className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all ${icon === opt.value
+                                className={`flex flex-col items-center justify-center p-2 min-w-[44px] min-h-[44px] rounded-xl border transition-all cursor-pointer ${icon === opt.value
                                     ? 'bg-brand-orange/20 border-brand-orange text-brand-orange'
                                     : 'bg-glass-bg border-glass-border text-text-muted hover:bg-glass-surface hover:text-text-primary'
                                     }`}
@@ -361,7 +361,7 @@ export const ScheduleModal = ({ isOpen, onClose, initialData }: ScheduleModalPro
                         type="number"
                         value={order}
                         onChange={(e) => setOrder(Number(e.target.value))}
-                        className="w-full px-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-text-primary focus:ring-2 focus:ring-brand-orange/50 outline-none"
+                        className="w-full px-4 py-2.5 bg-glass-bg border border-glass-border rounded-xl text-text-primary text-base focus:ring-2 focus:ring-brand-orange/50 outline-none"
                     />
                 </div>
             </div>
