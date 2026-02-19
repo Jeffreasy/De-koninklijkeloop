@@ -12,7 +12,7 @@ interface MediaItem {
 }
 
 interface SocialPost {
-    _id: Id<"social_posts">;
+    _id: string;
     imageUrl: string;
     caption: string;
     instagramUrl: string;
@@ -359,11 +359,11 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                         </div>
                     </div>
 
-                    {/* Carousel Slide Arrows (only for multi-slide posts) */}
+                    {/* Carousel Slide Arrows (only for multi-slide posts) — H3: active:scale-95 */}
                     {hasMultipleSlides && mediaIndex > 0 && (
                         <button
                             onClick={(e) => { e.stopPropagation(); prevSlide(); }}
-                            className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-brand-orange transition-all border border-white/20 pointer-events-auto cursor-pointer"
+                            className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/20 pointer-events-auto cursor-pointer"
                             aria-label="Vorige slide"
                         >
                             <ChevronLeft className="w-5 h-5" />
@@ -372,44 +372,47 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     {hasMultipleSlides && mediaIndex < slides.length - 1 && (
                         <button
                             onClick={(e) => { e.stopPropagation(); nextSlide(); }}
-                            className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-brand-orange transition-all border border-white/20 pointer-events-auto cursor-pointer"
+                            className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/20 pointer-events-auto cursor-pointer"
                             aria-label="Volgende slide"
                         >
                             <ChevronRight className="w-5 h-5" />
                         </button>
                     )}
 
-                    {/* Carousel Dot Indicators */}
+                    {/* Carousel Dot Indicators — H1: bigger touch targets */}
                     {hasMultipleSlides && (
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex gap-1.5 pointer-events-auto">
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex gap-1 pointer-events-auto">
                             {slides.map((_, i) => (
                                 <button
                                     key={i}
                                     onClick={(e) => { e.stopPropagation(); goToSlide(i); }}
-                                    className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${i === mediaIndex
-                                        ? 'bg-brand-orange w-5'
-                                        : 'bg-white/50 hover:bg-white/80'
-                                        }`}
+                                    className="p-2 cursor-pointer"
                                     aria-label={`Slide ${i + 1}`}
-                                />
+                                >
+                                    <div className={`h-2 rounded-full transition-all duration-300 ${i === mediaIndex
+                                        ? 'bg-brand-orange w-5'
+                                        : 'bg-white/50 hover:bg-white/80 w-2'
+                                        }`}
+                                    />
+                                </button>
                             ))}
                         </div>
                     )}
 
-                    {/* Mobile Expand Toggle */}
+                    {/* Mobile Expand Toggle — H2: raised when carousel active */}
                     <button
                         onClick={toggleExpand}
-                        className={`md:hidden absolute z-50 p-3 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 shadow-lg active:scale-95 transition-all ${isExpanded ? 'bottom-8 right-4' : 'bottom-4 right-4'}`}
+                        className={`md:hidden absolute z-50 p-3 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 shadow-lg active:scale-95 transition-all ${isExpanded ? 'bottom-8 right-4' : hasMultipleSlides ? 'bottom-14 right-4' : 'bottom-4 right-4'}`}
                         aria-label={isExpanded ? "Minimaliseer" : "Maximaliseer"}
                     >
                         {isExpanded ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
                     </button>
 
-                    {/* Navigation Arrows — only show when NO carousel (single-media posts) */}
+                    {/* Navigation Arrows — only show when NO carousel (single-media posts) — H3: active:scale-95 */}
                     {!hasMultipleSlides && hasPrev && (
                         <button
                             onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange transition-all border border-white/10 cursor-pointer"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/10 cursor-pointer"
                             aria-label="Vorige post"
                         >
                             <ChevronLeft className="w-6 h-6" />
@@ -418,7 +421,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     {!hasMultipleSlides && hasNext && (
                         <button
                             onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange transition-all border border-white/10 cursor-pointer"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/10 cursor-pointer"
                             aria-label="Volgende post"
                         >
                             <ChevronRight className="w-6 h-6" />
@@ -445,8 +448,8 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                         </button>
                     )}
 
-                    {/* Swipe hint dots */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+                    {/* Swipe hint dots — C2: hidden when carousel active to avoid double dots */}
+                    <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden ${hasMultipleSlides ? 'hidden' : ''}`}>
                         {allPosts.slice(0, 8).map((_, i) => (
                             <div
                                 key={i}
@@ -461,7 +464,8 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                 <div className={`relative w-full md:w-1/2 flex-col flex-1 bg-surface border-t md:border-t-0 md:border-l border-glass-border overflow-hidden ${isExpanded ? 'hidden md:flex' : 'flex'}`}>
 
                     {/* Header */}
-                    <div className="p-5 pr-20 border-b border-glass-border shrink-0 bg-surface sticky top-0 z-10">
+                    {/* M2: responsive padding */}
+                    <div className="p-4 pr-5 md:p-5 md:pr-20 border-b border-glass-border shrink-0 bg-surface sticky top-0 z-10">
                         <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
                                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-brand-orange/10 flex items-center justify-center border border-brand-orange/20 shrink-0">
@@ -498,9 +502,10 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
 
                     {/* Scrollable Content */}
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6 overscroll-contain">
-                        <div className="p-4 rounded-2xl bg-surface border border-glass-border">
+                        {/* L3: tighter mobile padding */}
+                        <div className="p-3 md:p-4 rounded-xl md:rounded-2xl bg-surface border border-glass-border">
                             <ReactionPicker
-                                postId={post._id}
+                                postId={post._id as Id<"social_posts">}
                                 userId={userId}
                                 isAuthenticated={isAuthenticated}
                             />
@@ -517,7 +522,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     {/* Footer */}
                     <div className="p-4 border-t border-glass-border bg-surface text-center md:text-left">
                         <span className="text-xs font-mono text-muted uppercase tracking-wider">
-                            Post {currentIndex + 1} / {allPosts.length}
+                            Post {currentIndex + 1} / {allPosts.length}{hasMultipleSlides && ` · Slide ${mediaIndex + 1}/${slides.length}`}
                         </span>
                     </div>
                 </div>

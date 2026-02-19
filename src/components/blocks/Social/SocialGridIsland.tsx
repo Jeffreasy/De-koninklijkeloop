@@ -167,10 +167,10 @@ function EditionRow({
                             height={400}
                         />
                         {/* Carousel badge */}
-                        {(post as any).mediaItems?.length > 1 && (
+                        {post.mediaItems && post.mediaItems.length > 1 && (
                             <div className="absolute top-2 right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-white text-[9px] font-bold">
                                 <Images className="w-2.5 h-2.5" />
-                                {(post as any).mediaItems.length}
+                                {post.mediaItems.length}
                             </div>
                         )}
                         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 backdrop-blur-[2px] flex flex-col items-center justify-end p-3">
@@ -206,6 +206,12 @@ function EditionRow({
                                 <Star className="w-3 h-3 fill-current" />
                                 Featured
                             </div>
+                            {activeFeatured.mediaType === "video" && (
+                                <div className="absolute top-3 left-[88px] flex items-center gap-1 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold">
+                                    <Film className="w-3 h-3" />
+                                    Video
+                                </div>
+                            )}
                             <div className="absolute bottom-0 left-0 right-0 p-3">
                                 <p className="text-white text-sm line-clamp-2 mb-1">{activeFeatured.caption}</p>
                                 <div className="flex items-center gap-1.5 text-brand-orange">
@@ -231,6 +237,13 @@ function EditionRow({
                                 height={400}
                             />
                             <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
+                            {/* H4: Carousel badge on mobile */}
+                            {post.mediaItems && post.mediaItems.length > 1 && (
+                                <div className="absolute top-2 right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-white text-[9px] font-bold">
+                                    <Images className="w-2.5 h-2.5" />
+                                    {post.mediaItems.length}
+                                </div>
+                            )}
                             <div className="absolute bottom-0 left-0 right-0 p-3">
                                 <p className="text-white text-xs line-clamp-2">{post.caption}</p>
                             </div>
@@ -305,7 +318,8 @@ export const SocialGridIsland = memo(function SocialGridIsland({
 
     // ─── Section Header + Tabs ───
 
-    const SectionHeader = useCallback(() => (
+    // M1: useMemo instead of useCallback for JSX (avoids unmount/remount anti-pattern)
+    const SectionHeader = useMemo(() => (
         <div className="text-center mb-12 md:mb-16 space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-xs font-bold uppercase tracking-widest">
                 <Instagram className="w-3.5 h-3.5" />
@@ -321,14 +335,14 @@ export const SocialGridIsland = memo(function SocialGridIsland({
                 Blijf op de hoogte van de laatste updates, foto's en behind the scenes.
             </p>
 
-            {/* Year Tab Selector */}
+            {/* Year Tab Selector — M5: min-h-[44px] touch targets */}
             <div className="flex items-center justify-center gap-2">
                 {EDITIONS.map((edition) => (
                     <button
                         key={edition.value}
                         onClick={() => handleTabChange(edition.value)}
                         className={`
-                            px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer
+                            px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer
                             ${selectedYear === edition.value
                                 ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
                                 : "bg-glass-bg/60 text-text-muted border border-glass-border hover:border-brand-orange/30 hover:text-text-primary"
@@ -350,7 +364,7 @@ export const SocialGridIsland = memo(function SocialGridIsland({
     if (hasError) {
         return (
             <SectionShell>
-                <SectionHeader />
+                {SectionHeader}
                 <div className="max-w-md mx-auto text-center space-y-4 p-8 rounded-3xl bg-glass-bg/60 border border-glass-border backdrop-blur-xl">
                     <AlertCircle className="w-10 h-10 text-red-400 mx-auto" />
                     <p className="text-text-primary font-medium">Kon Instagram posts niet laden</p>
@@ -370,7 +384,7 @@ export const SocialGridIsland = memo(function SocialGridIsland({
 
     return (
         <SectionShell>
-            <SectionHeader />
+            {SectionHeader}
 
             {/* Single Edition Content */}
             <EditionRow
@@ -400,6 +414,7 @@ export const SocialGridIsland = memo(function SocialGridIsland({
                     href="https://instagram.com/koninklijkeloop"
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="Volg @koninklijkeloop op Instagram (opent in nieuw tabblad)"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-sm font-semibold hover:bg-brand-orange/20 transition-all cursor-pointer"
                 >
                     <Instagram className="w-4 h-4" />
@@ -411,8 +426,8 @@ export const SocialGridIsland = memo(function SocialGridIsland({
             <SocialPostShowcaseModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                post={(allPosts[selectedPostIndex] as any) || null}
-                allPosts={allPosts as any}
+                post={allPosts[selectedPostIndex] || null}
+                allPosts={allPosts}
                 onNavigate={handleNavigate}
                 userId={userEmail}
                 isAuthenticated={isAuthenticated}
