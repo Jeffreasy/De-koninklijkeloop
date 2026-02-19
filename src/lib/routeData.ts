@@ -57,6 +57,7 @@ export async function loadRoutePoints(id: string): Promise<RoutePoint[]> {
     if (cached) return cached;
 
     const res = await fetch(`/data/routes/${id}.json`);
+    if (!res.ok) return [];
     const points: RoutePoint[] = await res.json();
     pointsCache.set(id, points);
     return points;

@@ -2,27 +2,15 @@ import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { routes, loadRoutePoints, type RoutePoint } from '../../../lib/routeData';
+import { getScheduleIcon } from '../../../lib/scheduleIcons';
 import {
-    Flag, Play, Bus, MapPin, Coffee, Trophy, PartyPopper,
-    Circle, Clock, Sparkles, Timer, CalendarDays, Route, Info,
+    Clock, Sparkles, Timer, CalendarDays, Route, Info,
     MapPinned, Users, ArrowRight, ChevronRight, AlertTriangle,
-    Utensils, Heart, Accessibility, Phone
+    Utensils, Heart, Bus, Phone, Coffee
 } from 'lucide-react';
 import { ConvexClientProvider } from '../../islands/ConvexClientProvider';
 
-const getIcon = (iconName: string, className: string = "w-5 h-5") => {
-    switch (iconName) {
-        case 'aanvang': return <Flag className={className} />;
-        case 'start': return <Play className={className} />;
-        case 'vertrek': return <Bus className={className} />;
-        case 'aanwezig': return <MapPin className={className} />;
-        case 'rustpunt': return <Coffee className={className} />;
-        case 'aankomst': return <Flag className={className} />;
-        case 'finish': return <Trophy className={className} />;
-        case 'feest': return <PartyPopper className={className} />;
-        default: return <Circle className={className} />;
-    }
-};
+const getIcon = getScheduleIcon;
 
 function getMapTiles(pts: RoutePoint[]): { url: string; offsetX: number; offsetY: number }[] | null {
     if (!pts || pts.length === 0) return null;
@@ -389,7 +377,7 @@ function ProgrammaContent() {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveFilter(tab.id)}
-                                    className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 cursor-pointer
+                                    className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2
                                         ${isActive
                                             ? 'text-white shadow-lg scale-105'
                                             : 'bg-glass-surface/50 text-text-muted border-glass-border hover:border-opacity-60 hover:text-text-primary'
@@ -550,13 +538,13 @@ function ProgrammaContent() {
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                             <a
                                 href="/register"
-                                className="inline-flex items-center gap-2 px-8 py-3.5 bg-brand-orange text-white rounded-xl font-semibold shadow-lg shadow-brand-orange/25 hover:shadow-xl hover:shadow-brand-orange/30 hover:bg-brand-orange-dark transition-all duration-300 text-base cursor-pointer"
+                                className="inline-flex items-center gap-2 px-8 py-3.5 bg-brand-orange text-white rounded-xl font-semibold shadow-lg shadow-brand-orange/25 hover:shadow-xl hover:shadow-brand-orange/30 hover:bg-brand-orange-dark transition-all duration-300 text-base cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                             >
                                 Schrijf je in <ArrowRight className="w-4 h-4" />
                             </a>
                             <a
                                 href="/routes"
-                                className="inline-flex items-center gap-2 px-6 py-3.5 bg-glass-surface border border-glass-border text-text-primary rounded-xl font-medium hover:bg-glass-surface/80 hover:border-brand-orange/30 transition-all duration-300 text-sm cursor-pointer"
+                                className="inline-flex items-center gap-2 px-6 py-3.5 bg-glass-surface border border-glass-border text-text-primary rounded-xl font-medium hover:bg-glass-surface/80 hover:border-brand-orange/30 transition-all duration-300 text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                             >
                                 Bekijk routes <ChevronRight className="w-4 h-4" />
                             </a>

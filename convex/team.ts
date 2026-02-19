@@ -119,7 +119,8 @@ export const upsertScheduleItem = mutation({
 export const deleteScheduleItem = mutation({
     args: { id: v.id("event_schedule") },
     handler: async (ctx, args) => {
-        // await requireAdminOrEditor(ctx);
+        const item = await ctx.db.get(args.id);
+        if (!item) throw new Error("Schedule item not found");
         await ctx.db.delete(args.id);
     },
 });

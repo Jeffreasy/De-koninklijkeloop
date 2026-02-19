@@ -4,15 +4,8 @@ import { api } from '../../../convex/_generated/api';
 import { $accessToken } from '../../lib/auth';
 import { useStore } from '@nanostores/react';
 import { routes } from '../../lib/routeData';
+import { getScheduleIcon } from '../../lib/scheduleIcons';
 import {
-    Flag,
-    Play,
-    Bus,
-    MapPin,
-    Coffee,
-    Trophy,
-    PartyPopper,
-    Circle,
     Clock,
     Plus,
     Edit3,
@@ -22,22 +15,11 @@ import {
     Timer,
     Route,
     Sparkles,
-    Info
+    Info,
+    Coffee
 } from 'lucide-react';
 
-const getIcon = (iconName: string, className: string = "w-5 h-5") => {
-    switch (iconName) {
-        case 'aanvang': return <Flag className={className} />;
-        case 'start': return <Play className={className} />;
-        case 'vertrek': return <Bus className={className} />;
-        case 'aanwezig': return <MapPin className={className} />;
-        case 'rustpunt': return <Coffee className={className} />;
-        case 'aankomst': return <Flag className={className} />;
-        case 'finish': return <Trophy className={className} />;
-        case 'feest': return <PartyPopper className={className} />;
-        default: return <Circle className={className} />;
-    }
-};
+const getIcon = getScheduleIcon;
 
 // Static color mapping for JIT-safe Tailwind classes
 const STAT_COLORS: Record<string, { bg: string; border: string; text: string; glow: string }> = {
@@ -57,7 +39,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
 
     const fetchVolunteers = useCallback(() => {
         if (!accessToken) return;
-        getVolunteerTasks({ token: accessToken }).then(setVolunteerTasks).catch(console.error);
+        getVolunteerTasks({ token: accessToken }).then(setVolunteerTasks).catch(() => { });
     }, [accessToken]);
 
     useEffect(() => { fetchVolunteers(); }, [fetchVolunteers]);
@@ -157,7 +139,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                         {onAddClick && (
                             <button
                                 onClick={onAddClick}
-                                className="absolute right-0 top-0 p-2.5 bg-glass-surface border border-glass-border rounded-xl text-text-muted hover:text-brand-orange hover:border-brand-orange/30 hover:bg-brand-orange/5 transition-all md:opacity-0 md:group-hover/container:opacity-100 shadow-sm cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+                                className="absolute right-0 top-0 p-2.5 bg-glass-surface border border-glass-border rounded-xl text-text-muted hover:text-brand-orange hover:border-brand-orange/30 hover:bg-brand-orange/5 transition-all md:opacity-0 md:group-hover/container:opacity-100 shadow-sm cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                 title="Item toevoegen"
                             >
                                 <Plus className="w-5 h-5" />
@@ -240,7 +222,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                                         {onEditClick && (
                                                             <button
                                                                 onClick={(e) => { e.stopPropagation(); onEditClick(item); }}
-                                                                className="p-1.5 text-text-muted hover:text-brand-orange bg-glass-bg/80 rounded-lg border border-glass-border hover:border-brand-orange/30 transition-all cursor-pointer"
+                                                                className="p-2 text-text-muted hover:text-brand-orange bg-glass-bg/80 rounded-lg border border-glass-border hover:border-brand-orange/30 transition-all cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-brand-orange"
                                                             >
                                                                 <Edit3 className="w-3.5 h-3.5" />
                                                             </button>
@@ -248,7 +230,7 @@ const EventSchedule = ({ onAddClick, onEditClick }: { onAddClick?: () => void, o
                                                         {onAddClick && (
                                                             <button
                                                                 onClick={(e) => handleDelete(e, item._id)}
-                                                                className="p-1.5 text-text-muted hover:text-red-500 bg-glass-bg/80 rounded-lg border border-glass-border hover:border-red-500/30 transition-all cursor-pointer"
+                                                                className="p-2 text-text-muted hover:text-red-500 bg-glass-bg/80 rounded-lg border border-glass-border hover:border-red-500/30 transition-all cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-red-500"
                                                             >
                                                                 <Trash2 className="w-3.5 h-3.5" />
                                                             </button>
