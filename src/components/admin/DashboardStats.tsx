@@ -11,6 +11,11 @@ interface Registration {
     createdAt: number;
     amount?: number; // Optional, if we have custom amounts. Otherwise we estimate.
     userType?: string;
+    city?: string;
+    wheelchairUser?: boolean;
+    shuttleBus?: string; // "pendelbus" | "eigen-vervoer"
+    livesInFacility?: boolean;
+    participantType?: string; // "doelgroep" | "verwant" | "anders"
 }
 
 interface DashboardStats {
@@ -23,6 +28,12 @@ interface DashboardStats {
     uniqueReach: number;
     topDomains: { domain: string, count: number }[];
     recentRegistrations: Registration[];
+    logistics: {
+        wheelchairCount: number;
+        shuttleBusCount: number;
+        facilityCount: number;
+        participantTypeBreakdown: Record<string, number>;
+    };
 }
 
 // Estimated pricing for revenue calculation if not in DB
@@ -47,7 +58,13 @@ export function useDashboardStats(registrations: Registration[] | undefined): Da
                 participantsByUserType: {},
                 uniqueReach: 0,
                 topDomains: [],
-                recentRegistrations: []
+                recentRegistrations: [],
+                logistics: {
+                    wheelchairCount: 0,
+                    shuttleBusCount: 0,
+                    facilityCount: 0,
+                    participantTypeBreakdown: {},
+                }
             };
         }
 
@@ -61,6 +78,10 @@ export function useDashboardStats(registrations: Registration[] | undefined): Da
         const domainMap: Record<string, number> = {};
         const userTypeMap: Record<string, number> = { "authenticated": 0, "guest": 0 };
         const uniqueEmails = new Set<string>();
+        let wheelchairCount = 0;
+        let shuttleBusCount = 0;
+        let facilityCount = 0;
+        const participantTypeMap: Record<string, number> = { "doelgroep": 0, "verwant": 0, "anders": 0 };
 
         registrations.forEach(reg => {
             // Unique Emails
@@ -98,6 +119,14 @@ export function useDashboardStats(registrations: Registration[] | undefined): Da
             if (reg.createdAt >= startOfToday) {
                 newTodayCount++;
             }
+
+            // Logistics counters
+            if (reg.wheelchairUser) wheelchairCount++;
+            if (reg.shuttleBus === "pendelbus") shuttleBusCount++;
+            if (reg.livesInFacility) facilityCount++;
+            if (reg.participantType && participantTypeMap[reg.participantType] !== undefined) {
+                participantTypeMap[reg.participantType]++;
+            }
         });
 
         // Sort Domains by popularity
@@ -120,7 +149,13 @@ export function useDashboardStats(registrations: Registration[] | undefined): Da
             participantsByRole: roleMap,
             participantsByUserType: userTypeMap,
             topDomains,
-            recentRegistrations: recent
+            recentRegistrations: recent,
+            logistics: {
+                wheelchairCount,
+                shuttleBusCount,
+                facilityCount,
+                participantTypeBreakdown: participantTypeMap,
+            }
         };
     }, [registrations]);
 }
