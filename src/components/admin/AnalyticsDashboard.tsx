@@ -143,8 +143,8 @@ function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
 
             // Combined endpoint: 2 requests instead of 9
             const [currentRes, prevRes] = await Promise.allSettled([
-                fetchWithRetry(() => apiRequest<GoDashboardFull>(`/v1/analytics/dashboard-full${params}`)),
-                fetchWithRetry(() => apiRequest<GoDashboardFull>(`/v1/analytics/dashboard-full${prevParams}`)),
+                fetchWithRetry(() => apiRequest(`/v1/analytics/dashboard-full${params}`) as Promise<GoDashboardFull>),
+                fetchWithRetry(() => apiRequest(`/v1/analytics/dashboard-full${prevParams}`) as Promise<GoDashboardFull>),
             ]);
 
             if (currentRes.status === 'fulfilled') {

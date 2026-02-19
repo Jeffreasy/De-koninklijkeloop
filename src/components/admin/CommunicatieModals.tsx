@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { SECTORS, REGIOS } from "../../../convex/prCommunicatie";
+import { SECTORS, REGIOS } from "../../lib/prConstants";
 import { AdminModal, AdminModalFooterButtons } from "./AdminModal";
 import { Upload } from "lucide-react";
 

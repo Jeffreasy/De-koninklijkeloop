@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { X, Search, Users, Building2, ChevronDown } from 'lucide-react';
-import { SECTORS, REGIOS } from '../../../convex/prCommunicatie';
+import { SECTORS, REGIOS } from "../../lib/prConstants";
 
 /** A selected recipient – either from Convex DB or typed manually */
 export interface Recipient {

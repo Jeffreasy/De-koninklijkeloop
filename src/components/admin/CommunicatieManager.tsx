@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
-import { SECTORS, REGIOS } from "../../../convex/prCommunicatie";
+import { SECTORS, REGIOS } from "../../lib/prConstants";
 import { PaginationControls } from "./PaginationControls";
 import { PAGINATION } from "./constants";
 import CommunicatieModals from "./CommunicatieModals";

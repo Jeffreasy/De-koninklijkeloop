@@ -53,11 +53,15 @@ function buildUrl(width: number): string {
     return `${URL_ENDPOINT}/tr:w-${width},c-${crop},q-${quality},f-auto${normalizedPath}`;
 }
 
+const isAbsolute = src.startsWith("http");
+
 // Generate srcset string
-const srcset = widths.map((width) => `${buildUrl(width)} ${width}w`).join(", ");
+const srcset = isAbsolute
+    ? undefined
+    : widths.map((width) => `${buildUrl(width)} ${width}w`).join(", ");
 
 // Default src (largest width)
-const defaultSrc = buildUrl(widths[widths.length - 1]);
+const defaultSrc = isAbsolute ? src : buildUrl(widths[widths.length - 1]);
 ---
 
 <img
