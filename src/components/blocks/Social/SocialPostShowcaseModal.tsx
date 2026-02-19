@@ -122,7 +122,7 @@ function ShareButton({ post }: { post: SocialPost }) {
         <div className="relative">
             <button
                 onClick={handleShare}
-                className="p-2.5 rounded-xl bg-surface/80 text-primary hover:bg-brand-orange hover:text-white border border-glass-border hover:border-brand-orange transition-all active:scale-95"
+                className="p-2.5 rounded-xl bg-surface/80 text-primary hover:bg-brand-orange hover:text-white border border-glass-border hover:border-brand-orange transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 cursor-pointer"
                 aria-label="Delen"
             >
                 {copied
@@ -138,7 +138,7 @@ function ShareButton({ post }: { post: SocialPost }) {
                         className="fixed inset-0 z-40 cursor-pointer"
                         onClick={() => setShowMenu(false)}
                     />
-                    <div className="absolute bottom-full right-0 mb-2 z-50 min-w-48 p-2 rounded-2xl bg-surface border border-glass-border shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-2 duration-200">
+                    <div className="absolute bottom-full right-0 mb-2 z-50 min-w-48 p-2 rounded-2xl bg-surface border border-glass-border shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-2 duration-200" role="menu">
                         <a
                             href={`https://wa.me/?text=${encodeURIComponent(shareData.text + " " + shareData.url)}`}
                             target="_blank"
@@ -146,6 +146,7 @@ function ShareButton({ post }: { post: SocialPost }) {
                             className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary cursor-pointer"
                             onClick={() => setShowMenu(false)}
                             aria-label="Deel via WhatsApp"
+                            role="menuitem"
                         >
                             <MessageCircle className="w-4 h-4 text-green-500" />
                             WhatsApp
@@ -157,6 +158,7 @@ function ShareButton({ post }: { post: SocialPost }) {
                             className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary cursor-pointer"
                             onClick={() => setShowMenu(false)}
                             aria-label="Deel op X (Twitter)"
+                            role="menuitem"
                         >
                             <span className="text-lg">𝕏</span>
                             X (Twitter)
@@ -165,6 +167,7 @@ function ShareButton({ post }: { post: SocialPost }) {
                             onClick={handleCopy}
                             className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-glass-border/20 transition-colors text-sm text-primary w-full text-left cursor-pointer"
                             aria-label="Link kopiëren naar klembord"
+                            role="menuitem"
                         >
                             <Copy className="w-4 h-4" />
                             Link kopiëren
@@ -305,7 +308,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                 {/* Close */}
                 <button
                     onClick={handleClose}
-                    className="absolute top-4 right-4 z-50 p-2.5 rounded-full bg-black/20 md:bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-brand-orange hover:border-brand-orange transition-all shadow-lg active:scale-95"
+                    className="absolute top-4 right-4 z-50 p-2.5 rounded-full bg-black/20 md:bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-brand-orange hover:border-brand-orange transition-all shadow-lg active:scale-95 focus-visible:ring-2 focus-visible:ring-brand-orange cursor-pointer"
                     aria-label="Sluit"
                 >
                     <X className="w-6 h-6" />
@@ -363,7 +366,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     {hasMultipleSlides && mediaIndex > 0 && (
                         <button
                             onClick={(e) => { e.stopPropagation(); prevSlide(); }}
-                            className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/20 pointer-events-auto cursor-pointer"
+                            className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/20 pointer-events-auto cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange"
                             aria-label="Vorige slide"
                         >
                             <ChevronLeft className="w-5 h-5" />
@@ -372,7 +375,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     {hasMultipleSlides && mediaIndex < slides.length - 1 && (
                         <button
                             onClick={(e) => { e.stopPropagation(); nextSlide(); }}
-                            className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/20 pointer-events-auto cursor-pointer"
+                            className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/20 pointer-events-auto cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange"
                             aria-label="Volgende slide"
                         >
                             <ChevronRight className="w-5 h-5" />
@@ -412,7 +415,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     {!hasMultipleSlides && hasPrev && (
                         <button
                             onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/10 cursor-pointer"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/10 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange"
                             aria-label="Vorige post"
                         >
                             <ChevronLeft className="w-6 h-6" />
@@ -421,7 +424,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     {!hasMultipleSlides && hasNext && (
                         <button
                             onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/10 cursor-pointer"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange active:scale-95 transition-all border border-white/10 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange"
                             aria-label="Volgende post"
                         >
                             <ChevronRight className="w-6 h-6" />
@@ -492,7 +495,8 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                     href={post.instagramUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2.5 rounded-xl bg-linear-to-br from-brand-orange to-amber-400 text-white hover:shadow-lg hover:brightness-110 transition-all cursor-pointer"
+                                    className="p-2.5 rounded-xl bg-linear-to-br from-brand-orange to-amber-400 text-white hover:shadow-lg hover:brightness-110 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
+                                    aria-label="Bekijk op Instagram (opent in nieuw tabblad)"
                                 >
                                     <ExternalLink className="w-5 h-5" />
                                 </a>

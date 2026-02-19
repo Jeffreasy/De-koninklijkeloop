@@ -77,7 +77,7 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
                 </div>
                 <a
                     href="/login"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-orange text-white font-semibold hover:bg-orange-500 hover:shadow-lg hover:shadow-brand-orange/20 transition-all duration-300"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-orange text-white font-semibold hover:bg-orange-500 hover:shadow-lg hover:shadow-brand-orange/20 transition-all duration-300 cursor-pointer"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
@@ -96,7 +96,7 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
             {/* Header - Compact on mobile */}
             <div className="flex items-center justify-between">
                 <h3 className="text-sm md:text-base font-bold text-primary flex items-center gap-1.5 md:gap-2">
-                    <span className="text-brand-orange text-base md:text-lg">💬</span>
+                    <span className="text-brand-orange text-base md:text-lg" aria-hidden="true">💬</span>
                     Reacties
                 </h3>
             </div>
@@ -181,26 +181,15 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
                 <div className="flex items-center gap-2 md:gap-3 pt-1 md:pt-2">
                     <div className="h-px flex-1 bg-linear-to-r from-transparent via-border to-transparent" />
                     <div className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl bg-surface/50 border border-glass-border backdrop-blur-sm">
-                        <span className="text-brand-orange text-xs md:text-sm">🔥</span>
+                        <span className="text-brand-orange text-xs md:text-sm" aria-hidden="true">🔥</span>
                         <span className="text-xs md:text-sm font-medium text-muted">
-                            {reactionCounts.reduce((acc, { count }) => acc + count, 0)} reactie
-                            {reactionCounts.reduce((acc, { count }) => acc + count, 0) !== 1 ? "s" : ""}
+                            {(() => { const total = reactionCounts.reduce((acc, { count }) => acc + count, 0); return `${total} reactie${total !== 1 ? 's' : ''}`; })()}
                         </span>
                     </div>
                     <div className="h-px flex-1 bg-linear-to-r from-transparent via-border to-transparent" />
                 </div>
             )}
 
-            {/* Hide scrollbar on mobile */}
-            <style>{`
-                .scrollbar-hide::-webkit-scrollbar {
-                    display: none;
-                }
-                .scrollbar-hide {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-            `}</style>
         </div>
     );
 }
