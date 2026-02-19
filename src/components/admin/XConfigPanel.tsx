@@ -103,8 +103,8 @@ export default function XConfigPanel() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-6 h-6 animate-spin text-brand-orange" />
+            <div className="space-y-6 animate-pulse" aria-hidden="true">
+                <div className="premium-glass rounded-2xl p-6 h-[200px]" />
             </div>
         );
     }

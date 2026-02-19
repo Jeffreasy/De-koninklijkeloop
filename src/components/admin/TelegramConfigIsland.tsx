@@ -195,9 +195,12 @@ export default function TelegramConfigIsland() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center p-12 text-text-muted">
-                <Loader2 className="w-6 h-6 animate-spin mr-2" />
-                <span>Telegram configuratie laden...</span>
+            <div className="space-y-6 animate-pulse" aria-hidden="true">
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-6 h-[250px]" />
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-6 h-[280px]" />
+                <div className="flex justify-end">
+                    <div className="w-full sm:w-48 h-12 rounded-xl bg-glass-surface/50" />
+                </div>
             </div>
         );
     }

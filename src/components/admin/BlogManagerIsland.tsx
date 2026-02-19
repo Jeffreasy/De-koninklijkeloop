@@ -108,8 +108,19 @@ export default function BlogManagerIsland() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-24">
-                <Loader2 className="w-8 h-8 animate-spin text-brand-orange" />
+            <div className="space-y-6 animate-pulse" aria-hidden="true">
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div className="h-[46px] w-full md:w-[480px] bg-glass-bg/30 border border-glass-border rounded-xl" />
+                    <div className="h-[46px] w-32 bg-brand-orange/20 rounded-xl hidden md:block" />
+                </div>
+                <div className="space-y-4">
+                    <div className="h-[44px] w-full md:w-[380px] bg-glass-border/20 rounded-xl" />
+                    <div className="space-y-3">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="glass-card p-4 flex items-center gap-4 h-[98px] bg-glass-bg/20" />
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }

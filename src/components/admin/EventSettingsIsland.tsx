@@ -44,16 +44,9 @@ export default function EventSettingsIsland({ convexUrl }: Props) {
 
     if (!client) {
         return (
-            <div className="premium-glass rounded-2xl md:rounded-3xl p-6 md:p-8">
-                <div
-                    className="flex items-center justify-center"
-                    role="status"
-                    aria-live="polite"
-                >
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange"></div>
-                    <span className="ml-3 text-text-secondary">Convex client wordt geïnitialiseerd...</span>
-                    <span className="sr-only">Laden...</span>
-                </div>
+            <div className="space-y-6 animate-pulse" aria-hidden="true">
+                <div className="h-[44px] w-full sm:w-[600px] bg-glass-bg/30 rounded-xl" />
+                <div className="premium-glass rounded-2xl md:rounded-3xl p-6 md:p-8 h-[500px]" />
             </div>
         );
     }

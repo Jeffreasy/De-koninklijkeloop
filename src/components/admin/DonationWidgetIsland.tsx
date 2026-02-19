@@ -58,11 +58,23 @@ function DonationWidgetContent() {
 
     if (activeCampaign === undefined) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <div className="relative">
-                    <div className="w-16 h-16 rounded-full border-2 border-brand-orange/20 border-t-brand-orange animate-spin"></div>
-                    <div className="absolute inset-0 flex items-center justify-center animate-pulse">
-                        <Heart className="w-6 h-6 text-brand-orange" />
+            <div className="w-full h-full flex flex-col animate-pulse" aria-hidden="true">
+                <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div className="space-y-4 w-full">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-64 bg-glass-surface/50 rounded-xl" />
+                            <div className="h-6 w-16 bg-brand-orange/20 rounded-full" />
+                        </div>
+                        <div className="h-6 w-full max-w-2xl bg-glass-surface/30 rounded-lg" />
+                    </div>
+                    <div className="w-full md:w-56 h-12 bg-glass-surface/30 rounded-xl shrink-0" />
+                </div>
+                <div className="flex-1 relative min-h-[550px] bg-glass-bg/30 rounded-3xl border border-glass-border">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full border-2 border-brand-orange/20 border-t-brand-orange animate-spin"></div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Heart className="w-6 h-6 text-brand-orange" />
+                        </div>
                     </div>
                 </div>
             </div>

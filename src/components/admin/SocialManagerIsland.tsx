@@ -57,7 +57,7 @@ export function SocialManagerIsland() {
     const [editingPost, setEditingPost] = useState<EditingPost>(null);
 
     // Filter posts
-    const filteredPosts = posts?.filter((post) => {
+    const filteredPosts = posts?.filter((post: any) => {
         if (filter === "all") return true;
         if (filter === "visible") return post.isVisible;
         if (filter === "hidden") return !post.isVisible;
@@ -72,7 +72,7 @@ export function SocialManagerIsland() {
     };
 
     const handleEdit = (id: Id<"social_posts">) => {
-        const post = posts?.find((p) => p._id === id);
+        const post = posts?.find((p: any) => p._id === id);
         if (post) {
             setEditingPost(post);
             setIsModalOpen(true);
@@ -122,15 +122,24 @@ export function SocialManagerIsland() {
     // Loading state
     if (posts === undefined) {
         return (
-            <div className="flex items-center justify-center py-24">
-                <Loader2 className="w-8 h-8 animate-spin text-brand-orange" />
+            <div className="space-y-6 animate-pulse" aria-hidden="true">
+                <div className="glass-card p-3 h-[66px] bg-glass-bg/20" />
+                <div className="glass-card p-4 flex justify-between gap-4">
+                    <div className="h-11 w-full md:w-[300px] bg-glass-surface/50 rounded-xl" />
+                    <div className="h-11 w-32 bg-brand-orange/20 rounded-xl hidden md:block" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="glass-card h-[400px] bg-glass-bg/20" />
+                    ))}
+                </div>
             </div>
         );
     }
 
     const totalCount = posts.length;
-    const visibleCount = posts.filter((p) => p.isVisible).length;
-    const featuredCount = posts.filter((p) => p.isFeatured).length;
+    const visibleCount = posts.filter((p: any) => p.isVisible).length;
+    const featuredCount = posts.filter((p: any) => p.isFeatured).length;
 
     return (
         <div className="space-y-6">
@@ -239,7 +248,7 @@ export function SocialManagerIsland() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredPosts.map((post) => (
+                    {filteredPosts.map((post: any) => (
                         <SocialPostCard
                             key={post._id}
                             post={post}

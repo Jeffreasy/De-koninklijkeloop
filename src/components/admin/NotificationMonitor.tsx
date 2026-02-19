@@ -110,14 +110,10 @@ export default function NotificationMonitor() {
 
                 <div className="overflow-x-auto">
                     {loading ? (
-                        <div
-                            className="flex items-center justify-center py-12"
-                            role="status"
-                            aria-live="polite"
-                        >
-                            <Loader2 className="w-6 h-6 text-brand-orange animate-spin" />
-                            <span className="ml-3 text-text-muted">Notificaties laden...</span>
-                            <span className="sr-only">Notificaties worden geladen...</span>
+                        <div className="p-6 space-y-4 animate-pulse">
+                            <div className="h-12 bg-surface/50 rounded-xl" />
+                            <div className="h-12 bg-surface/50 rounded-xl" />
+                            <div className="h-12 bg-surface/50 rounded-xl" />
                         </div>
                     ) : (
                         <div className="p-12 text-center">

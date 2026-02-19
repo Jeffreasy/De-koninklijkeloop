@@ -127,8 +127,25 @@ export default function XPosterIsland() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-24">
-                <Loader2 className="w-8 h-8 animate-spin text-brand-orange" />
+            <div className="space-y-6 animate-pulse" aria-hidden="true">
+                {/* Top Bar Skeleton */}
+                <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                    <div className="h-24 w-full lg:w-64 bg-glass-bg/20 rounded-2xl" />
+                    <div className="flex gap-3 w-full lg:w-auto">
+                        <div className="h-11 w-full lg:w-40 bg-glass-bg/20 rounded-xl" />
+                        <div className="h-11 w-full lg:w-32 bg-brand-orange/20 rounded-xl" />
+                    </div>
+                </div>
+
+                {/* Filters Row Skeleton */}
+                <div className="glass-card p-4 h-[76px] bg-glass-bg/20" />
+
+                {/* Posts Grid Skeleton */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className="glass-card h-[300px] bg-glass-bg/20" />
+                    ))}
+                </div>
             </div>
         );
     }

@@ -148,8 +148,13 @@ export function EmailDetailPanel({ email, onClose, onReply, onMarkUnread, onTogg
             {/* Email Body */}
             <div className="p-6">
                 {loading && (
-                    <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-6 h-6 text-brand-orange animate-spin" />
+                    <div className="space-y-4 animate-pulse" aria-hidden="true">
+                        <div className="h-4 w-3/4 bg-glass-surface/50 rounded" />
+                        <div className="h-4 w-1/2 bg-glass-surface/50 rounded" />
+                        <div className="h-4 w-5/6 bg-glass-surface/50 rounded" />
+                        <div className="h-4 w-2/3 bg-glass-surface/50 rounded" />
+                        <div className="h-4 w-full bg-glass-surface/50 rounded" />
+                        <div className="h-4 w-4/5 bg-glass-surface/50 rounded" />
                     </div>
                 )}
 
