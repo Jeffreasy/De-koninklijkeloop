@@ -5,6 +5,12 @@ import { ReactionPicker } from "./ReactionPicker";
 import { ik } from "../../../lib/imagekit";
 import type { Id } from "../../../../convex/_generated/dataModel";
 
+interface MediaItem {
+    url: string;
+    type: "image" | "video";
+    videoUrl?: string;
+}
+
 interface SocialPost {
     _id: Id<"social_posts">;
     imageUrl: string;
@@ -14,6 +20,7 @@ interface SocialPost {
     postedDate?: string;
     mediaType?: string;
     videoUrl?: string;
+    mediaItems?: MediaItem[];
 }
 
 interface Props {
@@ -173,16 +180,40 @@ function ShareButton({ post }: { post: SocialPost }) {
 
 export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ isOpen, onClose, post, allPosts, onNavigate, userId, isAuthenticated }: Props) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [mediaIndex, setMediaIndex] = useState(0);
 
-    // Swipe
+    // Build effective slides array
+    const slides: MediaItem[] = useMemo(() => {
+        if (!post) return [];
+        if (post.mediaItems && post.mediaItems.length > 0) return post.mediaItems;
+        // Legacy single-media fallback
+        return [{
+            url: post.imageUrl,
+            type: (post.mediaType as "image" | "video") || "image",
+            videoUrl: post.videoUrl,
+        }];
+    }, [post]);
+
+    const hasMultipleSlides = slides.length > 1;
+    const currentSlide = slides[mediaIndex] || slides[0];
+
+    // Slide navigation functions
+    const goToSlide = useCallback((idx: number) => {
+        setMediaIndex(Math.max(0, Math.min(idx, slides.length - 1)));
+    }, [slides.length]);
+    const prevSlide = useCallback(() => goToSlide(mediaIndex - 1), [goToSlide, mediaIndex]);
+    const nextSlide = useCallback(() => goToSlide(mediaIndex + 1), [goToSlide, mediaIndex]);
+
+    // Swipe: navigate slides if carousel, otherwise navigate posts
     const { swipeOffset, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipe(
-        () => onNavigate("next"),
-        () => onNavigate("prev")
+        () => { if (hasMultipleSlides && mediaIndex < slides.length - 1) nextSlide(); else onNavigate("next"); },
+        () => { if (hasMultipleSlides && mediaIndex > 0) prevSlide(); else onNavigate("prev"); }
     );
 
-    // Reset expansion when navigating
+    // Reset expansion and slide index when navigating
     useEffect(() => {
         setIsExpanded(false);
+        setMediaIndex(0);
     }, [post?._id]);
 
     const currentIndex = useMemo(() =>
@@ -221,13 +252,19 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                 if (isExpanded) setIsExpanded(false);
                 else handleClose();
             }
-            if (e.key === "ArrowLeft") handlePrev();
-            if (e.key === "ArrowRight") handleNext();
+            if (e.key === "ArrowLeft") {
+                if (hasMultipleSlides && mediaIndex > 0) prevSlide();
+                else handlePrev();
+            }
+            if (e.key === "ArrowRight") {
+                if (hasMultipleSlides && mediaIndex < slides.length - 1) nextSlide();
+                else handleNext();
+            }
         };
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isOpen, handleClose, handlePrev, handleNext, isExpanded]);
+    }, [isOpen, handleClose, handlePrev, handleNext, isExpanded, hasMultipleSlides, mediaIndex, slides.length, prevSlide, nextSlide]);
 
     // iOS-safe scroll lock
     useEffect(() => {
@@ -274,26 +311,27 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                     <X className="w-6 h-6" />
                 </button>
 
-                {/* Image/Video Section (swipeable for images, interactive for video) */}
+                {/* Image/Video Section (swipeable carousel) */}
                 <div
                     className={`relative w-full md:w-1/2 bg-black md:bg-linear-to-br md:from-black md:via-gray-900 md:to-black flex items-center justify-center overflow-hidden shrink-0 group transition-[height] duration-500 ease-in-out ${isExpanded ? 'h-full z-20' : 'h-[45vh] md:h-full'}`}
                     onClick={() => {
-                        if (!(post.mediaType === "video" && post.videoUrl)) toggleExpand();
+                        if (!(currentSlide?.type === "video" && currentSlide?.videoUrl)) toggleExpand();
                     }}
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
                 >
                     <div
-                        className={`relative w-full h-full md:p-6 transition-transform duration-200 ease-out ${post.mediaType === "video" && post.videoUrl ? '' : 'pointer-events-none md:pointer-events-auto'
+                        className={`relative w-full h-full md:p-6 transition-transform duration-200 ease-out ${currentSlide?.type === "video" && currentSlide?.videoUrl ? '' : 'pointer-events-none md:pointer-events-auto'
                             }`}
                         style={{ transform: swipeOffset ? `translateX(${swipeOffset}px)` : undefined }}
                     >
                         <div className="relative w-full h-full md:rounded-2xl overflow-hidden shadow-2xl">
-                            {post.mediaType === "video" && post.videoUrl ? (
-                                post.videoUrl.includes("imagekit.io") ? (
+                            {/* Render current slide */}
+                            {currentSlide?.type === "video" && currentSlide?.videoUrl ? (
+                                currentSlide.videoUrl.includes("imagekit.io") ? (
                                     <video
-                                        src={post.videoUrl}
+                                        src={currentSlide.videoUrl}
                                         className="w-full h-full object-contain"
                                         controls
                                         autoPlay
@@ -303,7 +341,7 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                     />
                                 ) : (
                                     <iframe
-                                        src={`https://streamable.com/e/${post.videoUrl.match(/streamable\.com\/(?:e\/|o\/)?([a-zA-Z0-9]+)/)?.[1] || ""}?autoplay=1`}
+                                        src={`https://streamable.com/e/${currentSlide.videoUrl.match(/streamable\.com\/(?:e\/|o\/)?([a-zA-Z0-9]+)/)?.[1] || ""}?autoplay=1`}
                                         className="w-full h-full"
                                         style={{ border: "none" }}
                                         allowFullScreen
@@ -313,13 +351,50 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                                 )
                             ) : (
                                 <img
-                                    src={post.imageUrl.includes("imagekit.io") ? ik(post.imageUrl, 1200) : post.imageUrl}
+                                    src={currentSlide?.url?.includes("imagekit.io") ? ik(currentSlide.url, 1200) : (currentSlide?.url || post.imageUrl)}
                                     alt={post.caption.slice(0, 100)}
                                     className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02] object-contain"
                                 />
                             )}
                         </div>
                     </div>
+
+                    {/* Carousel Slide Arrows (only for multi-slide posts) */}
+                    {hasMultipleSlides && mediaIndex > 0 && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); prevSlide(); }}
+                            className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-brand-orange transition-all border border-white/20 pointer-events-auto cursor-pointer"
+                            aria-label="Vorige slide"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                    )}
+                    {hasMultipleSlides && mediaIndex < slides.length - 1 && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); nextSlide(); }}
+                            className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-brand-orange transition-all border border-white/20 pointer-events-auto cursor-pointer"
+                            aria-label="Volgende slide"
+                        >
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
+                    )}
+
+                    {/* Carousel Dot Indicators */}
+                    {hasMultipleSlides && (
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex gap-1.5 pointer-events-auto">
+                            {slides.map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={(e) => { e.stopPropagation(); goToSlide(i); }}
+                                    className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${i === mediaIndex
+                                        ? 'bg-brand-orange w-5'
+                                        : 'bg-white/50 hover:bg-white/80'
+                                        }`}
+                                    aria-label={`Slide ${i + 1}`}
+                                />
+                            ))}
+                        </div>
+                    )}
 
                     {/* Mobile Expand Toggle */}
                     <button

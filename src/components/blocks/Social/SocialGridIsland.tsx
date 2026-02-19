@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, memo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { Instagram, AlertCircle, RefreshCw, Star, Maximize2, ArrowRight, Calendar, Film } from "lucide-react";
+import { Instagram, AlertCircle, RefreshCw, Star, Maximize2, ArrowRight, Calendar, Film, Images } from "lucide-react";
 import { SocialPostShowcaseModal } from "./SocialPostShowcaseModal";
 import { ik, ikSrcSet, ikSquare, ikSquareSrcSet } from "../../../lib/imagekit";
 import { useStore } from "@nanostores/react";
@@ -166,6 +166,13 @@ function EditionRow({
                             width={400}
                             height={400}
                         />
+                        {/* Carousel badge */}
+                        {(post as any).mediaItems?.length > 1 && (
+                            <div className="absolute top-2 right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-white text-[9px] font-bold">
+                                <Images className="w-2.5 h-2.5" />
+                                {(post as any).mediaItems.length}
+                            </div>
+                        )}
                         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 backdrop-blur-[2px] flex flex-col items-center justify-end p-3">
                             <p className="text-white text-xs line-clamp-2 text-center font-medium mb-1.5 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                                 {post.caption || "Bekijk post"}
@@ -231,7 +238,7 @@ function EditionRow({
                     ))}
                 </div>
             </div>
-        </div >
+        </div>
     );
 }
 
@@ -244,7 +251,7 @@ export const SocialGridIsland = memo(function SocialGridIsland({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPostIndex, setSelectedPostIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
-    const [selectedYear, setSelectedYear] = useState(EDITIONS[0].value);
+    const [selectedYear, setSelectedYear] = useState<string>(EDITIONS[0].value);
 
     // Auth state
     const accessToken = useStore($accessToken);

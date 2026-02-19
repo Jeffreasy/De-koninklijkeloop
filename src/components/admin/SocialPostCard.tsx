@@ -1,5 +1,5 @@
 import type { Id } from "../../../convex/_generated/dataModel";
-import { Edit3, Eye, EyeOff, Star, StarOff, Trash2, ExternalLink, Instagram, Film } from "lucide-react";
+import { Edit3, Eye, EyeOff, Star, StarOff, Trash2, ExternalLink, Film, Images } from "lucide-react";
 import { ikSquare, ikSquareSrcSet } from "../../lib/imagekit";
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
         isVisible: boolean;
         displayOrder: number;
         mediaType?: string;
+        mediaItems?: { url: string; type: string; videoUrl?: string }[];
     };
     onEdit: (id: Id<"social_posts">) => void;
     onDelete: (id: Id<"social_posts">) => void;
@@ -71,6 +72,14 @@ export function SocialPostCard({
                     <div className="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-white text-xs font-bold shadow-lg">
                         <Film className="w-3 h-3" />
                         Video
+                    </div>
+                )}
+
+                {/* Carousel Slide Count Badge */}
+                {(post.mediaItems && post.mediaItems.length > 1) && (
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-white text-xs font-bold shadow-lg">
+                        <Images className="w-3 h-3" />
+                        {post.mediaItems.length}
                     </div>
                 )}
 

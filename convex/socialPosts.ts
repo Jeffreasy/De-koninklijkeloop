@@ -156,6 +156,11 @@ export const create = mutation({
         year: v.optional(v.string()),
         mediaType: v.optional(v.string()),
         videoUrl: v.optional(v.string()),
+        mediaItems: v.optional(v.array(v.object({
+            url: v.string(),
+            type: v.union(v.literal("image"), v.literal("video")),
+            videoUrl: v.optional(v.string()),
+        }))),
         updatedBy: v.string(),
     },
     handler: async (ctx, args) => {
@@ -177,6 +182,7 @@ export const create = mutation({
             year,
             mediaType: args.mediaType || "image",
             videoUrl: args.videoUrl,
+            mediaItems: args.mediaItems,
             imageUrl: args.imageUrl,
             caption: args.caption,
             instagramUrl: args.instagramUrl,
@@ -207,6 +213,11 @@ export const update = mutation({
         year: v.optional(v.string()),
         mediaType: v.optional(v.string()),
         videoUrl: v.optional(v.string()),
+        mediaItems: v.optional(v.array(v.object({
+            url: v.string(),
+            type: v.union(v.literal("image"), v.literal("video")),
+            videoUrl: v.optional(v.string()),
+        }))),
         updatedBy: v.string(),
     },
     handler: async (ctx, args) => {

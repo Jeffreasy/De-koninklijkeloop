@@ -1,8 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { AdminModal } from "./AdminModal";
-import { ServerSideUploadButton, uploadFileToImageKit } from "./ServerSideUploadButton";
-import { ImageIcon, Loader2, Film, Image as ImageLucide } from "lucide-react";
+import { uploadFileToImageKit } from "./ServerSideUploadButton";
+import { ImageIcon, Loader2, Film, Image as ImageLucide, Plus, X, ChevronUp, ChevronDown, Link as LinkIcon } from "lucide-react";
+
+// ─── Types ───
+
+interface MediaItem {
+    url: string;
+    type: "image" | "video";
+    videoUrl?: string;
+}
 
 interface Props {
     isOpen: boolean;
@@ -19,6 +27,7 @@ interface Props {
         postedDate?: string;
         mediaType?: string;
         videoUrl?: string;
+        mediaItems?: MediaItem[];
     } | null;
 }
 
@@ -33,12 +42,13 @@ export interface SocialPostFormData {
     year?: string;
     mediaType?: string;
     videoUrl?: string;
+    mediaItems?: MediaItem[];
 }
 
-type MediaType = "image" | "video";
+// ─── Helpers ───
 
 function extractStreamableShortcode(url: string): string | null {
-    const match = url.match(/streamable\.com\/(?:o\/)?([a-zA-Z0-9]+)/);
+    const match = url.match(/streamable\.com\/(?:e\/|o\/)?([a-zA-Z0-9]+)/);
     return match ? match[1] : null;
 }
 
@@ -46,157 +56,235 @@ function getStreamableThumbnail(shortcode: string): string {
     return `https://thumbs-east.streamable.com/image/${shortcode}.jpg`;
 }
 
+function isVideoFile(file: File): boolean {
+    return file.type.startsWith("video/");
+}
+
+// ─── Component ───
+
 export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props) {
-    const [formData, setFormData] = useState<SocialPostFormData>({
-        imageUrl: "",
-        caption: "",
-        instagramUrl: "",
-        isFeatured: false,
-        displayOrder: 1,
-        isVisible: true,
-        postedDate: "",
-        mediaType: "image",
-        videoUrl: "",
-    });
+    // Core form state
+    const [caption, setCaption] = useState("");
+    const [instagramUrl, setInstagramUrl] = useState("");
+    const [isFeatured, setIsFeatured] = useState(false);
+    const [displayOrder, setDisplayOrder] = useState(1);
+    const [isVisible, setIsVisible] = useState(true);
+    const [postedDate, setPostedDate] = useState("");
 
-    const [mediaType, setMediaType] = useState<MediaType>("image");
+    // Media state
+    const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+    const [pendingFiles, setPendingFiles] = useState<Map<number, File>>(new Map());
 
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
-    const [imagePreviewError, setImagePreviewError] = useState(false);
+    // UI state
     const [isSaving, setIsSaving] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-    const [urlError, setUrlError] = useState("");
     const [formError, setFormError] = useState("");
+    const [urlError, setUrlError] = useState("");
+    const [uploadProgress, setUploadProgress] = useState("");
 
-    // Populate form when editing
+    // Refs
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const streamableInputRef = useRef<HTMLInputElement>(null);
+
+    // ─── Populate form when editing ───
     useEffect(() => {
+        if (!isOpen) return;
+
         if (editingPost) {
-            const mt = (editingPost.mediaType || "image") as MediaType;
-            setMediaType(mt);
-            setFormData({
-                imageUrl: editingPost.imageUrl,
-                caption: editingPost.caption,
-                instagramUrl: editingPost.instagramUrl,
-                isFeatured: editingPost.isFeatured,
-                displayOrder: editingPost.displayOrder,
-                isVisible: editingPost.isVisible,
-                postedDate: editingPost.postedDate || "",
-                mediaType: mt,
-                videoUrl: editingPost.videoUrl || "",
-            });
+            setCaption(editingPost.caption);
+            setInstagramUrl(editingPost.instagramUrl);
+            setIsFeatured(editingPost.isFeatured);
+            setDisplayOrder(editingPost.displayOrder);
+            setIsVisible(editingPost.isVisible);
+            setPostedDate(editingPost.postedDate || "");
+
+            // Populate media items: prefer mediaItems array, fallback to single imageUrl
+            if (editingPost.mediaItems && editingPost.mediaItems.length > 0) {
+                setMediaItems(editingPost.mediaItems);
+            } else {
+                // Legacy single-media post → convert to array
+                const single: MediaItem = {
+                    url: editingPost.imageUrl,
+                    type: (editingPost.mediaType as "image" | "video") || "image",
+                    videoUrl: editingPost.videoUrl,
+                };
+                setMediaItems([single]);
+            }
         } else {
-            setMediaType("image");
-            setFormData({
-                imageUrl: "",
-                caption: "",
-                instagramUrl: "",
-                isFeatured: false,
-                displayOrder: 1,
-                isVisible: true,
-                postedDate: "",
-                mediaType: "image",
-                videoUrl: "",
-            });
+            setCaption("");
+            setInstagramUrl("");
+            setIsFeatured(false);
+            setDisplayOrder(1);
+            setIsVisible(true);
+            setPostedDate("");
+            setMediaItems([]);
         }
-        setImagePreviewError(false);
+        setPendingFiles(new Map());
+        setFormError("");
         setUrlError("");
-        setSelectedFile(null);
-        setFilePreviewUrl(null);
+        setUploadProgress("");
     }, [editingPost, isOpen]);
+
+    // ─── Media Item Management ───
+
+    const addImageFromFile = (file: File) => {
+        const idx = mediaItems.length;
+        const blobUrl = URL.createObjectURL(file);
+
+        if (isVideoFile(file)) {
+            setMediaItems(prev => [...prev, { url: blobUrl, type: "video", videoUrl: blobUrl }]);
+        } else {
+            setMediaItems(prev => [...prev, { url: blobUrl, type: "image" }]);
+        }
+        setPendingFiles(prev => new Map(prev).set(idx, file));
+    };
+
+    const addStreamableUrl = (url: string) => {
+        const shortcode = extractStreamableShortcode(url);
+        if (!shortcode) return;
+
+        setMediaItems(prev => [...prev, {
+            url: getStreamableThumbnail(shortcode),
+            type: "video",
+            videoUrl: url,
+        }]);
+    };
+
+    const removeMediaItem = (index: number) => {
+        setMediaItems(prev => prev.filter((_, i) => i !== index));
+        setPendingFiles(prev => {
+            const next = new Map<number, File>();
+            prev.forEach((file, key) => {
+                if (key < index) next.set(key, file);
+                else if (key > index) next.set(key - 1, file);
+            });
+            return next;
+        });
+    };
+
+    const moveMediaItem = (index: number, direction: "up" | "down") => {
+        const target = direction === "up" ? index - 1 : index + 1;
+        if (target < 0 || target >= mediaItems.length) return;
+
+        setMediaItems(prev => {
+            const next = [...prev];
+            [next[index], next[target]] = [next[target], next[index]];
+            return next;
+        });
+
+        setPendingFiles(prev => {
+            const next = new Map<number, File>();
+            prev.forEach((file, key) => {
+                if (key === index) next.set(target, file);
+                else if (key === target) next.set(index, file);
+                else next.set(key, file);
+            });
+            return next;
+        });
+    };
+
+    // ─── Validation ───
 
     const validateInstagramUrl = (url: string): boolean => {
         if (!url) return false;
         return url.includes("instagram.com");
     };
 
+    // ─── Submit ───
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Validation
         setFormError("");
-        if (!formData.imageUrl.trim() && !selectedFile) {
-            setFormError("Voeg een bestand toe (upload of plak een URL)");
+        setUrlError("");
+
+        // Validate
+        if (mediaItems.length === 0) {
+            setFormError("Voeg minimaal 1 foto of video toe");
             return;
         }
-        // Only require Streamable URL if explicitly in video mode AND no video file uploaded
-        const isUploadedVideo = selectedFile?.type.startsWith("video/");
-        if (mediaType === "video" && !isUploadedVideo && !formData.videoUrl?.trim()) {
-            setFormError("Upload een video of voeg een Streamable URL toe");
-            return;
-        }
-        if (mediaType === "video" && formData.videoUrl && !isUploadedVideo && !extractStreamableShortcode(formData.videoUrl)) {
-            setFormError("Ongeldige Streamable URL (bijv. https://streamable.com/abc123)");
-            return;
-        }
-        if (!formData.caption.trim()) {
+        if (!caption.trim()) {
             setFormError("Voeg een caption toe");
             return;
         }
-        if (!validateInstagramUrl(formData.instagramUrl)) {
+        if (!validateInstagramUrl(instagramUrl)) {
             setUrlError("Voeg een geldige Instagram URL toe (moet instagram.com bevatten)");
             return;
         }
 
         setIsSaving(true);
         try {
-            let finalImageUrl = formData.imageUrl;
-
-            // If a file is selected, upload it first
-            if (selectedFile) {
-                setIsUploading(true);
+            // Upload pending files
+            const finalItems: MediaItem[] = [...mediaItems];
+            for (const [idx, file] of pendingFiles.entries()) {
+                setUploadProgress(`Uploaden ${idx + 1}/${pendingFiles.size}...`);
                 try {
-                    if (import.meta.env.DEV) console.log('Uploading file before saving...');
-                    finalImageUrl = await uploadFileToImageKit(selectedFile);
-                    if (import.meta.env.DEV) console.log('File uploaded:', finalImageUrl);
-                } catch (uploadError) {
-                    const msg = uploadError instanceof Error ? uploadError.message : 'Onbekend';
-                    if (import.meta.env.DEV) console.error('Upload failed:', msg);
-                    setFormError(`Upload mislukt: ${msg}`);
-                    setIsUploading(false);
+                    const uploadedUrl = await uploadFileToImageKit(file);
+                    if (isVideoFile(file)) {
+                        finalItems[idx] = {
+                            url: uploadedUrl + "/ik-thumbnail.jpg",
+                            type: "video",
+                            videoUrl: uploadedUrl,
+                        };
+                    } else {
+                        finalItems[idx] = {
+                            url: uploadedUrl,
+                            type: "image",
+                        };
+                    }
+                } catch (err) {
+                    const msg = err instanceof Error ? err.message : "Onbekend";
+                    setFormError(`Upload mislukt voor item ${idx + 1}: ${msg}`);
                     setIsSaving(false);
+                    setUploadProgress("");
                     return;
-                } finally {
-                    setIsUploading(false);
                 }
             }
+            setUploadProgress("");
 
-            // Determine final mediaType based on uploaded file
-            const finalMediaType = selectedFile?.type.startsWith("video/") ? "video" : mediaType;
-            const finalVideoUrl = finalMediaType === "video" && selectedFile?.type.startsWith("video/")
-                ? finalImageUrl  // The uploaded video URL IS the videoUrl
-                : (finalMediaType === "video" ? formData.videoUrl : undefined);
+            // Determine cover image and mediaType from first item
+            const cover = finalItems[0];
+            const hasAnyVideo = finalItems.some(item => item.type === "video");
 
-            // For uploaded videos: generate ImageKit thumbnail for grid display
-            const finalThumbnailUrl = finalMediaType === "video" && selectedFile?.type.startsWith("video/") && finalImageUrl
-                ? finalImageUrl + '/ik-thumbnail.jpg'
-                : finalImageUrl;
-
-            // Save post with uploaded URL
             await onSave({
-                ...formData,
-                imageUrl: finalThumbnailUrl,
-                mediaType: finalMediaType,
-                videoUrl: finalVideoUrl,
+                imageUrl: cover.url,
+                caption,
+                instagramUrl,
+                isFeatured,
+                displayOrder,
+                isVisible,
+                postedDate: postedDate || undefined,
+                mediaType: hasAnyVideo ? "video" : "image",
+                videoUrl: cover.type === "video" ? cover.videoUrl : undefined,
+                mediaItems: finalItems.length > 1 ? finalItems : undefined,
             });
             onClose();
-            setSelectedFile(null);
         } catch (error) {
             if (import.meta.env.DEV) console.error("Error saving post:", error);
             setFormError("Fout bij opslaan. Probeer opnieuw.");
         } finally {
             setIsSaving(false);
+            setUploadProgress("");
         }
     };
 
-    const handleInstagramUrlChange = (url: string) => {
-        setFormData({ ...formData, instagramUrl: url });
-        if (url && !validateInstagramUrl(url)) {
-            setUrlError("URL moet een Instagram link zijn");
-        } else {
-            setUrlError("");
+    // ─── Streamable URL Popup ───
+
+    const [showStreamableInput, setShowStreamableInput] = useState(false);
+    const [streamableUrl, setStreamableUrl] = useState("");
+
+    const handleAddStreamable = () => {
+        if (streamableUrl.trim()) {
+            const shortcode = extractStreamableShortcode(streamableUrl.trim());
+            if (shortcode) {
+                addStreamableUrl(streamableUrl.trim());
+                setStreamableUrl("");
+                setShowStreamableInput(false);
+            } else {
+                setFormError("Ongeldige Streamable URL (bijv. https://streamable.com/abc123)");
+            }
         }
     };
+
+    // ─── Render ───
 
     return (
         <AdminModal
@@ -208,145 +296,165 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
             showFooter={false}
         >
             <form onSubmit={handleSubmit} className="flex flex-col h-full">
-                {/* Inline Error Banner */}
+                {/* Error Banner */}
                 {formError && (
                     <div className="mx-0 mb-4 px-4 py-3 rounded-xl bg-[rgb(var(--error))]/10 border border-[rgb(var(--error))]/20 text-[rgb(var(--error))] text-sm font-medium flex items-center gap-2">
                         <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
                         {formError}
                     </div>
                 )}
-                {/* Scrollable content area */}
+
                 <div className="flex-1 overflow-y-auto overscroll-contain">
-                    {/* Single column on mobile, grid on tablet+ */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                        {/* Left Column: Form Fields */}
+
+                        {/* ─── Left Column: Form Fields ─── */}
                         <div className="space-y-4 md:space-y-5">
-                            {/* Media Type Toggle */}
+
+                            {/* Media Items Strip */}
                             <div>
                                 <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
-                                    Type media
-                                </label>
-                                <div className="flex gap-2 p-1 bg-glass-border/20 rounded-xl">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setMediaType("image");
-                                            setFormData(prev => ({ ...prev, mediaType: "image" }));
-                                        }}
-                                        className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer min-h-[44px] ${mediaType === "image"
-                                            ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
-                                            : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
-                                            }`}
-                                    >
-                                        <ImageLucide className="w-4 h-4" />
-                                        Foto
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setMediaType("video");
-                                            setFormData(prev => ({ ...prev, mediaType: "video" }));
-                                        }}
-                                        className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer min-h-[44px] ${mediaType === "video"
-                                            ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
-                                            : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
-                                            }`}
-                                    >
-                                        <Film className="w-4 h-4" />
-                                        Video
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Video URL (only when in video mode and NO video file uploaded) */}
-                            {mediaType === "video" && !selectedFile?.type.startsWith("video/") && (
-                                <div>
-                                    <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
-                                        Streamable URL (optioneel)
-                                    </label>
-                                    <input
-                                        type="url"
-                                        value={formData.videoUrl || ""}
-                                        onChange={(e) => {
-                                            const url = e.target.value;
-                                            setFormData(prev => ({ ...prev, videoUrl: url }));
-                                            // Auto-fill thumbnail from Streamable shortcode
-                                            const shortcode = extractStreamableShortcode(url);
-                                            if (shortcode && !selectedFile) {
-                                                const thumb = getStreamableThumbnail(shortcode);
-                                                setFormData(prev => ({ ...prev, videoUrl: url, imageUrl: thumb }));
-                                                setImagePreviewError(false);
-                                            }
-                                        }}
-                                        placeholder="https://streamable.com/abc123"
-                                        className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
-                                    />
-                                    <p className="mt-1.5 text-xs text-text-muted">
-                                        Of upload een video via de knop hieronder
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Image Upload/URL */}
-                            <div>
-                                <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
-                                    {mediaType === "video" && !selectedFile?.type.startsWith("video/")
-                                        ? "Thumbnail afbeelding *"
-                                        : mediaType === "video"
-                                            ? "Video *"
-                                            : "Afbeelding *"}
+                                    Media ({mediaItems.length}/10)
                                 </label>
 
-                                {/* Server-Side Upload Button */}
-                                <ServerSideUploadButton
-                                    acceptVideo={true}
-                                    onFileSelect={(file) => {
-                                        setSelectedFile(file);
-                                        setImagePreviewError(false);
-                                        // Auto-detect mediaType from file
-                                        if (file.type.startsWith("video/")) {
-                                            setMediaType("video");
-                                            setFormData(prev => ({ ...prev, mediaType: "video" }));
-                                        }
-                                        // Use blob URL for video (CSP-safe), FileReader for images
-                                        if (file.type.startsWith("video/")) {
-                                            const blobUrl = URL.createObjectURL(file);
-                                            setFilePreviewUrl(blobUrl);
-                                        } else {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => {
-                                                setFilePreviewUrl(reader.result as string);
-                                            };
-                                            reader.readAsDataURL(file);
-                                        }
+                                {/* Thumbnail strip */}
+                                <div className="flex flex-wrap gap-2">
+                                    {mediaItems.map((item, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="relative group w-20 h-20 rounded-xl overflow-hidden border-2 border-glass-border hover:border-brand-orange/50 transition-all bg-glass-bg/40"
+                                        >
+                                            <img
+                                                src={item.url}
+                                                alt={`Media ${idx + 1}`}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23333' width='80' height='80'/%3E%3Ctext fill='%23888' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='10'%3EError%3C/text%3E%3C/svg%3E";
+                                                }}
+                                            />
+
+                                            {/* Video badge */}
+                                            {item.type === "video" && (
+                                                <div className="absolute top-1 left-1 px-1 py-0.5 rounded bg-black/70 text-white text-[8px] font-bold flex items-center gap-0.5">
+                                                    <Film className="w-2.5 h-2.5" />
+                                                </div>
+                                            )}
+
+                                            {/* Cover badge (first item) */}
+                                            {idx === 0 && mediaItems.length > 1 && (
+                                                <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-brand-orange/90 text-white text-[8px] font-bold">
+                                                    Cover
+                                                </div>
+                                            )}
+
+                                            {/* Hover controls */}
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                                                {idx > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => moveMediaItem(idx, "up")}
+                                                        className="p-1 rounded bg-white/20 hover:bg-white/40 text-white transition-colors cursor-pointer"
+                                                        title="Naar links"
+                                                    >
+                                                        <ChevronUp className="w-3 h-3 -rotate-90" />
+                                                    </button>
+                                                )}
+                                                {idx < mediaItems.length - 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => moveMediaItem(idx, "down")}
+                                                        className="p-1 rounded bg-white/20 hover:bg-white/40 text-white transition-colors cursor-pointer"
+                                                        title="Naar rechts"
+                                                    >
+                                                        <ChevronDown className="w-3 h-3 -rotate-90" />
+                                                    </button>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeMediaItem(idx)}
+                                                    className="p-1 rounded bg-red-500/80 hover:bg-red-500 text-white transition-colors cursor-pointer"
+                                                    title="Verwijder"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {/* Add buttons */}
+                                    {mediaItems.length < 10 && (
+                                        <div className="flex gap-2">
+                                            {/* Add image/video file */}
+                                            <button
+                                                type="button"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="w-20 h-20 rounded-xl border-2 border-dashed border-glass-border hover:border-brand-orange/50 flex flex-col items-center justify-center gap-1 text-text-muted hover:text-brand-orange transition-all cursor-pointer bg-glass-bg/20 hover:bg-glass-bg/40"
+                                            >
+                                                <Plus className="w-5 h-5" />
+                                                <span className="text-[9px] font-medium">Upload</span>
+                                            </button>
+
+                                            {/* Add Streamable */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowStreamableInput(true)}
+                                                className="w-20 h-20 rounded-xl border-2 border-dashed border-glass-border hover:border-brand-orange/50 flex flex-col items-center justify-center gap-1 text-text-muted hover:text-brand-orange transition-all cursor-pointer bg-glass-bg/20 hover:bg-glass-bg/40"
+                                            >
+                                                <LinkIcon className="w-5 h-5" />
+                                                <span className="text-[9px] font-medium">Streamable</span>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Hidden file input */}
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*,video/*"
+                                    multiple
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const files = e.target.files;
+                                        if (!files) return;
+                                        const remaining = 10 - mediaItems.length;
+                                        Array.from(files).slice(0, remaining).forEach(addImageFromFile);
+                                        e.target.value = "";
                                     }}
-                                    onClearFile={() => {
-                                        setSelectedFile(null);
-                                        // Cleanup preview URL
-                                        if (filePreviewUrl) {
-                                            setFilePreviewUrl(null);
-                                        }
-                                    }}
-                                    selectedFile={selectedFile}
-                                    currentUrl={formData.imageUrl}
                                 />
 
-                                {/* Manual URL Input */}
-                                <div className="mt-3">
-                                    <input
-                                        type="url"
-                                        value={formData.imageUrl}
-                                        onChange={(e) => {
-                                            setFormData({ ...formData, imageUrl: e.target.value });
-                                            setImagePreviewError(false);
-                                            setSelectedFile(null); // Clear file if URL is pasted
-                                            setFilePreviewUrl(null); // Clear file preview
-                                        }}
-                                        placeholder={selectedFile ? "Bestand geselecteerd - URL niet nodig" : "Of plak een URL (https://...)"}
-                                        className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        disabled={!!selectedFile}
-                                    />
-                                </div>
+                                {/* Streamable URL input */}
+                                {showStreamableInput && (
+                                    <div className="mt-3 flex gap-2">
+                                        <input
+                                            ref={streamableInputRef}
+                                            type="url"
+                                            value={streamableUrl}
+                                            onChange={(e) => setStreamableUrl(e.target.value)}
+                                            placeholder="https://streamable.com/abc123"
+                                            className="flex-1 px-3 py-2 text-sm bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
+                                            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddStreamable(); } }}
+                                            autoFocus
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleAddStreamable}
+                                            className="px-3 py-2 rounded-xl bg-brand-orange text-white text-sm font-medium hover:bg-orange-400 transition-colors cursor-pointer"
+                                        >
+                                            Voeg toe
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setShowStreamableInput(false); setStreamableUrl(""); }}
+                                            className="px-3 py-2 rounded-xl bg-glass-border/30 text-text-muted text-sm hover:bg-glass-border/50 transition-colors cursor-pointer"
+                                        >
+                                            Annuleer
+                                        </button>
+                                    </div>
+                                )}
+
+                                <p className="mt-1.5 text-xs text-text-muted">
+                                    Upload foto's/video's of voeg Streamable links toe. Eerste item = cover.
+                                </p>
                             </div>
 
                             {/* Caption */}
@@ -355,10 +463,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     Bericht *
                                 </label>
                                 <textarea
-                                    value={formData.caption}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, caption: e.target.value })
-                                    }
+                                    value={caption}
+                                    onChange={(e) => setCaption(e.target.value)}
                                     placeholder="Schrijf een pakkende caption..."
                                     rows={4}
                                     maxLength={2200}
@@ -366,7 +472,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     required
                                 />
                                 <p className="mt-1.5 text-xs text-text-muted">
-                                    {formData.caption.length} / 2200 tekens
+                                    {caption.length} / 2200 tekens
                                 </p>
                             </div>
 
@@ -377,8 +483,15 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                 </label>
                                 <input
                                     type="url"
-                                    value={formData.instagramUrl}
-                                    onChange={(e) => handleInstagramUrlChange(e.target.value)}
+                                    value={instagramUrl}
+                                    onChange={(e) => {
+                                        setInstagramUrl(e.target.value);
+                                        if (e.target.value && !validateInstagramUrl(e.target.value)) {
+                                            setUrlError("URL moet een Instagram link zijn");
+                                        } else {
+                                            setUrlError("");
+                                        }
+                                    }}
                                     placeholder="https://www.instagram.com/p/..."
                                     className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                                     required
@@ -395,67 +508,56 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                 </label>
                                 <input
                                     type="date"
-                                    value={formData.postedDate || ""}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, postedDate: e.target.value })
-                                    }
+                                    value={postedDate}
+                                    onChange={(e) => setPostedDate(e.target.value)}
                                     className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                                 />
                             </div>
                         </div>
 
-                        {/* Right Column: Preview & Settings */}
+                        {/* ─── Right Column: Preview & Settings ─── */}
                         <div className="space-y-4 md:space-y-5">
-                            {/* Image Preview */}
+
+                            {/* Preview */}
                             <div>
                                 <label className="block text-sm font-medium text-text-primary mb-2 md:mb-3">
-                                    Preview
+                                    Preview {mediaItems.length > 1 && `(${mediaItems.length} slides)`}
                                 </label>
                                 <div className="relative aspect-square rounded-xl overflow-hidden bg-glass-bg/30 border border-glass-border">
-                                    {(filePreviewUrl || formData.imageUrl) ? (
-                                        selectedFile?.type.startsWith("video/") || (mediaType === "video" && formData.imageUrl && (formData.imageUrl.endsWith(".mp4") || formData.imageUrl.endsWith(".webm") || formData.imageUrl.endsWith(".mov"))) ? (
-                                            <video
-                                                src={filePreviewUrl || formData.imageUrl}
-                                                className="w-full h-full object-cover"
-                                                muted
-                                                autoPlay
-                                                loop
-                                                playsInline
-                                                preload="metadata"
-                                            />
-                                        ) : (
-                                            <img
-                                                src={filePreviewUrl || formData.imageUrl}
-                                                alt="Preview"
-                                                className="w-full h-full object-cover"
-                                                onError={() => setImagePreviewError(true)}
-                                            />
-                                        )
-                                    ) : mediaType === "video" && formData.videoUrl && extractStreamableShortcode(formData.videoUrl) ? (
-                                        /* Streamable thumbnail preview */
-                                        <img
-                                            src={getStreamableThumbnail(extractStreamableShortcode(formData.videoUrl)!)}
-                                            alt="Streamable video preview"
-                                            className="w-full h-full object-cover"
-                                            onError={() => setImagePreviewError(true)}
-                                        />
+                                    {mediaItems.length > 0 ? (
+                                        <>
+                                            {mediaItems[0].type === "video" && mediaItems[0].videoUrl?.startsWith("blob:") ? (
+                                                <video
+                                                    src={mediaItems[0].videoUrl}
+                                                    className="w-full h-full object-cover"
+                                                    muted
+                                                    autoPlay
+                                                    loop
+                                                    playsInline
+                                                    preload="metadata"
+                                                />
+                                            ) : (
+                                                <img
+                                                    src={mediaItems[0].url}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            )}
+
+                                            {/* Slide count overlay */}
+                                            {mediaItems.length > 1 && (
+                                                <div className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5">
+                                                    <ImageLucide className="w-3 h-3" />
+                                                    1/{mediaItems.length}
+                                                </div>
+                                            )}
+                                        </>
                                     ) : (
                                         <div className="absolute inset-0 flex items-center justify-center text-text-muted">
                                             <div className="text-center p-4">
-                                                {mediaType === "video" ? (
-                                                    <Film className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                                                ) : (
-                                                    <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                                                )}
-                                                <p className="text-xs md:text-sm">
-                                                    {mediaType === "video" ? "Geen video geselecteerd" : "Geen afbeelding geselecteerd"}
-                                                </p>
+                                                <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                                                <p className="text-xs md:text-sm">Geen media geselecteerd</p>
                                             </div>
-                                        </div>
-                                    )}
-                                    {imagePreviewError && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-[rgb(var(--error))]/10 text-[rgb(var(--error))]">
-                                            <p className="text-xs md:text-sm px-4 text-center">Afbeelding kan niet worden geladen</p>
                                         </div>
                                     )}
                                 </div>
@@ -473,10 +575,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     <div className="relative inline-block w-10 h-6">
                                         <input
                                             type="checkbox"
-                                            checked={formData.isFeatured}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, isFeatured: e.target.checked })
-                                            }
+                                            checked={isFeatured}
+                                            onChange={(e) => setIsFeatured(e.target.checked)}
                                             className="peer sr-only"
                                         />
                                         <div className="w-10 h-6 bg-glass-border rounded-full cursor-pointer transition-colors duration-200 peer-checked:bg-brand-orange" />
@@ -492,10 +592,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                     <div className="relative inline-block w-10 h-6">
                                         <input
                                             type="checkbox"
-                                            checked={formData.isVisible}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, isVisible: e.target.checked })
-                                            }
+                                            checked={isVisible}
+                                            onChange={(e) => setIsVisible(e.target.checked)}
                                             className="peer sr-only"
                                         />
                                         <div className="w-10 h-6 bg-glass-border rounded-full cursor-pointer transition-colors duration-200 peer-checked:bg-brand-orange" />
@@ -512,13 +610,8 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                         type="number"
                                         min="1"
                                         max="100"
-                                        value={formData.displayOrder}
-                                        onChange={(e) =>
-                                            setFormData({
-                                                ...formData,
-                                                displayOrder: parseInt(e.target.value) || 1,
-                                            })
-                                        }
+                                        value={displayOrder}
+                                        onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 1)}
                                         className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
                                     />
                                 </div>
@@ -527,25 +620,25 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                     </div>
                 </div>
 
-                {/* Footer - Sticky on mobile, fixed on desktop */}
+                {/* Footer */}
                 <div className="sticky bottom-0 lg:relative shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 mt-6 pt-6 border-t border-glass-border">
                     <button
                         type="button"
                         onClick={onClose}
                         className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-glass-border/30 text-text-muted hover:bg-glass-border/50 transition-all duration-200 text-sm md:text-base font-medium cursor-pointer min-h-[44px]"
-                        disabled={isSaving || isUploading}
+                        disabled={isSaving}
                     >
                         Annuleren
                     </button>
                     <button
                         type="submit"
                         className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-all duration-200 shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base cursor-pointer min-h-[44px]"
-                        disabled={isSaving || isUploading}
+                        disabled={isSaving}
                     >
-                        {isUploading ? (
+                        {uploadProgress ? (
                             <span className="flex items-center justify-center gap-2">
                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                Uploaden...
+                                {uploadProgress}
                             </span>
                         ) : isSaving ? (
                             <span className="flex items-center justify-center gap-2">

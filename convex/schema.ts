@@ -260,6 +260,13 @@ export default defineSchema({
         mediaType: v.optional(v.string()),  // "image" | "video" — defaults to "image"
         videoUrl: v.optional(v.string()),   // Streamable URL (e.g. "https://streamable.com/abc123")
 
+        // Multi-media carousel (optional; imageUrl remains the cover/thumbnail)
+        mediaItems: v.optional(v.array(v.object({
+            url: v.string(),                                           // ImageKit image URL or Streamable thumbnail
+            type: v.union(v.literal("image"), v.literal("video")),     // Media type
+            videoUrl: v.optional(v.string()),                          // Streamable URL for video items
+        }))),
+
         // Post Content
         imageUrl: v.string(),           // Direct URL to image, or thumbnail for video
         caption: v.string(),            // Instagram caption/description
