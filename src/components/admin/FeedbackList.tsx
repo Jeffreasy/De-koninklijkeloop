@@ -22,13 +22,21 @@ export default function FeedbackList() {
 
     if (!feedback) {
         return (
-            <div className="flex items-center justify-center p-12 text-text-muted">
-                <span className="animate-pulse">Feedback laden...</span>
+            <div className="space-y-6 animate-pulse" aria-hidden="true">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="h-8 w-48 bg-glass-surface/50 rounded-lg" />
+                    <div className="h-9 w-48 bg-glass-surface/50 rounded-lg" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[...Array(6)].map((_, i) => (
+                        <div key={i} className="bg-glass-bg/40 border border-glass-border/50 rounded-2xl p-5 h-48" />
+                    ))}
+                </div>
             </div>
         );
     }
 
-    const filteredFeedback = feedback.filter(item => {
+    const filteredFeedback = feedback.filter((item: any) => {
         if (filter === 'all') return true;
         if (filter === 'open') return item.status === 'open' || item.status === 'in_progress';
         if (filter === 'closed') return item.status === 'closed' || item.status === 'rejected';
@@ -92,7 +100,7 @@ export default function FeedbackList() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {filteredFeedback.map((item) => (
+                        {filteredFeedback.map((item: any) => (
                             <div key={item._id} className="group relative bg-glass-bg/40 backdrop-blur-md border border-glass-border hover:border-brand-orange/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-xl overflow-hidden">
                                 {/* Gradient Glow */}
                                 <div className="absolute inset-0 bg-linear-to-br from-glass-border/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />

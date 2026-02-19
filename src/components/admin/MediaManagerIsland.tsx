@@ -343,14 +343,32 @@ export default function MediaManagerIsland() {
 
     if (isLoading) {
         return (
-            <div
-                className="flex items-center justify-center py-20 text-text-muted animate-pulse gap-2"
-                role="status"
-                aria-live="polite"
-            >
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Afbeeldingen laden...</span>
-                <span className="sr-only">Media library gegevens worden geladen...</span>
+            <div className="space-y-6 animate-pulse transition-opacity duration-300" aria-hidden="true">
+                {/* Toolbar Skeleton */}
+                <div className="glass-card p-4 border border-glass-border/50">
+                    <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4 justify-between">
+                        <div className="flex gap-3 w-full xl:w-1/2">
+                            <div className="h-10 flex-1 bg-glass-surface rounded-xl" />
+                            <div className="h-10 w-32 bg-glass-surface rounded-xl" />
+                        </div>
+                        <div className="h-10 w-32 bg-brand-orange/20 rounded-xl ml-auto" />
+                    </div>
+                </div>
+
+                {/* Grid Skeleton */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[...Array(8)].map((_, i) => (
+                        <div key={i} className="overflow-hidden rounded-2xl border border-glass-border bg-glass-bg/30 backdrop-blur-md">
+                            <div className="aspect-4/3 bg-glass-surface/50" />
+                            <div className="p-4 flex flex-col gap-2">
+                                <div className="h-2 w-1/3 bg-glass-border/30 rounded mb-1" />
+                                <div className="h-4 w-3/4 bg-glass-border/40 rounded" />
+                                <div className="h-2 w-1/2 bg-glass-border/20 rounded mt-2" />
+                                <div className="mt-2 h-10 w-full bg-glass-border/20 rounded-lg" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }

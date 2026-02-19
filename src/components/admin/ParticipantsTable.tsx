@@ -335,9 +335,32 @@ export default function ParticipantsTable() {
 
     if (!registrations) {
         return (
-            <div className="flex items-center justify-center py-12" role="status" aria-live="polite">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange"></div>
-                <span className="sr-only">Deelnemers gegevens laden...</span>
+            <div className="space-y-8 animate-fade-in" aria-hidden="true">
+                {/* Stats Cards Skeleton */}
+                <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-9 gap-3">
+                    {[...Array(9)].map((_, i) => (
+                        <div key={i} className="glass-card p-3 border border-glass-border/50 bg-glass-surface/50 h-[82px] animate-pulse" />
+                    ))}
+                </div>
+
+                {/* Main Action Bar Skeleton */}
+                <div className="glass-card border border-glass-border shadow-2xl bg-glass-bg backdrop-blur-xl rounded-2xl overflow-hidden animate-pulse">
+                    <div className="p-4 md:p-5">
+                        <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
+                            <div className="h-11 w-full flex-1 bg-glass-surface/50 border border-glass-border rounded-xl" />
+                            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                                <div className="h-[34px] w-[114px] bg-glass-surface border border-glass-border/50 rounded-xl" />
+                                <div className="h-[34px] w-[81px] bg-glass-surface border border-glass-border rounded-xl" />
+                                <div className="h-[34px] w-[81px] bg-glass-surface border border-brand-orange/20 rounded-xl ml-auto md:ml-0" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Table Area Skeleton */}
+                <div className="glass-card shadow-2xl shadow-black/5 overflow-hidden border border-glass-border rounded-2xl animate-pulse">
+                    <div className="h-[500px] w-full bg-glass-bg/60" />
+                </div>
             </div>
         );
     }

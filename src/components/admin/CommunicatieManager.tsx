@@ -275,11 +275,21 @@ export default function CommunicatieManager() {
             )}
 
             {/* Loading State (Pattern 3.23.2) */}
+            {/* Loading State Skeleton */}
             {isLoading && (
-                <div className="flex items-center justify-center py-16" role="status" aria-live="polite">
-                    <Loader2 className="w-6 h-6 text-brand-orange animate-spin" />
-                    <span className="ml-3 text-text-muted text-sm">Laden...</span>
-                    <span className="sr-only">Data wordt geladen</span>
+                <div className="space-y-4 animate-pulse transition-opacity duration-300" aria-hidden="true">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="h-5 w-32 bg-surface/50 rounded" />
+                        <div className="h-[42px] w-[200px] bg-surface/50 rounded-xl" />
+                    </div>
+                    <div className="rounded-2xl border border-border overflow-hidden">
+                        <div className="h-[45px] bg-surface/40 border-b border-border" />
+                        <div className="divide-y divide-border/50">
+                            {[...Array(5)].map((_, i) => (
+                                <div key={i} className="h-[65px] bg-surface/10" />
+                            ))}
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -407,7 +417,7 @@ export default function CommunicatieManager() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {paginatedContacts.items.map((contact) => (
+                                    {paginatedContacts.items.map((contact: ContactRecord) => (
                                         <tr key={contact._id} className="border-b border-border/50 hover:bg-surface/30 transition-colors">
                                             <td className="px-4 py-3 font-medium text-text-primary text-xs sm:text-sm break-all">{contact.email}</td>
                                             <td className="px-4 py-3 text-text-secondary hidden sm:table-cell">{contact.naam || "—"}</td>
@@ -482,7 +492,7 @@ export default function CommunicatieManager() {
                         <div className="max-h-48 overflow-y-auto rounded-xl bg-body/50 border border-border/50 p-3">
                             {bccResults?.details?.length ? (
                                 <div className="space-y-1">
-                                    {bccResults.details.map((d, i) => (
+                                    {bccResults.details.map((d: any, i: number) => (
                                         <div key={i} className="flex items-center justify-between text-xs py-1 px-2 rounded-lg hover:bg-surface/40">
                                             <span className="text-text-primary font-medium">{d.email}</span>
                                             <span className="text-text-muted truncate ml-3 max-w-[200px]">{d.organizationNaam}</span>
@@ -557,7 +567,7 @@ export default function CommunicatieManager() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {sendHistory?.map((entry) => (
+                                    {sendHistory?.map((entry: any) => (
                                         <tr key={entry._id} className="border-b border-border/50 hover:bg-surface/30 transition-colors">
                                             <td className="px-4 py-3 text-text-muted text-xs whitespace-nowrap">
                                                 {new Date(entry.verzondenOp).toLocaleDateString("nl-NL", { day: "numeric", month: "short", year: "numeric" })}

@@ -69,7 +69,7 @@ export default function DashboardTable() {
         }
     }, [accessToken, getRegistrations]);
 
-    if (!isMounted) return (
+    const skeletonLayout = (
         <div className="space-y-6 pb-12" aria-hidden="true">
             {/* CLS skeleton matching final layout */}
             <div className="flex justify-between items-center">
@@ -80,9 +80,9 @@ export default function DashboardTable() {
                 <div className="h-9 w-32 bg-glass-border/30 rounded-xl animate-pulse" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-                <div className="bg-glass-bg/40 border border-glass-border rounded-2xl p-5 h-28 animate-pulse" />
-                <div className="bg-glass-bg/40 border border-glass-border rounded-2xl p-5 h-28 animate-pulse" />
-                <div className="bg-glass-bg/40 border border-glass-border rounded-2xl p-5 h-28 animate-pulse" />
+                <div className="bg-glass-bg/40 border border-glass-border rounded-2xl p-5 h-[116px] animate-pulse" />
+                <div className="bg-glass-bg/40 border border-glass-border rounded-2xl p-5 h-[116px] animate-pulse" />
+                <div className="bg-glass-bg/40 border border-glass-border rounded-2xl p-5 h-[116px] animate-pulse" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                 <div className="bg-glass-bg/40 border border-glass-border rounded-3xl p-6 h-56 animate-pulse" />
@@ -92,6 +92,8 @@ export default function DashboardTable() {
             <div className="bg-glass-bg/40 border border-glass-border rounded-3xl h-[600px] animate-pulse" />
         </div>
     );
+
+    if (!isMounted) return skeletonLayout;
 
     if (!user) {
         return (
@@ -109,24 +111,7 @@ export default function DashboardTable() {
     }
 
     if (registrations === undefined) {
-        return (
-            <div
-                className="flex flex-col items-center justify-center py-32 text-text-muted animate-pulse gap-6"
-                role="status"
-                aria-live="polite"
-            >
-                <div className="relative">
-                    <div className="absolute inset-0 bg-brand-orange/20 blur-2xl rounded-full animate-pulse"></div>
-                    <div className="relative bg-glass-bg/80 backdrop-blur-xl p-4 rounded-2xl border border-glass-border shadow-2xl">
-                        <Loader2 className="w-8 h-8 animate-spin text-brand-orange" />
-                    </div>
-                </div>
-                <div className="text-center space-y-1">
-                    <span className="text-lg font-display font-semibold text-text-primary">Dashboard Laden</span>
-                    <p className="text-sm">Gegevens worden opgehaald uit de database...</p>
-                </div>
-            </div>
-        );
+        return skeletonLayout;
     }
 
     // Filter Logic for List View

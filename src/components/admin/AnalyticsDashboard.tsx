@@ -424,7 +424,7 @@ export default function AnalyticsDashboard() {
                     <div className="relative z-10">
                         <h3 className="text-sm font-bold text-text-primary mb-4">Pageviews per Dag</h3>
                         {loading ? (
-                            <div className="h-48 bg-glass-border/20 rounded-xl animate-pulse" />
+                            <div className="h-[200px] bg-glass-border/20 rounded-xl animate-pulse" />
                         ) : trendData.length === 0 ? (
                             <div className="h-48 flex items-center justify-center text-text-muted text-sm">
                                 Nog geen data voor deze periode
@@ -480,8 +480,8 @@ export default function AnalyticsDashboard() {
                         <h3 className="text-sm font-bold text-text-primary mb-4">Events per Type</h3>
                         {loading ? (
                             <div className="space-y-3">
-                                {[...Array(5)].map((_, i) => (
-                                    <div key={i} className="h-6 bg-glass-border/20 rounded animate-pulse" />
+                                {[...Array(8)].map((_, i) => (
+                                    <div key={i} className="h-[26px] bg-glass-border/20 rounded animate-pulse" />
                                 ))}
                             </div>
                         ) : (
@@ -717,7 +717,7 @@ export default function AnalyticsDashboard() {
                             <Smartphone className="w-5 h-5 text-indigo-600" />
                             <span className="text-sm font-bold text-text-primary">Apparaten</span>
                         </div>
-                        {loading ? <SkeletonRows count={3} /> : deviceData.length === 0 ? (
+                        {loading ? <SkeletonRows count={3} heightClass="h-8" /> : deviceData.length === 0 ? (
                             <EmptyState text="Nog geen device data" />
                         ) : (
                             <div className="space-y-4">
@@ -896,11 +896,11 @@ function TrendBadge({ trend }: { trend: { pct: number; direction: "up" | "down" 
 }
 
 
-function SkeletonRows({ count }: { count: number }) {
+function SkeletonRows({ count, heightClass = "h-[26px]" }: { count: number, heightClass?: string }) {
     return (
         <div className="space-y-3">
             {[...Array(count)].map((_, i) => (
-                <div key={i} className="h-6 bg-glass-border/20 rounded animate-pulse" />
+                <div key={i} className={`${heightClass} bg-glass-border/20 rounded animate-pulse`} />
             ))}
         </div>
     );
