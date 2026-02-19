@@ -405,23 +405,43 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                         {isExpanded ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
                     </button>
 
-                    {/* Navigation Arrows */}
-                    {hasPrev && (
+                    {/* Navigation Arrows — only show when NO carousel (single-media posts) */}
+                    {!hasMultipleSlides && hasPrev && (
                         <button
                             onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange transition-all border border-white/10"
-                            aria-label="Vorige"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange transition-all border border-white/10 cursor-pointer"
+                            aria-label="Vorige post"
                         >
                             <ChevronLeft className="w-6 h-6" />
                         </button>
                     )}
-                    {hasNext && (
+                    {!hasMultipleSlides && hasNext && (
                         <button
                             onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange transition-all border border-white/10"
-                            aria-label="Volgende"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-brand-orange transition-all border border-white/10 cursor-pointer"
+                            aria-label="Volgende post"
                         >
                             <ChevronRight className="w-6 h-6" />
+                        </button>
+                    )}
+
+                    {/* Carousel: post-level nav hint at boundaries (top corners) */}
+                    {hasMultipleSlides && hasPrev && mediaIndex === 0 && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+                            className="absolute left-2 top-4 z-40 px-2 py-1 rounded-lg bg-black/40 text-white/70 backdrop-blur-md hover:bg-brand-orange hover:text-white transition-all text-xs font-medium cursor-pointer border border-white/10"
+                            aria-label="Vorige post"
+                        >
+                            ← Post
+                        </button>
+                    )}
+                    {hasMultipleSlides && hasNext && mediaIndex === slides.length - 1 && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); handleNext(); }}
+                            className="absolute right-2 top-4 z-40 px-2 py-1 rounded-lg bg-black/40 text-white/70 backdrop-blur-md hover:bg-brand-orange hover:text-white transition-all text-xs font-medium cursor-pointer border border-white/10"
+                            aria-label="Volgende post"
+                        >
+                            Post →
                         </button>
                     )}
 
