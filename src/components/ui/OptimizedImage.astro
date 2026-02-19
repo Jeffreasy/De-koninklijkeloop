@@ -50,7 +50,11 @@ const URL_ENDPOINT =
 // Generate ImageKit URL with transformations
 function buildUrl(width: number): string {
     const normalizedPath = src.startsWith("/") ? src : `/${src}`;
-    return `${URL_ENDPOINT}/tr:w-${width},c-${crop},q-${quality},f-auto${normalizedPath}`;
+    const encodedPath = normalizedPath
+        .split("/")
+        .map(encodeURIComponent)
+        .join("/");
+    return `${URL_ENDPOINT}/tr:w-${width},c-${crop},q-${quality},f-auto${encodedPath}`;
 }
 
 const isAbsolute = src.startsWith("http");

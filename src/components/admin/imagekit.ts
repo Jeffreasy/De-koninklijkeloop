@@ -24,7 +24,8 @@ export function buildImageKitUrl(
     transformation: string = 'f-auto,q-80'
 ): string {
     const normalizedPath = filePath.startsWith('/') ? filePath : `/${filePath}`;
-    return `${URL_ENDPOINT}/tr:${transformation}${normalizedPath}`;
+    const encodedPath = normalizedPath.split('/').map(encodeURIComponent).join('/');
+    return `${URL_ENDPOINT}/tr:${transformation}${encodedPath}`;
 }
 
 /**
