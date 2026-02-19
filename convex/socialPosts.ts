@@ -256,6 +256,18 @@ export const update = mutation({
 export const remove = mutation({
     args: { id: v.id("social_posts") },
     handler: async (ctx, args) => {
+        const post = await ctx.db.get(args.id);
+        if (!post) throw new Error("Post not found");
+
+        // Clean up orphan reactions
+        const reactions = await ctx.db
+            .query("social_reactions")
+            .withIndex("by_post", (q) => q.eq("postId", args.id))
+            .collect();
+        for (const r of reactions) {
+            await ctx.db.delete(r._id);
+        }
+
         await ctx.db.delete(args.id);
         return args.id;
     },

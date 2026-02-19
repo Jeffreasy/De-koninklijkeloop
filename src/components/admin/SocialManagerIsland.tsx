@@ -33,6 +33,7 @@ type EditingPost = {
     year?: string;
     mediaType?: string;
     videoUrl?: string;
+    mediaItems?: { url: string; type: "image" | "video"; videoUrl?: string }[];
 } | null;
 
 export function SocialManagerIsland() {
@@ -145,7 +146,7 @@ export function SocialManagerIsland() {
                                     setSelectedYear(edition.value);
                                     setFilter("all");
                                 }}
-                                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 min-h-[40px] cursor-pointer ${selectedYear === edition.value
+                                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 min-h-[40px] cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 ${selectedYear === edition.value
                                     ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
                                     : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
                                     }`}
@@ -178,7 +179,7 @@ export function SocialManagerIsland() {
                                 <button
                                     key={f.value}
                                     onClick={() => setFilter(f.value)}
-                                    className={`px-3 py-2 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] cursor-pointer ${filter === f.value
+                                    className={`px-3 py-2 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 ${filter === f.value
                                         ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
                                         : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
                                         }`}

@@ -124,6 +124,17 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
         setUploadProgress("");
     }, [editingPost, isOpen]);
 
+    // U3: Clean up blob URLs on unmount to prevent memory leaks
+    useEffect(() => {
+        return () => {
+            mediaItems.forEach(item => {
+                if (item.url.startsWith("blob:")) URL.revokeObjectURL(item.url);
+                if (item.videoUrl?.startsWith("blob:")) URL.revokeObjectURL(item.videoUrl);
+            });
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // ─── Media Item Management ───
 
     const addFilesFromInput = (files: File[]) => {
@@ -263,7 +274,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                 postedDate: postedDate || undefined,
                 mediaType: hasAnyVideo ? "video" : "image",
                 videoUrl: cover.type === "video" ? cover.videoUrl : undefined,
-                mediaItems: finalItems.length > 1 ? finalItems : undefined,
+                mediaItems: finalItems,
             });
             onClose();
         } catch (error) {

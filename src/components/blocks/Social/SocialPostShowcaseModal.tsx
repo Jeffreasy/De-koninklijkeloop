@@ -2,7 +2,7 @@ import { X, ChevronLeft, ChevronRight, ExternalLink, Calendar, Maximize2, Minimi
 import { useEffect, useMemo, useCallback, memo, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { ReactionPicker } from "./ReactionPicker";
-import { ik } from "../../../lib/imagekit";
+import { ik, ikSrcSet } from "../../../lib/imagekit";
 import type { Id } from "../../../../convex/_generated/dataModel";
 
 interface MediaItem {
@@ -79,11 +79,11 @@ function ShareButton({ post }: { post: SocialPost }) {
     const [copied, setCopied] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
 
-    const shareData = {
+    const shareData = useMemo(() => ({
         title: "De Koninklijke Loop — Instagram",
         text: post.caption.slice(0, 100),
         url: post.instagramUrl,
-    };
+    }), [post.caption, post.instagramUrl]);
 
     const handleShare = useCallback(async () => {
         // Try native Web Share API first (mobile)
@@ -355,6 +355,8 @@ export const SocialPostShowcaseModal = memo(function SocialPostShowcaseModal({ i
                             ) : (
                                 <img
                                     src={currentSlide?.url?.includes("imagekit.io") ? ik(currentSlide.url, 1200) : (currentSlide?.url || post.imageUrl)}
+                                    srcSet={currentSlide?.url?.includes("imagekit.io") ? ikSrcSet(currentSlide.url, [600, 900, 1200]) : undefined}
+                                    sizes="(max-width: 768px) 100vw, 50vw"
                                     alt={post.caption.slice(0, 100)}
                                     className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02] object-contain"
                                 />

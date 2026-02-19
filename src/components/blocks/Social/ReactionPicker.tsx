@@ -50,8 +50,8 @@ export function ReactionPicker({ postId, userId, isAuthenticated }: Props) {
                 userId,
                 reactionType: emoji,
             });
-        } catch (error) {
-            console.error("Failed to toggle reaction:", error);
+        } catch {
+            // Silently handled — user sees no state change (optimistic UI reverts)
         } finally {
             // Small delay to prevent spam clicking
             setTimeout(() => setIsProcessing(false), 300);

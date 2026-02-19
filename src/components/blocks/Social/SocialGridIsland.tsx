@@ -401,6 +401,7 @@ export const SocialGridIsland = memo(function SocialGridIsland({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-glass-bg/60 border border-glass-border hover:border-brand-orange/40 hover:bg-brand-orange/5 backdrop-blur-md transition-all duration-300 shadow-sm hover:shadow-lg cursor-pointer"
+                    aria-label="Volg @koninklijkeloop op Instagram (opent in nieuw tabblad)"
                 >
                     <Instagram className="w-5 h-5 text-brand-orange" />
                     <span className="text-text-primary font-semibold">Volg @koninklijkeloop</span>
