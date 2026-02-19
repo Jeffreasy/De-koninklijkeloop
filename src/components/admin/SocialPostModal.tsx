@@ -126,16 +126,25 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
 
     // ─── Media Item Management ───
 
-    const addImageFromFile = (file: File) => {
-        const idx = mediaItems.length;
-        const blobUrl = URL.createObjectURL(file);
+    const addFilesFromInput = (files: File[]) => {
+        setMediaItems(prev => {
+            const newItems: MediaItem[] = files.map(file => {
+                const blobUrl = URL.createObjectURL(file);
+                if (isVideoFile(file)) {
+                    return { url: blobUrl, type: "video" as const, videoUrl: blobUrl };
+                }
+                return { url: blobUrl, type: "image" as const };
+            });
 
-        if (isVideoFile(file)) {
-            setMediaItems(prev => [...prev, { url: blobUrl, type: "video", videoUrl: blobUrl }]);
-        } else {
-            setMediaItems(prev => [...prev, { url: blobUrl, type: "image" }]);
-        }
-        setPendingFiles(prev => new Map(prev).set(idx, file));
+            const startIdx = prev.length;
+            setPendingFiles(prevFiles => {
+                const next = new Map(prevFiles);
+                files.forEach((file, i) => next.set(startIdx + i, file));
+                return next;
+            });
+
+            return [...prev, ...newItems];
+        });
     };
 
     const addStreamableUrl = (url: string) => {
@@ -417,7 +426,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                         const files = e.target.files;
                                         if (!files) return;
                                         const remaining = 10 - mediaItems.length;
-                                        Array.from(files).slice(0, remaining).forEach(addImageFromFile);
+                                        addFilesFromInput(Array.from(files).slice(0, remaining));
                                         e.target.value = "";
                                     }}
                                 />

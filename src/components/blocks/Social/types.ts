@@ -12,4 +12,5 @@ export interface SSRPost {
     postedDate?: string;
     mediaType?: string;
     videoUrl?: string;
+    mediaItems?: { url: string; type: "image" | "video"; videoUrl?: string }[];
 }
