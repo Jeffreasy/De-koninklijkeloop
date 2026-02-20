@@ -26,6 +26,14 @@ export default function LoginForm() {
     const [backupCodes, setBackupCodes] = useState<string[]>([]);
     const [isEmailSent, setIsEmailSent] = useState(false);
     const [isSendingEmail, setIsSendingEmail] = useState(false);
+    const [cooldown, setCooldown] = useState(0);
+
+    useEffect(() => {
+        if (cooldown > 0) {
+            const timer = setTimeout(() => setCooldown(c => c - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [cooldown]);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -391,8 +399,29 @@ export default function LoginForm() {
                                 disabled={isSubmitting || mfaCode.length < 6}
                                 className="w-full h-12 bg-linear-to-r from-brand-orange to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/25 hover:shadow-brand-orange/40 hover:-translate-y-0.5 transition-all duration-300"
                             >
-                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verifiëren"}
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Verifiëren"}
                             </Button>
+
+                            {/* Email OTP Fallback */}
+                            <div className="pt-2 border-t border-glass-border">
+                                <button
+                                    type="button"
+                                    onClick={handleSendEmailOTP}
+                                    disabled={isSendingEmail || cooldown > 0}
+                                    className="w-full flex justify-center items-center py-2 text-sm font-medium text-brand-orange hover:text-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSendingEmail ? (
+                                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> E-mail wordt verstuurd...</>
+                                    ) : cooldown > 0 ? (
+                                        <span className="text-emerald-500 font-semibold">✓ E-mail verzonden ({cooldown}s)</span>
+                                    ) : isEmailSent ? (
+                                        "Stuur e-mail opnieuw"
+                                    ) : (
+                                        "Code via e-mail sturen"
+                                    )}
+                                </button>
+                                {!isEmailSent && <p className="text-xs text-text-muted mt-1 text-center">Indien je geen authenticator app (meer) hebt.</p>}
+                            </div>
 
                             <div className="text-center pt-2">
                                 <button
@@ -443,12 +472,14 @@ export default function LoginForm() {
                                     </div>
                                 )}
                                 <p className="text-xs text-center text-text-muted px-4">
-                                    Scan deze code met Google Authenticator of Authy.
+                                    {isEmailSent ? "Controleer je inbox (en spam) op de verificatiecode." : "Scan deze code met Google Authenticator of Authy."}
                                 </p>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="mfa-setup-code" className="text-xs uppercase tracking-wider text-text-muted font-semibold ml-1">Controle Code</Label>
+                                <Label htmlFor="mfa-setup-code" className="text-xs uppercase tracking-wider text-text-muted font-semibold ml-1">
+                                    {isEmailSent ? "Code uit e-mail" : "Controle Code"}
+                                </Label>
                                 <div className="relative group">
                                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
                                     <Input
@@ -471,8 +502,29 @@ export default function LoginForm() {
                                 disabled={isSubmitting || mfaCode.length < 6}
                                 className="w-full h-12 bg-linear-to-r from-brand-orange to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/25 hover:shadow-brand-orange/40 hover:-translate-y-0.5 transition-all duration-300"
                             >
-                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Koppelen & Doorgaan"}
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Koppelen & Doorgaan"}
                             </Button>
+
+                            {/* Email OTP Fallback */}
+                            <div className="pt-2 border-t border-glass-border">
+                                <button
+                                    type="button"
+                                    onClick={handleSendEmailOTP}
+                                    disabled={isSendingEmail || cooldown > 0}
+                                    className="w-full flex justify-center items-center py-2 text-sm font-medium text-brand-orange hover:text-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSendingEmail ? (
+                                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> E-mail wordt verstuurd...</>
+                                    ) : cooldown > 0 ? (
+                                        <span className="text-emerald-500 font-semibold">✓ E-mail verzonden ({cooldown}s)</span>
+                                    ) : isEmailSent ? (
+                                        "Stuur e-mail opnieuw"
+                                    ) : (
+                                        "Stap overslaan (inloggen via e-mail)"
+                                    )}
+                                </button>
+                                {!isEmailSent && <p className="text-xs text-text-muted mt-1 text-center">Je blijft dan de code telkens via e-mail ontvangen.</p>}
+                            </div>
 
                             <div className="text-center pt-2">
                                 <button
