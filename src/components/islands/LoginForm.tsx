@@ -13,7 +13,17 @@ export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [view, setView] = useState<'login' | 'forgot'>('login');
+
+    // Auth Views Map
+    type ViewState = 'login' | 'forgot' | 'mfa_verify' | 'mfa_setup';
+    const [view, setView] = useState<ViewState>('login');
+
+    // MFA States
+    const [mfaCode, setMfaCode] = useState("");
+    const [preAuthToken, setPreAuthToken] = useState<string | null>(null);
+    const [mfaSecret, setMfaSecret] = useState<string | null>(null);
+    const [mfaQrCode, setMfaQrCode] = useState<string | null>(null);
+    const [backupCodes, setBackupCodes] = useState<string[]>([]);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -48,16 +58,40 @@ export default function LoginForm() {
             const rawUser = data.User || data.user;
             if (!rawUser) throw new Error("Ongeldige server reactie.");
 
+            // Check if MFA is required (intercept standard flow)
+            if (data.mfa_required) {
+                setPreAuthToken(data.pre_auth_token);
+                // IF user has MFA already enabled, they just need to insert the code to verify
+                if (rawUser.MfaEnabled || rawUser.mfa_enabled) {
+                    setView('mfa_verify');
+                } else {
+                    // IF user does NOT have MFA enabled, they must set it up first
+                    // We call the setup API endpoint immediately using the PreAuthToken
+                    try {
+                        const setupData = await apiRequest("/auth/mfa/setup", {
+                            method: "POST",
+                            headers: {
+                                "Authorization": `Bearer ${data.pre_auth_token}`
+                            },
+                        });
+                        setMfaSecret(setupData.secret);
+                        setMfaQrCode(`data:image/png;base64,${setupData.qr_code}`);
+                        setBackupCodes(setupData.backup_codes || []);
+                        setView('mfa_setup');
+                    } catch (mfaErr: any) {
+                        setError(mfaErr.message || "Fout bij opzetten MFA.");
+                    }
+                }
+                return; // Stop execution here, wait for MFA input
+            }
+
             const user = {
                 id: rawUser.ID || rawUser.id,
                 email: rawUser.Email || rawUser.email,
                 role: (rawUser.Role || rawUser.role || "").toLowerCase()
             };
 
-            // Fetch profile if role missing (Backend might have failed to set role initially or token in cookie)
-            // Or if role is "viewer" but should check again?
-            // The previous logic was: if (!user.role) fetch profile.
-            // If API returns no role, it is "".
+            // Fetch profile if role missing 
             if (!user.role) {
                 try {
                     const meData = await apiRequest("/auth/me");
@@ -104,6 +138,81 @@ export default function LoginForm() {
             setError(err.message || "Kon geen reset-link versturen.");
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleMfaSetupSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        clearState();
+
+        try {
+            await apiRequest("/auth/mfa/activate", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${preAuthToken}`
+                },
+                body: JSON.stringify({
+                    secret: mfaSecret,
+                    code: mfaCode,
+                    backup_codes: backupCodes
+                }),
+            });
+
+            setSuccess("MFA ingericht! Je wordt ingelogd...");
+            // Now actually login the user with the pre auth token
+            await processMfaLogin();
+        } catch (err: any) {
+            setError(err.message || "Fout bij verifiëren van de code.");
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleMfaVerifySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        clearState();
+
+        try {
+            await processMfaLogin();
+        } catch (err: any) {
+            setError(err.message || "Ongeldige verificatiecode.");
+            setIsSubmitting(false);
+        }
+    };
+
+    const processMfaLogin = async () => {
+        const data = await apiRequest("/auth/mfa/verify", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${preAuthToken}`
+            },
+            body: JSON.stringify({
+                code: mfaCode
+            }),
+        });
+
+        const rawUser = data.User || data.user;
+        const user = {
+            id: rawUser.ID || rawUser.id,
+            email: rawUser.Email || rawUser.email,
+            role: (rawUser.Role || rawUser.role || "").toLowerCase()
+        };
+
+        if (!user.role) {
+            try {
+                const meData = await apiRequest("/auth/me");
+                if (meData.user?.role) user.role = meData.user.role.toLowerCase();
+            } catch (e) { }
+        }
+        if (!user.role) user.role = "viewer";
+
+        setAuth(null, user);
+
+        if (user.role === "admin" || user.role === "editor") {
+            window.location.href = "/admin/dashboard";
+        } else {
+            window.location.href = "/dashboard";
         }
     };
 
@@ -206,6 +315,153 @@ export default function LoginForm() {
                             >
                                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Inloggen"}
                             </Button>
+                        </motion.form>
+                    ) : view === 'mfa_verify' ? (
+                        <motion.form
+                            key="mfa_verify"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.3 }}
+                            onSubmit={handleMfaVerifySubmit}
+                            className="space-y-6"
+                        >
+                            <div className="text-center space-y-2 mb-8">
+                                <h1 className="text-2xl font-bold text-text-primary tracking-tight">Tweestapsverificatie</h1>
+                                <p className="text-sm text-text-muted">Voer de code uit je authenticator app in.</p>
+                            </div>
+
+                            <AnimatePresence>
+                                {error && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0 }}
+                                        className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-sm flex items-center gap-3"
+                                    >
+                                        <AlertCircle className="w-4 h-4 shrink-0" />
+                                        {error}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="mfa-verify-code" className="text-xs uppercase tracking-wider text-text-muted font-semibold ml-1">Zescijferige code</Label>
+                                <div className="relative group">
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
+                                    <Input
+                                        id="mfa-verify-code"
+                                        type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        maxLength={6}
+                                        value={mfaCode}
+                                        onChange={(e) => setMfaCode(e.target.value)}
+                                        placeholder="123456"
+                                        className="pl-10 bg-glass-bg border-glass-border focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-text-primary placeholder:text-text-muted/50 transition-all text-base tracking-widest text-center"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting || mfaCode.length < 6}
+                                className="w-full h-12 bg-linear-to-r from-brand-orange to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/25 hover:shadow-brand-orange/40 hover:-translate-y-0.5 transition-all duration-300"
+                            >
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verifiëren"}
+                            </Button>
+
+                            <div className="text-center pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => { setView('login'); clearState(); setPreAuthToken(null); }}
+                                    className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors group"
+                                >
+                                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                                    Terug naar inloggen
+                                </button>
+                            </div>
+                        </motion.form>
+                    ) : view === 'mfa_setup' ? (
+                        <motion.form
+                            key="mfa_setup"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.3 }}
+                            onSubmit={handleMfaSetupSubmit}
+                            className="space-y-6"
+                        >
+                            <div className="text-center space-y-2 mb-4">
+                                <h1 className="text-2xl font-bold text-text-primary tracking-tight">Instellen MFA</h1>
+                                <p className="text-sm text-text-muted">Jouw beheerdersrol vereist extra beveiliging.</p>
+                            </div>
+
+                            <AnimatePresence>
+                                {error && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0 }}
+                                        className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-sm flex items-center gap-3"
+                                    >
+                                        <AlertCircle className="w-4 h-4 shrink-0" />
+                                        {error}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="flex flex-col items-center justify-center p-4 bg-white/5 rounded-xl border border-white/10 space-y-4">
+                                {mfaQrCode ? (
+                                    <img src={mfaQrCode} alt="MFA QR Code" className="w-40 h-40 bg-white p-2 rounded-lg" />
+                                ) : (
+                                    <div className="w-40 h-40 flex items-center justify-center border border-dashed border-white/20 rounded-lg">
+                                        <Loader2 className="w-8 h-8 animate-spin text-text-muted" />
+                                    </div>
+                                )}
+                                <p className="text-xs text-center text-text-muted px-4">
+                                    Scan deze code met Google Authenticator of Authy.
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="mfa-setup-code" className="text-xs uppercase tracking-wider text-text-muted font-semibold ml-1">Controle Code</Label>
+                                <div className="relative group">
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-brand-orange transition-colors" />
+                                    <Input
+                                        id="mfa-setup-code"
+                                        type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        maxLength={6}
+                                        value={mfaCode}
+                                        onChange={(e) => setMfaCode(e.target.value)}
+                                        placeholder="123456"
+                                        className="pl-10 bg-glass-bg border-glass-border focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-text-primary placeholder:text-text-muted/50 transition-all text-base tracking-widest text-center"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting || mfaCode.length < 6}
+                                className="w-full h-12 bg-linear-to-r from-brand-orange to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/25 hover:shadow-brand-orange/40 hover:-translate-y-0.5 transition-all duration-300"
+                            >
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Koppelen & Doorgaan"}
+                            </Button>
+
+                            <div className="text-center pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => { setView('login'); clearState(); setPreAuthToken(null); }}
+                                    className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors group"
+                                >
+                                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                                    Terug naar inloggen
+                                </button>
+                            </div>
                         </motion.form>
                     ) : (
                         <motion.form
