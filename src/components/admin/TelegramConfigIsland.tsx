@@ -11,6 +11,7 @@ interface TelegramConfig {
     notify_contact: boolean;
     notify_registration: boolean;
     notify_email: boolean;
+    notify_feedback: boolean;
 }
 
 export default function TelegramConfigIsland() {
@@ -22,6 +23,7 @@ export default function TelegramConfigIsland() {
     const [notifyContact, setNotifyContact] = useState(true);
     const [notifyRegistration, setNotifyRegistration] = useState(true);
     const [notifyEmail, setNotifyEmail] = useState(true);
+    const [notifyFeedback, setNotifyFeedback] = useState(true);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [testing, setTesting] = useState(false);
@@ -53,6 +55,7 @@ export default function TelegramConfigIsland() {
                         setNotifyContact(data.notify_contact);
                         setNotifyRegistration(data.notify_registration);
                         setNotifyEmail(data.notify_email);
+                        setNotifyFeedback(data.notify_feedback);
                     }
                 } else if (response.status === 404 || response.status === 502) {
                     setConfigError("Telegram configuratie is niet beschikbaar. De backend server ondersteunt deze functie mogelijk nog niet.");
@@ -82,7 +85,8 @@ export default function TelegramConfigIsland() {
                 enabled,
                 notify_contact: notifyContact,
                 notify_registration: notifyRegistration,
-                notify_email: notifyEmail
+                notify_email: notifyEmail,
+                notify_feedback: notifyFeedback
             };
 
             if (botToken.trim()) {
@@ -176,6 +180,7 @@ export default function TelegramConfigIsland() {
                 notify_contact: true,
                 notify_registration: true,
                 notify_email: true,
+                notify_feedback: true,
             });
             setChatId('');
             setBotToken('');
@@ -183,6 +188,7 @@ export default function TelegramConfigIsland() {
             setNotifyContact(true);
             setNotifyRegistration(true);
             setNotifyEmail(true);
+            setNotifyFeedback(true);
         } catch (error) {
             setStatus({
                 type: 'error',
@@ -360,6 +366,12 @@ export default function TelegramConfigIsland() {
                             description="Ontvang een melding bij inkomende e-mail"
                             checked={notifyEmail}
                             onChange={setNotifyEmail}
+                        />
+                        <ToggleRow
+                            label="Feedback Ontvangen"
+                            description="Ontvang een melding wanneer gebruikers feedback insturen"
+                            checked={notifyFeedback}
+                            onChange={setNotifyFeedback}
                         />
                     </div>
                 </div>

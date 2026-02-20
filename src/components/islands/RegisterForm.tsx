@@ -117,12 +117,17 @@ export default function RegisterForm() {
                             email: data.email,
                             role: data.role,
                             distance: data.distance || '',
-                            support_needed: !!data.supportNeeded,
-                            city: data.city || '',
-                            wheelchair_user: !!data.wheelchairUser,
-                            shuttle_bus: data.shuttleBus || 'eigen-vervoer',
-                            lives_in_facility: !!data.livesInFacility,
-                            participant_type: data.participantType || 'doelgroep',
+                            support_needed: data.supportNeeded === "ja" || data.supportNeeded === "anders",
+                            support_description: data.supportDescription || '',
+                            ice_name: data.iceName || '',
+                            ice_phone: data.icePhone || '',
+                            profile_data: {
+                                city: data.city || '',
+                                wheelchair_user: !!data.wheelchairUser,
+                                shuttle_bus: data.shuttleBus || 'eigen-vervoer',
+                                lives_in_facility: !!data.livesInFacility,
+                                participant_type: data.participantType || 'doelgroep',
+                            },
                             generate_password_reset: true,
                             app_url: window.location.origin
                         })
@@ -163,12 +168,17 @@ export default function RegisterForm() {
                             email: data.email,
                             role: data.role,
                             distance: data.distance || '',
-                            support_needed: !!data.supportNeeded,
-                            city: data.city || '',
-                            wheelchair_user: !!data.wheelchairUser,
-                            shuttle_bus: data.shuttleBus || 'eigen-vervoer',
-                            lives_in_facility: !!data.livesInFacility,
-                            participant_type: data.participantType || 'doelgroep'
+                            support_needed: data.supportNeeded === "ja" || data.supportNeeded === "anders",
+                            support_description: data.supportDescription || '',
+                            ice_name: data.iceName || '',
+                            ice_phone: data.icePhone || '',
+                            profile_data: {
+                                city: data.city || '',
+                                wheelchair_user: !!data.wheelchairUser,
+                                shuttle_bus: data.shuttleBus || 'eigen-vervoer',
+                                lives_in_facility: !!data.livesInFacility,
+                                participant_type: data.participantType || 'doelgroep'
+                            }
                         })
                     });
 
