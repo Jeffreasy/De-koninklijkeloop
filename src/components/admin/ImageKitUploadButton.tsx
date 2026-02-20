@@ -60,6 +60,7 @@ export function ImageKitUploadButton({ onUploadSuccess, currentUrl }: Props) {
                 accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                 onChange={handleFileSelect}
                 className="hidden"
+                aria-label="Upload afbeelding"
             />
             <button
                 type="button"

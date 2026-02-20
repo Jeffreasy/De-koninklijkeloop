@@ -378,7 +378,7 @@ export default function ParticipantsTable() {
                     { label: "Deelnemers", value: stats.deelnemers, color: "text-brand-orange", bg: "bg-brand-orange/5", border: "border-brand-orange/20", activeBorder: "ring-2 ring-brand-orange/50", isActive: roleFilter === "deelnemer", onClick: () => setRoleFilter(roleFilter === "deelnemer" ? "all" : "deelnemer") },
                     { label: "Begeleiders", value: stats.begeleiders, color: "text-blue-600", bg: "bg-blue-500/5", border: "border-blue-500/20", activeBorder: "ring-2 ring-blue-500/50", isActive: roleFilter === "begeleider", onClick: () => setRoleFilter(roleFilter === "begeleider" ? "all" : "begeleider") },
                     { label: "Vrijwilligers", value: stats.vrijwilligers, color: "text-green-600", bg: "bg-green-500/5", border: "border-green-500/20", activeBorder: "ring-2 ring-green-500/50", isActive: roleFilter === "vrijwilliger", onClick: () => setRoleFilter(roleFilter === "vrijwilliger" ? "all" : "vrijwilliger") },
-                    { label: "Accounts", value: stats.authenticated, color: "text-purple-600", bg: "bg-purple-500/5", border: "border-purple-500/20", activeBorder: "ring-2 ring-purple-500/50", icon: ShieldCheck, isActive: userTypeFilter === "authenticated", onClick: () => setUserTypeFilter(userTypeFilter === "authenticated" ? "all" : "authenticated") },
+                    { label: "Accounts", value: stats.authenticated, color: "text-emerald-600", bg: "bg-emerald-500/5", border: "border-emerald-500/20", activeBorder: "ring-2 ring-emerald-500/50", icon: ShieldCheck, isActive: userTypeFilter === "authenticated", onClick: () => setUserTypeFilter(userTypeFilter === "authenticated" ? "all" : "authenticated") },
                     { label: "Gasten", value: stats.guests, color: "text-pink-600", bg: "bg-pink-500/5", border: "border-pink-500/20", activeBorder: "ring-2 ring-pink-500/50", icon: User, isActive: userTypeFilter === "guest", onClick: () => setUserTypeFilter(userTypeFilter === "guest" ? "all" : "guest") },
                     { label: "Rolstoel", value: stats.wheelchair, color: "text-indigo-600", bg: "bg-indigo-500/5", border: "border-indigo-500/20", activeBorder: "ring-2 ring-indigo-500/50", icon: Accessibility, isActive: wheelchairFilter, onClick: () => setWheelchairFilter(!wheelchairFilter) },
                     { label: "Ophaalbus", value: stats.shuttleBus, color: "text-cyan-600", bg: "bg-cyan-500/5", border: "border-cyan-500/20", activeBorder: "ring-2 ring-cyan-500/50", icon: Bus, isActive: shuttleBusFilter, onClick: () => setShuttleBusFilter(!shuttleBusFilter) },
@@ -623,7 +623,7 @@ export default function ParticipantsTable() {
                             </button>
                         )}
                         {userTypeFilter !== "all" && (
-                            <button onClick={() => setUserTypeFilter("all")} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-purple-500/10 text-purple-600 border border-purple-500/20 hover:bg-purple-500/20 transition-colors cursor-pointer shrink-0">
+                            <button onClick={() => setUserTypeFilter("all")} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors cursor-pointer shrink-0">
                                 {userTypeFilter === "authenticated" ? "Accounts" : "Gasten"} <X className="w-2.5 h-2.5" />
                             </button>
                         )}

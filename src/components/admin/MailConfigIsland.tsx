@@ -246,7 +246,7 @@ export default function MailConfigIsland() {
             {/* Credentials */}
             <div className="premium-glass rounded-2xl md:rounded-3xl p-6">
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
                         <Lock className="w-5 h-5" />
                     </div>
                     <div>

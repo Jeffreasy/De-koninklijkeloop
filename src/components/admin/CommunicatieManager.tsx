@@ -198,7 +198,7 @@ export default function CommunicatieManager() {
                     { label: "Organisaties", value: stats?.activeOrganizations ?? 0, icon: <Building2 className="w-4 h-4" />, color: "from-orange-500/10" },
                     { label: "Contacten", value: stats?.activeContacts ?? 0, icon: <Users className="w-4 h-4" />, color: "from-blue-500/10" },
                     { label: "Unieke Emails", value: stats?.uniqueEmails ?? 0, icon: <Mail className="w-4 h-4" />, color: "from-emerald-500/10" },
-                    { label: "Campagnes", value: stats?.totalCampaigns ?? 0, icon: <Send className="w-4 h-4" />, color: "from-purple-500/10" },
+                    { label: "Campagnes", value: stats?.totalCampaigns ?? 0, icon: <Send className="w-4 h-4" />, color: "from-emerald-500/10" },
                 ].map((stat) => (
                     <div
                         key={stat.label}

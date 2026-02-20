@@ -35,7 +35,7 @@ const EVENT_COLORS: Record<string, string> = {
     registration_started: "#F97316",
     registration_completed: "#22C55E",
     registration_failed: "#EF4444",
-    gallery_viewed: "#8B5CF6",
+    gallery_viewed: "#10B981",
     video_played: "#EC4899",
     donation_intent: "#F59E0B",
     route_changed: "#6B7280",
@@ -409,7 +409,7 @@ export default function AnalyticsDashboard() {
                     icon={<Clock className="w-4 h-4" />}
                     label="Sessieduur"
                     value={sessionDuration ? formatDuration(sessionDuration.avg_duration_seconds) : '—'}
-                    accent="#8B5CF6"
+                    accent="#10B981"
                     loading={loading}
                     trend={prevSessionDuration && sessionDuration ? calcTrend(sessionDuration.avg_duration_seconds, prevSessionDuration.avg_duration_seconds) : undefined}
                 />
@@ -619,9 +619,7 @@ export default function AnalyticsDashboard() {
                                         return (
                                             <div key={ref.referrer || `direct-${i}`} className="group/flow">
                                                 <div className="flex items-center gap-3 p-2.5 rounded-xl bg-glass-border/10 hover:bg-glass-border/20 transition-all duration-200">
-                                                    <div className="w-7 h-7 rounded-lg bg-teal-500/10 border border-teal-500/15 flex items-center justify-center text-teal-600 shrink-0">
-                                                        <Globe className="w-3.5 h-3.5" />
-                                                    </div>
+                                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"></span>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center justify-between mb-1">
                                                             <span className="text-xs font-medium text-text-primary truncate">

@@ -45,7 +45,7 @@ export function ConversationList({
                             onClick={() => onOpenGroup(group)}
                             className="w-full flex items-center gap-3 p-3 hover:bg-glass-surface/50 rounded-xl text-left transition-colors group/item cursor-pointer touch-action-manipulation"
                         >
-                            <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center text-lg border border-glass-border">
+                            <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-500/30 to-emerald-500/30 flex items-center justify-center text-lg border border-glass-border">
                                 {group.avatarEmoji || '👥'}
                             </div>
                             <div className="flex-1 min-w-0">

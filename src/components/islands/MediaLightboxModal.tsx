@@ -232,7 +232,7 @@ export default function MediaLightboxModal({
                             {currentItem.year && (
                                 <div className={`px-3 py-1.5 rounded-lg text-sm font-bold ${currentItem.year === '2024'
                                     ? 'bg-blue-500/90 text-white'
-                                    : 'bg-purple-500/90 text-white'
+                                    : 'bg-emerald-500/90 text-white'
                                     }`}>
                                     {currentItem.year}
                                 </div>

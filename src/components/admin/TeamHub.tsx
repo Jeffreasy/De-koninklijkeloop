@@ -140,7 +140,7 @@ const TeamHubContent = () => {
                                             <div className="flex justify-between items-start mb-2">
                                                 <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${minute.type === 'meeting'
                                                     ? 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-                                                    : 'bg-purple-500/10 text-purple-500 border-purple-500/20'
+                                                    : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                                                     }`}>
                                                     {minute.type === 'meeting' ? 'Vergadering' : 'Agenda'}
                                                 </span>

@@ -78,6 +78,7 @@ export function ServerSideUploadButton({ onFileSelect, onClearFile, currentUrl, 
                     : "image/jpeg,image/jpg,image/png,image/gif,image/webp"}
                 onChange={handleFileSelect}
                 className="hidden"
+                aria-label="Upload afbeelding of video"
             />
 
             {/* Upload button */}

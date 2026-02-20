@@ -61,6 +61,19 @@ export function DirectMessageView({ currentUser, otherUser }: DirectMessageViewP
                 content,
                 type: "text"
             });
+
+            // Dual Dispatch (Hybrid Data Pattern)
+            // Fire-and-forget sync to the LaventeCare Go API for persistent backup & compliance.
+            // The Astro Proxy automatically injects the HttpOnly token + Tenant ID.
+            fetch('/api/v1/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    recipient_id: otherUser.id,
+                    content: content
+                })
+            }).catch(e => console.warn("Background sync to API failed:", e));
+
         } catch {
             setMessageInput(content);
             addToast("Bericht kon niet worden verzonden", "error");

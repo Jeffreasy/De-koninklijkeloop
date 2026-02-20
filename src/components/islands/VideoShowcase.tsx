@@ -57,13 +57,12 @@ export default function VideoShowcase({ videos }: VideoShowcaseProps) {
                             className="streamable-facade relative w-full h-full cursor-pointer bg-black/10 group/facade"
                             onClick={() => setIsPlaying(true)}
                         >
-                            <img
+                            <img alt={activeVideo.title}
                                 src={`https://thumbs-east.streamable.com/image/${activeVideo.shortcode}.jpg`}
                                 onError={(e) => {
                                     e.currentTarget.src = 'https://placehold.co/1920x1080/000000/FFF?text=Video+Laden';
                                     e.currentTarget.onerror = null;
                                 }}
-                                alt={activeVideo.title}
                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/facade:scale-105"
                                 loading="lazy"
                             />

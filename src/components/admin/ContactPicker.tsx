@@ -148,7 +148,7 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
         switch (sector) {
             case 'academisch_ziekenhuis': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
             case 'algemeen_ziekenhuis': return 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30';
-            case 'ggz': return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+            case 'ggz': return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
             case 'gehandicaptenzorg': return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
             case 'verpleging_verzorging': return 'bg-amber-500/20 text-amber-300 border-amber-500/30';
             case 'revalidatie': return 'bg-rose-500/20 text-rose-300 border-rose-500/30';

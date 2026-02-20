@@ -324,7 +324,7 @@ function SharedWelcomeSection({
                                 </span>
                             )}
                             {registration.wheelchairUser && (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                                     <Accessibility className="w-3 h-3" />
                                     Rolstoel
                                 </span>

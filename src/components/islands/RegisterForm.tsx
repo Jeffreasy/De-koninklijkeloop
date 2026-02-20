@@ -333,7 +333,7 @@ export default function RegisterForm() {
                         {[
                             { id: "2.5", label: "2.5 KM", icon: Footprints, color: "text-green-500" },
                             { id: "6", label: "6 KM", icon: Route, color: "text-blue-500" },
-                            { id: "10", label: "10 KM", icon: Medal, color: "text-purple-500" },
+                            { id: "10", label: "10 KM", icon: Medal, color: "text-indigo-500" },
                             { id: "15", label: "15 KM", icon: Trophy, color: "text-orange-500" }
                         ].map((dist) => (
                             <div

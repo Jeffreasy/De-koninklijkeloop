@@ -60,7 +60,7 @@ export function CreateGroupView({ currentUser, teamMembers, onCreated, onCancel 
                             const idx = EMOJI_OPTIONS.indexOf(avatarEmoji);
                             setAvatarEmoji(EMOJI_OPTIONS[(idx + 1) % EMOJI_OPTIONS.length]);
                         }}
-                        className="w-14 h-14 rounded-full bg-linear-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center text-2xl border border-glass-border hover:border-brand-orange/30 transition-colors shrink-0 cursor-pointer"
+                        className="w-14 h-14 rounded-full bg-linear-to-br from-indigo-500/30 to-emerald-500/30 flex items-center justify-center text-2xl border border-glass-border hover:border-brand-orange/30 transition-colors shrink-0 cursor-pointer"
                     >
                         {avatarEmoji}
                     </button>

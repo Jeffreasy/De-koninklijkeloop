@@ -97,7 +97,7 @@ export default function VolunteerTasksManager() {
                 <StatCard label="Totaal Taken" value={totalTasks} icon={ClipboardList} color="text-brand-orange" />
                 <StatCard label="Bevestigd" value={confirmedTasks} icon={CheckCircle2} color="text-blue-600" />
                 <StatCard label="Afgerond" value={completedTasks} icon={CheckCircle2} color="text-green-600" />
-                <StatCard label="Vrijwilligers" value={totalVolunteers} icon={User} color="text-purple-600" />
+                <StatCard label="Vrijwilligers" value={totalVolunteers} icon={User} color="text-emerald-600" />
             </div>
 
             {/* Toolbar */}

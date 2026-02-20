@@ -95,6 +95,7 @@ export default function PhotoUploadWidget({ userEmail }: PhotoUploadWidgetProps)
                 multiple
                 className="hidden"
                 onChange={handleFileSelect}
+                aria-label="Upload afbeeldingen en videos"
             />
 
             {status === "success" ? (
