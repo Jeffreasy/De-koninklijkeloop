@@ -24,6 +24,8 @@ export default function LoginForm() {
     const [mfaSecret, setMfaSecret] = useState<string | null>(null);
     const [mfaQrCode, setMfaQrCode] = useState<string | null>(null);
     const [backupCodes, setBackupCodes] = useState<string[]>([]);
+    const [isEmailSent, setIsEmailSent] = useState(false);
+    const [isSendingEmail, setIsSendingEmail] = useState(false);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -178,6 +180,26 @@ export default function LoginForm() {
         } catch (err: any) {
             setError(err.message || "Ongeldige verificatiecode.");
             setIsSubmitting(false);
+        }
+    };
+
+    const handleSendEmailOTP = async () => {
+        setIsSendingEmail(true);
+        setError("");
+        setSuccess("");
+        try {
+            await apiRequest("/auth/mfa/send-email", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${preAuthToken}`
+                }
+            });
+            setIsEmailSent(true);
+            setSuccess("We hebben je een 6-cijferige verificatiecode per e-mail gestuurd.");
+        } catch (err: any) {
+            setError(err.message || "Kon geen e-mail versturen. Probeer het later opnieuw.");
+        } finally {
+            setIsSendingEmail(false);
         }
     };
 
