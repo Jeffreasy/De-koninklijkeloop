@@ -269,6 +269,18 @@ export default function LoginForm() {
                                 <p className="text-sm text-text-muted">Log in om je dashboard te beheren</p>
                             </div>
 
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-orange-500/10 border border-orange-500/20 text-orange-400 p-4 rounded-xl text-sm flex items-start gap-3"
+                            >
+                                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                                <div className="space-y-1">
+                                    <p className="font-bold">Onderhoud</p>
+                                    <p>Login is tijdelijk uitgeschakeld: onderhoud.</p>
+                                </div>
+                            </motion.div>
+
                             {/* Status Messages */}
                             <AnimatePresence>
                                 {error && (
@@ -306,8 +318,9 @@ export default function LoginForm() {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="naam@voorbeeld.nl"
-                                            className="pl-10 bg-glass-bg border-glass-border focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-text-primary placeholder:text-text-muted/50 transition-all"
+                                            className="pl-10 bg-glass-bg border-glass-border focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-text-primary placeholder:text-text-muted/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                             required
+                                            disabled
                                         />
                                     </div>
                                 </div>
@@ -331,8 +344,9 @@ export default function LoginForm() {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="pl-10 bg-glass-bg border-glass-border focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-text-primary placeholder:text-text-muted/50 transition-all"
+                                            className="pl-10 bg-glass-bg border-glass-border focus:border-brand-orange/50 focus:ring-brand-orange/20 rounded-xl h-12 text-text-primary placeholder:text-text-muted/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                             required
+                                            disabled
                                         />
                                     </div>
                                 </div>
@@ -340,10 +354,10 @@ export default function LoginForm() {
 
                             <Button
                                 type="submit"
-                                disabled={isSubmitting}
-                                className="w-full h-12 bg-linear-to-r from-brand-orange to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-brand-orange/25 hover:shadow-brand-orange/40 hover:-translate-y-0.5 transition-all duration-300"
+                                disabled={true}
+                                className="w-full h-12 bg-linear-to-r from-gray-500 to-gray-600 text-white font-bold rounded-xl shadow-lg shadow-gray-500/25 cursor-not-allowed opacity-50"
                             >
-                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Inloggen"}
+                                Login Uitgeschakeld
                             </Button>
                         </motion.form>
                     ) : view === 'mfa_verify' ? (
