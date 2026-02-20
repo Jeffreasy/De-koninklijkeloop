@@ -47,6 +47,12 @@ const schema = z.object({
 }, {
     message: "Kies een afstand",
     path: ["distance"]
+}).refine((data) => {
+    if (data.role === "begeleider" && (!data.companionName || data.companionName.trim() === "")) return false;
+    return true;
+}, {
+    message: "Naam van de gekoppelde deelnemer is vereist",
+    path: ["companionName"]
 });
 
 type FormData = z.infer<typeof schema>;
@@ -115,34 +121,38 @@ export default function RegisterForm() {
 
                 // Trigger Welcome Email with Password Reset + Telegram Notification
                 try {
-                    await fetch('/api/v1/auth/register-confirmation', {
+                    const emailRes = await fetch('/api/v1/auth/register-confirmation', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             name: data.name,
                             email: data.email,
                             role: data.role,
-                            distance: data.distance || '',
-                            support_needed: data.supportNeeded === "ja" || data.supportNeeded === "anders",
-                            support_description: data.supportDescription || '',
+                            distance: data.role !== "vrijwilliger" ? (data.distance || '') : '',
+                            support_needed: data.role !== "vrijwilliger" && (data.supportNeeded === "ja" || data.supportNeeded === "anders"),
+                            support_description: data.role !== "vrijwilliger" ? (data.supportDescription || '') : '',
                             ice_name: data.iceName || '',
                             ice_phone: data.icePhone || '',
+                            companion_name: data.role === "begeleider" ? (data.companionName || '') : '',
+                            companion_email: data.role === "begeleider" ? (data.companionEmail || '') : '',
                             profile_data: {
-                                city: data.city || '',
-                                wheelchair_user: !!data.wheelchairUser,
-                                shuttle_bus: data.shuttleBus || 'eigen-vervoer',
-                                lives_in_facility: !!data.livesInFacility,
-                                participant_type: data.participantType || 'doelgroep',
+                                city: data.role === "deelnemer" ? (data.city || '') : '',
+                                wheelchair_user: data.role === "deelnemer" ? !!data.wheelchairUser : false,
+                                shuttle_bus: data.role === "deelnemer" ? (data.shuttleBus || 'eigen-vervoer') : '',
+                                lives_in_facility: data.role === "deelnemer" ? !!data.livesInFacility : false,
+                                participant_type: data.role === "deelnemer" ? (data.participantType || 'doelgroep') : ''
                             },
                             generate_password_reset: true,
                             app_url: window.location.origin
                         })
                     });
+
+                    if (!emailRes.ok) throw new Error("Email sending failed");
+                    window.location.href = "/login?registered=true";
                 } catch (e) {
                     console.error("Failed to send welcome/notification", e);
+                    window.location.href = "/login?registered=true&email_error=true";
                 }
-
-                window.location.href = "/login?registered=true";
             } else {
                 // Guest flow: no account, direct registration
                 await registerGuest({
@@ -436,11 +446,12 @@ export default function RegisterForm() {
 
                     <div className="space-y-4">
                         <div className="space-y-2 group/field">
-                            <Label htmlFor="companionName" className="transition-colors group-hover/field:text-brand-orange">Naam deelnemer (optioneel)</Label>
+                            <Label htmlFor="companionName" className="transition-colors group-hover/field:text-brand-orange">Naam deelnemer (vereist)</Label>
                             <div className="relative transition-all duration-300">
                                 <User className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted/50 transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
                                 <Input id="companionName" {...register("companionName")} placeholder="Naam van de deelnemer (of team)" className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-brand-orange/5" />
                             </div>
+                            {errors.companionName && <p className="text-red-400 text-xs pl-1">{errors.companionName?.message}</p>}
                         </div>
 
                         <div className="space-y-2 group/field">
