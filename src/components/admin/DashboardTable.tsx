@@ -29,6 +29,8 @@ interface Registration {
     icePhone?: string;
     createdAt: number;
     edition?: string;
+    companionName?: string;
+    companionEmail?: string;
 }
 
 export default function DashboardTable() {

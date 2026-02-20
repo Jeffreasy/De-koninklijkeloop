@@ -41,6 +41,8 @@ interface Registration {
     createdAt: number;
     notes?: string;
     edition?: string;
+    companionName?: string;
+    companionEmail?: string;
 }
 
 export default function ParticipantsTable() {
@@ -240,7 +242,7 @@ export default function ParticipantsTable() {
         const participantLabel = (s?: string) =>
             s === "doelgroep" ? "Doelgroep" : s === "verwant" ? "Verwant" : "Anders";
 
-        const headers = ["Naam", "Email", "Rol", "Afstand", "Status", "Ondersteuning", "Toelichting", "Plaatsnaam", "Rolstoel", "Vervoer", "Instelling", "Doelgroep", "Type", "Aangemaakt", "Noodcontact Naam", "Noodcontact Telefoon"];
+        const headers = ["Naam", "Email", "Rol", "Afstand", "Status", "Ondersteuning", "Toelichting", "Plaatsnaam", "Rolstoel", "Vervoer", "Instelling", "Doelgroep", "Type", "Aangemaakt", "Noodcontact Naam", "Noodcontact Telefoon", "Gekoppelde Deelnemer (Naam)", "Gekoppelde Deelnemer (Email)"];
 
         const rows = processedRegistrations.map(r => [
             r.name,
@@ -259,6 +261,8 @@ export default function ParticipantsTable() {
             formatDate(r.createdAt),
             r.iceName || "",
             r.icePhone || "",
+            r.companionName || "",
+            r.companionEmail || "",
         ]);
 
         // Summary row

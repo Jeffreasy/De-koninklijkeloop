@@ -18,12 +18,8 @@ const schema = z.object({
     role: z.enum(["deelnemer", "begeleider", "vrijwilliger"], {
         required_error: "Kies een rol",
     }),
-    distance: z.enum(["2.5", "6", "10", "15"], {
-        required_error: "Kies een afstand"
-    }),
-    supportNeeded: z.enum(["ja", "nee", "anders"], {
-        required_error: "Maak een keuze"
-    }),
+    distance: z.enum(["2.5", "6", "10", "15"]).optional(),
+    supportNeeded: z.enum(["ja", "nee", "anders"]).optional(),
     agreedToTerms: z.literal(true, {
         errorMap: () => ({ message: "Je moet akkoord gaan met de voorwaarden" }),
     }),
@@ -37,12 +33,20 @@ const schema = z.object({
     iceName: z.string().min(2, "Naam contactpersoon is verplicht"),
     icePhone: z.string().min(10, "Geldig telefoonnummer is verplicht"),
     agreedToMedia: z.boolean().optional(),
+    companionName: z.string().optional(),
+    companionEmail: z.string().email("Ongeldig e-mailadres").optional().or(z.literal("")),
 }).refine((data) => {
-    if (data.supportNeeded === "anders") return !!data.supportDescription && data.supportDescription.length > 0;
+    if (data.role !== "vrijwilliger" && data.supportNeeded === "anders") return !!data.supportDescription && data.supportDescription.length > 0;
     return true;
 }, {
     message: "Licht je keuze toe",
     path: ["supportDescription"]
+}).refine((data) => {
+    if (data.role !== "vrijwilliger" && !data.distance) return false;
+    return true;
+}, {
+    message: "Kies een afstand",
+    path: ["distance"]
 });
 
 type FormData = z.infer<typeof schema>;
@@ -143,18 +147,20 @@ export default function RegisterForm() {
                     name: data.name,
                     email: data.email,
                     role: data.role,
-                    distance: data.distance,
-                    supportNeeded: data.supportNeeded,
-                    supportDescription: data.supportDescription,
-                    city: data.city,
-                    wheelchairUser: data.wheelchairUser,
-                    shuttleBus: data.shuttleBus,
-                    livesInFacility: data.livesInFacility,
-                    participantType: data.participantType,
+                    distance: data.role !== "vrijwilliger" ? data.distance : undefined,
+                    supportNeeded: data.role !== "vrijwilliger" ? data.supportNeeded : undefined,
+                    supportDescription: data.role !== "vrijwilliger" ? data.supportDescription : undefined,
+                    city: data.role === "deelnemer" ? data.city : undefined,
+                    wheelchairUser: data.role === "deelnemer" ? data.wheelchairUser : undefined,
+                    shuttleBus: data.role === "deelnemer" ? data.shuttleBus : undefined,
+                    livesInFacility: data.role === "deelnemer" ? data.livesInFacility : undefined,
+                    participantType: data.role === "deelnemer" ? data.participantType : undefined,
                     iceName: data.iceName,
                     icePhone: data.icePhone,
                     agreedToTerms: data.agreedToTerms,
-                    agreedToMedia: !!data.agreedToMedia,
+                    agreedToMedia: data.agreedToMedia || false,
+                    companionName: data.role === "begeleider" ? data.companionName : undefined,
+                    companionEmail: data.role === "begeleider" ? data.companionEmail : undefined,
                 });
 
                 // Trigger Welcome Email
@@ -167,17 +173,19 @@ export default function RegisterForm() {
                             name: data.name,
                             email: data.email,
                             role: data.role,
-                            distance: data.distance || '',
-                            support_needed: data.supportNeeded === "ja" || data.supportNeeded === "anders",
-                            support_description: data.supportDescription || '',
+                            distance: data.role !== "vrijwilliger" ? (data.distance || '') : '',
+                            support_needed: data.role !== "vrijwilliger" && (data.supportNeeded === "ja" || data.supportNeeded === "anders"),
+                            support_description: data.role !== "vrijwilliger" ? (data.supportDescription || '') : '',
                             ice_name: data.iceName || '',
                             ice_phone: data.icePhone || '',
+                            companion_name: data.role === "begeleider" ? (data.companionName || '') : '',
+                            companion_email: data.role === "begeleider" ? (data.companionEmail || '') : '',
                             profile_data: {
-                                city: data.city || '',
-                                wheelchair_user: !!data.wheelchairUser,
-                                shuttle_bus: data.shuttleBus || 'eigen-vervoer',
-                                lives_in_facility: !!data.livesInFacility,
-                                participant_type: data.participantType || 'doelgroep'
+                                city: data.role === "deelnemer" ? (data.city || '') : '',
+                                wheelchair_user: data.role === "deelnemer" ? !!data.wheelchairUser : false,
+                                shuttle_bus: data.role === "deelnemer" ? (data.shuttleBus || 'eigen-vervoer') : '',
+                                lives_in_facility: data.role === "deelnemer" ? !!data.livesInFacility : false,
+                                participant_type: data.role === "deelnemer" ? (data.participantType || 'doelgroep') : ''
                             }
                         })
                     });
@@ -207,7 +215,7 @@ export default function RegisterForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto" >
             {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm text-center animate-fade-in flex items-center justify-center gap-2">
                     <AlertTriangle className="w-5 h-5 shrink-0" /> {error}
@@ -215,7 +223,7 @@ export default function RegisterForm() {
             )}
 
             {/* 1. Contactgegevens */}
-            <div className="space-y-6">
+            < div className="space-y-6" >
                 <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
                         <User className="w-6 h-6" />
@@ -245,10 +253,10 @@ export default function RegisterForm() {
                         {errors.email && <p className="text-red-400 text-xs pl-1">{errors.email?.message}</p>}
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* 2. Kies je rol */}
-            <div className="space-y-6">
+            < div className="space-y-6" >
                 <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
                         <Users className="w-6 h-6" />
@@ -294,254 +302,296 @@ export default function RegisterForm() {
                     ))}
                 </div>
                 {errors.role && <p className="text-red-400 text-xs pl-1">{errors.role?.message}</p>}
-            </div>
+            </div >
 
             {/* 3. Kies je afstand */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-action-blue/10 rounded-xl text-action-blue">
-                        <MapPin className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-bold font-display text-text-body">Kies je afstand</h3>
-                        <p className="text-sm text-text-muted">Welke route ga je lopen?</p>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {[
-                        { id: "2.5", label: "2.5 KM", icon: Footprints, color: "text-green-500" },
-                        { id: "6", label: "6 KM", icon: Route, color: "text-blue-500" },
-                        { id: "10", label: "10 KM", icon: Medal, color: "text-purple-500" },
-                        { id: "15", label: "15 KM", icon: Trophy, color: "text-orange-500" }
-                    ].map((dist) => (
-                        <div
-                            key={dist.id}
-                            onClick={() => setValue("distance", dist.id as any)}
-                            className={cn(
-                                "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[100px]",
-                                selectedDistance === dist.id
-                                    ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
-                                    : "border-glass-border glass-card hover:border-brand-orange/50"
-                            )}
-                        >
-                            {selectedDistance === dist.id && (
-                                <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />
-                            )}
-                            {selectedDistance === dist.id && (
-                                <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
-                                    <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
-                                </div>
-                            )}
-                            <div className="mb-1 md:mb-2 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 filter drop-shadow-md">
-                                <dist.icon className={cn("w-7 h-7 md:w-8 md:h-8", dist.color)} />
-                            </div>
-                            <div className={cn("font-bold text-sm md:text-lg transition-colors duration-300", selectedDistance === dist.id ? "text-brand-orange" : "text-text-body")}>
-                                {dist.label}
-                            </div>
+            {selectedRole !== "vrijwilliger" && (
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2.5 bg-action-blue/10 rounded-xl text-action-blue">
+                            <MapPin className="w-6 h-6" />
                         </div>
-                    ))}
+                        <div>
+                            <h3 className="text-xl font-bold font-display text-text-body">Kies je afstand</h3>
+                            <p className="text-sm text-text-muted">Welke route ga je lopen?</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                            { id: "2.5", label: "2.5 KM", icon: Footprints, color: "text-green-500" },
+                            { id: "6", label: "6 KM", icon: Route, color: "text-blue-500" },
+                            { id: "10", label: "10 KM", icon: Medal, color: "text-purple-500" },
+                            { id: "15", label: "15 KM", icon: Trophy, color: "text-orange-500" }
+                        ].map((dist) => (
+                            <div
+                                key={dist.id}
+                                onClick={() => setValue("distance", dist.id as any)}
+                                className={cn(
+                                    "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[100px]",
+                                    selectedDistance === dist.id
+                                        ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
+                                        : "border-glass-border glass-card hover:border-brand-orange/50"
+                                )}
+                            >
+                                {selectedDistance === dist.id && (
+                                    <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />
+                                )}
+                                {selectedDistance === dist.id && (
+                                    <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
+                                        <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
+                                    </div>
+                                )}
+                                <div className="mb-1 md:mb-2 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 filter drop-shadow-md">
+                                    <dist.icon className={cn("w-7 h-7 md:w-8 md:h-8", dist.color)} />
+                                </div>
+                                <div className={cn("font-bold text-sm md:text-lg transition-colors duration-300", selectedDistance === dist.id ? "text-brand-orange" : "text-text-body")}>
+                                    {dist.label}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    {errors.distance && <p className="text-red-400 text-xs pl-1">{errors.distance?.message}</p>}
                 </div>
-                {errors.distance && <p className="text-red-400 text-xs pl-1">{errors.distance?.message}</p>}
-            </div>
+            )}
 
             {/* 4. Ondersteuning */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
-                        <HeartHandshake className="w-6 h-6" />
+            {selectedRole !== "vrijwilliger" && (
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
+                            <HeartHandshake className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold font-display text-text-body">Ondersteuning</h3>
+                            <p className="text-sm text-text-muted">Heb je extra hulp nodig tijdens het evenement?</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-xl font-bold font-display text-text-body">Ondersteuning</h3>
-                        <p className="text-sm text-text-muted">Heb je extra hulp nodig tijdens het evenement?</p>
-                    </div>
-                </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                    {[
-                        { id: "ja", label: "Ja, graag", icon: CheckCircle2 },
-                        { id: "nee", label: "Nee", icon: XCircle },
-                        { id: "anders", label: "Anders", icon: HelpCircle }
-                    ].map((opt) => (
-                        <div
-                            key={opt.id}
-                            onClick={() => setValue("supportNeeded", opt.id as any)}
-                            className={cn(
-                                "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[100px]",
-                                selectedSupport === opt.id
-                                    ? "border-brand-primary bg-brand-primary/5 shadow-lg scale-[1.05]"
-                                    : "border-glass-border glass-card hover:border-brand-orange/50"
-                            )}
-                        >
-                            {selectedSupport === opt.id && (
-                                <div className="absolute inset-0 bg-linear-to-tr from-brand-primary/10 to-transparent pointer-events-none" />
-                            )}
-                            {selectedSupport === opt.id && (
-                                <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-primary animate-in fade-in zoom-in duration-300">
-                                    <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
+                    <div className="grid grid-cols-3 gap-4">
+                        {[
+                            { id: "ja", label: "Ja, graag", icon: CheckCircle2 },
+                            { id: "nee", label: "Nee", icon: XCircle },
+                            { id: "anders", label: "Anders", icon: HelpCircle }
+                        ].map((opt) => (
+                            <div
+                                key={opt.id}
+                                onClick={() => setValue("supportNeeded", opt.id as any)}
+                                className={cn(
+                                    "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[100px]",
+                                    selectedSupport === opt.id
+                                        ? "border-brand-primary bg-brand-primary/5 shadow-lg scale-[1.05]"
+                                        : "border-glass-border glass-card hover:border-brand-orange/50"
+                                )}
+                            >
+                                {selectedSupport === opt.id && (
+                                    <div className="absolute inset-0 bg-linear-to-tr from-brand-primary/10 to-transparent pointer-events-none" />
+                                )}
+                                {selectedSupport === opt.id && (
+                                    <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-primary animate-in fade-in zoom-in duration-300">
+                                        <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
+                                    </div>
+                                )}
+                                <div className="mb-1 md:mb-2 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 filter drop-shadow-md">
+                                    <opt.icon className={cn("w-7 h-7 md:w-8 md:h-8", selectedSupport === opt.id ? "text-brand-orange" : "text-text-muted")} />
                                 </div>
-                            )}
-                            <div className="mb-1 md:mb-2 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 filter drop-shadow-md">
-                                <opt.icon className={cn("w-7 h-7 md:w-8 md:h-8", selectedSupport === opt.id ? "text-brand-orange" : "text-text-muted")} />
+                                <div className={cn("font-bold text-sm md:text-lg transition-colors duration-300 leading-tight", selectedSupport === opt.id ? "text-brand-orange" : "text-text-body")}>
+                                    {opt.label}
+                                </div>
                             </div>
-                            <div className={cn("font-bold text-sm md:text-lg transition-colors duration-300 leading-tight", selectedSupport === opt.id ? "text-brand-orange" : "text-text-body")}>
-                                {opt.label}
+                        ))}
+                    </div>
+
+                    {
+                        selectedSupport === "anders" && (
+                            <div className="animate-fade-in origin-top group transition-all duration-300">
+                                <Label htmlFor="supportDescription" className="mb-2 block cursor-pointer">Toelichting</Label>
+                                <Textarea
+                                    id="supportDescription"
+                                    {...register("supportDescription")}
+                                    placeholder="Waar kunnen we je mee helpen?"
+                                    className="min-h-[100px] bg-glass-bg focus-visible:ring-brand-orange/50 focus-visible:border-brand-orange shadow-sm hover:bg-brand-orange/5 transition-all"
+                                />
+                                {errors.supportDescription && <p className="text-red-400 text-xs pl-1 mt-1">{errors.supportDescription?.message}</p>}
+                            </div>
+                        )
+                    }
+                </div>
+            )}
+
+            {/* 4.1 Wie ga je begeleiden? */}
+            {selectedRole === "begeleider" && (
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
+                            <Users className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold font-display text-text-body">Deelnemer Gegevens</h3>
+                            <p className="text-sm text-text-muted">Met wie loop je mee?</p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="space-y-2 group/field">
+                            <Label htmlFor="companionName" className="transition-colors group-hover/field:text-brand-orange">Naam deelnemer (optioneel)</Label>
+                            <div className="relative transition-all duration-300">
+                                <User className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted/50 transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
+                                <Input id="companionName" {...register("companionName")} placeholder="Naam van de deelnemer (of team)" className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-brand-orange/5" />
                             </div>
                         </div>
-                    ))}
-                </div>
 
-                {selectedSupport === "anders" && (
-                    <div className="animate-fade-in origin-top group transition-all duration-300">
-                        <Label htmlFor="supportDescription" className="mb-2 block cursor-pointer">Toelichting</Label>
-                        <Textarea
-                            id="supportDescription"
-                            {...register("supportDescription")}
-                            placeholder="Waar kunnen we je mee helpen?"
-                            className="min-h-[100px] bg-glass-bg focus-visible:ring-brand-orange/50 focus-visible:border-brand-orange shadow-sm hover:bg-brand-orange/5 transition-all"
-                        />
-                        {errors.supportDescription && <p className="text-red-400 text-xs pl-1 mt-1">{errors.supportDescription?.message}</p>}
+                        <div className="space-y-2 group/field">
+                            <Label htmlFor="companionEmail" className="transition-colors group-hover/field:text-brand-orange">E-mailadres deelnemer (sterk aanbevolen)</Label>
+                            <div className="relative transition-all duration-300">
+                                <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted/50 transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
+                                <Input id="companionEmail" type="email" {...register("companionEmail")} placeholder="E-mail van deelnemer (voor koppeling in dashboard)" className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-brand-orange/5" />
+                            </div>
+                            {errors.companionEmail && <p className="text-red-400 text-xs pl-1">{errors.companionEmail?.message}</p>}
+                        </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* 4.5. Over jou */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
-                        <Heart className="w-6 h-6" />
+            {selectedRole === "deelnemer" && (
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
+                            <Heart className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold font-display text-text-body">Over jou</h3>
+                            <p className="text-sm text-text-muted">Vertel ons meer zodat we je goed kunnen begeleiden.</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-xl font-bold font-display text-text-body">Over jou</h3>
-                        <p className="text-sm text-text-muted">Vertel ons meer zodat we je goed kunnen begeleiden.</p>
+
+                    <div className="space-y-5">
+                        {/* Plaatsnaam */}
+                        <div className="space-y-2 group/field">
+                            <Label htmlFor="city" className="transition-colors group-hover/field:text-brand-orange">Plaatsnaam</Label>
+                            <div className="relative transition-all duration-300">
+                                <MapPin className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted/50 transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
+                                <Input id="city" {...register("city")} placeholder="Bijv. Amsterdam, Utrecht..." className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-brand-orange/5" />
+                            </div>
+                        </div>
+
+                        {/* Rolstoelgebruiker */}
+                        <div className="space-y-2">
+                            <Label className="block">Rolstoelgebruiker?</Label>
+                            <div className="grid grid-cols-2 gap-4">
+                                {[{ val: true, label: "Ja", icon: Accessibility }, { val: false, label: "Nee", icon: XCircle }].map((opt) => (
+                                    <div
+                                        key={String(opt.val)}
+                                        onClick={() => setValue("wheelchairUser", opt.val)}
+                                        className={cn(
+                                            "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[80px]",
+                                            watch("wheelchairUser") === opt.val
+                                                ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                                : "border-glass-border glass-card hover:border-brand-orange/50"
+                                        )}
+                                    >
+                                        {watch("wheelchairUser") === opt.val && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
+                                        <opt.icon className={cn("w-6 h-6 mb-1", watch("wheelchairUser") === opt.val ? "text-brand-orange" : "text-text-muted")} />
+                                        <div className={cn("font-bold text-sm", watch("wheelchairUser") === opt.val ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Pendelbus */}
+                        <div className="space-y-2">
+                            <Label className="block">Hoe kom je naar de startlocatie?</Label>
+                            <div className="grid grid-cols-2 gap-4">
+                                {[
+                                    { id: "pendelbus", label: "Pendelbus", icon: Bus, desc: "Ophalen bij Grotekerk -> startlocatie" },
+                                    { id: "eigen-vervoer", label: "Eigen vervoer", icon: MapPin, desc: "Ik kom zelf" }
+                                ].map((opt) => (
+                                    <div
+                                        key={opt.id}
+                                        onClick={() => setValue("shuttleBus", opt.id as any)}
+                                        className={cn(
+                                            "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[100px]",
+                                            selectedShuttle === opt.id
+                                                ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                                : "border-glass-border glass-card hover:border-brand-orange/50"
+                                        )}
+                                    >
+                                        {selectedShuttle === opt.id && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
+                                        {selectedShuttle === opt.id && (
+                                            <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
+                                                <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
+                                            </div>
+                                        )}
+                                        <opt.icon className={cn("w-7 h-7 mb-1", selectedShuttle === opt.id ? "text-brand-orange" : "text-text-muted")} />
+                                        <div className={cn("font-bold text-sm", selectedShuttle === opt.id ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
+                                        <div className="text-[10px] md:text-xs text-text-muted mt-0.5 leading-tight">{opt.desc}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Wonend in instelling */}
+                        <div className="space-y-2">
+                            <Label className="block">Wonend in een instelling?</Label>
+                            <div className="grid grid-cols-2 gap-4">
+                                {[{ val: true, label: "Ja", icon: Building2 }, { val: false, label: "Nee", icon: Home }].map((opt) => (
+                                    <div
+                                        key={String(opt.val)}
+                                        onClick={() => setValue("livesInFacility", opt.val)}
+                                        className={cn(
+                                            "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[80px]",
+                                            watch("livesInFacility") === opt.val
+                                                ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                                : "border-glass-border glass-card hover:border-brand-orange/50"
+                                        )}
+                                    >
+                                        {watch("livesInFacility") === opt.val && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
+                                        <opt.icon className={cn("w-6 h-6 mb-1", watch("livesInFacility") === opt.val ? "text-brand-orange" : "text-text-muted")} />
+                                        <div className={cn("font-bold text-sm", watch("livesInFacility") === opt.val ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Doelgroep */}
+                        <div className="space-y-2">
+                            <Label className="block">Wat beschrijft jou het best?</Label>
+                            <div className="grid grid-cols-3 gap-4">
+                                {[
+                                    { id: "doelgroep", label: "Doelgroep", icon: Heart, desc: "Ik hoor bij de doelgroep" },
+                                    { id: "verwant", label: "Verwant", icon: Users, desc: "Familie / naaste" },
+                                    { id: "anders", label: "Anders", icon: HelpCircle, desc: "Geen van beide" }
+                                ].map((opt) => (
+                                    <div
+                                        key={opt.id}
+                                        onClick={() => setValue("participantType", opt.id as any)}
+                                        className={cn(
+                                            "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[100px]",
+                                            selectedParticipantType === opt.id
+                                                ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                                : "border-glass-border glass-card hover:border-brand-orange/50"
+                                        )}
+                                    >
+                                        {selectedParticipantType === opt.id && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
+                                        {selectedParticipantType === opt.id && (
+                                            <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
+                                                <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
+                                            </div>
+                                        )}
+                                        <opt.icon className={cn("w-7 h-7 mb-1", selectedParticipantType === opt.id ? "text-brand-orange" : "text-text-muted")} />
+                                        <div className={cn("font-bold text-sm leading-tight", selectedParticipantType === opt.id ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
+                                        <div className="text-[10px] md:text-xs text-text-muted mt-0.5 leading-tight">{opt.desc}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div className="space-y-5">
-                    {/* Plaatsnaam */}
-                    <div className="space-y-2 group/field">
-                        <Label htmlFor="city" className="transition-colors group-hover/field:text-brand-orange">Plaatsnaam</Label>
-                        <div className="relative transition-all duration-300">
-                            <MapPin className="absolute left-3.5 top-3.5 h-5 w-5 text-text-muted/50 transition-colors duration-300 group-focus-within/field:text-brand-orange group-hover/field:text-brand-orange/70" />
-                            <Input id="city" {...register("city")} placeholder="Bijv. Amsterdam, Utrecht..." className="pl-11 transition-all duration-300 group-focus-within/field:ring-brand-orange/50 group-focus-within/field:border-brand-orange group-focus-within/field:shadow-[0_0_20px_-5px_rgba(255,147,40,0.3)] group-hover/field:border-brand-orange/50 group-hover/field:shadow-[0_0_15px_-5px_rgba(255,147,40,0.2)] hover:bg-brand-orange/5" />
-                        </div>
-                    </div>
-
-                    {/* Rolstoelgebruiker */}
-                    <div className="space-y-2">
-                        <Label className="block">Rolstoelgebruiker?</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                            {[{ val: true, label: "Ja", icon: Accessibility }, { val: false, label: "Nee", icon: XCircle }].map((opt) => (
-                                <div
-                                    key={String(opt.val)}
-                                    onClick={() => setValue("wheelchairUser", opt.val)}
-                                    className={cn(
-                                        "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[80px]",
-                                        watch("wheelchairUser") === opt.val
-                                            ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
-                                            : "border-glass-border glass-card hover:border-brand-orange/50"
-                                    )}
-                                >
-                                    {watch("wheelchairUser") === opt.val && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
-                                    <opt.icon className={cn("w-6 h-6 mb-1", watch("wheelchairUser") === opt.val ? "text-brand-orange" : "text-text-muted")} />
-                                    <div className={cn("font-bold text-sm", watch("wheelchairUser") === opt.val ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Pendelbus */}
-                    <div className="space-y-2">
-                        <Label className="block">Hoe kom je naar de startlocatie?</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                            {[
-                                { id: "pendelbus", label: "Pendelbus", icon: Bus, desc: "Ophalen bij Grotekerk -> startlocatie" },
-                                { id: "eigen-vervoer", label: "Eigen vervoer", icon: MapPin, desc: "Ik kom zelf" }
-                            ].map((opt) => (
-                                <div
-                                    key={opt.id}
-                                    onClick={() => setValue("shuttleBus", opt.id as any)}
-                                    className={cn(
-                                        "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[100px]",
-                                        selectedShuttle === opt.id
-                                            ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
-                                            : "border-glass-border glass-card hover:border-brand-orange/50"
-                                    )}
-                                >
-                                    {selectedShuttle === opt.id && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
-                                    {selectedShuttle === opt.id && (
-                                        <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
-                                            <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
-                                        </div>
-                                    )}
-                                    <opt.icon className={cn("w-7 h-7 mb-1", selectedShuttle === opt.id ? "text-brand-orange" : "text-text-muted")} />
-                                    <div className={cn("font-bold text-sm", selectedShuttle === opt.id ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
-                                    <div className="text-[10px] md:text-xs text-text-muted mt-0.5 leading-tight">{opt.desc}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Wonend in instelling */}
-                    <div className="space-y-2">
-                        <Label className="block">Wonend in een instelling?</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                            {[{ val: true, label: "Ja", icon: Building2 }, { val: false, label: "Nee", icon: Home }].map((opt) => (
-                                <div
-                                    key={String(opt.val)}
-                                    onClick={() => setValue("livesInFacility", opt.val)}
-                                    className={cn(
-                                        "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[80px]",
-                                        watch("livesInFacility") === opt.val
-                                            ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
-                                            : "border-glass-border glass-card hover:border-brand-orange/50"
-                                    )}
-                                >
-                                    {watch("livesInFacility") === opt.val && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
-                                    <opt.icon className={cn("w-6 h-6 mb-1", watch("livesInFacility") === opt.val ? "text-brand-orange" : "text-text-muted")} />
-                                    <div className={cn("font-bold text-sm", watch("livesInFacility") === opt.val ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Doelgroep */}
-                    <div className="space-y-2">
-                        <Label className="block">Wat beschrijft jou het best?</Label>
-                        <div className="grid grid-cols-3 gap-4">
-                            {[
-                                { id: "doelgroep", label: "Doelgroep", icon: Heart, desc: "Ik hoor bij de doelgroep" },
-                                { id: "verwant", label: "Verwant", icon: Users, desc: "Familie / naaste" },
-                                { id: "anders", label: "Anders", icon: HelpCircle, desc: "Geen van beide" }
-                            ].map((opt) => (
-                                <div
-                                    key={opt.id}
-                                    onClick={() => setValue("participantType", opt.id as any)}
-                                    className={cn(
-                                        "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[100px]",
-                                        selectedParticipantType === opt.id
-                                            ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
-                                            : "border-glass-border glass-card hover:border-brand-orange/50"
-                                    )}
-                                >
-                                    {selectedParticipantType === opt.id && <div className="absolute inset-0 bg-linear-to-tr from-brand-orange/10 to-transparent pointer-events-none" />}
-                                    {selectedParticipantType === opt.id && (
-                                        <div className="absolute top-1 right-1 md:top-2 md:right-2 text-brand-orange animate-in fade-in zoom-in duration-300">
-                                            <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 fill-brand-orange/20" />
-                                        </div>
-                                    )}
-                                    <opt.icon className={cn("w-7 h-7 mb-1", selectedParticipantType === opt.id ? "text-brand-orange" : "text-text-muted")} />
-                                    <div className={cn("font-bold text-sm leading-tight", selectedParticipantType === opt.id ? "text-brand-orange" : "text-text-body")}>{opt.label}</div>
-                                    <div className="text-[10px] md:text-xs text-text-muted mt-0.5 leading-tight">{opt.desc}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            )}
 
             {/* 5. Noodcontact (ICE) */}
-            <div className="space-y-6">
+            < div className="space-y-6" >
                 <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
                         <Phone className="w-6 h-6" />
@@ -571,10 +621,10 @@ export default function RegisterForm() {
                         {errors.icePhone && <p className="text-red-400 text-xs pl-1">{errors.icePhone?.message}</p>}
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* 5.5 Account Toggle */}
-            <div className="space-y-6 bg-linear-to-br from-brand-orange/5 to-transparent p-6 rounded-2xl border border-brand-orange/20">
+            < div className="space-y-6 bg-linear-to-br from-brand-orange/5 to-transparent p-6 rounded-2xl border border-brand-orange/20" >
                 <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 bg-brand-orange/10 rounded-xl text-brand-orange">
                         <UserPlus className="w-6 h-6" />
@@ -619,10 +669,10 @@ export default function RegisterForm() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* 6. Voorwaarden & Submit */}
-            <div className="space-y-6 pt-6 border-t border-glass-border">
+            < div className="space-y-6 pt-6 border-t border-glass-border" >
                 <h3 className="text-lg font-bold font-display text-text-body">Afronden</h3>
 
                 <div className="bg-surface/50 p-4 rounded-xl border border-glass-border space-y-4">
@@ -690,7 +740,7 @@ export default function RegisterForm() {
                         ? "Je ontvangt een email om je wachtwoord in te stellen."
                         : "Je kunt later nog een account aanmaken via 'Mijn Deelname'."}
                 </p>
-            </div>
-        </form>
+            </div >
+        </form >
     );
 }
