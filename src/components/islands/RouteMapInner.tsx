@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Polyline, Marker, Popup, CircleMarker, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import type { Route } from '../../lib/routeData';
 import L from 'leaflet';
 
