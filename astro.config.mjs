@@ -39,7 +39,6 @@ export default defineConfig({
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts';
             if (id.includes('lucide-react')) return 'vendor-icons';
             if (id.includes('convex')) return 'vendor-convex';
             if (id.includes('leaflet') || id.includes('react-leaflet')) return 'vendor-maps';

@@ -24,7 +24,7 @@ const isActive = (href: string) => {
     >
         <a href="/" class="shrink-0 group z-10 flex items-center gap-2">
             <div
-                class="p-2 bg-white/70 dark:bg-white/20 border border-white/40 dark:border-white/20 rounded-xl group-hover:bg-white/80 dark:group-hover:bg-white/30 transition-all duration-300"
+                class="p-2 bg-white/70 dark:bg-white/20 border border-white/40 dark:border-white/20 rounded-xl group-hover:bg-white/80 dark:group-hover:bg-white/30 transition-colors duration-300"
             >
                 <OptimizedImage
                     src="/De Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
@@ -49,7 +49,7 @@ const isActive = (href: string) => {
                             <a
                                 href={item.href}
                                 class:list={[
-                                    "px-4 py-2 rounded-full text-sm font-medium transition-all relative font-display tracking-wide flex items-center gap-1.5",
+                                    "px-4 py-2 rounded-full text-sm font-medium transition-[color,background-color,transform,box-shadow] relative font-display tracking-wide flex items-center gap-1.5",
                                     item.highlight
                                         ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20 hover:bg-orange-400 hover:scale-105"
                                         : active
@@ -73,7 +73,7 @@ const isActive = (href: string) => {
                 href="https://gofund.me/e7950f1c7"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="ml-3 px-4 py-2 rounded-full text-sm font-medium font-display tracking-wide flex items-center gap-1.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white hover:scale-105 transition-all shadow-sm hover:shadow-lg hover:shadow-rose-500/20"
+                class="ml-3 px-4 py-2 rounded-full text-sm font-medium font-display tracking-wide flex items-center gap-1.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white hover:scale-105 transition-[color,background-color,transform,box-shadow] shadow-sm hover:shadow-lg hover:shadow-rose-500/20"
                 aria-label="Doneer aan Only Friends via GoFundMe"
                 data-donate-source="navbar-desktop"
             >
@@ -92,7 +92,7 @@ const isActive = (href: string) => {
             <ThemeToggle client:idle />
             <button
                 id="mobile-menu-btn"
-                class="p-3.5 bg-surface border border-glass-border hover:border-brand-orange rounded-xl transition-all hover:scale-105 shadow-lg hover:shadow-xl active:scale-95 group"
+                class="p-3.5 bg-surface border border-glass-border hover:border-brand-orange rounded-xl transition-[border-color,transform,box-shadow] hover:scale-105 shadow-lg hover:shadow-xl active:scale-95 group"
                 aria-label="Toggle Menu"
             >
                 <Menu
@@ -152,7 +152,7 @@ const isActive = (href: string) => {
         </div>
         <button
             id="mobile-close-btn"
-            class="p-3 hover:bg-brand-orange cursor-pointer transition-all rounded-xl border border-glass-border hover:border-brand-orange shadow-md hover:scale-110 active:scale-95 group"
+            class="p-3 hover:bg-brand-orange cursor-pointer transition-[background-color,border-color,transform,colors] rounded-xl border border-glass-border hover:border-brand-orange shadow-md hover:scale-110 active:scale-95 group"
             style="background-color: var(--bg-surface);"
             aria-label="Close Menu"
         >
@@ -172,11 +172,11 @@ const isActive = (href: string) => {
                 .map((item, index) => (
                     <a
                         href={item.href}
-                        class="mobile-nav-link group relative translate-y-4 opacity-0 transform transition-all duration-300"
+                        class="mobile-nav-link group relative translate-y-4 opacity-0 transform transition-[opacity,transform] duration-300"
                         style={`transition-delay: ${index * 50}ms`}
                     >
                         <div
-                            class="relative overflow-hidden rounded-2xl border border-glass-border hover:border-brand-orange/50 shadow-sm hover:shadow-md transition-all duration-200 p-5 active:scale-[0.98]"
+                            class="relative overflow-hidden rounded-2xl border border-glass-border hover:border-brand-orange/50 shadow-sm hover:shadow-md transition-[border-color,box-shadow,transform] duration-200 p-5 active:scale-[0.98]"
                             style="background-color: var(--bg-surface);"
                         >
                             {/* Gradient Accent Overlay */}
@@ -192,7 +192,7 @@ const isActive = (href: string) => {
                                         </span>
                                     )}
                                 </span>
-                                <ChevronRight className="text-muted group-hover:text-brand-orange group-hover:translate-x-1 transition-all w-5 h-5" />
+                                <ChevronRight className="text-muted group-hover:text-brand-orange group-hover:translate-x-1 transition-[color,transform] w-5 h-5" />
                             </div>
                         </div>
                     </a>
@@ -201,7 +201,7 @@ const isActive = (href: string) => {
 
         {/* Decorative Divider */}
         <div
-            class="flex items-center gap-3 my-6 mobile-nav-link transform translate-y-4 opacity-0"
+            class="flex items-center gap-3 my-6 mobile-nav-link transform translate-y-4 opacity-0 transition-[transform,opacity] duration-300"
             style={`transition-delay: ${navItems.filter((i) => i.name !== "Inschrijven").length * 50}ms`}
         >
             <div
@@ -223,12 +223,12 @@ const isActive = (href: string) => {
             href="https://gofund.me/e7950f1c7"
             target="_blank"
             rel="noopener noreferrer"
-            class="mobile-nav-link transform translate-y-4 opacity-0"
+            class="mobile-nav-link transform translate-y-4 opacity-0 transition-[transform,opacity] duration-300"
             data-donate-source="navbar-mobile"
             style={`transition-delay: ${(navItems.filter((i) => i.name !== "Inschrijven").length + 1) * 50}ms`}
         >
             <div
-                class="relative overflow-hidden rounded-2xl bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 p-5 shadow-sm hover:shadow-md transition-all duration-200 group"
+                class="relative overflow-hidden rounded-2xl bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 p-5 shadow-sm hover:shadow-md transition-[border-color,box-shadow,transform] duration-200 group"
             >
                 <div class="flex items-center justify-between">
                     <span
@@ -247,11 +247,11 @@ const isActive = (href: string) => {
         {/* Enhanced CTA Button */}
         <a
             href="/register"
-            class="mobile-nav-link transform translate-y-4 opacity-0"
+            class="mobile-nav-link transform translate-y-4 opacity-0 transition-[transform,opacity] duration-300"
             style={`transition-delay: ${(navItems.filter((i) => i.name !== "Inschrijven").length + 2) * 50}ms`}
         >
             <button
-                class="w-full relative overflow-hidden group py-5 rounded-2xl bg-[linear-gradient(135deg,var(--color-brand-orange)_0%,#fbbf24_100%)] text-white font-bold font-display text-xl shadow-2xl shadow-brand-orange/50 hover:shadow-brand-orange/70 active:scale-95 transition-all hover:scale-[1.02] border-2 border-orange-400/30 hover:border-orange-300/50"
+                class="w-full relative overflow-hidden group py-5 rounded-2xl bg-[linear-gradient(135deg,var(--color-brand-orange)_0%,#fbbf24_100%)] text-white font-bold font-display text-xl shadow-2xl shadow-brand-orange/50 hover:shadow-brand-orange/70 active:scale-95 transition-[transform,box-shadow,border-color] hover:scale-[1.02] border-2 border-orange-400/30 hover:border-orange-300/50"
             >
                 {/* Shine Effect */}
                 <div
