@@ -133,11 +133,19 @@ import FloatingToolbox from "../components/dashboard/FloatingToolbox";
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link rel="preconnect" href="https://ik.imagekit.io" crossorigin />
         <link rel="preconnect" href="https://upload.imagekit.io" crossorigin />
-        <link rel="preconnect" href="https://streamable.com" crossorigin />
+        <!-- We use an async loading strategy for fonts to prevent render-blocking -->
         <link
+            rel="preload"
             href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
-            rel="stylesheet"
+            as="style"
+            onload="this.onload=null;this.rel='stylesheet'"
         />
+        <noscript>
+            <link
+                href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
+                rel="stylesheet"
+            />
+        </noscript>
         <slot name="head" />
     </head>
     <body class="text-text-body antialiased selection:bg-brand-primary/20">
