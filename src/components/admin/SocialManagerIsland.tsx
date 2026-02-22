@@ -140,6 +140,9 @@ export function SocialManagerIsland() {
     const totalCount = posts.length;
     const visibleCount = posts.filter((p: any) => p.isVisible).length;
     const featuredCount = posts.filter((p: any) => p.isFeatured).length;
+    const nextDisplayOrder = posts.length > 0
+        ? Math.max(...posts.map((p: any) => p.displayOrder)) + 1
+        : 1;
 
     return (
         <div className="space-y-6">
@@ -270,6 +273,7 @@ export function SocialManagerIsland() {
                 }}
                 onSave={handleSave}
                 editingPost={editingPost}
+                nextDisplayOrder={nextDisplayOrder}
             />
         </div>
     );
