@@ -16,7 +16,6 @@ interface Props {
     isOpen: boolean;
     onClose: () => void;
     onSave: (data: SocialPostFormData) => Promise<void>;
-    nextDisplayOrder?: number;
     editingPost?: {
         _id: Id<"social_posts">;
         imageUrl: string;
@@ -63,12 +62,12 @@ function isVideoFile(file: File): boolean {
 
 // ─── Component ───
 
-export function SocialPostModal({ isOpen, onClose, onSave, editingPost, nextDisplayOrder = 1 }: Props) {
+export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props) {
     // Core form state
     const [caption, setCaption] = useState("");
     const [instagramUrl, setInstagramUrl] = useState("");
     const [isFeatured, setIsFeatured] = useState(false);
-    const [displayOrder, setDisplayOrder] = useState(nextDisplayOrder);
+    const [displayOrder, setDisplayOrder] = useState(1);
     const [isVisible, setIsVisible] = useState(true);
     const [postedDate, setPostedDate] = useState("");
 
@@ -114,7 +113,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost, nextDisp
             setCaption("");
             setInstagramUrl("");
             setIsFeatured(false);
-            setDisplayOrder(nextDisplayOrder);
+            setDisplayOrder(1);
             setIsVisible(true);
             setPostedDate("");
             setMediaItems([]);

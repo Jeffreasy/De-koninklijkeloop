@@ -177,6 +177,24 @@ export const create = mutation({
             }
         }
 
+        // Auto-shift existing posts: if they have displayOrder >= the new one, increment by 1
+        const existingPostsToShift = await ctx.db
+            .query("social_posts")
+            .withIndex("by_year", (q) => q.eq("year", year))
+            .collect();
+
+        const postsToShift = existingPostsToShift.filter(
+            (p) => p.displayOrder >= args.displayOrder
+        );
+
+        for (const post of postsToShift) {
+            await ctx.db.patch(post._id, {
+                displayOrder: post.displayOrder + 1,
+                updatedAt: Date.now(),
+                updatedBy: "system (auto-shift)",
+            });
+        }
+
         const now = Date.now();
         return await ctx.db.insert("social_posts", {
             year,
@@ -237,6 +255,26 @@ export const update = mutation({
                 if (p._id !== id) {
                     await ctx.db.patch(p._id, { isFeatured: false });
                 }
+            }
+        }
+
+        // Auto-shift if displayOrder is changed to a new specific number
+        if (updates.displayOrder !== undefined && updates.displayOrder !== post.displayOrder) {
+            const existingPostsToShift = await ctx.db
+                .query("social_posts")
+                .withIndex("by_year", (q) => q.eq("year", postYear))
+                .collect();
+
+            const postsToShift = existingPostsToShift.filter(
+                (p) => p._id !== id && p.displayOrder >= updates.displayOrder!
+            );
+
+            for (const p of postsToShift) {
+                await ctx.db.patch(p._id, {
+                    displayOrder: p.displayOrder + 1,
+                    updatedAt: Date.now(),
+                    updatedBy: "system (auto-shift)",
+                });
             }
         }
 
