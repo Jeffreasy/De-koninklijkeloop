@@ -91,7 +91,6 @@ export function SocialManagerIsland() {
         } else {
             await createPost({
                 ...formData,
-                displayOrder: formData.displayOrder ?? 1,
                 year: selectedYear,
                 updatedBy,
             });

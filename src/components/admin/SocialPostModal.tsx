@@ -22,7 +22,6 @@ interface Props {
         caption: string;
         instagramUrl: string;
         isFeatured: boolean;
-        displayOrder?: number; // Kept for type backwards compat, but unused
         isVisible: boolean;
         postedDate?: string;
         mediaType?: string;
@@ -36,7 +35,6 @@ export interface SocialPostFormData {
     caption: string;
     instagramUrl: string;
     isFeatured: boolean;
-    displayOrder?: number; // Unused 
     isVisible: boolean;
     postedDate?: string;
     year?: string;
@@ -266,7 +264,6 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                 caption,
                 instagramUrl,
                 isFeatured,
-                displayOrder: 1, // Legacy dummy data
                 isVisible,
                 postedDate: postedDate || undefined,
                 mediaType: hasAnyVideo ? "video" : "image",

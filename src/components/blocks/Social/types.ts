@@ -8,7 +8,6 @@ export interface SSRPost {
     instagramUrl: string;
     isFeatured: boolean;
     isVisible?: boolean;
-    displayOrder?: number;
     postedDate?: string;
     mediaType?: string;
     videoUrl?: string;

@@ -150,7 +150,6 @@ export const create = mutation({
         caption: v.string(),
         instagramUrl: v.string(),
         isFeatured: v.boolean(),
-        displayOrder: v.number(),
         isVisible: v.boolean(),
         postedDate: v.optional(v.string()),
         year: v.optional(v.string()),
@@ -185,7 +184,6 @@ export const create = mutation({
             caption: args.caption,
             instagramUrl: args.instagramUrl,
             isFeatured: args.isFeatured,
-            displayOrder: args.displayOrder,
             isVisible: args.isVisible,
             postedDate: args.postedDate,
             createdAt: now,
@@ -205,7 +203,6 @@ export const update = mutation({
         caption: v.optional(v.string()),
         instagramUrl: v.optional(v.string()),
         isFeatured: v.optional(v.boolean()),
-        displayOrder: v.optional(v.number()),
         isVisible: v.optional(v.boolean()),
         postedDate: v.optional(v.string()),
         year: v.optional(v.string()),
@@ -327,32 +324,6 @@ export const toggleFeatured = mutation({
         });
 
         return args.id;
-    },
-});
-
-/**
- * Bulk update display order
- */
-export const reorder = mutation({
-    args: {
-        updates: v.array(v.object({
-            id: v.id("social_posts"),
-            displayOrder: v.number(),
-        })),
-        updatedBy: v.string(),
-    },
-    handler: async (ctx, args) => {
-        const now = Date.now();
-
-        for (const update of args.updates) {
-            await ctx.db.patch(update.id, {
-                displayOrder: update.displayOrder,
-                updatedAt: now,
-                updatedBy: args.updatedBy,
-            });
-        }
-
-        return args.updates.map((u) => u.id);
     },
 });
 

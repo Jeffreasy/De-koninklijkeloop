@@ -274,7 +274,6 @@ export default defineSchema({
 
         // Display Settings
         isFeatured: v.boolean(),        // Mark as "main/featured" post
-        displayOrder: v.number(),       // Display order (1 = shown first)
 
         // Status
         isVisible: v.boolean(),         // Visible on website
@@ -285,7 +284,6 @@ export default defineSchema({
         updatedAt: v.number(),          // Last update timestamp
         updatedBy: v.string(),          // Admin email/ID
     })
-        .index("by_display_order", ["displayOrder"])
         .index("by_featured", ["isFeatured"])
         .index("by_visible", ["isVisible"])
         .index("by_year", ["year"])
