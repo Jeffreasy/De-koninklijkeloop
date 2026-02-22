@@ -10,7 +10,6 @@ interface Props {
         instagramUrl: string;
         isFeatured: boolean;
         isVisible: boolean;
-        displayOrder: number;
         mediaType?: string;
         mediaItems?: { url: string; type: string; videoUrl?: string }[];
     };
@@ -60,11 +59,6 @@ export function SocialPostCard({
                         }`}>
                         {post.isVisible ? "Zichtbaar" : "Verborgen"}
                     </div>
-                </div>
-
-                {/* Display Order Badge */}
-                <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white text-xs font-bold">
-                    #{post.displayOrder}
                 </div>
 
                 {/* Video Play Badge */}

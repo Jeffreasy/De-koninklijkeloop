@@ -30,14 +30,14 @@ export const listPublic = query({
                 .query("social_posts")
                 .withIndex("by_year_visible", (q) => q.eq("year", args.year).eq("isVisible", true))
                 .collect()
-                .then((posts) => posts.sort((a, b) => a.displayOrder - b.displayOrder));
+                .then((posts) => posts.sort((a, b) => b.createdAt - a.createdAt));
         }
         // No year filter — return all visible posts
         return await ctx.db
             .query("social_posts")
             .withIndex("by_visible", (q) => q.eq("isVisible", true))
             .collect()
-            .then((posts) => posts.sort((a, b) => a.displayOrder - b.displayOrder));
+            .then((posts) => posts.sort((a, b) => b.createdAt - a.createdAt));
     },
 });
 
@@ -91,10 +91,10 @@ export const getThumbnails = query({
                 .collect();
         }
 
-        // Filter out featured posts and sort by displayOrder
+        // Filter out featured posts and sort by creation date (newest first)
         const thumbnails = allPosts
             .filter((p) => !p.isFeatured)
-            .sort((a, b) => a.displayOrder - b.displayOrder)
+            .sort((a, b) => b.createdAt - a.createdAt)
             .slice(0, limit);
 
         return thumbnails;
@@ -114,7 +114,7 @@ export const listAll = query({
                 .withIndex("by_year", (q) => q.eq("year", args.year))
                 .collect()
                 .then((posts) =>
-                    posts.sort((a, b) => a.displayOrder - b.displayOrder)
+                    posts.sort((a, b) => b.createdAt - a.createdAt)
                 );
         }
         // No year filter — return all posts
@@ -122,7 +122,7 @@ export const listAll = query({
             .query("social_posts")
             .collect()
             .then((posts) =>
-                posts.sort((a, b) => a.displayOrder - b.displayOrder)
+                posts.sort((a, b) => b.createdAt - a.createdAt)
             );
     },
 });
@@ -175,27 +175,7 @@ export const create = mutation({
             for (const post of yearPosts) {
                 await ctx.db.patch(post._id, { isFeatured: false });
             }
-        }
-
-        // Auto-shift existing posts: if they have displayOrder >= the new one, increment by 1
-        const existingPostsToShift = await ctx.db
-            .query("social_posts")
-            .withIndex("by_year", (q) => q.eq("year", year))
-            .collect();
-
-        const postsToShift = existingPostsToShift.filter(
-            (p) => p.displayOrder >= args.displayOrder
-        );
-
-        for (const post of postsToShift) {
-            await ctx.db.patch(post._id, {
-                displayOrder: post.displayOrder + 1,
-                updatedAt: Date.now(),
-                updatedBy: "system (auto-shift)",
-            });
-        }
-
-        const now = Date.now();
+        } const now = Date.now();
         return await ctx.db.insert("social_posts", {
             year,
             mediaType: args.mediaType || "image",
@@ -256,29 +236,7 @@ export const update = mutation({
                     await ctx.db.patch(p._id, { isFeatured: false });
                 }
             }
-        }
-
-        // Auto-shift if displayOrder is changed to a new specific number
-        if (updates.displayOrder !== undefined && updates.displayOrder !== post.displayOrder) {
-            const existingPostsToShift = await ctx.db
-                .query("social_posts")
-                .withIndex("by_year", (q) => q.eq("year", postYear))
-                .collect();
-
-            const postsToShift = existingPostsToShift.filter(
-                (p) => p._id !== id && p.displayOrder >= updates.displayOrder!
-            );
-
-            for (const p of postsToShift) {
-                await ctx.db.patch(p._id, {
-                    displayOrder: p.displayOrder + 1,
-                    updatedAt: Date.now(),
-                    updatedBy: "system (auto-shift)",
-                });
-            }
-        }
-
-        await ctx.db.patch(id, {
+        } await ctx.db.patch(id, {
             ...updates,
             updatedAt: Date.now(),
             updatedBy,

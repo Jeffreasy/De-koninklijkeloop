@@ -22,7 +22,7 @@ interface Props {
         caption: string;
         instagramUrl: string;
         isFeatured: boolean;
-        displayOrder: number;
+        displayOrder?: number; // Kept for type backwards compat, but unused
         isVisible: boolean;
         postedDate?: string;
         mediaType?: string;
@@ -36,7 +36,7 @@ export interface SocialPostFormData {
     caption: string;
     instagramUrl: string;
     isFeatured: boolean;
-    displayOrder: number;
+    displayOrder?: number; // Unused 
     isVisible: boolean;
     postedDate?: string;
     year?: string;
@@ -67,7 +67,6 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
     const [caption, setCaption] = useState("");
     const [instagramUrl, setInstagramUrl] = useState("");
     const [isFeatured, setIsFeatured] = useState(false);
-    const [displayOrder, setDisplayOrder] = useState(1);
     const [isVisible, setIsVisible] = useState(true);
     const [postedDate, setPostedDate] = useState("");
 
@@ -93,7 +92,6 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
             setCaption(editingPost.caption);
             setInstagramUrl(editingPost.instagramUrl);
             setIsFeatured(editingPost.isFeatured);
-            setDisplayOrder(editingPost.displayOrder);
             setIsVisible(editingPost.isVisible);
             setPostedDate(editingPost.postedDate || "");
 
@@ -113,7 +111,6 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
             setCaption("");
             setInstagramUrl("");
             setIsFeatured(false);
-            setDisplayOrder(1);
             setIsVisible(true);
             setPostedDate("");
             setMediaItems([]);
@@ -269,7 +266,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                 caption,
                 instagramUrl,
                 isFeatured,
-                displayOrder,
+                displayOrder: 1, // Legacy dummy data
                 isVisible,
                 postedDate: postedDate || undefined,
                 mediaType: hasAnyVideo ? "video" : "image",
@@ -620,21 +617,6 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                                         <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 peer-checked:translate-x-4 pointer-events-none" />
                                     </div>
                                 </label>
-
-                                {/* Display Order */}
-                                <div>
-                                    <label className="block text-xs md:text-sm text-text-primary mb-1.5">
-                                        Volgorde
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max="100"
-                                        value={displayOrder}
-                                        onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 1)}
-                                        className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
-                                    />
-                                </div>
                             </div>
                         </div>
                     </div>

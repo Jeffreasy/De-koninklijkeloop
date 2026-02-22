@@ -28,7 +28,6 @@ type EditingPost = {
     instagramUrl: string;
     isFeatured: boolean;
     isVisible: boolean;
-    displayOrder: number;
     postedDate?: string;
     year?: string;
     mediaType?: string;
@@ -90,9 +89,9 @@ export function SocialManagerIsland() {
                 updatedBy,
             });
         } else {
-            // Create new — assign to the selected year
             await createPost({
                 ...formData,
+                displayOrder: formData.displayOrder ?? 1,
                 year: selectedYear,
                 updatedBy,
             });
