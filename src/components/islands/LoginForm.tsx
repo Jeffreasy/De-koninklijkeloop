@@ -21,6 +21,7 @@ export default function LoginForm() {
     // MFA States
     const [mfaCode, setMfaCode] = useState("");
     const [preAuthToken, setPreAuthToken] = useState<string | null>(null);
+    const [userId, setUserId] = useState<string | null>(null);
     const [mfaSecret, setMfaSecret] = useState<string | null>(null);
     const [mfaQrCode, setMfaQrCode] = useState<string | null>(null);
     const [backupCodes, setBackupCodes] = useState<string[]>([]);
@@ -71,6 +72,7 @@ export default function LoginForm() {
             // Check if MFA is required (intercept standard flow)
             if (data.mfa_required) {
                 setPreAuthToken(data.pre_auth_token);
+                setUserId(rawUser.ID || rawUser.id);
                 // IF user has MFA already enabled, they just need to insert the code to verify
                 if (rawUser.MfaEnabled || rawUser.mfa_enabled) {
                     setView('mfa_verify');
@@ -163,6 +165,7 @@ export default function LoginForm() {
                     "Authorization": `Bearer ${preAuthToken}`
                 },
                 body: JSON.stringify({
+                    user_id: userId,
                     secret: mfaSecret,
                     code: mfaCode,
                     backup_codes: backupCodes
@@ -212,12 +215,17 @@ export default function LoginForm() {
     };
 
     const processMfaLogin = async () => {
-        const data = await apiRequest("/auth/mfa/verify", {
+        // Detect if this is a TOTP code (usually 6 numeric digits) or a longer string (e.g. backup code 8-16 chars)
+        const isBackupCode = mfaCode.length > 6 || !/^\d+$/.test(mfaCode);
+        const endpoint = isBackupCode ? "/auth/mfa/backup" : "/auth/mfa/verify";
+
+        const data = await apiRequest(endpoint, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${preAuthToken}`
             },
             body: JSON.stringify({
+                user_id: userId,
                 code: mfaCode
             }),
         });
@@ -382,9 +390,8 @@ export default function LoginForm() {
                                     <Input
                                         id="mfa-verify-code"
                                         type="text"
-                                        inputMode="numeric"
-                                        pattern="[0-9]*"
-                                        maxLength={6}
+                                        inputMode="text"
+                                        maxLength={16}
                                         value={mfaCode}
                                         onChange={(e) => setMfaCode(e.target.value)}
                                         placeholder="123456"
@@ -426,7 +433,7 @@ export default function LoginForm() {
                             <div className="text-center pt-2">
                                 <button
                                     type="button"
-                                    onClick={() => { setView('login'); clearState(); setPreAuthToken(null); }}
+                                    onClick={() => { setView('login'); clearState(); setPreAuthToken(null); setUserId(null); }}
                                     className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors group"
                                 >
                                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -485,9 +492,8 @@ export default function LoginForm() {
                                     <Input
                                         id="mfa-setup-code"
                                         type="text"
-                                        inputMode="numeric"
-                                        pattern="[0-9]*"
-                                        maxLength={6}
+                                        inputMode="text"
+                                        maxLength={16}
                                         value={mfaCode}
                                         onChange={(e) => setMfaCode(e.target.value)}
                                         placeholder="123456"
