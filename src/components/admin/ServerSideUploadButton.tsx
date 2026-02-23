@@ -208,6 +208,11 @@ export async function uploadFileToImageKit(file: File): Promise<string> {
         method: 'POST',
         body: formData,
         credentials: 'include',
+        headers: {
+            // Required to bypass Vercel Edge CSRF protection for multipart form POSTs.
+            // Vercel blocks cross-site form submissions but allows XHR-identified requests.
+            'X-Requested-With': 'XMLHttpRequest',
+        },
     });
 
     // Read body as text first to avoid JSON parse crash on non-JSON responses
@@ -225,5 +230,5 @@ export async function uploadFileToImageKit(file: File): Promise<string> {
         throw new Error(String(data.error) || `Upload mislukt (${response.status})`);
     }
 
-    return data.url;
+    return String(data.url);
 }
