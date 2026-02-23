@@ -58,10 +58,10 @@ export const MessageBubble = memo(function MessageBubble({ message, isMe, curren
                     )}
                     <p className="leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
                     <div className={`text-[10px] mt-1 text-right opacity-60 ${isMe ? 'text-white' : 'text-text-muted'}`}>
-                        {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(('created_at' in message ? message.created_at as string : message.createdAt)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         {isMe && dmMsg && (
                             <span className="ml-1 inline-block">
-                                {dmMsg.isRead ? '✓✓' : '✓'}
+                                {('is_read' in dmMsg ? dmMsg.is_read : (dmMsg as any).isRead) ? '✓✓' : '✓'}
                             </span>
                         )}
                     </div>

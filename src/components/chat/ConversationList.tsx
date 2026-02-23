@@ -81,10 +81,10 @@ export function ConversationList({
                     <div className="space-y-0.5">
                         {onlineUsers.map(user => (
                             <UserListItem
-                                key={user.user}
+                                key={user.user_id}
                                 user={user}
-                                unreadCount={unreadStats?.counts?.[user.user] || 0}
-                                onClick={() => onOpenDm({ id: user.user, name: user.name })}
+                                unreadCount={unreadStats?.counts?.[user.user_id] || 0}
+                                onClick={() => onOpenDm({ id: user.user_id, name: user.name || 'Gebruiker' })}
                                 isOnline
                             />
                         ))}
@@ -101,10 +101,10 @@ export function ConversationList({
                     <div className="space-y-0.5">
                         {offlineUsers.map(user => (
                             <UserListItem
-                                key={user.user}
+                                key={user.user_id}
                                 user={user}
-                                unreadCount={unreadStats?.counts?.[user.user] || 0}
-                                onClick={() => onOpenDm({ id: user.user, name: user.name })}
+                                unreadCount={unreadStats?.counts?.[user.user_id] || 0}
+                                onClick={() => onOpenDm({ id: user.user_id, name: user.name || 'Gebruiker' })}
                                 isOnline={false}
                             />
                         ))}
@@ -113,25 +113,25 @@ export function ConversationList({
             )}
 
             {/* Recent conversations with users not in presence */}
-            {conversations.filter(c => !allTeamMembers.some(m => m.user === c.otherUser)).length > 0 && (
+            {conversations.filter(c => !allTeamMembers.some(m => m.user_id === c.other_user_id)).length > 0 && (
                 <div className="space-y-1.5">
                     <h4 className="text-xs font-bold text-text-muted uppercase tracking-wider px-2">
                         Recente gesprekken
                     </h4>
                     {conversations
-                        .filter(c => !allTeamMembers.some(m => m.user === c.otherUser))
+                        .filter(c => !allTeamMembers.some(m => m.user_id === c.other_user_id))
                         .map(conv => (
                             <button
-                                key={conv.otherUser}
-                                onClick={() => onOpenDm({ id: conv.otherUser, name: conv.otherUser })}
+                                key={conv.other_user_id}
+                                onClick={() => onOpenDm({ id: conv.other_user_id, name: conv.other_user_name })}
                                 className="w-full flex items-center gap-3 p-3 hover:bg-glass-surface/50 rounded-xl text-left transition-colors cursor-pointer"
                             >
                                 <div className="w-10 h-10 rounded-full bg-glass-surface flex items-center justify-center text-text-primary text-sm font-bold">
-                                    {conv.otherUser.charAt(0).toUpperCase()}
+                                    {(conv.other_user_name || '?').charAt(0).toUpperCase()}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-bold text-text-primary truncate">{conv.otherUser}</div>
-                                    <div className="text-xs text-text-muted truncate">{conv.lastMessage}</div>
+                                    <div className="text-sm font-bold text-text-primary truncate">{conv.other_user_name}</div>
+                                    <div className="text-xs text-text-muted truncate">{conv.last_message}</div>
                                 </div>
                             </button>
                         ))}
@@ -158,7 +158,7 @@ const UserListItem = memo(function UserListItem({ user, unreadCount, onClick, is
                     ? 'bg-linear-to-br from-brand-orange to-orange-600 shadow-brand-orange/20 text-white'
                     : 'bg-glass-surface text-text-primary'
                     }`}>
-                    {user.name.charAt(0).toUpperCase()}
+                    {(user.name || 'G').charAt(0).toUpperCase()}
                 </div>
                 <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-surface shadow-sm ${isOnline ? 'bg-green-500 animate-[pulse_3s_infinite]' : 'bg-gray-500'
                     }`}></span>
@@ -166,7 +166,7 @@ const UserListItem = memo(function UserListItem({ user, unreadCount, onClick, is
             <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center mb-0.5">
                     <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-bold text-text-primary truncate">{user.name}</span>
+                        <span className="text-sm font-bold text-text-primary truncate">{user.name || 'Gebruiker'}</span>
                         {user.role && (
                             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide ${user.role === 'admin'
                                 ? 'bg-red-500/20 text-red-600 border border-red-500/30'
@@ -186,7 +186,7 @@ const UserListItem = memo(function UserListItem({ user, unreadCount, onClick, is
                     {isOnline ? (
                         <><span className="w-1.5 h-1.5 rounded-full bg-green-500/50"></span>Nu actief</>
                     ) : (
-                        <>Laatst gezien {formatLastSeen(user.lastActive)}</>
+                        <>Laatst gezien {formatLastSeen(Date.parse(user.last_active) || 0)}</>
                     )}
                 </div>
             </div>

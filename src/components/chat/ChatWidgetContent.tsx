@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
 import { usePresence } from '../../hooks/usePresence';
 import { MessageSquare, X, ArrowLeft } from 'lucide-react';
-import type { ChatUser, GroupConversation, ChatView } from './types';
+import type { ChatUser, GroupConversation, ChatView, ConversationSummary, TeamMember, UnreadStats } from './types';
 import { ConversationList } from './ConversationList';
 import { DirectMessageView } from './DirectMessageView';
 import { GroupChatView } from './GroupChatView';
 import { CreateGroupView } from './CreateGroupView';
 import { DmStatusLine } from './DmStatusLine';
+import { apiRequest } from '../../lib/api';
 
 interface ChatWidgetContentProps {
     currentUser: ChatUser;
@@ -27,14 +26,69 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
         isOpen ? "chat-widget" : undefined
     );
 
-    // Queries — skip expensive ones when widget is closed
-    const teamMembers = useQuery(api.chat.getAllTeamMembers, isOpen ? {} : "skip") || [];
-    const unreadStats = useQuery(api.chat.getUnreadCounts, { user: currentUser.email });
-    const conversations = useQuery(api.chat.getConversations, isOpen ? { user: currentUser.email } : "skip") || [];
-    const groupConversations = useQuery(api.chat.getGroupConversations, isOpen ? { user: currentUser.email } : "skip") || [];
+    const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+    const [unreadStats, setUnreadStats] = useState<UnreadStats>({ counts: {}, total: 0 });
+    const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+    const [groupConversations, setGroupConversations] = useState<GroupConversation[]>([]);
 
-    const otherOnlineUsers = teamMembers.filter(u => u.user !== currentUser.email && u.isOnline);
-    const offlineUsers = teamMembers.filter(u => u.user !== currentUser.email && !u.isOnline);
+    // Custom SSE Events & Fetching Data
+    useEffect(() => {
+        if (!isOpen) return;
+
+        // Initial Fetch
+        const fetchInitialData = async () => {
+            try {
+                const [membersRes, unreadRes, convosRes] = await Promise.all([
+                    apiRequest('/v1/presence/online'),
+                    apiRequest('/v1/messages/unread'),
+                    apiRequest('/v1/messages/conversations')
+                ]);
+                if (Array.isArray(membersRes)) setTeamMembers(membersRes);
+                if (unreadRes && typeof unreadRes.count === 'number') {
+                    setUnreadStats(prev => ({ ...prev, total: unreadRes.count }));
+                }
+                if (Array.isArray(convosRes)) setConversations(convosRes);
+            } catch (e) {
+                console.warn("[ChatWidget] Failed to fetch initial data", e);
+            }
+        };
+        fetchInitialData();
+
+        // Setup Server-Sent Events Subscription
+        const eventSource = new EventSource('/api/v1/messages/stream', {
+            withCredentials: true
+        });
+
+        eventSource.onopen = () => console.log("[SSE] Connected to chat stream");
+
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === "NEW_MESSAGE") {
+                    // Refresh unread and conversations on new message
+                    fetchInitialData();
+                } else if (data.type === "PRESENCE_UPDATE") {
+                    apiRequest('/v1/presence/online').then(res => {
+                        if (Array.isArray(res)) setTeamMembers(res);
+                    });
+                }
+            } catch (e) {
+                console.warn("[SSE] Parse error", e);
+            }
+        };
+
+        eventSource.onerror = (e) => {
+            console.warn("[SSE] Stream connected error:", e);
+        };
+
+        return () => {
+            eventSource.close();
+        };
+
+    }, [isOpen]);
+
+    const otherOnlineUsers = teamMembers.filter(u => u.user_id !== currentUser.email && u.isOnline);
+    const offlineUsers = teamMembers.filter(u => u.user_id !== currentUser.email && !u.isOnline);
     const totalUnread = unreadStats?.total || 0;
 
     // Browser notifications
@@ -178,7 +232,7 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
                 {chatView === 'create-group' && (
                     <CreateGroupView
                         currentUser={currentUser}
-                        teamMembers={teamMembers.filter(m => m.user !== currentUser.email)}
+                        teamMembers={teamMembers.filter(m => m.user_id !== currentUser.email)}
                         onCreated={(group) => { openGroup(group); }}
                         onCancel={goBack}
                     />

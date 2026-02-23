@@ -1,62 +1,57 @@
 
 import { useEffect, useCallback, useRef } from 'react';
-import { useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/api';
+import { apiRequest } from '../lib/api';
 
 /**
  * usePresence Hook
- * Sends a heartbeat every 60s to keep the user "Online".
+ * Sends a heartbeat every 30s to keep the user "Online".
  * Pass null for user to disable the heartbeat entirely.
  */
 export function usePresence(
     user: { id: string; name: string; role?: string } | null,
-    path?: string
+    path?: string // Note: Backend doesn't currently store path in Redis, but we keep it for signature
 ) {
-    const heartbeat = useMutation(api.chat.heartbeat);
-
     useEffect(() => {
         if (!user) return;
 
         const sendHeartbeat = async () => {
             try {
-                await heartbeat({
-                    user: user.id,
-                    name: user.name,
-                    path,
-                    role: (user.role === "admin" || user.role === "editor") ? user.role : undefined,
+                // The Go backend extracts UserID and Role directly from the Context/JWT
+                await apiRequest('/v1/presence/heartbeat', {
+                    method: 'POST'
                 });
             } catch (error) {
-                console.error("[Presence] Heartbeat failed:", error);
+                console.warn("[Presence] Heartbeat failed:", error);
             }
         };
 
         sendHeartbeat();
-        const interval = setInterval(sendHeartbeat, 60000);
+        // Go backend expects a ping every 30s to stay within the 60s TTL window
+        const interval = setInterval(sendHeartbeat, 30000);
         return () => clearInterval(interval);
-    }, [user, path, heartbeat]);
+    }, [user, path]);
 }
 
 /**
  * useTypingIndicator Hook
- * Debounced typing status. Sends "typing" on keypress, clears after 3s idle.
+ * Note: Temporarily disabled (no-op) until full SSE presence triggers are built in Go.
  */
 export function useTypingIndicator(currentUser: string) {
-    const setTyping = useMutation(api.chat.setTyping);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const startTyping = useCallback((typingTo: string) => {
-        setTyping({ user: currentUser, typingTo }).catch(() => { });
-
+        // Disabled for now, as typing status hasn't been migrated to Redis/SSE yet
+        // apiRequest('/v1/messages/typing', { method: 'POST', body: { typingTo } }).catch(() => {});
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
-            setTyping({ user: currentUser, typingTo: undefined }).catch(() => { });
+            // apiRequest('/v1/messages/typing', { method: 'DELETE' }).catch(() => {});
         }, 3000);
-    }, [currentUser, setTyping]);
+    }, [currentUser]);
 
     const stopTyping = useCallback(() => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        setTyping({ user: currentUser, typingTo: undefined }).catch(() => { });
-    }, [currentUser, setTyping]);
+        // apiRequest('/v1/messages/typing', { method: 'DELETE' }).catch(() => {});
+    }, [currentUser]);
 
     // Cleanup on unmount
     useEffect(() => {

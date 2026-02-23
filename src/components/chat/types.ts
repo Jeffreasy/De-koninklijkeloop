@@ -13,12 +13,13 @@ export interface ChatWidgetProps {
 }
 
 export interface TeamMember {
-    user: string;
-    name: string;
-    role?: string;
-    isOnline: boolean;
-    lastActive: number;
-    path?: string;
+    user_id: string; // From Go: user_id
+    role?: string;   // From Go: role
+    last_active: string; // From Go: last_active (Time)
+
+    // Properties filled by Context or Frontend fallback if needed
+    name?: string;
+    isOnline?: boolean;
 }
 
 export interface Reaction {
@@ -28,15 +29,14 @@ export interface Reaction {
 }
 
 export interface DirectMessage {
-    _id: Id<"direct_messages">;
-    sender: string;
-    recipient: string;
+    id: string;
+    sender_id: string;
+    recipient_id: string;
     content: string;
-    isRead: boolean;
-    type: "text" | "image" | "system";
-    conversationId?: string;
+    is_read: boolean;
+    type?: "text" | "image" | "system";
     reactions?: Reaction[];
-    createdAt: number;
+    created_at: string; // ISO String from Go
 }
 
 export interface GroupConversation {
@@ -61,10 +61,14 @@ export interface GroupMessage {
 }
 
 export interface ConversationSummary {
-    otherUser: string;
-    lastMessage: string;
-    timestamp: number;
-    isRead: boolean;
+    message_id: string;
+    last_message: string;
+    last_message_at: string;
+    is_read: boolean;
+    other_user_id: string;
+    other_user_name: string;
+    other_user_email: string;
+    other_user_role?: string;
 }
 
 export interface UnreadStats {
