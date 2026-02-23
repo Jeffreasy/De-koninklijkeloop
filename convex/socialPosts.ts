@@ -15,6 +15,21 @@ import { mutation, query } from "./_generated/server";
 const CURRENT_YEAR = "2026";
 
 // ============================================================
+// SORT HELPER (postedDate is leidend)
+// ============================================================
+// Handles: number (post-migration), string (pre-migration "YYYY-MM-DD"), undefined
+function effectiveDate(post: any): number {
+    const pd = post.postedDate;
+    if (typeof pd === "number") return pd;
+    if (typeof pd === "string") {
+        const ts = new Date(pd).getTime();
+        if (!isNaN(ts)) return ts;
+    }
+    return post.createdAt as number;
+}
+const byDate = (a: any, b: any) => effectiveDate(b) - effectiveDate(a);
+
+// ============================================================
 // QUERIES (Public + Admin)
 // ============================================================
 
@@ -25,11 +40,6 @@ const CURRENT_YEAR = "2026";
 export const listPublic = query({
     args: { year: v.optional(v.string()) },
     handler: async (ctx, args) => {
-        const byDate = (a: any, b: any) => {
-            const aDate = typeof a.postedDate === "number" ? a.postedDate : a.createdAt;
-            const bDate = typeof b.postedDate === "number" ? b.postedDate : b.createdAt;
-            return bDate - aDate;
-        };
         if (args.year) {
             const year = args.year;
             return await ctx.db
@@ -45,6 +55,7 @@ export const listPublic = query({
             .then((posts) => posts.sort(byDate));
     },
 });
+
 
 /**
  * Get the featured post (for public display)
@@ -83,11 +94,6 @@ export const getThumbnails = query({
     },
     handler: async (ctx, args) => {
         const limit = args.limit || 50;
-        const byDate = (a: any, b: any) => {
-            const aDate = typeof a.postedDate === "number" ? a.postedDate : a.createdAt;
-            const bDate = typeof b.postedDate === "number" ? b.postedDate : b.createdAt;
-            return bDate - aDate;
-        };
 
         let allPosts;
         if (args.year) {
@@ -120,11 +126,6 @@ export const getThumbnails = query({
 export const listAll = query({
     args: { year: v.optional(v.string()) },
     handler: async (ctx, args) => {
-        const byDate = (a: any, b: any) => {
-            const aDate = typeof a.postedDate === "number" ? a.postedDate : a.createdAt;
-            const bDate = typeof b.postedDate === "number" ? b.postedDate : b.createdAt;
-            return bDate - aDate;
-        };
         if (args.year) {
             const year = args.year;
             return await ctx.db
