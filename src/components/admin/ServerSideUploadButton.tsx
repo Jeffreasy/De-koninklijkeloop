@@ -200,10 +200,17 @@ export async function uploadFileToImageKit(file: File): Promise<string> {
         return result.url;
     }
 
-    // Images: send as JSON+base64 to bypass Vercel Edge CSRF block on multipart/form-data.
+    // Use JSON+base64 to bypass Vercel Edge CSRF block on multipart/form-data.
     // Vercel blocks "Cross-site POST form submissions" for multipart, but allows application/json.
     const arrayBuffer = await file.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    // Chunk-based base64: btoa(String.fromCharCode(...largeArray)) causes stack overflow
+    const uint8 = new Uint8Array(arrayBuffer);
+    let binary = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < uint8.length; i += chunkSize) {
+        binary += String.fromCharCode(...uint8.subarray(i, i + chunkSize));
+    }
+    const base64 = btoa(binary);
 
     const response = await fetch('/api/admin/upload-image', {
         method: 'POST',
