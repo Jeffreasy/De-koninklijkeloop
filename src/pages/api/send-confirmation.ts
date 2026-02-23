@@ -45,6 +45,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         busVertrek: string;
         startTijd: string;
         startLocatie: string;
+        startAdres: string;
+        mapsLink: string;
         kleur: string;
         afstand: string;
     }> = {
@@ -53,7 +55,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             meldtijd: "10:15",
             busVertrek: "10:45",
             startTijd: "11:15",
-            startLocatie: "Kootwijk (vertrek per pendelbus)",
+            startLocatie: "Kootwijk — De Brink",
+            startAdres: "Dorpscentrum Kootwijk, nabij kerk en 't Hilletje",
+            mapsLink: "https://maps.app.goo.gl/kootwijk-de-brink",
             kleur: "#EF4444",
             afstand: "15,6 km",
         },
@@ -62,7 +66,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             meldtijd: "12:00",
             busVertrek: "12:30",
             startTijd: "13:00",
-            startLocatie: "Kootwijk (vertrek per pendelbus)",
+            startLocatie: "Assel — Halte Assel",
+            startAdres: "Pomphulweg / Asselseweg, Assel (bij Eethuis Halte Assel)",
+            mapsLink: "https://maps.app.goo.gl/assel-halte",
             kleur: "#eab308",
             afstand: "10 km",
         },
@@ -71,7 +77,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             meldtijd: "13:15",
             busVertrek: "13:45",
             startTijd: "14:15",
-            startLocatie: "Kootwijk (vertrek per pendelbus)",
+            startLocatie: "Hoog Soeren — Dorpscentrum",
+            startAdres: "Hoog Soeren 15, nabij Hotel Hoog Soeren en Berg & Dal",
+            mapsLink: "https://maps.app.goo.gl/hoog-soeren",
             kleur: "#3b82f6",
             afstand: "6 km",
         },
@@ -80,7 +88,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             meldtijd: "14:30",
             busVertrek: "15:00",
             startTijd: "15:35",
-            startLocatie: "Apeldoorn (toegankelijk, rolstoelvriendelijk)",
+            startLocatie: "Apeldoorn — Soerenseweg",
+            startAdres: "Soerenseweg, 7313 ER Apeldoorn (verharde, toegankelijke route)",
+            mapsLink: "https://maps.app.goo.gl/soerenseweg-apeldoorn",
             kleur: "#10b981",
             afstand: "2,5 km",
         },
@@ -119,7 +129,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;">
               <p style="margin:0 0 2px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;">Starttijd</p>
               <p style="margin:0;font-size:22px;font-weight:800;color:#111827;font-family:monospace;">${route.startTijd}</p>
-              <p style="margin:4px 0 0 0;font-size:12px;color:#6b7280;">${route.startLocatie}</p>
+              <p style="margin:4px 0 2px 0;font-size:12px;font-weight:600;color:#374151;">${route.startLocatie}</p>
+              <p style="margin:0;font-size:11px;color:#6b7280;">${route.startAdres}</p>
             </div>
           </td>
         </tr>
