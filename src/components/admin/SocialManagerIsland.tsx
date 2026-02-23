@@ -4,21 +4,27 @@ import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { SocialPostCard } from "./SocialPostCard";
 import { SocialPostModal, type SocialPostFormData } from "./SocialPostModal";
-import { Loader2, Plus, Instagram, Calendar } from "lucide-react";
+import { Plus, Instagram, Calendar } from "lucide-react";
 import { useStore } from "@nanostores/react";
-import { $accessToken, $user } from "../../lib/auth";
+import { $user } from "../../lib/auth";
 
 type FilterType = "all" | "visible" | "hidden" | "featured";
 
+// DKL event happens in May each year.
+// Posts are bucketed by the event year they relate to:
+//   "2024" = Editie 2024 (event mei 2024) → seizoen 23/24
+//   "2025" = Editie 2025 (event mei 2025) → seizoen 24/25
+//   "2026" = Editie 2026 (event mei 2026) → seizoen 25/26 (huidig)
 const EDITIONS = [
-    { value: "2026", label: "25/26" },
-    { value: "2025", label: "24/25" },
-    { value: "2024", label: "23/24" },
+    { value: "2026", label: "2026", sublabel: "seizoen 25/26" },
+    { value: "2025", label: "2025", sublabel: "seizoen 24/25" },
+    { value: "2024", label: "2024", sublabel: "seizoen 23/24" },
 ] as const;
 type YearType = typeof EDITIONS[number]["value"];
 
 function editionLabel(year: string): string {
-    return EDITIONS.find(e => e.value === year)?.label ?? year;
+    const ed = EDITIONS.find(e => e.value === year);
+    return ed ? `Editie ${ed.label} (${ed.sublabel})` : year;
 }
 
 type EditingPost = {
@@ -28,15 +34,14 @@ type EditingPost = {
     instagramUrl: string;
     isFeatured: boolean;
     isVisible: boolean;
-    postedDate?: string;
+    postedDate?: number;
     year?: string;
-    mediaType?: string;
+    mediaType?: "image" | "video";
     videoUrl?: string;
     mediaItems?: { url: string; type: "image" | "video"; videoUrl?: string }[];
 } | null;
 
 export function SocialManagerIsland() {
-    const accessToken = useStore($accessToken);
     const user = useStore($user);
 
     // Year state — default to most recent
@@ -82,7 +87,6 @@ export function SocialManagerIsland() {
         const updatedBy = user?.email || "admin@dkl.nl";
 
         if (editingPost) {
-            // Update existing
             await updatePost({
                 id: editingPost._id,
                 ...formData,
@@ -104,17 +108,11 @@ export function SocialManagerIsland() {
     };
 
     const handleToggleVisibility = async (id: Id<"social_posts">) => {
-        await toggleVisibility({
-            id,
-            updatedBy: user?.email || "admin@dkl.nl"
-        });
+        await toggleVisibility({ id, updatedBy: user?.email || "admin@dkl.nl" });
     };
 
     const handleToggleFeatured = async (id: Id<"social_posts">) => {
-        await toggleFeatured({
-            id,
-            updatedBy: user?.email || "admin@dkl.nl"
-        });
+        await toggleFeatured({ id, updatedBy: user?.email || "admin@dkl.nl" });
     };
 
     // Loading state
@@ -153,19 +151,22 @@ export function SocialManagerIsland() {
                                     setSelectedYear(edition.value);
                                     setFilter("all");
                                 }}
-                                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 min-h-[40px] cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 ${selectedYear === edition.value
+                                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 min-h-[44px] cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 flex flex-col items-center leading-tight ${selectedYear === edition.value
                                     ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/25"
                                     : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
                                     }`}
                                 aria-label={`Toon posts van editie ${edition.label}`}
                                 aria-pressed={selectedYear === edition.value}
                             >
-                                {edition.label}
+                                <span className="font-bold">{edition.label}</span>
+                                <span className={`text-[10px] font-normal ${selectedYear === edition.value ? "text-white/80" : "text-text-muted"}`}>
+                                    {edition.sublabel}
+                                </span>
                             </button>
                         ))}
                     </div>
                     <span className="text-xs text-text-muted hidden sm:inline ml-auto">
-                        Editie {editionLabel(selectedYear)}
+                        {editionLabel(selectedYear)}
                     </span>
                 </div>
             </div>
@@ -186,7 +187,7 @@ export function SocialManagerIsland() {
                                 <button
                                     key={f.value}
                                     onClick={() => setFilter(f.value)}
-                                    className={`px-3 py-2 md:py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 ${filter === f.value
+                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 ${filter === f.value
                                         ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
                                         : "text-text-muted hover:text-text-primary hover:bg-glass-border/30"
                                         }`}
@@ -225,11 +226,11 @@ export function SocialManagerIsland() {
                             <Instagram className="w-8 h-8 text-text-muted opacity-50" />
                         </div>
                         <h3 className="text-xl font-display font-bold text-text-primary">
-                            Nog geen posts in editie {editionLabel(selectedYear)}
+                            Nog geen posts in {editionLabel(selectedYear)}
                         </h3>
                         <p className="text-text-muted">
                             {filter === "all"
-                                ? `Voeg je eerste Instagram post toe voor editie ${editionLabel(selectedYear)}.`
+                                ? `Voeg je eerste Instagram post toe voor ${editionLabel(selectedYear)}.`
                                 : `Geen posts gevonden met filter: ${filter}`
                             }
                         </p>

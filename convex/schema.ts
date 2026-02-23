@@ -253,11 +253,11 @@ export default defineSchema({
 
     // Social Media Posts (Manual Instagram Management)
     social_posts: defineTable({
-        // Edition
-        year: v.optional(v.string()),   // "2024", "2025", "2026" — optional for backfill compat
+        // Edition — required so compound indexes always work
+        year: v.string(),   // "2024", "2025", "2026"
 
-        // Media Type
-        mediaType: v.optional(v.string()),  // "image" | "video" — defaults to "image"
+        // Media Type (ImageKit = image, Streamable = video)
+        mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
         videoUrl: v.optional(v.string()),   // Streamable URL (e.g. "https://streamable.com/abc123")
 
         // Multi-media carousel (optional; imageUrl remains the cover/thumbnail)
@@ -279,7 +279,7 @@ export default defineSchema({
         isVisible: v.boolean(),         // Visible on website
 
         // Metadata
-        postedDate: v.optional(v.string()), // Original Instagram post date (optional)
+        postedDate: v.optional(v.number()), // Unix timestamp (ms) of original Instagram post date
         createdAt: v.number(),          // When added to CMS
         updatedAt: v.number(),          // Last update timestamp
         updatedBy: v.string(),          // Admin email/ID
@@ -288,7 +288,8 @@ export default defineSchema({
         .index("by_visible", ["isVisible"])
         .index("by_year", ["year"])
         .index("by_year_visible", ["year", "isVisible"])
-        .index("by_year_featured", ["year", "isFeatured"]),
+        .index("by_year_featured", ["year", "isFeatured"])
+        .index("by_posted_date", ["year", "postedDate"]),
 
     // Social Post Reactions (User Engagement)
     social_reactions: defineTable({

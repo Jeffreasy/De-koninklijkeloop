@@ -17,7 +17,7 @@ interface SocialPost {
     caption: string;
     instagramUrl: string;
     isFeatured: boolean;
-    postedDate?: string;
+    postedDate?: number;
     mediaType?: string;
     videoUrl?: string;
     mediaItems?: MediaItem[];

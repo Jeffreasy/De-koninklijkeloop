@@ -23,8 +23,8 @@ interface Props {
         instagramUrl: string;
         isFeatured: boolean;
         isVisible: boolean;
-        postedDate?: string;
-        mediaType?: string;
+        postedDate?: number;
+        mediaType?: "image" | "video";
         videoUrl?: string;
         mediaItems?: MediaItem[];
     } | null;
@@ -36,9 +36,9 @@ export interface SocialPostFormData {
     instagramUrl: string;
     isFeatured: boolean;
     isVisible: boolean;
-    postedDate?: string;
+    postedDate?: number;
     year?: string;
-    mediaType?: string;
+    mediaType?: "image" | "video";
     videoUrl?: string;
     mediaItems?: MediaItem[];
 }
@@ -91,7 +91,11 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
             setInstagramUrl(editingPost.instagramUrl);
             setIsFeatured(editingPost.isFeatured);
             setIsVisible(editingPost.isVisible);
-            setPostedDate(editingPost.postedDate || "");
+            setPostedDate(
+                editingPost.postedDate
+                    ? new Date(editingPost.postedDate).toISOString().split("T")[0]
+                    : ""
+            );
 
             // Populate media items: prefer mediaItems array, fallback to single imageUrl
             if (editingPost.mediaItems && editingPost.mediaItems.length > 0) {
@@ -265,7 +269,7 @@ export function SocialPostModal({ isOpen, onClose, onSave, editingPost }: Props)
                 instagramUrl,
                 isFeatured,
                 isVisible,
-                postedDate: postedDate || undefined,
+                postedDate: postedDate ? new Date(postedDate).getTime() : undefined,
                 mediaType: hasAnyVideo ? "video" : "image",
                 videoUrl: cover.type === "video" ? cover.videoUrl : undefined,
                 mediaItems: finalItems,

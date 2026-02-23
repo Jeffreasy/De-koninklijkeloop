@@ -8,8 +8,8 @@ export interface SSRPost {
     instagramUrl: string;
     isFeatured: boolean;
     isVisible?: boolean;
-    postedDate?: string;
-    mediaType?: string;
+    postedDate?: number;
+    mediaType?: "image" | "video";
     videoUrl?: string;
     mediaItems?: { url: string; type: "image" | "video"; videoUrl?: string }[];
 }

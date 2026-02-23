@@ -26,9 +26,10 @@ export const listPublic = query({
     args: { year: v.optional(v.string()) },
     handler: async (ctx, args) => {
         if (args.year) {
+            const year = args.year;
             return await ctx.db
                 .query("social_posts")
-                .withIndex("by_year_visible", (q) => q.eq("year", args.year).eq("isVisible", true))
+                .withIndex("by_year_visible", (q) => q.eq("year", year).eq("isVisible", true))
                 .collect()
                 .then((posts) => posts.sort((a, b) => b.createdAt - a.createdAt));
         }
@@ -50,9 +51,10 @@ export const getFeatured = query({
     handler: async (ctx, args) => {
         let posts;
         if (args.year) {
+            const year = args.year;
             posts = await ctx.db
                 .query("social_posts")
-                .withIndex("by_year_featured", (q) => q.eq("year", args.year).eq("isFeatured", true))
+                .withIndex("by_year_featured", (q) => q.eq("year", year).eq("isFeatured", true))
                 .collect();
         } else {
             posts = await ctx.db
@@ -80,9 +82,10 @@ export const getThumbnails = query({
 
         let allPosts;
         if (args.year) {
+            const year = args.year;
             allPosts = await ctx.db
                 .query("social_posts")
-                .withIndex("by_year_visible", (q) => q.eq("year", args.year).eq("isVisible", true))
+                .withIndex("by_year_visible", (q) => q.eq("year", year).eq("isVisible", true))
                 .collect();
         } else {
             allPosts = await ctx.db
@@ -109,9 +112,10 @@ export const listAll = query({
     args: { year: v.optional(v.string()) },
     handler: async (ctx, args) => {
         if (args.year) {
+            const year = args.year;
             return await ctx.db
                 .query("social_posts")
-                .withIndex("by_year", (q) => q.eq("year", args.year))
+                .withIndex("by_year", (q) => q.eq("year", year))
                 .collect()
                 .then((posts) =>
                     posts.sort((a, b) => b.createdAt - a.createdAt)
@@ -151,9 +155,9 @@ export const create = mutation({
         instagramUrl: v.string(),
         isFeatured: v.boolean(),
         isVisible: v.boolean(),
-        postedDate: v.optional(v.string()),
+        postedDate: v.optional(v.number()),
         year: v.optional(v.string()),
-        mediaType: v.optional(v.string()),
+        mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
         videoUrl: v.optional(v.string()),
         mediaItems: v.optional(v.array(v.object({
             url: v.string(),
@@ -174,10 +178,11 @@ export const create = mutation({
             for (const post of yearPosts) {
                 await ctx.db.patch(post._id, { isFeatured: false });
             }
-        } const now = Date.now();
+        }
+        const now = Date.now();
         return await ctx.db.insert("social_posts", {
             year,
-            mediaType: args.mediaType || "image",
+            mediaType: args.mediaType ?? "image",
             videoUrl: args.videoUrl,
             mediaItems: args.mediaItems,
             imageUrl: args.imageUrl,
@@ -204,9 +209,9 @@ export const update = mutation({
         instagramUrl: v.optional(v.string()),
         isFeatured: v.optional(v.boolean()),
         isVisible: v.optional(v.boolean()),
-        postedDate: v.optional(v.string()),
+        postedDate: v.optional(v.number()),
         year: v.optional(v.string()),
-        mediaType: v.optional(v.string()),
+        mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
         videoUrl: v.optional(v.string()),
         mediaItems: v.optional(v.array(v.object({
             url: v.string(),
@@ -330,15 +335,18 @@ export const toggleFeatured = mutation({
 /**
  * Backfill: Set year on posts that don't have one yet.
  * Run once from Convex dashboard or CLI.
+ * Uses the manual year override if provided.
  */
 export const backfillYear = mutation({
     args: { year: v.optional(v.string()) },
     handler: async (ctx, args) => {
-        const defaultYear = args.year || "2025";
+        const defaultYear = args.year || CURRENT_YEAR;
+        // Use collect() since withIndex on optional field may skip undefined-year rows
         const allPosts = await ctx.db.query("social_posts").collect();
         let updated = 0;
 
         for (const post of allPosts) {
+            // After schema change year is required; patch any legacy rows that snuck through
             if (!post.year) {
                 await ctx.db.patch(post._id, { year: defaultYear });
                 updated++;
@@ -346,5 +354,56 @@ export const backfillYear = mutation({
         }
 
         return { updated, total: allPosts.length, year: defaultYear };
+    },
+});
+
+/**
+ * Smart Backfill: Reassign year based on createdAt timestamp.
+ * Use this to fix posts that were wrongly lumped into the same year bucket.
+ *
+ * Edition cutoffs (DKL event is in May each year):
+ *   createdAt < 1 Jun 2024  → "2024"  (23/24 editie)
+ *   createdAt < 1 Jun 2025  → "2025"  (24/25 editie)
+ *   createdAt >= 1 Jun 2025 → "2026"  (25/26 editie)
+ *
+ * Run from Convex Dashboard → Functions → socialPosts:backfillYearByDate
+ * Args: {} — no arguments needed. Returns a summary of changes.
+ */
+export const backfillYearByDate = mutation({
+    args: {},
+    handler: async (ctx) => {
+        // Edition boundaries: first day of June in each event year
+        const CUT_2024 = new Date("2024-06-01T00:00:00Z").getTime(); // < this = 2024 edition
+        const CUT_2025 = new Date("2025-06-01T00:00:00Z").getTime(); // < this = 2025 edition
+        // >= CUT_2025 = 2026 edition
+
+        const allPosts = await ctx.db.query("social_posts").collect();
+        const counts: Record<string, number> = { "2024": 0, "2025": 0, "2026": 0 };
+        let updated = 0;
+
+        for (const post of allPosts) {
+            let correctYear: string;
+            if (post.createdAt < CUT_2024) {
+                correctYear = "2024";
+            } else if (post.createdAt < CUT_2025) {
+                correctYear = "2025";
+            } else {
+                correctYear = "2026";
+            }
+
+            counts[correctYear]++;
+
+            if (post.year !== correctYear) {
+                await ctx.db.patch(post._id, { year: correctYear });
+                updated++;
+            }
+        }
+
+        return {
+            updated,
+            total: allPosts.length,
+            distribution: counts,
+            message: `${updated} posts bijgewerkt. Verdeling: 2024=${counts["2024"]}, 2025=${counts["2025"]}, 2026=${counts["2026"]}`,
+        };
     },
 });
