@@ -75,3 +75,27 @@ export const deleteRegistration = action({
         await ctx.runMutation(internal.internal.deleteRegistration, { id: args.id });
     },
 });
+
+/**
+ * Mark a registration as having received a confirmation email.
+ * Called by the admin UI after the email is successfully sent via /api/send-confirmation.
+ * Records who sent it and when.
+ */
+export const markConfirmationSent = action({
+    args: {
+        token: v.string(),
+        id: v.id("registrations"),
+        sentAt: v.number(),      // Unix ms timestamp from the API response
+        sentBy: v.string(),      // Email of the admin/editor
+    },
+    handler: async (ctx, args) => {
+        await verifyAuth(args.token, { requiredRoles: ["admin", "editor"] });
+
+        await ctx.runMutation(internal.internal.updateRegistration, {
+            id: args.id,
+            confirmationSentAt: args.sentAt,
+            confirmationSentBy: args.sentBy,
+        });
+    },
+});
+

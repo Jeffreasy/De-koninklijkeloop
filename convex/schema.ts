@@ -59,7 +59,11 @@ export default defineSchema({
         createdAt: v.number(),
 
         // Edition (for archiving)
-        edition: v.optional(v.string()) // e.g., "2025", "2026"
+        edition: v.optional(v.string()), // e.g., "2025", "2026"
+
+        // Confirmation Email Tracking (manual send by admin/editor)
+        confirmationSentAt: v.optional(v.number()),  // Unix ms — undefined = not yet sent
+        confirmationSentBy: v.optional(v.string()),  // Email of admin/editor who sent it
     })
         .index("by_email", ["email"])
         .index("by_auth_user_id", ["authUserId"]) // Scalability: Fast lookup by user

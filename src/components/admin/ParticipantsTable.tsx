@@ -1,9 +1,9 @@
-import { Users, Filter, Mail, Phone, MapPin, Search, ChevronLeft, ChevronRight, FileSpreadsheet, ChevronsUpDown, ShieldCheck, UserCircle, User, Calendar, MoreVertical, Edit2, Trash2, HeartHandshake, Accessibility, Bus, Building2, Heart, SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { Users, Filter, Mail, Phone, MapPin, Search, ChevronLeft, ChevronRight, FileSpreadsheet, ChevronsUpDown, ShieldCheck, User, CheckCircle2, SendHorizonal, Loader2, HeartHandshake, Accessibility, Bus, Building2, Heart, SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useStore } from "@nanostores/react";
-import { $accessToken } from "../../lib/auth";
+import { $accessToken, $user } from "../../lib/auth";
 import { useAction } from "convex/react";
 import * as XLSX from "xlsx";
 import ParticipantDetailModal from "./ParticipantDetailModal";
@@ -43,13 +43,20 @@ interface Registration {
     edition?: string;
     companionName?: string;
     companionEmail?: string;
+    // Confirmation email tracking
+    confirmationSentAt?: number;
+    confirmationSentBy?: string;
 }
 
 export default function ParticipantsTable() {
     const accessToken = useStore($accessToken);
+    const user = useStore($user);
     const getRegistrations = useAction(api.admin.getRegistrations);
+    const markConfirmationSent = useAction(api.admin.markConfirmationSent);
     const [registrations, setRegistrations] = useState<Registration[] | undefined>(undefined);
     const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
+    const [sendingConfirmation, setSendingConfirmation] = useState<string | null>(null); // reg._id being sent
+    const [confirmationToast, setConfirmationToast] = useState<{ id: string; type: 'success' | 'error' } | null>(null);
 
     // Fetch data using Secure Action
     useEffect(() => {
@@ -63,6 +70,55 @@ export default function ParticipantsTable() {
                 .catch(err => console.error("Admin Auth Failed", err));
         }
     };
+
+    // Send confirmation email and mark in Convex
+    const handleSendConfirmation = useCallback(async (reg: Registration, e: React.MouseEvent) => {
+        e.stopPropagation(); // Don't open detail modal
+        if (!accessToken || sendingConfirmation) return;
+
+        setSendingConfirmation(reg._id);
+        try {
+            const res = await fetch('/api/send-confirmation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: reg.name,
+                    email: reg.email,
+                    role: reg.role,
+                    distance: reg.distance,
+                    registrationId: reg._id,
+                }),
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || `Verzenden mislukt (${res.status})`);
+            }
+
+            const { sentAt } = await res.json();
+
+            // Persist tracking in Convex
+            await markConfirmationSent({
+                token: accessToken,
+                id: reg._id as any,
+                sentAt,
+                sentBy: user?.email || 'admin',
+            });
+
+            // Optimistic UI update
+            setRegistrations(prev => prev?.map(r =>
+                r._id === reg._id ? { ...r, confirmationSentAt: sentAt, confirmationSentBy: user?.email || 'admin' } : r
+            ));
+            setConfirmationToast({ id: reg._id, type: 'success' });
+            setTimeout(() => setConfirmationToast(null), 3000);
+        } catch (err) {
+            if (import.meta.env.DEV) console.error('[Confirmation] Error:', err);
+            setConfirmationToast({ id: reg._id, type: 'error' });
+            setTimeout(() => setConfirmationToast(null), 4000);
+        } finally {
+            setSendingConfirmation(null);
+        }
+    }, [accessToken, user, sendingConfirmation, markConfirmationSent]);
 
     // Filter States
     const [searchQuery, setSearchQuery] = useState("");
@@ -760,12 +816,39 @@ export default function ParticipantsTable() {
                                                         {reg.distance ? <span className="text-sm font-medium text-text-primary">{reg.distance} km</span> : <span className="text-text-muted text-sm">-</span>}
                                                     </td>
                                                     <td className="py-4 px-6">
-                                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${reg.status === "paid" ? "bg-green-500/10 text-green-700 border-green-500/20" :
-                                                            reg.status === "pending" ? "bg-yellow-500/10 text-yellow-700 border-yellow-500/20" :
-                                                                "bg-red-500/10 text-red-600 border-red-500/20"
-                                                            }`}>
-                                                            {reg.status === "paid" ? "Geaccepteerd" : reg.status === "pending" ? "In behandeling" : "Geannuleerd"}
-                                                        </span>
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${reg.status === "paid" ? "bg-green-500/10 text-green-700 border-green-500/20" :
+                                                                reg.status === "pending" ? "bg-yellow-500/10 text-yellow-700 border-yellow-500/20" :
+                                                                    "bg-red-500/10 text-red-600 border-red-500/20"
+                                                                }`}>
+                                                                {reg.status === "paid" ? "Geaccepteerd" : reg.status === "pending" ? "In behandeling" : "Geannuleerd"}
+                                                            </span>
+
+                                                            {/* Mail confirmation tracking */}
+                                                            {reg.confirmationSentAt ? (
+                                                                <span
+                                                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-green-500/10 text-green-600 border border-green-500/20"
+                                                                    title={`Verstuurd door ${reg.confirmationSentBy || 'admin'}`}
+                                                                >
+                                                                    <CheckCircle2 className="w-3 h-3" />
+                                                                    Mail {new Date(reg.confirmationSentAt).toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' })}
+                                                                </span>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={(e) => handleSendConfirmation(reg, e)}
+                                                                    disabled={sendingConfirmation === reg._id}
+                                                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-brand-orange/10 text-brand-orange border border-brand-orange/20 hover:bg-brand-orange/20 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                                                    title="Stuur bevestigingsmail"
+                                                                >
+                                                                    {sendingConfirmation === reg._id ? (
+                                                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                                                    ) : (
+                                                                        <SendHorizonal className="w-3 h-3" />
+                                                                    )}
+                                                                    Accepteren
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="py-4 px-6 hidden lg:table-cell">
                                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${(reg.supportNeeded || "nee") === "ja" ? "bg-brand-orange/10 text-brand-orange border-brand-orange/20" :

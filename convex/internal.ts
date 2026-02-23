@@ -129,6 +129,9 @@ export const updateRegistration = internalMutation({
         // Begeleider companion linking
         companionName: v.optional(v.string()),
         companionEmail: v.optional(v.string()),
+        // Confirmation email tracking
+        confirmationSentAt: v.optional(v.number()),
+        confirmationSentBy: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const { id, ...updates } = args;
