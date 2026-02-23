@@ -389,10 +389,15 @@ export const backfillYear = mutation({
 });
 
 /**
- * Migration: Convert any string postedDate values to Unix timestamps (ms).
+ * Migration: Convert string postedDates to timestamps + fix wrong createdAt values.
  *
- * Background: Schema changed postedDate from string ("2024-08-27") to float64 (timestamp).
- * This mutation converts all legacy string values to numbers.
+ * Problems addressed:
+ *  1. postedDate stored as string ("2026-02-18") → convert to Unix timestamp (ms)
+ *  2. createdAt set to a wrong/placeholder value → fix using Convex _creationTime
+ *
+ * _creationTime is the authoritative Convex system timestamp of when the document
+ * was actually inserted. If our createdAt is more than 90 days earlier than
+ * _creationTime, it's clearly wrong and gets corrected.
  *
  * Run ONCE from Convex Dashboard → Functions → socialPosts:migratePostedDates
  * Args: {} — no arguments needed.
@@ -406,28 +411,42 @@ export const migratePostedDates = mutation({
         let converted = 0;
         let skipped = 0;
         let cleared = 0;
+        let fixedCreatedAt = 0;
+
+        // 90 days in ms — if createdAt is this much earlier than _creationTime, it's wrong
+        const DRIFT_THRESHOLD = 90 * 24 * 60 * 60 * 1000;
 
         for (const post of allPosts) {
-            const pd = post.postedDate;
+            const patch: Record<string, unknown> = {};
 
+            // ── Fix 1: postedDate string → timestamp ──────────────────────
+            const pd = post.postedDate;
             if (pd === undefined || pd === null) {
                 skipped++;
-                continue;
-            }
-
-            if (typeof pd === "string") {
+            } else if (typeof pd === "string") {
                 const ts = new Date(pd).getTime();
                 if (isNaN(ts)) {
-                    // Unparseable string — clear it
-                    await ctx.db.patch(post._id, { postedDate: undefined });
+                    patch.postedDate = undefined; // unparseable — clear
                     cleared++;
                 } else {
-                    await ctx.db.patch(post._id, { postedDate: ts });
+                    patch.postedDate = ts;
                     converted++;
                 }
             } else {
-                // Already a number — skip
-                skipped++;
+                skipped++; // already a number
+            }
+
+            // ── Fix 2: createdAt vs _creationTime sanity check ────────────
+            // _creationTime is Convex's authoritative insert timestamp (always correct)
+            const creationTime = post._creationTime;
+            if (creationTime && post.createdAt < creationTime - DRIFT_THRESHOLD) {
+                // createdAt is suspiciously older than the document actually is
+                patch.createdAt = Math.round(creationTime);
+                fixedCreatedAt++;
+            }
+
+            if (Object.keys(patch).length > 0) {
+                await ctx.db.patch(post._id, patch as any);
             }
         }
 
@@ -436,7 +455,8 @@ export const migratePostedDates = mutation({
             converted,
             skipped,
             cleared,
-            message: `Klaar: ${converted} geconverteerd, ${skipped} al correct, ${cleared} gewist (onleesbare datum).`,
+            fixedCreatedAt,
+            message: `postedDate: ${converted} geconverteerd, ${skipped} al correct, ${cleared} gewist. createdAt: ${fixedCreatedAt} gecorrigeerd.`,
             nextStep: "Zet schema postedDate terug naar v.optional(v.float64()) en verwijder de migratePostedDates functie.",
         };
     },
