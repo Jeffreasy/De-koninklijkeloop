@@ -1,4 +1,3 @@
-import type { Id } from '../../../convex/_generated/dataModel';
 
 export interface ChatUser {
     id: string;
@@ -40,24 +39,30 @@ export interface DirectMessage {
 }
 
 export interface GroupConversation {
-    _id: Id<"group_conversations">;
+    id: string;
     name: string;
-    members: string[];
-    avatarEmoji?: string;
-    lastMessageAt?: number;
-    lastMessagePreview?: string;
-    createdAt: number;
+    avatar_emoji?: string;
+    created_at: string;
+    last_message?: string;
+    last_message_at?: string;
 }
 
 export interface GroupMessage {
-    _id: Id<"group_messages">;
-    groupId: Id<"group_conversations">;
-    sender: string;
-    senderName: string;
+    id: string;
+    sender_id: string;
+    sender_name: string;
     content: string;
     type: "text" | "image" | "system";
     reactions?: Reaction[];
-    createdAt: number;
+    created_at: string;
+}
+
+export interface GroupMember {
+    id: string;
+    name: string;
+    email: string;
+    global_role: string;
+    group_role: string;
 }
 
 export interface ConversationSummary {

@@ -193,7 +193,7 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
                             <DmStatusLine userId={activeDmUser.id} teamMembers={teamMembers} currentUser={currentUser.email} />
                         )}
                         {chatView === 'group' && activeGroup && (
-                            <p className="text-xs text-text-muted">{activeGroup.members.length} leden</p>
+                            <p className="text-xs text-text-muted">Groepsgesprek</p>
                         )}
                     </div>
                 </div>

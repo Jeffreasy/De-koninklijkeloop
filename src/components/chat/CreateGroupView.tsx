@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { useMutation } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
 import { Users, Search } from 'lucide-react';
 import type { ChatUser, TeamMember, GroupConversation } from './types';
+import { apiRequest } from '../../lib/api';
 
 interface CreateGroupViewProps {
     currentUser: ChatUser;
@@ -16,35 +15,37 @@ export function CreateGroupView({ currentUser, teamMembers, onCreated, onCancel 
     const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [avatarEmoji, setAvatarEmoji] = useState("👥");
-    const createGroup = useMutation(api.chat.createGroupConversation);
+    const [isCreating, setIsCreating] = useState(false);
 
     const filteredMembers = teamMembers.filter(m =>
-        m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.user.toLowerCase().includes(searchQuery.toLowerCase())
+        (m.name || "Gebruiker").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.user_id.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const handleCreate = async () => {
-        if (!groupName.trim() || selectedMembers.length === 0) return;
+        if (!groupName.trim() || selectedMembers.length === 0 || isCreating) return;
 
-        const groupId = await createGroup({
-            name: groupName,
-            members: selectedMembers,
-            createdBy: currentUser.email,
-            avatarEmoji,
-        });
-
-        onCreated({
-            _id: groupId,
-            name: groupName,
-            members: [currentUser.email, ...selectedMembers],
-            avatarEmoji,
-            createdAt: Date.now(),
-        } as GroupConversation);
+        setIsCreating(true);
+        try {
+            const group = await apiRequest('/v1/messages/groups', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: groupName,
+                    avatar_emoji: avatarEmoji,
+                    member_ids: selectedMembers
+                })
+            });
+            onCreated(group);
+        } catch (error) {
+            console.error("Failed to create group:", error);
+        } finally {
+            setIsCreating(false);
+        }
     };
 
-    const toggleMember = (email: string) => {
+    const toggleMember = (id: string) => {
         setSelectedMembers(prev =>
-            prev.includes(email) ? prev.filter(m => m !== email) : [...prev, email]
+            prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
         );
     };
 
@@ -92,23 +93,23 @@ export function CreateGroupView({ currentUser, teamMembers, onCreated, onCancel 
                 <div className="space-y-0.5 max-h-[200px] overflow-y-auto">
                     {filteredMembers.map(member => (
                         <button
-                            key={member.user}
-                            onClick={() => toggleMember(member.user)}
-                            className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer ${selectedMembers.includes(member.user) ? 'bg-brand-orange/10 border border-brand-orange/30' : 'hover:bg-glass-surface/50 border border-transparent'
+                            key={member.user_id}
+                            onClick={() => toggleMember(member.user_id)}
+                            className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer ${selectedMembers.includes(member.user_id) ? 'bg-brand-orange/10 border border-brand-orange/30' : 'hover:bg-glass-surface/50 border border-transparent'
                                 }`}
                         >
-                            <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${selectedMembers.includes(member.user) ? 'bg-brand-orange border-brand-orange' : 'border-glass-border'
+                            <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${selectedMembers.includes(member.user_id) ? 'bg-brand-orange border-brand-orange' : 'border-glass-border'
                                 }`}>
-                                {selectedMembers.includes(member.user) && (
+                                {selectedMembers.includes(member.user_id) && (
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                                 )}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-sm font-medium text-text-primary truncate">{member.name}</span>
-                                    <span className={`w-2 h-2 rounded-full ${member.isOnline ? 'bg-green-500' : 'bg-gray-500'}`}></span>
+                                    <span className="text-sm font-medium text-text-primary truncate">{member.name || 'Gebruiker'}</span>
+                                    {member.isOnline && <span className="w-2 h-2 rounded-full bg-green-500"></span>}
                                 </div>
-                                <span className="text-[10px] text-text-muted truncate">{member.user}</span>
+                                <span className="text-[10px] text-text-muted truncate">{member.role || 'user'}</span>
                             </div>
                         </button>
                     ))}
@@ -125,11 +126,11 @@ export function CreateGroupView({ currentUser, teamMembers, onCreated, onCancel 
                 </button>
                 <button
                     onClick={handleCreate}
-                    disabled={!groupName.trim() || selectedMembers.length === 0}
+                    disabled={!groupName.trim() || selectedMembers.length === 0 || isCreating}
                     className="flex-1 py-3 rounded-xl bg-brand-orange text-white text-sm font-bold hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-brand-orange/20"
                 >
                     <Users className="w-4 h-4 inline mr-1.5" />
-                    Aanmaken
+                    {isCreating ? 'Bezig...' : 'Aanmaken'}
                 </button>
             </div>
         </div>

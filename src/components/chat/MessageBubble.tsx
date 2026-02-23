@@ -54,11 +54,11 @@ export const MessageBubble = memo(function MessageBubble({ message, isMe, curren
                     : 'bg-glass-surface/50 text-text-body rounded-tl-sm border border-glass-border/50'
                     }`}>
                     {showSenderName && !isMe && groupMsg && (
-                        <div className="text-[10px] font-bold text-brand-orange mb-1">{groupMsg.senderName}</div>
+                        <div className="text-[10px] font-bold text-brand-orange mb-1">{groupMsg.sender_name}</div>
                     )}
                     <p className="leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
                     <div className={`text-[10px] mt-1 text-right opacity-60 ${isMe ? 'text-white' : 'text-text-muted'}`}>
-                        {new Date(('created_at' in message ? message.created_at as string : message.createdAt)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(('created_at' in message ? message.created_at : (message as any).createdAt)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         {isMe && dmMsg && (
                             <span className="ml-1 inline-block">
                                 {('is_read' in dmMsg ? dmMsg.is_read : (dmMsg as any).isRead) ? '✓✓' : '✓'}

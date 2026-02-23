@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
 import { useTypingIndicator } from '../../hooks/usePresence';
 import type { ChatUser, GroupConversation, GroupMessage } from './types';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { addToast } from '../../lib/toast';
+import { apiRequest } from '../../lib/api';
 
 interface GroupChatViewProps {
     currentUser: ChatUser;
@@ -17,10 +16,34 @@ export function GroupChatView({ currentUser, group }: GroupChatViewProps) {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    const messages = useQuery(api.chat.getGroupMessages, { groupId: group._id }) as GroupMessage[] | undefined;
-    const sendGroupMessage = useMutation(api.chat.sendGroupMessage);
-    const addReaction = useMutation(api.chat.addGroupMessageReaction);
+    const [messages, setMessages] = useState<GroupMessage[]>([]);
     const { startTyping, stopTyping } = useTypingIndicator(currentUser.email);
+
+    // Initial Fetch & SSE Subscription
+    useEffect(() => {
+        const fetchMessages = async () => {
+            try {
+                const res = await apiRequest(`/v1/messages/groups/${group.id}/messages`);
+                if (Array.isArray(res)) setMessages(res);
+            } catch (e) {
+                console.warn("Failed to fetch group messages", e);
+            }
+        };
+        fetchMessages();
+
+        const eventSource = new EventSource('/api/v1/messages/stream', { withCredentials: true });
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === "NEW_MESSAGE") {
+                    // Re-fetch to guarantee correct ordering and DB IDs
+                    fetchMessages();
+                }
+            } catch (e) { }
+        };
+
+        return () => eventSource.close();
+    }, [group.id]);
 
     const messageList = messages || [];
 
@@ -41,12 +64,12 @@ export function GroupChatView({ currentUser, group }: GroupChatViewProps) {
         setMessageInput("");
         setShowEmojiPicker(false);
         try {
-            await sendGroupMessage({
-                groupId: group._id,
-                sender: currentUser.email,
-                senderName: currentUser.name,
-                content,
-                type: "text"
+            await apiRequest(`/v1/messages/groups/${group.id}/messages`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    content,
+                    type: "text"
+                })
             });
         } catch {
             setMessageInput(content);
@@ -59,11 +82,11 @@ export function GroupChatView({ currentUser, group }: GroupChatViewProps) {
             <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-glass-border overscroll-contain" ref={scrollRef}>
                 {messageList.map((msg) => (
                     <MessageBubble
-                        key={msg._id}
-                        message={msg}
-                        isMe={msg.sender === currentUser.email}
+                        key={msg.id || msg.created_at}
+                        message={msg as any}
+                        isMe={msg.sender_id === currentUser.id || msg.sender_id === currentUser.email}
                         currentUser={currentUser}
-                        onReact={(emoji) => addReaction({ messageId: msg._id, emoji, user: currentUser.email, name: currentUser.name })}
+                        onReact={() => { }} // Reactions not yet implemented in Go for groups
                         showSenderName
                     />
                 ))}
@@ -72,7 +95,7 @@ export function GroupChatView({ currentUser, group }: GroupChatViewProps) {
 
             <ChatInput
                 value={messageInput}
-                onChange={(v) => { setMessageInput(v); if (v.trim()) startTyping(`group:${group._id}`); }}
+                onChange={(v) => { setMessageInput(v); if (v.trim()) startTyping(`group:${group.id}`); }}
                 onSend={handleSend}
                 showEmojiPicker={showEmojiPicker}
                 onToggleEmoji={() => setShowEmojiPicker(!showEmojiPicker)}
