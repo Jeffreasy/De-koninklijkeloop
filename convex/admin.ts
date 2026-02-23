@@ -33,6 +33,9 @@ export const updateRegistration = action({
         shuttleBus: v.optional(v.union(v.literal("pendelbus"), v.literal("eigen-vervoer"))),
         livesInFacility: v.optional(v.boolean()),
         participantType: v.optional(v.union(v.literal("doelgroep"), v.literal("verwant"), v.literal("anders"))),
+        // Begeleider companion linking
+        companionName: v.optional(v.string()),
+        companionEmail: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         await verifyAuth(args.token, { requiredRoles: ["admin", "editor"] });
@@ -53,10 +56,13 @@ export const updateRegistration = action({
             wheelchairUser: args.wheelchairUser,
             shuttleBus: args.shuttleBus,
             livesInFacility: args.livesInFacility,
-            participantType: args.participantType
+            participantType: args.participantType,
+            companionName: args.companionName,
+            companionEmail: args.companionEmail,
         });
     },
 });
+
 
 export const deleteRegistration = action({
     args: {
