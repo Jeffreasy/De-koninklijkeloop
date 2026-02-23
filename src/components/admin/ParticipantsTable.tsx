@@ -86,6 +86,7 @@ export default function ParticipantsTable() {
                     email: reg.email,
                     role: reg.role,
                     distance: reg.distance,
+                    shuttleBus: reg.shuttleBus,
                     registrationId: reg._id,
                 }),
             });
