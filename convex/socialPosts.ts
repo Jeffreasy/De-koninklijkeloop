@@ -19,26 +19,30 @@ const CURRENT_YEAR = "2026";
 // ============================================================
 
 /**
- * Get all visible posts ordered by displayOrder (for public display)
+ * Get all visible posts ordered by postedDate (leidend), fallback createdAt
  * Scoped by year — defaults to current year
  */
 export const listPublic = query({
     args: { year: v.optional(v.string()) },
     handler: async (ctx, args) => {
+        const byDate = (a: any, b: any) => {
+            const aDate = typeof a.postedDate === "number" ? a.postedDate : a.createdAt;
+            const bDate = typeof b.postedDate === "number" ? b.postedDate : b.createdAt;
+            return bDate - aDate;
+        };
         if (args.year) {
             const year = args.year;
             return await ctx.db
                 .query("social_posts")
                 .withIndex("by_year_visible", (q) => q.eq("year", year).eq("isVisible", true))
                 .collect()
-                .then((posts) => posts.sort((a, b) => b.createdAt - a.createdAt));
+                .then((posts) => posts.sort(byDate));
         }
-        // No year filter — return all visible posts
         return await ctx.db
             .query("social_posts")
             .withIndex("by_visible", (q) => q.eq("isVisible", true))
             .collect()
-            .then((posts) => posts.sort((a, b) => b.createdAt - a.createdAt));
+            .then((posts) => posts.sort(byDate));
     },
 });
 
@@ -79,6 +83,11 @@ export const getThumbnails = query({
     },
     handler: async (ctx, args) => {
         const limit = args.limit || 50;
+        const byDate = (a: any, b: any) => {
+            const aDate = typeof a.postedDate === "number" ? a.postedDate : a.createdAt;
+            const bDate = typeof b.postedDate === "number" ? b.postedDate : b.createdAt;
+            return bDate - aDate;
+        };
 
         let allPosts;
         if (args.year) {
@@ -94,10 +103,10 @@ export const getThumbnails = query({
                 .collect();
         }
 
-        // Filter out featured posts and sort by creation date (newest first)
+        // Filter out featured posts, sort by postedDate (leidend), fallback createdAt
         const thumbnails = allPosts
             .filter((p) => !p.isFeatured)
-            .sort((a, b) => b.createdAt - a.createdAt)
+            .sort(byDate)
             .slice(0, limit);
 
         return thumbnails;
@@ -106,28 +115,28 @@ export const getThumbnails = query({
 
 /**
  * Get all posts (for admin panel)
- * Optionally scoped by year
+ * Optionally scoped by year — sorted by postedDate (leidend), fallback createdAt
  */
 export const listAll = query({
     args: { year: v.optional(v.string()) },
     handler: async (ctx, args) => {
+        const byDate = (a: any, b: any) => {
+            const aDate = typeof a.postedDate === "number" ? a.postedDate : a.createdAt;
+            const bDate = typeof b.postedDate === "number" ? b.postedDate : b.createdAt;
+            return bDate - aDate;
+        };
         if (args.year) {
             const year = args.year;
             return await ctx.db
                 .query("social_posts")
                 .withIndex("by_year", (q) => q.eq("year", year))
                 .collect()
-                .then((posts) =>
-                    posts.sort((a, b) => b.createdAt - a.createdAt)
-                );
+                .then((posts) => posts.sort(byDate));
         }
-        // No year filter — return all posts
         return await ctx.db
             .query("social_posts")
             .collect()
-            .then((posts) =>
-                posts.sort((a, b) => b.createdAt - a.createdAt)
-            );
+            .then((posts) => posts.sort(byDate));
     },
 });
 
@@ -141,12 +150,22 @@ export const getById = query({
     },
 });
 
-// ============================================================
-// MUTATIONS (Admin Only)
-// ============================================================
+// ─── Edition helper ─────────────────────────────────────────
+// postedDate is LEIDEND: if available, it determines the edition year.
+// Cutoffs: < 1 Jun 2024 → "2024", < 1 Jun 2025 → "2025", >= 1 Jun 2025 → "2026"
+const CUT_2024 = new Date("2024-06-01T00:00:00Z").getTime();
+const CUT_2025 = new Date("2025-06-01T00:00:00Z").getTime();
+
+function yearFromTimestamp(ts: number): string {
+    if (ts < CUT_2024) return "2024";
+    if (ts < CUT_2025) return "2025";
+    return "2026";
+}
+// ─────────────────────────────────────────────────────────────
 
 /**
- * Create new social post
+ * Create new social post.
+ * If postedDate is provided, year is auto-derived from it (postedDate is leidend).
  */
 export const create = mutation({
     args: {
@@ -167,7 +186,10 @@ export const create = mutation({
         updatedBy: v.string(),
     },
     handler: async (ctx, args) => {
-        const year = args.year || CURRENT_YEAR;
+        // postedDate is leidend: auto-derive year from it when available
+        const year = args.postedDate
+            ? yearFromTimestamp(args.postedDate)
+            : (args.year || CURRENT_YEAR);
 
         // If setting as featured, unfeatured all other posts IN THE SAME YEAR
         if (args.isFeatured) {
@@ -199,7 +221,8 @@ export const create = mutation({
 });
 
 /**
- * Update existing post
+ * Update existing post.
+ * If postedDate is changed, year is auto-re-derived from it (postedDate is leidend).
  */
 export const update = mutation({
     args: {
@@ -225,7 +248,11 @@ export const update = mutation({
         const post = await ctx.db.get(id);
         if (!post) throw new Error("Post not found");
 
-        const postYear = updates.year || post.year || CURRENT_YEAR;
+        // postedDate is leidend: re-derive year when postedDate changes
+        const effectivePostedDate = updates.postedDate ?? (typeof post.postedDate === "number" ? post.postedDate : undefined);
+        const postYear = effectivePostedDate
+            ? yearFromTimestamp(effectivePostedDate)
+            : (updates.year || post.year || CURRENT_YEAR);
 
         // If setting as featured, unfeatured all other posts IN THE SAME YEAR
         if (updates.isFeatured === true) {
@@ -238,8 +265,11 @@ export const update = mutation({
                     await ctx.db.patch(p._id, { isFeatured: false });
                 }
             }
-        } await ctx.db.patch(id, {
+        }
+
+        await ctx.db.patch(id, {
             ...updates,
+            year: postYear,
             updatedAt: Date.now(),
             updatedBy,
         });
@@ -247,6 +277,7 @@ export const update = mutation({
         return id;
     },
 });
+
 
 /**
  * Delete post
@@ -412,40 +443,26 @@ export const migratePostedDates = mutation({
 });
 
 /**
- * Smart Backfill: Reassign year based on createdAt timestamp.
- * Use this to fix posts that were wrongly lumped into the same year bucket.
- *
- * Edition cutoffs (DKL event is in May each year):
- *   createdAt < 1 Jun 2024  → "2024"  (23/24 editie)
- *   createdAt < 1 Jun 2025  → "2025"  (24/25 editie)
- *   createdAt >= 1 Jun 2025 → "2026"  (25/26 editie)
+ * Smart Backfill: Reassign year based on postedDate (leidend), fallback createdAt.
+ * Uses the same yearFromTimestamp logic as create/update mutations.
  *
  * Run from Convex Dashboard → Functions → socialPosts:backfillYearByDate
- * Args: {} — no arguments needed. Returns a summary of changes.
  */
 export const backfillYearByDate = mutation({
     args: {},
     handler: async (ctx) => {
-        // Edition boundaries: first day of June in each event year
-        const CUT_2024 = new Date("2024-06-01T00:00:00Z").getTime(); // < this = 2024 edition
-        const CUT_2025 = new Date("2025-06-01T00:00:00Z").getTime(); // < this = 2025 edition
-        // >= CUT_2025 = 2026 edition
-
         const allPosts = await ctx.db.query("social_posts").collect();
         const counts: Record<string, number> = { "2024": 0, "2025": 0, "2026": 0 };
         let updated = 0;
 
         for (const post of allPosts) {
-            let correctYear: string;
-            if (post.createdAt < CUT_2024) {
-                correctYear = "2024";
-            } else if (post.createdAt < CUT_2025) {
-                correctYear = "2025";
-            } else {
-                correctYear = "2026";
-            }
+            // postedDate is leidend: use it when available, else fall back to createdAt
+            const referenceDate = typeof post.postedDate === "number"
+                ? post.postedDate
+                : post.createdAt;
 
-            counts[correctYear]++;
+            const correctYear = yearFromTimestamp(referenceDate);
+            counts[correctYear] = (counts[correctYear] ?? 0) + 1;
 
             if (post.year !== correctYear) {
                 await ctx.db.patch(post._id, { year: correctYear });
