@@ -39,7 +39,7 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
         const fetchInitialData = async () => {
             try {
                 const [membersRes, unreadRes, convosRes] = await Promise.all([
-                    apiRequest('/v1/presence/online'),
+                    apiRequest('/v1/presence/members'), // All members with isOnline status
                     apiRequest('/v1/messages/unread'),
                     apiRequest('/v1/messages/conversations')
                 ]);
@@ -68,7 +68,7 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
                     // Refresh unread and conversations on new message
                     fetchInitialData();
                 } else if (data.type === "PRESENCE_UPDATE") {
-                    apiRequest('/v1/presence/online').then(res => {
+                    apiRequest('/v1/presence/members').then(res => {
                         if (Array.isArray(res)) setTeamMembers(res);
                     });
                 }
@@ -87,8 +87,8 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
 
     }, [isOpen]);
 
-    const otherOnlineUsers = teamMembers.filter(u => u.user_id !== currentUser.email && u.isOnline);
-    const offlineUsers = teamMembers.filter(u => u.user_id !== currentUser.email && !u.isOnline);
+    const otherOnlineUsers = teamMembers.filter(u => (u as any).isOnline === true);
+    const offlineUsers = teamMembers.filter(u => (u as any).isOnline === false || (u as any).isOnline === undefined);
     const totalUnread = unreadStats?.total || 0;
 
     // Browser notifications
