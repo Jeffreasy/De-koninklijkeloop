@@ -22,6 +22,13 @@ export const ALL: APIRoute = async ({ request, params, cookies, locals }) => {
         return new Response("Use /api/email proxy", { status: 404 });
     }
 
+    // Admin routes are handled by dedicated Astro handlers (upload-image.ts,
+    // sign-imagekit.ts, imagekit-*.ts, etc.) — do NOT proxy to LaventeCare backend.
+    if (path.startsWith('admin/')) {
+        return new Response("Admin route not found", { status: 404 });
+    }
+
+
     // Analytics ingestion — bypass proxy, forward directly to Go backend.
     // The Go backend accepts tenant_id in the body (Path B) for CORS-safe public ingestion.
     // Proxying would add X-Tenant-ID header, routing to Path A which requires RLS session

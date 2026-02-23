@@ -85,7 +85,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         "img-src 'self' data: blob: https://ik.imagekit.io https://*.convex.cloud https://*.streamable.com https://placehold.co https://*.tile.openstreetmap.org https://unpkg.com https://*.basemaps.cartocdn.com",
         "media-src 'self' blob: data: https://ik.imagekit.io",
         "font-src 'self' data: * https://api.fontshare.com https://fonts.gstatic.com https://fonts.googleapis.com",
-        "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://laventecareauthsystems.onrender.com http://localhost:8080 ws://localhost:8080 https://ik.imagekit.io https://upload.imagekit.io https://*.tile.openstreetmap.org https://va.vercel-analytics.com https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com https://cdn.jsdelivr.net",
+        "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://auth.laventecare.nl https://laventecareauthsystems.onrender.com http://localhost:8080 ws://localhost:8080 https://ik.imagekit.io https://upload.imagekit.io https://*.tile.openstreetmap.org https://va.vercel-analytics.com https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com https://cdn.jsdelivr.net",
         "frame-src 'self' https://streamable.com https://*.streamable.com https://vercel.live https://www.komoot.com https://*.komoot.com https://komoot.com https://komoot.de https://*.komoot.de https://www.gofundme.com",
         "frame-ancestors 'self' https://vercel.live",
         "upgrade-insecure-requests"

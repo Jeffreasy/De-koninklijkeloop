@@ -210,10 +210,19 @@ export async function uploadFileToImageKit(file: File): Promise<string> {
         credentials: 'include',
     });
 
-    const data = await response.json();
+    // Read body as text first to avoid JSON parse crash on non-JSON responses
+    // (e.g. browser CORS errors, HTML error pages, or plain-text 401 messages)
+    const rawText = await response.text();
+    let data: Record<string, unknown> = {};
+    try {
+        data = JSON.parse(rawText);
+    } catch {
+        // Non-JSON response — expose the raw text for debugging
+        throw new Error(`Server error (${response.status}): ${rawText.slice(0, 120)}`);
+    }
 
     if (!response.ok) {
-        throw new Error(data.error || 'Upload mislukt');
+        throw new Error(String(data.error) || `Upload mislukt (${response.status})`);
     }
 
     return data.url;
