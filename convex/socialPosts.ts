@@ -358,6 +358,60 @@ export const backfillYear = mutation({
 });
 
 /**
+ * Migration: Convert any string postedDate values to Unix timestamps (ms).
+ *
+ * Background: Schema changed postedDate from string ("2024-08-27") to float64 (timestamp).
+ * This mutation converts all legacy string values to numbers.
+ *
+ * Run ONCE from Convex Dashboard → Functions → socialPosts:migratePostedDates
+ * Args: {} — no arguments needed.
+ *
+ * After running: change schema postedDate back to v.optional(v.float64()) only.
+ */
+export const migratePostedDates = mutation({
+    args: {},
+    handler: async (ctx) => {
+        const allPosts = await ctx.db.query("social_posts").collect();
+        let converted = 0;
+        let skipped = 0;
+        let cleared = 0;
+
+        for (const post of allPosts) {
+            const pd = post.postedDate;
+
+            if (pd === undefined || pd === null) {
+                skipped++;
+                continue;
+            }
+
+            if (typeof pd === "string") {
+                const ts = new Date(pd).getTime();
+                if (isNaN(ts)) {
+                    // Unparseable string — clear it
+                    await ctx.db.patch(post._id, { postedDate: undefined });
+                    cleared++;
+                } else {
+                    await ctx.db.patch(post._id, { postedDate: ts });
+                    converted++;
+                }
+            } else {
+                // Already a number — skip
+                skipped++;
+            }
+        }
+
+        return {
+            total: allPosts.length,
+            converted,
+            skipped,
+            cleared,
+            message: `Klaar: ${converted} geconverteerd, ${skipped} al correct, ${cleared} gewist (onleesbare datum).`,
+            nextStep: "Zet schema postedDate terug naar v.optional(v.float64()) en verwijder de migratePostedDates functie.",
+        };
+    },
+});
+
+/**
  * Smart Backfill: Reassign year based on createdAt timestamp.
  * Use this to fix posts that were wrongly lumped into the same year bucket.
  *

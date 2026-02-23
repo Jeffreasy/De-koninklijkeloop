@@ -279,7 +279,7 @@ export default defineSchema({
         isVisible: v.boolean(),         // Visible on website
 
         // Metadata
-        postedDate: v.optional(v.number()), // Unix timestamp (ms) of original Instagram post date
+        postedDate: v.optional(v.union(v.string(), v.float64())), // migration: string -> float64
         createdAt: v.number(),          // When added to CMS
         updatedAt: v.number(),          // Last update timestamp
         updatedBy: v.string(),          // Admin email/ID
