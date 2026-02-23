@@ -14,7 +14,7 @@ export function ImageKitUploadButton({ onUploadSuccess, currentUrl }: Props) {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Validate
+        // Validate type
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
         if (!validTypes.includes(file.type)) {
             alert('Alleen JPG, PNG, GIF en WebP zijn toegestaan');
@@ -27,12 +27,20 @@ export function ImageKitUploadButton({ onUploadSuccess, currentUrl }: Props) {
 
         setIsLoading(true);
         try {
-            const formData = new FormData();
-            formData.append('file', file);
+            // Use JSON+base64 to bypass Vercel Edge CSRF block on multipart/form-data.
+            // Vercel blocks "Cross-site POST form submissions" for multipart, but allows application/json.
+            const arrayBuffer = await file.arrayBuffer();
+            const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
             const response = await fetch('/api/admin/upload-image', {
                 method: 'POST',
-                body: formData,
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileBase64: base64,
+                }),
             });
 
             const data = await response.json();

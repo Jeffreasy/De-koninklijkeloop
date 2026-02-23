@@ -2,6 +2,14 @@ import type { APIRoute } from 'astro';
 import { uploadImage } from '../../../lib/imagekit';
 import { verifyApiAdmin } from '../../../lib/apiAuth';
 
+export const prerender = false;
+
+interface UploadBody {
+    fileName: string;
+    fileType: string;
+    fileBase64: string;
+}
+
 export const POST: APIRoute = async ({ request }) => {
     try {
         const user = await verifyApiAdmin(request);
@@ -15,10 +23,24 @@ export const POST: APIRoute = async ({ request }) => {
             });
         }
 
-        const formData = await request.formData();
-        const file = formData.get('file') as File;
+        // Accept JSON+base64 to bypass Vercel Edge CSRF block on multipart/form-data.
+        // Vercel blocks "Cross-site POST form submissions" for multipart, but allows application/json.
+        let body: UploadBody;
+        try {
+            body = await request.json() as UploadBody;
+        } catch {
+            return new Response(JSON.stringify({
+                error: 'Ongeldig verzoek formaat',
+                code: 'INVALID_BODY'
+            }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
 
-        if (!file) {
+        const { fileName, fileType, fileBase64 } = body;
+
+        if (!fileName || !fileBase64) {
             return new Response(JSON.stringify({
                 error: 'Geen bestand geselecteerd',
                 code: 'NO_FILE'
@@ -28,15 +50,10 @@ export const POST: APIRoute = async ({ request }) => {
             });
         }
 
-        if (import.meta.env.DEV) console.log('📁 File:', file.name, file.type, file.size);
+        if (import.meta.env.DEV) console.log('📁 File:', fileName, fileType);
 
-        // Convert file to buffer, then to base64 for ImageKit SDK v7
-        // (SDK v7 requires base64 string, not Buffer)
-        const arrayBuffer = await file.arrayBuffer();
-        const base64 = Buffer.from(arrayBuffer).toString('base64');
-
-        // Upload to ImageKit
-        const result = await uploadImage(base64, file.name, '/SocialmediaPosts');
+        // ImageKit SDK v7 accepts base64 string directly — no Buffer conversion needed.
+        const result = await uploadImage(fileBase64, fileName, '/SocialmediaPosts');
 
         return new Response(
             JSON.stringify({

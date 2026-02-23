@@ -200,29 +200,30 @@ export async function uploadFileToImageKit(file: File): Promise<string> {
         return result.url;
     }
 
-    // Images: use server route (small files, no size issue)
-    const formData = new FormData();
-    formData.append('file', file);
+    // Images: send as JSON+base64 to bypass Vercel Edge CSRF block on multipart/form-data.
+    // Vercel blocks "Cross-site POST form submissions" for multipart, but allows application/json.
+    const arrayBuffer = await file.arrayBuffer();
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
     const response = await fetch('/api/admin/upload-image', {
         method: 'POST',
-        body: formData,
         credentials: 'include',
         headers: {
-            // Required to bypass Vercel Edge CSRF protection for multipart form POSTs.
-            // Vercel blocks cross-site form submissions but allows XHR-identified requests.
-            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+            fileName: file.name,
+            fileType: file.type,
+            fileBase64: base64,
+        }),
     });
 
     // Read body as text first to avoid JSON parse crash on non-JSON responses
-    // (e.g. browser CORS errors, HTML error pages, or plain-text 401 messages)
     const rawText = await response.text();
     let data: Record<string, unknown> = {};
     try {
         data = JSON.parse(rawText);
     } catch {
-        // Non-JSON response — expose the raw text for debugging
         throw new Error(`Server error (${response.status}): ${rawText.slice(0, 120)}`);
     }
 
