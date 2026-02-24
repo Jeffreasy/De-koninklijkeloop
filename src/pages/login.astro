@@ -54,4 +54,11 @@ import LoginForm from "../components/islands/LoginForm";
     if (urlParams.get("registered") === "true") {
         document.getElementById("success-message")?.classList.remove("hidden");
     }
+    if (urlParams.get("uitgelogd") === "true") {
+        const el = document.getElementById("success-message");
+        if (el) {
+            el.textContent = "✅ Je bent succesvol uitgelogd.";
+            el.classList.remove("hidden");
+        }
+    }
 </script>

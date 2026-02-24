@@ -19,8 +19,7 @@ export function setAuth(token: string | null, user: User | null) {
 export function logout() {
     $accessToken.set(null);
     $user.set(null);
-    // Trigger server-side logout to clear cookie
-    fetch('/api/auth/logout', { method: 'POST' }).then(() => {
-        window.location.href = "/login";
-    });
+    // Redirect to professional logout transition page
+    // The /logout page calls /api/auth/logout to clear the HttpOnly cookie
+    window.location.href = "/logout";
 }

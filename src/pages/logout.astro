@@ -1,0 +1,312 @@
+---
+// /logout — Professional logout transition page
+// - Calls /api/auth/logout to clear the HttpOnly cookie server-side
+// - Shows a branded farewell animation while the request is in flight
+// - Redirects to /login?uitgelogd=true for confirmation message
+
+// Server-side: if user arrives here with no token, just redirect immediately
+const token =
+    Astro.cookies.get("dkl_auth_token")?.value ||
+    Astro.cookies.get("access_token")?.value;
+if (!token && !Astro.url.searchParams.get("forced")) {
+    return Astro.redirect("/login");
+}
+---
+
+<!doctype html>
+<html lang="nl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>Uitloggen — De Koninklijke Loop</title>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                --orange: #ff9328;
+                --orange-dim: rgba(255, 147, 40, 0.15);
+                --bg: #0c0e1a;
+                --surface: #111422;
+                --border: rgba(255, 255, 255, 0.07);
+                --text: #e8e8f0;
+                --text-muted: #8888aa;
+            }
+
+            html,
+            body {
+                height: 100%;
+                background: var(--bg);
+                color: var(--text);
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    sans-serif;
+                overflow: hidden;
+            }
+
+            /* Full-page centered layout */
+            .page {
+                min-height: 100dvh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1.5rem;
+                position: relative;
+            }
+
+            /* Subtle radial glow */
+            .glow {
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                background: radial-gradient(
+                    ellipse 60% 50% at 50% 40%,
+                    rgba(255, 147, 40, 0.07) 0%,
+                    transparent 70%
+                );
+                animation: glowPulse 3s ease-in-out infinite;
+            }
+            @keyframes glowPulse {
+                0%,
+                100% {
+                    opacity: 0.6;
+                }
+                50% {
+                    opacity: 1;
+                }
+            }
+
+            /* Card */
+            .card {
+                position: relative;
+                width: 100%;
+                max-width: 400px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 24px;
+                padding: 2.5rem 2rem;
+                text-align: center;
+                box-shadow:
+                    0 32px 80px rgba(0, 0, 0, 0.5),
+                    0 0 0 1px var(--border);
+                animation: cardIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            }
+            @keyframes cardIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(24px) scale(0.96);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            /* Logo ring */
+            .logo-ring {
+                width: 72px;
+                height: 72px;
+                margin: 0 auto 1.5rem;
+                position: relative;
+                border-radius: 20px;
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 147, 40, 0.2),
+                    rgba(255, 147, 40, 0.05)
+                );
+                border: 1.5px solid rgba(255, 147, 40, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+            .logo-ring::after {
+                content: "";
+                position: absolute;
+                inset: -1px;
+                border-radius: 20px;
+                border: 1.5px solid rgba(255, 147, 40, 0.5);
+                animation: ringPulse 2s ease-in-out infinite;
+            }
+            @keyframes ringPulse {
+                0%,
+                100% {
+                    opacity: 0.3;
+                    transform: scale(1);
+                }
+                50% {
+                    opacity: 1;
+                    transform: scale(1.04);
+                }
+            }
+            .logo-ring img {
+                width: 44px;
+                height: 44px;
+                object-fit: contain;
+            }
+
+            /* Title */
+            .title {
+                font-size: 1.35rem;
+                font-weight: 700;
+                color: var(--text);
+                margin-bottom: 0.5rem;
+                letter-spacing: -0.01em;
+            }
+            .subtitle {
+                font-size: 0.875rem;
+                color: var(--text-muted);
+                margin-bottom: 2rem;
+                line-height: 1.5;
+            }
+
+            /* Progress bar */
+            .progress-track {
+                height: 3px;
+                background: var(--border);
+                border-radius: 99px;
+                overflow: hidden;
+                margin-bottom: 1.5rem;
+            }
+            .progress-bar {
+                height: 100%;
+                background: linear-gradient(90deg, var(--orange), #ffb347);
+                border-radius: 99px;
+                width: 0%;
+                animation: progressFill 1.8s cubic-bezier(0.4, 0, 0.2, 1)
+                    forwards;
+            }
+            @keyframes progressFill {
+                0% {
+                    width: 0%;
+                }
+                40% {
+                    width: 60%;
+                }
+                70% {
+                    width: 80%;
+                }
+                100% {
+                    width: 100%;
+                }
+            }
+
+            /* Status dots */
+            .status-row {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                font-size: 0.8rem;
+                color: var(--text-muted);
+            }
+            .dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: var(--orange);
+                animation: dotBlink 1.2s ease-in-out infinite;
+            }
+            .dot:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+            .dot:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+            @keyframes dotBlink {
+                0%,
+                80%,
+                100% {
+                    opacity: 0.25;
+                    transform: scale(0.8);
+                }
+                40% {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            /* Responsive: slightly smaller on very small screens */
+            @media (max-width: 380px) {
+                .card {
+                    padding: 2rem 1.25rem;
+                    border-radius: 20px;
+                }
+                .title {
+                    font-size: 1.15rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="glow"></div>
+        <main class="page" role="main">
+            <div class="card">
+                <div class="logo-ring" aria-hidden="true">
+                    <img
+                        src="https://ik.imagekit.io/a0oim4e3e/tr:w-88,f-auto,q-80/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
+                        alt="DKL Logo"
+                        width="44"
+                        height="44"
+                    />
+                </div>
+
+                <h1 class="title">Tot ziens!</h1>
+                <p class="subtitle" id="status-text">
+                    Je sessie wordt veilig beëindigd...
+                </p>
+
+                <div
+                    class="progress-track"
+                    role="progressbar"
+                    aria-label="Uitloggen bezig"
+                >
+                    <div class="progress-bar"></div>
+                </div>
+
+                <div class="status-row" aria-live="polite" id="status-row">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span id="status-label">Sessie beëindigen</span>
+                </div>
+            </div>
+        </main>
+
+        <script is:inline>
+            (async function () {
+                const statusText = document.getElementById("status-text");
+                const statusLabel = document.getElementById("status-label");
+
+                function setStatus(text, label) {
+                    if (statusText) statusText.textContent = text;
+                    if (statusLabel) statusLabel.textContent = label;
+                }
+
+                try {
+                    // Call server to clear HttpOnly cookie
+                    await fetch("/api/auth/logout", {
+                        method: "POST",
+                        credentials: "include",
+                    });
+                    setStatus("Je bent veilig uitgelogd.", "Klaar");
+                } catch (_) {
+                    // Even if logout API fails, we still redirect — cookie expires naturally
+                    setStatus("Uitgelogd. Sessie verwijderd.", "Klaar");
+                }
+
+                // Small delay so the user sees the 'Klaar' state before redirect
+                await new Promise((r) => setTimeout(r, 500));
+                window.location.replace("/login?uitgelogd=true");
+            })();
+        </script>
+    </body>
+</html>
