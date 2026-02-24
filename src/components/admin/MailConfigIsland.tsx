@@ -1,24 +1,21 @@
 import { useState, useEffect } from 'react';
-import { useStore } from "@nanostores/react";
-import { $accessToken } from "../../lib/auth";
-import { Loader2, Save, Server, Shield, Lock, Mail, User } from "lucide-react";
+import { Loader2, Save, Server, Shield, Lock, Mail, Trash2, AlertTriangle } from 'lucide-react';
 
 interface MailConfig {
-    provider: string; // 'smtp'
     host: string;
     port: number;
     username: string;
-    password?: string; // Only on update
+    password?: string;
     from_email: string;
     from_name: string;
     encryption: 'none' | 'ssl' | 'tls';
-    auth_type: 'none' | 'plain' | 'login';
 }
 
+// BFF proxy URL — uses HttpOnly cookies (no Bearer token exposed to JS)
+const API = '/api/admin/mail-config';
+
 export default function MailConfigIsland() {
-    const accessToken = useStore($accessToken);
     const [config, setConfig] = useState<MailConfig>({
-        provider: 'smtp',
         host: '',
         port: 587,
         username: '',
@@ -26,62 +23,55 @@ export default function MailConfigIsland() {
         from_email: '',
         from_name: '',
         encryption: 'tls',
-        auth_type: 'plain'
     });
+    const [isConfigured, setIsConfigured] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [configError, setConfigError] = useState<string | null>(null);
-    const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+    const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-    // Fetch configuration
     useEffect(() => {
         const fetchConfig = async () => {
-            if (!accessToken) {
-                setLoading(false);
-                setConfigError("Niet geautoriseerd. Log opnieuw in.");
-                return;
-            }
-
             try {
-                const response = await fetch('/api/v1/admin/mail-config', {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
-                });
+                const response = await fetch(API, { credentials: 'include' });
 
                 if (response.ok) {
                     const data = await response.json();
                     setConfigError(null);
+                    setIsConfigured(!!data.configured);
                     if (data.configured) {
-                        const backendConfig = data.config;
+                        const bc = data.config;
+                        // Parse RFC5322 "Display Name <email>" or bare "email"
+                        const fromRaw: string = bc.from || '';
+                        const match = fromRaw.match(/^(.+?)\s*<([^>]+)>$/);
                         setConfig({
-                            provider: 'smtp',
-                            host: backendConfig.host,
-                            port: Number(backendConfig.port),
-                            username: backendConfig.user,
+                            host: bc.host,
+                            port: Number(bc.port),
+                            username: bc.user,
                             password: '',
-                            from_email: backendConfig.from,
-                            from_name: '',
-                            encryption: backendConfig.tls_mode === 'tls' ? 'ssl' : 'tls',
-                            auth_type: 'login'
+                            from_email: match ? match[2].trim() : fromRaw.trim(),
+                            from_name: match ? match[1].trim() : '',
+                            // Backend 'tls' = SSL/Implicit → frontend 'ssl'
+                            // Backend 'starttls' = STARTTLS → frontend 'tls'
+                            encryption: bc.tls_mode === 'tls' ? 'ssl' : 'tls',
                         });
                     }
-                } else if (response.status === 404 || response.status === 502) {
-                    setConfigError("E-mail configuratie is niet beschikbaar. De backend server ondersteunt deze functie mogelijk nog niet.");
+                } else if (response.status === 401) {
+                    setConfigError('Niet geautoriseerd. Log opnieuw in.');
                 } else {
-                    const errorText = await response.text().catch(() => 'Onbekende fout');
-                    setConfigError(`Kan configuratie niet ophalen (${response.status}): ${errorText}`);
+                    setConfigError(`Configuratie niet beschikbaar (${response.status}).`);
                 }
-            } catch (error) {
-                if (import.meta.env.DEV) console.error("Error fetching mail config:", error);
-                setConfigError("Kan geen verbinding maken met de backend. Controleer of de server draait.");
+            } catch {
+                setConfigError('Kan geen verbinding maken met de backend.');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchConfig();
-    }, [accessToken]);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -89,42 +79,69 @@ export default function MailConfigIsland() {
         setStatus(null);
 
         try {
-            // Map Frontend -> Backend
-            // Frontend 'tls' (STARTTLS) -> Backend 'starttls'
-            // Frontend 'ssl' (Implicit) -> Backend 'tls'
+            // Combine name + email into RFC5322 format backend expects
+            const fromField = config.from_name?.trim()
+                ? `${config.from_name.trim()} <${config.from_email}>`
+                : config.from_email;
+
+            // Map frontend → backend tls_mode
             const tlsMode = config.encryption === 'ssl' ? 'tls' : 'starttls';
 
-            const payload = {
+            const payload: Record<string, unknown> = {
                 host: config.host,
                 port: Number(config.port),
                 user: config.username,
-                password: config.password,
-                from: config.from_email,
-                tls_mode: tlsMode
+                from: fromField,
+                tls_mode: tlsMode,
             };
+            // Only include password if the user typed a new one
+            if (config.password) payload.password = config.password;
 
-            const response = await fetch('/api/v1/admin/mail-config', {
+            const response = await fetch(API, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(payload)
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || "Kon instellingen niet opslaan");
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.error || `Fout bij opslaan (${response.status})`);
             }
 
-            setStatus({ type: 'success', message: 'E-mail instellingen opgeslagen!' });
+            setIsConfigured(true);
+            setConfig(c => ({ ...c, password: '' }));
+            setStatus({ type: 'success', message: 'SMTP configuratie opgeslagen!' });
         } catch (error) {
             setStatus({
                 type: 'error',
-                message: error instanceof Error ? error.message.split('\n')[0] : 'Kon instellingen niet opslaan'
+                message: error instanceof Error ? error.message.split('\n')[0] : 'Kon instellingen niet opslaan.',
             });
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        setDeleting(true);
+        setStatus(null);
+        try {
+            const response = await fetch(API, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            if (!response.ok) throw new Error(`Fout bij verwijderen (${response.status})`);
+            setIsConfigured(false);
+            setShowDeleteConfirm(false);
+            setConfig({ host: '', port: 587, username: '', password: '', from_email: '', from_name: '', encryption: 'tls' });
+            setStatus({ type: 'success', message: 'SMTP configuratie verwijderd. Systeem SMTP wordt gebruikt als fallback.' });
+        } catch (error) {
+            setStatus({
+                type: 'error',
+                message: error instanceof Error ? error.message : 'Kon configuratie niet verwijderen.',
+            });
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -133,10 +150,7 @@ export default function MailConfigIsland() {
             <div className="space-y-6 animate-pulse" aria-hidden="true">
                 <div className="premium-glass rounded-2xl md:rounded-3xl p-6 h-[250px]" />
                 <div className="premium-glass rounded-2xl md:rounded-3xl p-6 h-[200px]" />
-                <div className="premium-glass rounded-2xl md:rounded-3xl p-6 h-[200px]" />
-                <div className="flex justify-end">
-                    <div className="w-full sm:w-48 h-12 rounded-xl bg-glass-surface/50" />
-                </div>
+                <div className="flex justify-end"><div className="w-48 h-12 rounded-xl bg-glass-surface/50" /></div>
             </div>
         );
     }
@@ -150,9 +164,6 @@ export default function MailConfigIsland() {
                     </div>
                     <h3 className="text-lg font-semibold text-text-primary mb-2">E-mail configuratie niet beschikbaar</h3>
                     <p className="text-text-muted text-sm max-w-md leading-relaxed">{configError}</p>
-                    <p className="text-xs text-text-muted mt-4 opacity-60">
-                        Deze functie vereist de LaventeCare backend server met e-mail ondersteuning.
-                    </p>
                 </div>
             </div>
         );
@@ -160,7 +171,7 @@ export default function MailConfigIsland() {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Status Message */}
+            {/* Status */}
             {status && (
                 <div
                     className={`p-4 rounded-xl text-sm ${status.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}
@@ -209,7 +220,7 @@ export default function MailConfigIsland() {
                         </div>
                     </div>
 
-                    <div>
+                    <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-text-secondary mb-2">Encryptie</label>
                         <div className="relative">
                             <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
@@ -219,24 +230,8 @@ export default function MailConfigIsland() {
                                 className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50 appearance-none [&>option]:bg-gray-900 [&>option]:text-white"
                             >
                                 <option value="none">Geen (Onveilig)</option>
-                                <option value="ssl">SSL</option>
-                                <option value="tls">TLS (STARTTLS)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-text-secondary mb-2">Authenticatie</label>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                            <select
-                                value={config.auth_type}
-                                onChange={e => setConfig({ ...config, auth_type: e.target.value as 'none' | 'plain' | 'login' })}
-                                className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50 appearance-none [&>option]:bg-gray-900 [&>option]:text-white"
-                            >
-                                <option value="none">Geen</option>
-                                <option value="plain">PLAIN</option>
-                                <option value="login">LOGIN</option>
+                                <option value="ssl">SSL / Implicit TLS (poort 465)</option>
+                                <option value="tls">STARTTLS (poort 587)</option>
                             </select>
                         </div>
                     </div>
@@ -284,7 +279,7 @@ export default function MailConfigIsland() {
             <div className="premium-glass rounded-2xl md:rounded-3xl p-6">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
-                        <User className="w-5 h-5" />
+                        <Mail className="w-5 h-5" />
                     </div>
                     <div>
                         <h2 className="text-lg font-semibold text-text-primary">Afzender</h2>
@@ -304,7 +299,7 @@ export default function MailConfigIsland() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-text-secondary mb-2">Email Afzender</label>
+                        <label className="block text-sm font-medium text-text-secondary mb-2">E-mail Afzender</label>
                         <div className="relative">
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                             <input
@@ -319,16 +314,45 @@ export default function MailConfigIsland() {
                 </div>
             </div>
 
+            {/* Delete Confirm */}
+            {showDeleteConfirm && (
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-red-400">SMTP configuratie verwijderen?</p>
+                        <p className="text-xs text-red-400/70 mt-0.5">Het systeem valt terug op de standaard SMTP provider.</p>
+                    </div>
+                    <div className="flex gap-2">
+                        <button type="button" onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 text-xs rounded-lg bg-glass-bg border border-glass-border text-text-muted hover:text-text-primary transition-colors cursor-pointer">Annuleren</button>
+                        <button type="button" onClick={handleDelete} disabled={deleting} className="px-3 py-1.5 text-xs rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-50 cursor-pointer">
+                            {deleting ? 'Verwijderen...' : 'Ja, verwijder'}
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Actions */}
-            <div className="flex justify-end">
-                <button
-                    type="submit"
-                    disabled={saving}
-                    className="flex items-center gap-2 px-8 py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                    <span>{saving ? 'Opslaan...' : 'Configuratie Opslaan'}</span>
-                </button>
+            <div className="flex flex-col sm:flex-row justify-between gap-3">
+                {isConfigured && !showDeleteConfirm && (
+                    <button
+                        type="button"
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="flex items-center gap-2 px-4 py-3 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium cursor-pointer"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                        Configuratie verwijderen
+                    </button>
+                )}
+                <div className="sm:ml-auto">
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-brand-orange text-white font-medium hover:bg-orange-400 transition-colors shadow-lg shadow-brand-orange/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                        {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                        <span>{saving ? 'Opslaan...' : 'Configuratie Opslaan'}</span>
+                    </button>
+                </div>
             </div>
         </form>
     );

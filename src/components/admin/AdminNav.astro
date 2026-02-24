@@ -71,9 +71,13 @@ const allNavItems = [
 ];
 
 const adminOnlyItems = ["Instellingen", "X Poster", "Blog"];
+const editorPlusItems = ["Email"];
 const navItems = allNavItems.filter((item) => {
   if (adminOnlyItems.includes(item.name)) {
     return userRole === "admin";
+  }
+  if (editorPlusItems.includes(item.name)) {
+    return userRole === "editor" || userRole === "admin";
   }
   return true;
 });

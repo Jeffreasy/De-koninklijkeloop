@@ -22,18 +22,22 @@ export function getAuthContext(cookies: CookieStore): AuthResult | null {
     const token = cookies.get('access_token')?.value || cookies.get('dkl_auth_token')?.value;
     if (!token) return null;
 
-    const tenantID = import.meta.env.PUBLIC_TENANT_ID || 'b2727666-7230-4689-b58b-ceab8c2898d5';
+    const tenantID = import.meta.env.PUBLIC_TENANT_ID;
+    if (!tenantID && import.meta.env.DEV) {
+        console.warn('[Email Proxy] PUBLIC_TENANT_ID not set — using hardcoded fallback UUID');
+    }
+    const effectiveTenantID = tenantID || 'b2727666-7230-4689-b58b-ceab8c2898d5';
 
     const headers = new Headers();
     headers.set('Authorization', `Bearer ${token}`);
-    headers.set('X-Tenant-ID', tenantID);
+    headers.set('X-Tenant-ID', effectiveTenantID);
     headers.set('X-Requested-With', 'XMLHttpRequest');
     headers.set('Content-Type', 'application/json');
 
     const apiUrl = import.meta.env.PUBLIC_API_URL || API_URL_DEFAULT;
     headers.set('Host', new URL(apiUrl).host);
 
-    return { token, tenantID, headers };
+    return { token, tenantID: effectiveTenantID, headers };
 }
 
 /** Get the base API URL from environment or fallback */

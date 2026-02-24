@@ -1,10 +1,12 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
 import EventSettingsIsland from "../../components/admin/EventSettingsIsland";
+import MailConfigIsland from "../../components/admin/MailConfigIsland";
+import IMAPConfigIsland from "../../components/admin/IMAPConfigIsland";
 ---
 
 <AdminLayout title="Instellingen | De Koninklijke Loop Admin">
-    <div class="space-y-6">
+    <div class="space-y-10">
         <!-- Page Header -->
         <div>
             <h1 class="text-3xl font-bold font-display text-text-primary">
@@ -15,12 +17,54 @@ import EventSettingsIsland from "../../components/admin/EventSettingsIsland";
             </p>
         </div>
 
-        <!-- Event Settings Form (React Island) -->
-        <div class="min-h-[600px]">
-            <EventSettingsIsland
-                client:only="react"
-                convexUrl={import.meta.env.PUBLIC_CONVEX_URL}
-            />
-        </div>
+        <!-- Event Settings -->
+        <section>
+            <div class="mb-4">
+                <h2 class="text-xl font-semibold text-text-primary">
+                    Evenement
+                </h2>
+                <p class="text-sm text-text-muted">
+                    Generieke evenement- en registratie-instellingen
+                </p>
+            </div>
+            <div class="min-h-[400px]">
+                <EventSettingsIsland
+                    client:only="react"
+                    convexUrl={import.meta.env.PUBLIC_CONVEX_URL}
+                />
+            </div>
+        </section>
+
+        <hr class="border-glass-border" />
+
+        <!-- SMTP Mail Configuration -->
+        <section>
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-text-primary">
+                    SMTP Configuratie
+                </h2>
+                <p class="text-sm text-text-muted">
+                    Uitgaande e-mail (bevestigingen, notificaties). Laat leeg om
+                    het systeem-SMTP te gebruiken.
+                </p>
+            </div>
+            <MailConfigIsland client:only="react" />
+        </section>
+
+        <hr class="border-glass-border" />
+
+        <!-- IMAP Configuration -->
+        <section>
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-text-primary">
+                    IMAP Configuratie
+                </h2>
+                <p class="text-sm text-text-muted">
+                    Inkomende e-mail polling voor de inbox (info@ en
+                    inschrijving@).
+                </p>
+            </div>
+            <IMAPConfigIsland client:only="react" />
+        </section>
     </div>
 </AdminLayout>

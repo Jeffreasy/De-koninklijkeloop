@@ -27,6 +27,7 @@ export default function EmailManagerIsland() {
     const [searchQuery, setSearchQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const abortRef = useRef<AbortController | null>(null);
 
     // Auto-dismiss toast after 3 seconds
     useEffect(() => {
@@ -41,7 +42,7 @@ export default function EmailManagerIsland() {
         setPage(1);
         setEmails([]);
         setSelectedEmail(null);
-        fetchEmails(1);
+        fetchEmails(1, selectedAccount);
         fetchStats(selectedAccount);
     }, [selectedAccount]);
 
@@ -56,7 +57,7 @@ export default function EmailManagerIsland() {
         const startPoll = () => {
             if (pollRef.current) clearInterval(pollRef.current);
             pollRef.current = setInterval(() => {
-                fetchEmails(1);
+                fetchEmails(1, selectedAccount);
                 fetchStats(selectedAccount);
             }, POLL_INTERVAL_MS);
         };
@@ -83,12 +84,16 @@ export default function EmailManagerIsland() {
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        await fetchEmails(1);
+        await fetchEmails(1, selectedAccount);
         await fetchStats(selectedAccount);
         setRefreshing(false);
     };
 
-    const fetchEmails = async (fetchPage: number = 1) => {
+    const fetchEmails = async (fetchPage: number = 1, account: Account = selectedAccount) => {
+        // Cancel any in-flight request for a previous account switch
+        if (abortRef.current) abortRef.current.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
         if (fetchPage === 1) {
             setLoading(true);
         } else {
@@ -98,7 +103,8 @@ export default function EmailManagerIsland() {
 
         try {
             const response = await fetch(
-                `/api/email/inbox/${selectedAccount}?page=${fetchPage}&per_page=${EMAILS_PER_PAGE}&archived=false`
+                `/api/email/inbox/${account}?page=${fetchPage}&per_page=${EMAILS_PER_PAGE}&archived=false`,
+                { signal: controller.signal }
             );
 
             if (!response.ok) {
@@ -116,6 +122,8 @@ export default function EmailManagerIsland() {
             setHasMore(fetched.length === EMAILS_PER_PAGE);
             setPage(fetchPage);
         } catch (err) {
+            // AbortError is expected on account switch — not a real error
+            if (err instanceof Error && err.name === 'AbortError') return;
             setError(err instanceof Error ? err.message : 'Failed to load emails');
             if (import.meta.env.DEV) console.error('[EmailManager] Fetch error:', err);
         } finally {
@@ -458,7 +466,7 @@ export default function EmailManagerIsland() {
                         onClose={() => { setShowReplyModal(false); setReplyToFullEmail(null); }}
                         onSuccess={() => {
                             setToast({ message: 'Antwoord verzonden', type: 'success' });
-                            fetchEmails();
+                            fetchEmails(1, selectedAccount);
                             fetchStats(selectedAccount);
                         }}
                     />
@@ -472,7 +480,7 @@ export default function EmailManagerIsland() {
                         onClose={() => setShowComposeModal(false)}
                         onSuccess={() => {
                             setToast({ message: 'Email verzonden', type: 'success' });
-                            fetchEmails();
+                            fetchEmails(1, selectedAccount);
                             fetchStats(selectedAccount);
                         }}
                         defaultTo=""
