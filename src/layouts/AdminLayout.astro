@@ -20,9 +20,13 @@ const { title } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Admin: never index, never follow -->
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="48x48" />
-    <link rel="icon" type="image/webp" href="/favicon.webp" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
 
@@ -130,7 +134,7 @@ const { title } = Astro.props;
           throw new Error("No session");
         })
         .then((data) => {
-          console.log("[Admin] Token hydrated successfully");
+          if (import.meta.env.DEV) console.log("[Admin] Token hydrated");
           setAuth(data.token, user);
         })
         .catch(() => {
