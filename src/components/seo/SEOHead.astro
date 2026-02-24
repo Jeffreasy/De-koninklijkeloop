@@ -97,7 +97,63 @@ const breadcrumbSchema =
           }
         : null;
 
-// WebPage schema with speakable + dateModified for voice search & GEO
+// Full Schema.org Event — fixes all Google Search Console warnings:
+// Critical: location, startDate | Non-critical: endDate, offers, performer, eventStatus, organizer
+const eventSchema = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "@id": "https://dekoninklijkeloop.nl/#event-2026",
+    name: "De Koninklijke Loop 2026",
+    description:
+        "De Koninklijke Loop is een inclusief wandelevenement op de Veluwe voor en door mensen met een beperking. Iedereen, met of zonder beperking, wandelt samen voor een inclusieve samenleving.",
+    startDate: "2026-05-16T09:00:00+02:00",
+    endDate: "2026-05-16T17:00:00+02:00",
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    location: {
+        "@type": "Place",
+        name: "Kootwijk - Apeldoorn",
+        address: {
+            "@type": "PostalAddress",
+            addressLocality: "Kootwijk",
+            addressRegion: "Gelderland",
+            postalCode: "7375",
+            addressCountry: "NL",
+        },
+        geo: {
+            "@type": "GeoCoordinates",
+            latitude: 52.2137,
+            longitude: 5.8713,
+        },
+    },
+    image: [
+        "https://ik.imagekit.io/a0oim4e3e/tr:w-1200,h-630,fo-auto,f-jpg,q-80/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp",
+    ],
+    organizer: {
+        "@type": "Organization",
+        name: "De Koninklijke Loop",
+        url: "https://dekoninklijkeloop.nl",
+        email: siteConfig.contact.email,
+    },
+    performer: {
+        "@type": "Organization",
+        name: "De Koninklijke Loop",
+        url: "https://dekoninklijkeloop.nl",
+    },
+    offers: {
+        "@type": "Offer",
+        name: "Inschrijving De Koninklijke Loop 2026",
+        url: "https://dekoninklijkeloop.nl/register",
+        availability: "https://schema.org/InStock",
+        price: "0",
+        priceCurrency: "EUR",
+        validFrom: "2026-01-01T00:00:00+01:00",
+    },
+    url: "https://dekoninklijkeloop.nl",
+    inLanguage: "nl-NL",
+};
+
+// WebPage.about references the Event via @id to avoid duplication
 const webPageSchema = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -116,14 +172,14 @@ const webPageSchema = {
         cssSelector: ["h1", "[data-speakable]", "main p:first-of-type"],
     },
     about: {
-        "@type": "Event",
-        name: "De Koninklijke Loop 2026",
+        "@id": "https://dekoninklijkeloop.nl/#event-2026",
     },
 };
 
 const allSchemas = [
     organizationSchema,
     websiteSchema,
+    eventSchema,
     webPageSchema,
     ...(breadcrumbSchema ? [breadcrumbSchema] : []),
     ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []),
