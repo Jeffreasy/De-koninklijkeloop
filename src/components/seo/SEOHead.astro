@@ -25,12 +25,11 @@ const rawCanonical =
     canonicalUrl ||
     new URL(Astro.url.pathname, "https://dekoninklijkeloop.nl").href;
 
-// Normalize: strip trailing slash except for the homepage
-const resolvedCanonical =
-    rawCanonical !== "https://dekoninklijkeloop.nl/" &&
-    rawCanonical.endsWith("/")
-        ? rawCanonical.slice(0, -1)
-        : rawCanonical;
+// Normalize: always strip trailing slash — consistent with site config
+// `https://dekoninklijkeloop.nl` (no slash) is the canonical form per astro.config site
+const resolvedCanonical = rawCanonical.endsWith("/")
+    ? rawCanonical.slice(0, -1) || "https://dekoninklijkeloop.nl"
+    : rawCanonical;
 
 const organizationSchema = {
     "@context": "https://schema.org",
@@ -202,18 +201,6 @@ const allSchemas = [
 
     {/* Robots */}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
-
-    {/* Browser Theme Color (mobile tab bar) */}
-    <meta
-        name="theme-color"
-        content="#0c0e16"
-        media="(prefers-color-scheme: dark)"
-    />
-    <meta
-        name="theme-color"
-        content="#ffffff"
-        media="(prefers-color-scheme: light)"
-    />
 
     {/* Search Engine Verification */}
     {
