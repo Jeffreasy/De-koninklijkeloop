@@ -48,14 +48,15 @@ const registerJsonLd = {
     description="Schrijf je gratis in voor De Koninklijke Loop (DKL26): wandelen op 16 mei 2026 over de Veluwe in Apeldoorn. Kies uit wandelroutes van 2,5 tot 15 km. Rolstoelvriendelijk. Maximaal 75 deelnemers."
     jsonLd={registerJsonLd}
 >
-    <div class="fixed inset-0 bg-surface/50 backdrop-blur-sm -z-10">
+    {/* Decorative background — hidden on mobile for INP performance */}
+    <div class="fixed inset-0 -z-10 bg-surface/50">
         <div class="absolute inset-0 bg-brand-primary/5"></div>
         <div
-            class="absolute top-0 left-1/4 w-96 h-96 bg-brand-orange/10 rounded-full blur-[128px]"
+            class="absolute top-0 left-1/4 w-96 h-96 bg-brand-orange/10 rounded-full blur-[128px] hidden md:block"
         >
         </div>
         <div
-            class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[128px]"
+            class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[128px] hidden md:block"
         >
         </div>
     </div>
@@ -78,7 +79,33 @@ const registerJsonLd = {
                 <h2 class="text-lg font-display font-bold text-text-body mb-5">
                     Hoe inschrijven?
                 </h2>
-                <RegisterPageWrapper client:only="react" />
+                {/* SSR skeleton — voorkomt CLS door React hydration pop-in */}
+                <div
+                    id="register-form-skeleton"
+                    class="min-h-[520px] space-y-6 animate-pulse"
+                    aria-hidden="true"
+                >
+                    <div class="h-10 bg-glass-border/30 rounded-xl w-full">
+                    </div>
+                    <div class="h-10 bg-glass-border/30 rounded-xl w-full">
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="h-24 bg-glass-border/20 rounded-2xl"></div>
+                        <div class="h-24 bg-glass-border/20 rounded-2xl"></div>
+                        <div class="h-24 bg-glass-border/20 rounded-2xl"></div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="h-20 bg-glass-border/20 rounded-2xl"></div>
+                        <div class="h-20 bg-glass-border/20 rounded-2xl"></div>
+                        <div class="h-20 bg-glass-border/20 rounded-2xl"></div>
+                        <div class="h-20 bg-glass-border/20 rounded-2xl"></div>
+                    </div>
+                    <div class="h-14 bg-brand-orange/20 rounded-2xl w-full">
+                    </div>
+                </div>
+                <div id="register-form-island" class="hidden">
+                    <RegisterPageWrapper client:only="react" />
+                </div>
             </div>
 
             <div class="text-center text-sm text-text-muted">
@@ -92,4 +119,23 @@ const registerJsonLd = {
         </div>
     </main>
     <Footer />
+
+    {/* Swap skeleton → form as soon as React hydrates (eliminates CLS) */}
+    <script is:inline>
+        (function () {
+            const island = document.getElementById("register-form-island");
+            const skeleton = document.getElementById("register-form-skeleton");
+            if (!island || !skeleton) return;
+
+            // Watch for React mounting its first child
+            const observer = new MutationObserver(function () {
+                if (island.firstElementChild) {
+                    skeleton.style.display = "none";
+                    island.classList.remove("hidden");
+                    observer.disconnect();
+                }
+            });
+            observer.observe(island, { childList: true, subtree: true });
+        })();
+    </script>
 </BaseLayout>

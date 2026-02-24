@@ -291,7 +291,7 @@ export default function RegisterForm() {
                             className={cn(
                                 "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[120px]",
                                 selectedRole === role.id
-                                    ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
+                                    ? "border-brand-orange bg-brand-orange/5 shadow-lg ring-2 ring-brand-orange/30"
                                     : "border-glass-border glass-card hover:border-brand-orange/50"
                             )}
                         >
@@ -342,7 +342,7 @@ export default function RegisterForm() {
                                 className={cn(
                                     "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[100px]",
                                     selectedDistance === dist.id
-                                        ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.05]"
+                                        ? "border-brand-orange bg-brand-orange/5 shadow-lg ring-2 ring-brand-orange/30"
                                         : "border-glass-border glass-card hover:border-brand-orange/50"
                                 )}
                             >
@@ -392,7 +392,7 @@ export default function RegisterForm() {
                                 className={cn(
                                     "cursor-pointer rounded-2xl border-2 p-3 md:p-4 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center h-full min-h-[100px]",
                                     selectedSupport === opt.id
-                                        ? "border-brand-primary bg-brand-primary/5 shadow-lg scale-[1.05]"
+                                        ? "border-brand-primary bg-brand-primary/5 shadow-lg ring-2 ring-brand-primary/30"
                                         : "border-glass-border glass-card hover:border-brand-orange/50"
                                 )}
                             >
@@ -500,7 +500,7 @@ export default function RegisterForm() {
                                         className={cn(
                                             "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[80px]",
                                             watch("wheelchairUser") === opt.val
-                                                ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                                ? "border-brand-orange bg-brand-orange/5 shadow-lg ring-2 ring-brand-orange/30"
                                                 : "border-glass-border glass-card hover:border-brand-orange/50"
                                         )}
                                     >
@@ -526,7 +526,7 @@ export default function RegisterForm() {
                                         className={cn(
                                             "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[100px]",
                                             selectedShuttle === opt.id
-                                                ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                                ? "border-brand-orange bg-brand-orange/5 shadow-lg ring-2 ring-brand-orange/30"
                                                 : "border-glass-border glass-card hover:border-brand-orange/50"
                                         )}
                                     >
@@ -582,7 +582,7 @@ export default function RegisterForm() {
                                         className={cn(
                                             "cursor-pointer rounded-2xl border-2 p-3 text-center transition-all duration-300 relative group overflow-hidden flex flex-col justify-center items-center min-h-[100px]",
                                             selectedParticipantType === opt.id
-                                                ? "border-brand-orange bg-brand-orange/5 shadow-lg scale-[1.03]"
+                                                ? "border-brand-orange bg-brand-orange/5 shadow-lg ring-2 ring-brand-orange/30"
                                                 : "border-glass-border glass-card hover:border-brand-orange/50"
                                         )}
                                     >
