@@ -8,6 +8,9 @@ import BlogPreviewSection from "../components/blocks/Blog/BlogPreviewSection.ast
 
 export const prerender = false;
 
+// Vercel ISR: cache deze SSR pagina 1 uur — hergebruik render ipv nieuwe Convex queries per request
+export const revalidate = 3600;
+
 const title =
     "De Koninklijke Weg Wandelen | DKL 2026 — Veluwe Wandelroute Apeldoorn";
 const description =
@@ -78,6 +81,14 @@ const dklJsonLd = {
     ogImage={ogImage}
     jsonLd={dklJsonLd}
 >
+    <!-- Leaflet CSS — vereist voor RouteDetailWithElevation kaart -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+        slot="head"
+    />
     <Navbar />
 
     <main class="pt-32 pb-20 relative overflow-hidden">
