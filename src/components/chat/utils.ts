@@ -1,4 +1,19 @@
-export const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '🔥', '👏'];
+export const QUICK_REACTIONS = ['\uD83D\uDC4D', '\u2764\uFE0F', '\uD83D\uDE02', '\uD83D\uDE2E', '\uD83D\uDD25', '\uD83D\uDC4F'];
+
+/**
+ * Parse a last_active ISO string from the Go backend.
+ * Go zero-time (0001-01-01T00:00:00Z) returns a huge negative number —
+ * that caused formatLastSeen to show '1 jan.' for every offline user.
+ * Returns null if the timestamp is invalid or represents the zero-time.
+ */
+export function parseLastActive(isoString: string | null | undefined): number | null {
+    if (!isoString) return null;
+    // Go zero-time check
+    if (isoString.startsWith('0001-')) return null;
+    const ts = Date.parse(isoString);
+    if (isNaN(ts) || ts <= 0) return null;
+    return ts;
+}
 
 export function formatLastSeen(timestamp: number): string {
     const now = Date.now();

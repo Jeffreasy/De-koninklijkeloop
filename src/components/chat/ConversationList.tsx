@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { MessageSquare, Plus, Hash } from 'lucide-react';
 import type { ChatUser, TeamMember, GroupConversation, ConversationSummary, UnreadStats } from './types';
-import { formatLastSeen } from './utils';
+import { formatLastSeen, parseLastActive } from './utils';
 
 interface ConversationListProps {
     currentUser: ChatUser;
@@ -185,9 +185,12 @@ const UserListItem = memo(function UserListItem({ user, unreadCount, onClick, is
                 <div className="text-xs text-text-muted truncate flex items-center gap-1.5">
                     {isOnline ? (
                         <><span className="w-1.5 h-1.5 rounded-full bg-green-500/50"></span>Nu actief</>
-                    ) : (
-                        <>Laatst gezien {formatLastSeen(Date.parse(user.last_active) || 0)}</>
-                    )}
+                    ) : (() => {
+                        const ts = parseLastActive(user.last_active);
+                        return ts
+                            ? <>Laatst gezien {formatLastSeen(ts)}</>
+                            : <>Nooit actief geweest</>;
+                    })()}
                 </div>
             </div>
             <div className="text-text-muted opacity-0 group-hover/item:opacity-100 transition-opacity -mr-1">
