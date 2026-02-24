@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
@@ -9,7 +9,7 @@ import {
     MousePointerClick, PlayCircle, UserPlus, Globe,
     Smartphone, Monitor, Tablet, RefreshCw, Download, Clock, BarChart3, AlertTriangle
 } from "lucide-react";
-import { apiRequest } from "../../lib/api";
+import { apiRequest, ApiError } from "../../lib/api";
 
 // ─── Constants ───
 
@@ -101,12 +101,15 @@ interface GoDashboardFull {
 }
 
 // ─── Retry wrapper ───
-
+// Only retries on transient errors (network, 5xx). Never retries on ApiError
+// (401/403/4xx) — those are definitive and retrying would spam the backend.
 async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
     for (let attempt = 0; attempt <= retries; attempt++) {
         try {
             return await fn();
         } catch (err) {
+            // Auth errors and client errors are definitive — do not retry
+            if (err instanceof ApiError) throw err;
             if (attempt === retries) throw err;
             await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
         }
@@ -128,6 +131,8 @@ function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
     const [prevSessionDuration, setPrevSessionDuration] = useState<GoSessionDuration | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    // Stops the poll loop permanently if the session is definitively expired
+    const sessionExpiredRef = useRef(false);
 
     const fetchData = useCallback(async () => {
         try {
@@ -162,17 +167,28 @@ function useGoAnalytics(period: typeof PERIOD_OPTIONS[number]) {
                 setPrevBounceRate(prev.bounce_rate);
                 setPrevSessionDuration(prev.session_duration);
             }
-        } catch (err: any) {
-            setError(err.message || 'Failed to fetch analytics');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Failed to fetch analytics';
+            // 401 after refresh attempt = session definitively expired
+            // Stop the polling interval to prevent hammering the backend
+            if (err instanceof ApiError && err.status === 401) {
+                sessionExpiredRef.current = true;
+            }
+            setError(msg);
         } finally {
             setLoading(false);
         }
     }, [period]);
 
     useEffect(() => {
+        sessionExpiredRef.current = false;
         setLoading(true);
         fetchData();
-        const interval = setInterval(fetchData, 30_000);
+        const interval = setInterval(() => {
+            // Do not poll if session is definitively expired
+            if (sessionExpiredRef.current) return;
+            fetchData();
+        }, 30_000);
         return () => clearInterval(interval);
     }, [fetchData]);
 
