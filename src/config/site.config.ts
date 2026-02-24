@@ -61,6 +61,7 @@ export const siteConfig = {
         facebook: "https://www.facebook.com/p/De-Koninklijke-Loop-61556315443279/",
         instagram: "https://www.instagram.com/koninklijkeloop/",
         linkedin: "https://www.linkedin.com/company/de-koninklijke-loop/",
+        twitter: "https://x.com/KoninklijkeLoop",
     },
 
     // Sponsors

@@ -42,6 +42,8 @@ const organizationSchema = {
     email: siteConfig.contact.email,
     address: {
         "@type": "PostalAddress",
+        streetAddress: "Loolaan 16",
+        postalCode: "7315 AB",
         addressLocality: "Apeldoorn",
         addressRegion: "Gelderland",
         addressCountry: "NL",
@@ -50,6 +52,7 @@ const organizationSchema = {
         siteConfig.social.facebook,
         siteConfig.social.instagram,
         siteConfig.social.linkedin,
+        siteConfig.social.twitter,
     ].filter(Boolean),
 };
 
