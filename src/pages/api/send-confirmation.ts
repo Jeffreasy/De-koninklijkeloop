@@ -109,54 +109,79 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const subject = `Bevestiging inschrijving — De Koninklijke Loop 2026`;
 
     // ── HTML e-mail template ─────────────────────────────────────────────────
-    const routeBlock = route ? `
-      <div style="background:#fff8f0;border-left:4px solid ${route.kleur};border-radius:8px;padding:20px 24px;margin:24px 0;">
-        <p style="margin:0 0 4px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;">Jouw route</p>
-        <p style="margin:0;font-size:20px;font-weight:800;color:${route.kleur};">${route.label}</p>
-        <p style="margin:4px 0 0 0;font-size:14px;color:#555;">${route.afstand} · ${roleLabel}</p>
-      </div>
 
-      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:0 0 24px 0;">
+    // Compact 3-column timeline: Meldtijd | Pendelbus | Start
+    const routeBlock = route ? `
+      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
         <tr>
-          <td style="padding:0 8px 8px 0;width:50%;vertical-align:top;">
-            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;">
-              <p style="margin:0 0 2px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;">Meldtijd</p>
-              <p style="margin:0;font-size:22px;font-weight:800;color:#111827;font-family:monospace;">${route.meldtijd}</p>
-              <p style="margin:4px 0 0 0;font-size:12px;color:#6b7280;">Meld je aan bij de Grote Kerk</p>
-            </div>
-          </td>
-          <td style="padding:0 0 8px 8px;width:50%;vertical-align:top;">
-            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;">
-              <p style="margin:0 0 2px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;">Starttijd</p>
-              <p style="margin:0;font-size:22px;font-weight:800;color:#111827;font-family:monospace;">${route.startTijd}</p>
-              <p style="margin:4px 0 2px 0;font-size:12px;font-weight:600;color:#374151;">${route.startLocatie}</p>
-              <p style="margin:0;font-size:11px;color:#6b7280;">${route.startAdres}</p>
-            </div>
+          <td colspan="3" style="padding:0 0 12px 0;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#fff8f0;border-left:4px solid ${route.kleur};border-radius:0 8px 8px 0;">
+              <tr>
+                <td style="padding:12px 16px;">
+                  <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;">Jouw route</p>
+                  <p style="margin:0;font-size:16px;font-weight:800;color:${route.kleur};">${route.label}</p>
+                  <p style="margin:2px 0 0 0;font-size:11px;color:#999;">${route.afstand} &nbsp;&middot;&nbsp; ${roleLabel}</p>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
         <tr>
-          <td colspan="2" style="padding-top:0;">
-            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;">
-              <p style="margin:0 0 2px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;">Pendelbus vertrekt</p>
-              <p style="margin:0;font-size:18px;font-weight:700;color:#111827;font-family:monospace;">${route.busVertrek}</p>
-              <p style="margin:4px 0 0 0;font-size:12px;color:#6b7280;">Vanaf Grote Kerk, Loolaan 16, Apeldoorn${usesShuttle ? " · <strong>Je hebt de pendelbus geselecteerd ✓</strong>" : ""}</p>
-            </div>
+          <td style="padding:0 5px 12px 0;width:33%;vertical-align:top;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;">
+              <tr><td style="padding:10px 12px;">
+                <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;">Meldtijd</p>
+                <p style="margin:0;font-size:18px;font-weight:800;color:#111827;font-family:monospace;line-height:1;">${route.meldtijd}</p>
+                <p style="margin:3px 0 0 0;font-size:10px;color:#6b7280;line-height:1.3;">Grote Kerk<br/>Loolaan 16</p>
+              </td></tr>
+            </table>
+          </td>
+          <td style="padding:0 5px 12px 5px;width:33%;vertical-align:top;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;">
+              <tr><td style="padding:10px 12px;">
+                <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;">Pendelbus</p>
+                <p style="margin:0;font-size:18px;font-weight:800;color:#111827;font-family:monospace;line-height:1;">${route.busVertrek}</p>
+                <p style="margin:3px 0 0 0;font-size:10px;line-height:1.3;">${usesShuttle ? "<strong style=\"color:#059669;\">&#10003; Geselecteerd</strong>" : "<span style=\"color:#6b7280;\">Optioneel</span>"}</p>
+              </td></tr>
+            </table>
+          </td>
+          <td style="padding:0 0 12px 5px;width:33%;vertical-align:top;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;">
+              <tr><td style="padding:10px 12px;">
+                <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;">Start</p>
+                <p style="margin:0;font-size:18px;font-weight:800;color:#111827;font-family:monospace;line-height:1;">${route.startTijd}</p>
+                <p style="margin:3px 0 0 0;font-size:10px;color:#6b7280;line-height:1.3;">${route.startLocatie}</p>
+              </td></tr>
+            </table>
           </td>
         </tr>
       </table>
     ` : `
-      <div style="background:#f3f4f6;border-radius:8px;padding:20px 24px;margin:24px 0;">
-        <p style="margin:0;font-size:15px;color:#374151;">Inschrijving als <strong>${roleLabel}</strong> bevestigd.</p>
-      </div>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="padding:0 0 12px 0;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#f3f4f6;border-radius:8px;">
+              <tr><td style="padding:12px 16px;">
+                <p style="margin:0;font-size:13px;color:#374151;">Inschrijving als <strong>${roleLabel}</strong> bevestigd.</p>
+              </td></tr>
+            </table>
+          </td>
+        </tr>
+      </table>
     `;
 
     const vrijwilligerNote = role === "vrijwilliger" ? `
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px 20px;margin:0 0 20px 0;">
-        <p style="margin:0;font-size:14px;color:#166534;">
-          <strong>Vrijwilliger</strong> — Je ontvangt binnenkort aparte instructies over jouw taak en aanmelding.
-          Neem bij vragen contact op via <a href="mailto:info@dekoninklijkeloop.nl" style="color:#16a34a;">info@dekoninklijkeloop.nl</a>.
-        </p>
-      </div>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="padding:0 0 12px 0;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;">
+              <tr><td style="padding:10px 14px;">
+                <p style="margin:0;font-size:12px;color:#166534;line-height:1.5;"><strong>Vrijwilliger</strong> &mdash; Je ontvangt binnenkort aparte instructies. Vragen? <a href="mailto:info@dekoninklijkeloop.nl" style="color:#16a34a;font-weight:600;text-decoration:none;">info@dekoninklijkeloop.nl</a></p>
+              </td></tr>
+            </table>
+          </td>
+        </tr>
+      </table>
     ` : "";
 
     const htmlBody = `<!DOCTYPE html>
@@ -164,106 +189,97 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bevestiging inschrijving — De Koninklijke Loop 2026</title>
+  <title>Bevestiging inschrijving &mdash; De Koninklijke Loop 2026</title>
 </head>
 <body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
 
-  <!-- Outer wrapper -->
+  <!-- Preheader: inbox preview text -->
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">Welkom bij De Koninklijke Loop 2026! Je inschrijving is bevestigd &mdash; bekijk jouw routedetails.&nbsp;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;</div>
+
   <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#f3f4f6;">
     <tr>
-      <td style="padding:40px 16px;">
+      <td style="padding:28px 16px;">
 
-        <!-- Card -->
-        <table role="presentation" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="max-width:540px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;">
 
           <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);padding:36px 40px;">
-              <p style="margin:0 0 4px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.75);">De Koninklijke Loop</p>
-              <h1 style="margin:0;font-size:26px;font-weight:800;color:#ffffff;line-height:1.2;">Inschrijving bevestigd</h1>
-              <p style="margin:8px 0 0 0;font-size:15px;color:rgba(255,255,255,0.85);">Zaterdag 16 mei 2026, Apeldoorn</p>
+            <td style="background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);padding:24px 28px;">
+              <p style="margin:0 0 4px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.65);">De Koninklijke Loop &middot; 2026</p>
+              <p style="margin:0;font-size:22px;font-weight:800;color:#ffffff;line-height:1.2;">Inschrijving bevestigd &#10003;</p>
+              <p style="margin:5px 0 0 0;font-size:12px;color:rgba(255,255,255,0.8);">Zaterdag 16 mei 2026 &middot; Apeldoorn</p>
             </td>
           </tr>
 
           <!-- Body -->
           <tr>
-            <td style="padding:36px 40px;">
-
-              <p style="margin:0 0 20px 0;font-size:16px;color:#374151;line-height:1.6;">
-                Beste <strong>${name}</strong>,
-              </p>
-              <p style="margin:0 0 24px 0;font-size:15px;color:#4b5563;line-height:1.6;">
-                Welkom bij <strong>De Koninklijke Loop 2026</strong>! Je inschrijving is officieel bevestigd. We kijken er naar uit om je op zaterdag 16 mei te verwelkomen in Apeldoorn.
-              </p>
+            <td style="padding:22px 28px 8px 28px;">
+              <p style="margin:0 0 4px 0;font-size:14px;color:#374151;">Beste <strong>${name}</strong>,</p>
+              <p style="margin:0 0 18px 0;font-size:12px;color:#6b7280;line-height:1.6;">Je inschrijving is officieel bevestigd. Tot zaterdag 16 mei in Apeldoorn!</p>
 
               ${routeBlock}
               ${vrijwilligerNote}
 
-              <!-- Praktisch -->
-              <h2 style="margin:0 0 12px 0;font-size:15px;font-weight:700;color:#111827;border-bottom:1px solid #e5e7eb;padding-bottom:8px;">Praktische informatie</h2>
+            </td>
+          </tr>
 
+          <!-- Praktische info -->
+          <tr>
+            <td style="padding:0 28px 8px 28px;">
+              <p style="margin:0 0 10px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;border-top:1px solid #f3f4f6;padding-top:14px;">Praktische informatie</p>
               <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
                 <tr>
-                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;width:140px;">
-                    <span style="font-size:12px;font-weight:600;color:#6b7280;">Coördinatiepunt</span>
+                  <td style="padding:6px 10px 6px 0;border-bottom:1px solid #f3f4f6;width:100px;vertical-align:top;">
+                    <span style="font-size:10px;font-weight:600;color:#9ca3af;">Co&ouml;rdinatiepunt</span>
                   </td>
-                  <td style="padding:10px 0 10px 12px;border-bottom:1px solid #f3f4f6;vertical-align:top;">
-                    <span style="font-size:13px;color:#111827;">Grote Kerk<br/>Loolaan 16, 7315 AB Apeldoorn</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;">
-                    <span style="font-size:12px;font-weight:600;color:#6b7280;">Finish</span>
-                  </td>
-                  <td style="padding:10px 0 10px 12px;border-bottom:1px solid #f3f4f6;vertical-align:top;">
-                    <span style="font-size:13px;color:#111827;">Grote Kerk, Apeldoorn<br/><em style="color:#6b7280;">Gezamenlijke finish: 16:10 – 16:30</em></span>
+                  <td style="padding:6px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;">
+                    <span style="font-size:11px;color:#374151;">Grote Kerk, Loolaan 16 &mdash; Apeldoorn</span>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;">
-                    <span style="font-size:12px;font-weight:600;color:#6b7280;">Eten & drinken</span>
+                  <td style="padding:6px 10px 6px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;">
+                    <span style="font-size:10px;font-weight:600;color:#9ca3af;">Finish</span>
                   </td>
-                  <td style="padding:10px 0 10px 12px;border-bottom:1px solid #f3f4f6;vertical-align:top;">
-                    <span style="font-size:13px;color:#111827;">Lunchpakketje inbegrepen. Bij rustpunten is fruit & drinken aanwezig. Neem zelf voldoende water mee.</span>
+                  <td style="padding:6px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;">
+                    <span style="font-size:11px;color:#374151;">Grote Kerk &middot; 16:10&ndash;16:30</span>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:10px 0;vertical-align:top;">
-                    <span style="font-size:12px;font-weight:600;color:#6b7280;">EHBO & begeleiding</span>
+                  <td style="padding:6px 10px 6px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;">
+                    <span style="font-size:10px;font-weight:600;color:#9ca3af;">Eten &amp; drinken</span>
                   </td>
-                  <td style="padding:10px 0 10px 12px;vertical-align:top;">
-                    <span style="font-size:13px;color:#111827;">Routebegeleiders en EHBO'ers zijn de gehele dag aanwezig.</span>
+                  <td style="padding:6px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;">
+                    <span style="font-size:11px;color:#374151;">Lunchpakket inbegrepen &middot; fruit &amp; drinken bij rustpunten</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 10px 6px 0;vertical-align:top;">
+                    <span style="font-size:10px;font-weight:600;color:#9ca3af;">EHBO</span>
+                  </td>
+                  <td style="padding:6px 0;vertical-align:top;">
+                    <span style="font-size:11px;color:#374151;">Begeleiders &amp; EHBO'ers gehele dag aanwezig</span>
                   </td>
                 </tr>
               </table>
+            </td>
+          </tr>
 
-              <!-- CTA button -->
-              <div style="text-align:center;margin:32px 0 8px 0;">
-                <a href="https://dekoninklijkeloop.nl/programma" style="display:inline-block;background:#f97316;color:#ffffff;font-weight:700;font-size:14px;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:0.3px;">
-                  Bekijk het volledige programma →
-                </a>
-              </div>
-
+          <!-- CTA -->
+          <tr>
+            <td style="padding:18px 28px 24px 28px;text-align:center;">
+              <a href="https://dekoninklijkeloop.nl/programma" style="display:inline-block;background:#f97316;color:#ffffff;font-weight:700;font-size:12px;text-decoration:none;padding:11px 26px;border-radius:8px;letter-spacing:0.3px;">Bekijk het programma &rarr;</a>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:24px 40px;">
-              <p style="margin:0 0 8px 0;font-size:12px;color:#9ca3af;line-height:1.5;">
-                Vragen? Stuur een email naar
-                <a href="mailto:info@dekoninklijkeloop.nl" style="color:#f97316;text-decoration:none;">info@dekoninklijkeloop.nl</a>
-              </p>
-              <p style="margin:0;font-size:11px;color:#d1d5db;">
-                Inschrijvingsnummer: <code style="font-size:11px;color:#9ca3af;">${registrationId}</code>
-                &nbsp;·&nbsp;
-                <a href="https://dekoninklijkeloop.nl" style="color:#d1d5db;text-decoration:none;">dekoninklijkeloop.nl</a>
-              </p>
+            <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:14px 28px;">
+              <p style="margin:0 0 4px 0;font-size:10px;color:#9ca3af;">Vragen? <a href="mailto:info@dekoninklijkeloop.nl" style="color:#f97316;text-decoration:none;font-weight:600;">info@dekoninklijkeloop.nl</a></p>
+              <p style="margin:0;font-size:10px;color:#d1d5db;">Nr: <code style="color:#9ca3af;">${registrationId}</code> &nbsp;&middot;&nbsp; <a href="https://dekoninklijkeloop.nl" style="color:#d1d5db;text-decoration:none;">dekoninklijkeloop.nl</a></p>
             </td>
           </tr>
 
         </table>
-        <!-- End card -->
 
       </td>
     </tr>
