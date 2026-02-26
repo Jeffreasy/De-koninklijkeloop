@@ -6,112 +6,112 @@ import type { APIRoute } from "astro";
 import { getAuthContext, getApiUrl, unauthorizedResponse } from "./_email-proxy-utils";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-    const auth = getAuthContext(cookies);
-    if (!auth) return unauthorizedResponse();
+  const auth = getAuthContext(cookies);
+  if (!auth) return unauthorizedResponse();
 
-    let body: {
-        name: string;
-        email: string;
-        role: string;
-        distance?: string;
-        shuttleBus?: string;
-        registrationId: string;
-    };
+  let body: {
+    name: string;
+    email: string;
+    role: string;
+    distance?: string;
+    shuttleBus?: string;
+    registrationId: string;
+  };
 
-    try {
-        body = await request.json();
-    } catch {
-        return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
-    const { name, email, role, distance, shuttleBus, registrationId } = body;
+  const { name, email, role, distance, shuttleBus, registrationId } = body;
 
-    if (!name || !email || !registrationId) {
-        return new Response(JSON.stringify({ error: "name, email en registrationId zijn verplicht" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
+  if (!name || !email || !registrationId) {
+    return new Response(JSON.stringify({ error: "name, email en registrationId zijn verplicht" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
-    // ── Route-specific schedule data (from seedSchedule / team.ts) ──────────
-    type RouteKey = "15" | "10" | "6" | "2.5";
+  // ── Route-specific schedule data (from seedSchedule / team.ts) ──────────
+  type RouteKey = "15" | "10" | "6" | "2.5";
 
-    const ROUTE_INFO: Record<RouteKey, {
-        label: string;
-        meldtijd: string;
-        busVertrek: string;
-        startTijd: string;
-        startLocatie: string;
-        startAdres: string;
-        mapsLink: string;
-        kleur: string;
-        afstand: string;
-    }> = {
-        "15": {
-            label: "15 KM Paleistuinen & Parken",
-            meldtijd: "10:15",
-            busVertrek: "10:45",
-            startTijd: "11:15",
-            startLocatie: "Kootwijk — De Brink",
-            startAdres: "Dorpscentrum Kootwijk, nabij kerk en 't Hilletje",
-            mapsLink: "https://maps.app.goo.gl/kootwijk-de-brink",
-            kleur: "#EF4444",
-            afstand: "15,6 km",
-        },
-        "10": {
-            label: "10 KM Vorstelijke Verkenning",
-            meldtijd: "12:00",
-            busVertrek: "12:30",
-            startTijd: "13:00",
-            startLocatie: "Assel — Halte Assel",
-            startAdres: "Pomphulweg / Asselseweg, Assel (bij Eethuis Halte Assel)",
-            mapsLink: "https://maps.app.goo.gl/assel-halte",
-            kleur: "#eab308",
-            afstand: "10 km",
-        },
-        "6": {
-            label: "6 KM Gezinsroute",
-            meldtijd: "13:15",
-            busVertrek: "13:45",
-            startTijd: "14:15",
-            startLocatie: "Hoog Soeren — Dorpscentrum",
-            startAdres: "Hoog Soeren 15, nabij Hotel Hoog Soeren en Berg & Dal",
-            mapsLink: "https://maps.app.goo.gl/hoog-soeren",
-            kleur: "#3b82f6",
-            afstand: "6 km",
-        },
-        "2.5": {
-            label: "2,5 KM Roll & Stroll",
-            meldtijd: "14:30",
-            busVertrek: "15:00",
-            startTijd: "15:35",
-            startLocatie: "Apeldoorn — Soerenseweg",
-            startAdres: "Soerenseweg, 7313 ER Apeldoorn (verharde, toegankelijke route)",
-            mapsLink: "https://maps.app.goo.gl/soerenseweg-apeldoorn",
-            kleur: "#10b981",
-            afstand: "2,5 km",
-        },
-    };
+  const ROUTE_INFO: Record<RouteKey, {
+    label: string;
+    meldtijd: string;
+    busVertrek: string;
+    startTijd: string;
+    startLocatie: string;
+    startAdres: string;
+    mapsLink: string;
+    kleur: string;
+    afstand: string;
+  }> = {
+    "15": {
+      label: "15 KM Paleistuinen & Parken",
+      meldtijd: "10:15",
+      busVertrek: "10:45",
+      startTijd: "11:15",
+      startLocatie: "Kootwijk — De Brink",
+      startAdres: "Dorpscentrum Kootwijk, nabij kerk en 't Hilletje",
+      mapsLink: "https://maps.app.goo.gl/kootwijk-de-brink",
+      kleur: "#EF4444",
+      afstand: "15,6 km",
+    },
+    "10": {
+      label: "10 KM Vorstelijke Verkenning",
+      meldtijd: "12:00",
+      busVertrek: "12:30",
+      startTijd: "13:00",
+      startLocatie: "Assel — Halte Assel",
+      startAdres: "Pomphulweg / Asselseweg, Assel (bij Eethuis Halte Assel)",
+      mapsLink: "https://maps.app.goo.gl/assel-halte",
+      kleur: "#eab308",
+      afstand: "10 km",
+    },
+    "6": {
+      label: "6 KM Gezinsroute",
+      meldtijd: "13:15",
+      busVertrek: "13:45",
+      startTijd: "14:15",
+      startLocatie: "Hoog Soeren — Dorpscentrum",
+      startAdres: "Hoog Soeren 15, nabij Hotel Hoog Soeren en Berg & Dal",
+      mapsLink: "https://maps.app.goo.gl/hoog-soeren",
+      kleur: "#3b82f6",
+      afstand: "6 km",
+    },
+    "2.5": {
+      label: "2,5 KM Roll & Stroll",
+      meldtijd: "14:30",
+      busVertrek: "15:00",
+      startTijd: "15:35",
+      startLocatie: "Apeldoorn — Soerenseweg",
+      startAdres: "Soerenseweg, 7313 ER Apeldoorn (verharde, toegankelijke route)",
+      mapsLink: "https://maps.app.goo.gl/soerenseweg-apeldoorn",
+      kleur: "#10b981",
+      afstand: "2,5 km",
+    },
+  };
 
-    const routeKey = (distance?.replace("km", "").trim() as RouteKey) ?? null;
-    const route = routeKey ? ROUTE_INFO[routeKey] : null;
+  const routeKey = (distance?.replace("km", "").trim() as RouteKey) ?? null;
+  const route = routeKey ? ROUTE_INFO[routeKey] : null;
 
-    const roleLabel =
-        role === "begeleider" ? "Begeleider" :
-            role === "vrijwilliger" ? "Vrijwilliger" :
-                "Deelnemer";
+  const roleLabel =
+    role === "begeleider" ? "Begeleider" :
+      role === "vrijwilliger" ? "Vrijwilliger" :
+        "Deelnemer";
 
-    const usesShuttle = shuttleBus === "pendelbus";
+  const usesShuttle = shuttleBus === "pendelbus";
 
-    const subject = `Bevestiging inschrijving — De Koninklijke Loop 2026`;
+  const subject = `Bevestiging inschrijving — De Koninklijke Loop 2026`;
 
-    // ── HTML e-mail template ─────────────────────────────────────────────────
+  // ── HTML e-mail template ─────────────────────────────────────────────────
 
-    // Compact 3-column timeline: Meldtijd | Pendelbus | Start
-    const routeBlock = route ? `
+  // Compact 3-column timeline: Meldtijd | Pendelbus | Start
+  const routeBlock = route ? `
       <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
         <tr>
           <td colspan="3" style="padding:0 0 12px 0;">
@@ -170,7 +170,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       </table>
     `;
 
-    const vrijwilligerNote = role === "vrijwilliger" ? `
+  const vrijwilligerNote = role === "vrijwilliger" ? `
       <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
         <tr>
           <td style="padding:0 0 12px 0;">
@@ -184,7 +184,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       </table>
     ` : "";
 
-    const htmlBody = `<!DOCTYPE html>
+  const htmlBody = `<!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
@@ -213,9 +213,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
           <!-- Body -->
           <tr>
-            <td style="padding:22px 28px 8px 28px;">
+            <td style="padding:12px 28px 8px 28px;">
               <p style="margin:0 0 4px 0;font-size:14px;color:#374151;">Beste <strong>${name}</strong>,</p>
-              <p style="margin:0 0 18px 0;font-size:12px;color:#6b7280;line-height:1.6;">Je inschrijving is officieel bevestigd. Tot zaterdag 16 mei in Apeldoorn!</p>
+              <p style="margin:0 0 10px 0;font-size:12px;color:#6b7280;line-height:1.6;">Je inschrijving is officieel bevestigd. Tot zaterdag 16 mei in Apeldoorn!</p>
 
               ${routeBlock}
               ${vrijwilligerNote}
@@ -288,43 +288,43 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 </body>
 </html>`;
 
-    try {
-        const apiUrl = getApiUrl();
-        const sendUrl = `${apiUrl}/mail/send`;
+  try {
+    const apiUrl = getApiUrl();
+    const sendUrl = `${apiUrl}/mail/send`;
 
-        const response = await fetch(sendUrl, {
-            method: "POST",
-            headers: auth.headers,
-            body: JSON.stringify({
-                to: email,
-                from: "inschrijving",
-                subject,
-                body: htmlBody,
-                html: true,
-            }),
-        });
+    const response = await fetch(sendUrl, {
+      method: "POST",
+      headers: auth.headers,
+      body: JSON.stringify({
+        to: email,
+        from: "inschrijving",
+        subject,
+        body: htmlBody,
+        html: true,
+      }),
+    });
 
-        if (!response.ok) {
-            const errorText = await response.text().catch(() => "");
-            if (import.meta.env.DEV) {
-                console.error("[send-confirmation] Email API error:", response.status, errorText);
-            }
-            return new Response(
-                JSON.stringify({ error: `Email verzenden mislukt (${response.status})` }),
-                { status: response.status, headers: { "Content-Type": "application/json" } }
-            );
-        }
-
-        const sentAt = Date.now();
-        return new Response(JSON.stringify({ success: true, sentAt }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
-    } catch (err) {
-        if (import.meta.env.DEV) console.error("[send-confirmation] Unexpected error:", err);
-        return new Response(
-            JSON.stringify({ error: "Interne serverfout" }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
-        );
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      if (import.meta.env.DEV) {
+        console.error("[send-confirmation] Email API error:", response.status, errorText);
+      }
+      return new Response(
+        JSON.stringify({ error: `Email verzenden mislukt (${response.status})` }),
+        { status: response.status, headers: { "Content-Type": "application/json" } }
+      );
     }
+
+    const sentAt = Date.now();
+    return new Response(JSON.stringify({ success: true, sentAt }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    if (import.meta.env.DEV) console.error("[send-confirmation] Unexpected error:", err);
+    return new Response(
+      JSON.stringify({ error: "Interne serverfout" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
 };
