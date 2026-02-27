@@ -78,7 +78,19 @@ export function SocialManagerIsland() {
     const handleEdit = (id: Id<"social_posts">) => {
         const post = posts?.find((p: any) => p._id === id);
         if (post) {
-            setEditingPost(post);
+            setEditingPost({
+                _id: post._id,
+                imageUrl: post.imageUrl,
+                caption: post.caption,
+                instagramUrl: post.instagramUrl,
+                isFeatured: post.isFeatured,
+                isVisible: post.isVisible,
+                postedDate: post.postedDate != null ? Number(post.postedDate) : undefined,
+                year: post.year,
+                mediaType: post.mediaType,
+                videoUrl: post.videoUrl,
+                mediaItems: post.mediaItems,
+            });
             setIsModalOpen(true);
         }
     };

@@ -9,7 +9,7 @@ interface DmStatusLineProps {
 }
 
 export function DmStatusLine({ userId, teamMembers, currentUser }: DmStatusLineProps) {
-    const member = teamMembers.find(m => m.user === userId);
+    const member = teamMembers.find(m => m.user_id === userId);
     const typingUsers = useQuery(api.chat.getTypingStatus, { user: currentUser }) || [];
     const isTyping = typingUsers.some(t => t.user === userId);
 
@@ -30,14 +30,14 @@ export function DmStatusLine({ userId, teamMembers, currentUser }: DmStatusLineP
 
     return (
         <p className="text-xs text-text-muted font-medium">
-            Laatst gezien {formatLastSeen(member.lastActive)}
+            Laatst gezien {formatLastSeen(member.last_active)}
         </p>
     );
 }
 
-function formatLastSeen(timestamp: number): string {
+function formatLastSeen(timestamp: string): string {
     const now = Date.now();
-    const diff = now - timestamp;
+    const diff = now - new Date(timestamp).getTime();
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
