@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { routes, loadRoutePoints, type RoutePoint } from '../../../lib/routeData';
@@ -6,11 +6,45 @@ import { getScheduleIcon } from '../../../lib/scheduleIcons';
 import {
     Clock, Sparkles, Timer, CalendarDays, Route, Info,
     MapPinned, Users, ArrowRight, ChevronRight, AlertTriangle,
-    Utensils, Heart, Bus, Phone, Coffee
+    Utensils, Heart, Bus, Phone
 } from 'lucide-react';
 import { ConvexClientProvider } from '../../islands/ConvexClientProvider';
 
 const getIcon = getScheduleIcon;
+
+/**
+ * Decimates a GPS coordinate array for SVG thumbnail rendering.
+ * Keeps at most `maxPoints` evenly-spaced points — reduces 500-pt
+ * arrays to 60 pts without visible quality loss at thumbnail size.
+ */
+function simplifyPoints(pts: RoutePoint[], maxPoints = 60): RoutePoint[] {
+    if (pts.length <= maxPoints) return pts;
+    const stride = Math.ceil(pts.length / maxPoints);
+    const simplified: RoutePoint[] = [];
+    for (let i = 0; i < pts.length; i += stride) simplified.push(pts[i]);
+    // Always include the last point so the end dot is correct
+    if (simplified[simplified.length - 1] !== pts[pts.length - 1]) {
+        simplified.push(pts[pts.length - 1]);
+    }
+    return simplified;
+}
+
+/** Converts route points to an SVG path string in a 200×120 viewBox. */
+function buildSvgPath(pts: RoutePoint[]): string {
+    if (!pts || pts.length < 2) return '';
+    const lats = pts.map(p => p.lat);
+    const lngs = pts.map(p => p.lng);
+    const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+    const padding = 0.15;
+    const rangeLat = (maxLat - minLat) || 0.001;
+    const rangeLng = (maxLng - minLng) || 0.001;
+    return pts.map((p, idx) => {
+        const x = ((p.lng - minLng) / rangeLng) * (1 - 2 * padding) + padding;
+        const y = 1 - (((p.lat - minLat) / rangeLat) * (1 - 2 * padding) + padding);
+        return `${idx === 0 ? 'M' : 'L'} ${(x * 200).toFixed(1)} ${(y * 120).toFixed(1)}`;
+    }).join(' ');
+}
 
 function getMapTiles(pts: RoutePoint[]): { url: string; offsetX: number; offsetY: number }[] | null {
     if (!pts || pts.length === 0) return null;
@@ -86,9 +120,29 @@ function ProgrammaContent() {
 
     const [routePointsMap, setRoutePointsMap] = useState<Record<string, RoutePoint[]>>({});
     useEffect(() => {
-        Promise.all(routes.map(r => loadRoutePoints(r.id).then(pts => [r.id, pts] as const)))
-            .then(entries => setRoutePointsMap(Object.fromEntries(entries)));
+        // Fix #2: Defer the 4 JSON fetches (~54KB total) until the browser
+        // is idle — prevents network contention during first paint.
+        const load = () => {
+            Promise.all(routes.map(r =>
+                loadRoutePoints(r.id).then(pts => [r.id, simplifyPoints(pts)] as const)
+            )).then(entries => setRoutePointsMap(Object.fromEntries(entries)));
+        };
+        if ('requestIdleCallback' in window) {
+            (window as any).requestIdleCallback(load, { timeout: 3000 });
+        } else {
+            setTimeout(load, 500);
+        }
     }, []);
+
+    // Fix #4: Memoize ALL svg paths — recomputes only when routePointsMap changes.
+    const svgPaths = useMemo(() => {
+        const map: Record<string, string> = {};
+        for (const route of routes) {
+            const pts = routePointsMap[route.id];
+            map[route.id] = pts ? buildSvgPath(pts) : '';
+        }
+        return map;
+    }, [routePointsMap]);
 
     return (
         <div className="space-y-8 md:space-y-12">
@@ -142,7 +196,8 @@ function ProgrammaContent() {
                     {MELDTIJDEN.map(m => (
                         <div
                             key={m.route}
-                            className="relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md p-4 text-center group hover:shadow-lg transition-all duration-300"
+                            // Fix #3: removed backdrop-blur-md — individual card blurs cause GPU jank
+                            className="relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border p-4 text-center group hover:shadow-lg transition-shadow duration-300"
                         >
                             <div
                                 className="absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-[0.06] group-hover:opacity-[0.12] transition-opacity pointer-events-none"
@@ -247,27 +302,14 @@ function ProgrammaContent() {
                         };
                         const labels = terrainLabels[route.id] || ['Natuur'];
 
-                        const svgPath = (() => {
-                            const pts = routePointsMap[route.id];
-                            if (!pts || pts.length < 2) return '';
-                            const lats = pts.map((p: RoutePoint) => p.lat);
-                            const lngs = pts.map((p: RoutePoint) => p.lng);
-                            const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-                            const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
-                            const padding = 0.15;
-                            const rangeLat = (maxLat - minLat) || 0.001;
-                            const rangeLng = (maxLng - minLng) || 0.001;
-                            return pts.map((p: RoutePoint, idx: number) => {
-                                const x = ((p.lng - minLng) / rangeLng) * (1 - 2 * padding) + padding;
-                                const y = 1 - (((p.lat - minLat) / rangeLat) * (1 - 2 * padding) + padding);
-                                return `${idx === 0 ? 'M' : 'L'} ${(x * 200).toFixed(1)} ${(y * 120).toFixed(1)}`;
-                            }).join(' ');
-                        })();
+                        // Fix #4: use pre-computed memoized SVG path
+                        const svgPath = svgPaths[route.id] ?? '';
 
                         return (
                             <div
                                 key={route.id}
-                                className="relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-md group hover:shadow-xl hover:border-glass-border/80 transition-all duration-300 flex flex-col h-full"
+                                // Fix #3: removed backdrop-blur-md from individual route cards
+                                className="relative overflow-hidden rounded-2xl bg-glass-bg border border-glass-border group hover:shadow-xl hover:border-glass-border/80 transition-shadow duration-300 flex flex-col h-full"
                             >
                                 <div
                                     className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-[0.04] group-hover:opacity-[0.10] transition-opacity pointer-events-none"
@@ -377,15 +419,19 @@ function ProgrammaContent() {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveFilter(tab.id)}
+                                    // Fix #5: replaced scale-105 (causes layout shift) with
+                                    // ring + border treatment — purely visual, no geometry change
                                     className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2
                                         ${isActive
-                                            ? 'text-white shadow-lg scale-105'
+                                            ? 'text-white shadow-lg ring-2 ring-offset-2 ring-offset-transparent'
                                             : 'bg-glass-surface/50 text-text-muted border-glass-border hover:border-opacity-60 hover:text-text-primary'
                                         }`}
                                     style={isActive ? {
                                         backgroundColor: tabColor,
                                         borderColor: tabColor,
                                         boxShadow: `0 4px 14px ${tabColor}30`,
+                                        // @ts-ignore — ring color via inline style
+                                        '--tw-ring-color': `${tabColor}50`,
                                     } : undefined}
                                 >
                                     {tab.id !== 'all' && (
@@ -440,7 +486,8 @@ function ProgrammaContent() {
                                         <div className={`flex items-start py-4 md:py-6 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                                             {/* Node */}
                                             <div className="absolute left-6 md:left-1/2 md:-translate-x-1/2 z-10">
-                                                <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 shadow-lg transition-all duration-300 group-hover/item:scale-110
+                                                {/* Fix #7: motion-reduce — no scale on hover for users who prefer reduced motion */}
+                                                <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 shadow-lg transition-all duration-300 group-hover/item:scale-110 motion-reduce:group-hover/item:scale-100
                                                     ${isEvent
                                                         ? 'bg-linear-to-br from-brand-orange to-red-500 text-white border-white/20 shadow-brand-orange/30'
                                                         : isBreak
@@ -451,12 +498,15 @@ function ProgrammaContent() {
                                                 </div>
                                             </div>
 
-                                            <div className="w-18 shrink-0 md:hidden" />
+                                            {/* Fix #6: w-18 is non-standard — use w-[4.5rem] so the card clears the node */}
+                                            <div className="w-[4.5rem] shrink-0 md:hidden" />
                                             <div className={`hidden md:block md:w-[calc(50%-1.5rem)] ${isLeft ? 'order-last' : ''}`} />
 
                                             {/* Card */}
                                             <div className={`flex-1 md:w-[calc(50%-1.5rem)] ${isLeft ? 'md:pr-8' : 'md:pl-8'}`}>
-                                                <div className={`relative p-5 md:p-6 rounded-2xl border backdrop-blur-md transition-all duration-300 group-hover/item:-translate-y-0.5 group-hover/item:shadow-xl overflow-hidden
+                                                {/* Fix #3: removed backdrop-blur-md from timeline cards
+                                                    Fix #7: motion-reduce — no translateY on hover */}
+                                                <div className={`relative p-5 md:p-6 rounded-2xl border transition-all duration-300 group-hover/item:-translate-y-0.5 motion-reduce:group-hover/item:translate-y-0 group-hover/item:shadow-xl overflow-hidden
                                                     ${isEvent
                                                         ? 'bg-glass-surface/90 border-brand-orange/15 hover:border-brand-orange/40 shadow-md shadow-brand-orange/5'
                                                         : isBreak
