@@ -198,7 +198,9 @@ export default function RegisterForm() {
                                 shuttle_bus: data.role === "deelnemer" ? (data.shuttleBus || 'eigen-vervoer') : '',
                                 lives_in_facility: data.role === "deelnemer" ? !!data.livesInFacility : false,
                                 participant_type: data.role === "deelnemer" ? (data.participantType || 'doelgroep') : ''
-                            }
+                            },
+                            generate_password_reset: true,
+                            app_url: window.location.origin
                         })
                     });
 
