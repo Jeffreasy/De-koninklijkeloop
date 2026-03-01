@@ -1,12 +1,13 @@
 /// <reference path="../.astro/types.d.ts" />
 /// <reference types="astro/client" />
 
-type User = {
+interface User {
     id: string;
     email: string;
-    name: string;
+    name?: string;
+    full_name?: string;
     role: 'admin' | 'editor' | 'viewer' | 'deelnemer' | 'begeleider' | 'vrijwilliger';
-};
+}
 
 declare namespace App {
     interface Locals {
@@ -18,3 +19,4 @@ declare namespace App {
 interface Window {
     DKL_INITIAL_USER: User | null;
 }
+

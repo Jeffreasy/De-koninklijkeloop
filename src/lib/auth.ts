@@ -3,6 +3,8 @@ import { atom } from 'nanostores';
 export type User = {
     id: string;
     email: string;
+    name?: string;
+    full_name?: string;
     role: 'admin' | 'editor' | 'viewer' | 'deelnemer' | 'begeleider' | 'vrijwilliger';
 };
 

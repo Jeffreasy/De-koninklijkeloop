@@ -41,6 +41,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
                 if (user.data) user = user.data;
                 if (user.user) user = user.user;
                 if (user?.role) user.role = user.role.toLowerCase();
+                // Normalize: backend returns full_name, frontend type expects name
+                if (user?.full_name && !user.name) user.name = user.full_name;
             } else {
                 console.warn(`[Auth] Token validation failed: ${verifyReq.status}`);
             }
