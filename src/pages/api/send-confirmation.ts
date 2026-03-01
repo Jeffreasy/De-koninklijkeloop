@@ -15,6 +15,8 @@ interface ConfirmationPayload {
   distance?: string;
   shuttleBus?: string;
   registrationId: string;
+  /** From Convex registrations.userType — determines which email template is used. */
+  userType?: "authenticated" | "guest";
 }
 
 interface ValidationError {
@@ -297,7 +299,7 @@ function buildHtmlEmail(params: {
               </v:roundrect>
               <![endif]-->
               <!--[if !mso]><!-->
-              <a href="https://dekoninklijkeloop.nl/programma"
+                <a href="https://dekoninklijkeloop.nl/programma"
                  style="display:inline-block;background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);color:#ffffff;font-weight:700;font-size:13px;text-decoration:none;padding:13px 28px;border-radius:8px;letter-spacing:0.4px;box-shadow:0 4px 14px rgba(249,115,22,0.35);margin:0 6px 8px 6px;">
                 Bekijk het programma &rarr;
               </a>
@@ -348,6 +350,267 @@ function buildHtmlEmail(params: {
 </body>
 </html>`;
 }
+
+// ── Guest email \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+/**
+ * Build the guest confirmation email.
+ * Structurally identical to the authenticated email but includes:
+ *  - A "maak een account" benefits section above the CTA
+ *  - CTA links to programma + register (instead of dashboard)
+ */
+function buildGuestEmail(params: {
+  safeName: string;
+  safeRegistrationId: string;
+  routeBlock: string;
+  vrijwilligerNote: string;
+}): string {
+  const { safeName, safeRegistrationId, routeBlock, vrijwilligerNote } = params;
+
+  return `<!DOCTYPE html>
+<html lang="nl" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="supported-color-schemes" content="light dark" />
+  <title>Bevestiging inschrijving &mdash; De Koninklijke Loop 2026</title>
+  <!--[if mso]>
+  <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+  <![endif]-->
+  <style>
+    * { box-sizing: border-box; }
+    body, table, td, p, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
+    img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    @media (prefers-color-scheme: dark) {
+      .email-bg { background-color: #0f172a !important; }
+      .email-card { background-color: #1e293b !important; }
+      .body-text { color: #e2e8f0 !important; }
+      .muted-text { color: #94a3b8 !important; }
+      .time-card { background-color: #0f172a !important; border-color: #334155 !important; }
+      .info-row-border { border-bottom-color: #1e293b !important; }
+      .info-label { color: #64748b !important; }
+      .info-value { color: #e2e8f0 !important; }
+      .footer-bg { background-color: #0f172a !important; border-top-color: #334155 !important; }
+      .footer-text { color: #475569 !important; }
+      .footer-link { color: #f97316 !important; }
+      .time-value { color: #f1f5f9 !important; }
+      .account-card { background-color: #1e293b !important; border-color: #f9731620 !important; }
+    }
+  </style>
+</head>
+<body class="email-bg" style="margin:0;padding:0;background-color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+  <!-- Preheader -->
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">Je inschrijving voor De Koninklijke Loop 2026 is bevestigd! Maak een account aan en profiteer van exclusieve voordelen.&nbsp;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;</div>
+
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" class="email-bg" style="background-color:#f1f5f9;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:580px;" class="email-card">
+
+          <!-- LOGO BAR -->
+          <tr>
+            <td class="email-card" style="background-color:#ffffff;border-radius:16px 16px 0 0;padding:18px 28px;border-bottom:1px solid #fef3e2;">
+              <img src="https://ik.imagekit.io/a0oim4e3e/tr:w-240,f-auto,q-85/De%20Koninklijkeloop/webassets/DKLLogoV1_kx60i9.webp"
+                   alt="De Koninklijke Loop" width="120" height="auto"
+                   style="display:block;height:auto;max-height:44px;width:auto;" />
+            </td>
+          </tr>
+
+          <!-- HEADER -->
+          <tr>
+            <td style="background:linear-gradient(145deg,#f97316 0%,#ea580c 100%);padding:28px 28px 32px 28px;">
+              <p style="margin:0 0 8px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.70);">Bevestigingsmail</p>
+              <p style="margin:0;font-size:28px;font-weight:800;color:#ffffff;line-height:1.15;letter-spacing:-0.5px;">Inschrijving<br/>bevestigd &#10003;</p>
+              <p style="margin:12px 0 0 0;font-size:13px;color:rgba(255,255,255,0.85);">
+                &#128197; ${EVENT_DATE} &nbsp;&#183;&nbsp; &#128205; Apeldoorn
+              </p>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td class="email-card" style="background-color:#ffffff;padding:28px 28px 8px 28px;">
+              <p class="body-text" style="margin:0 0 6px 0;font-size:16px;color:#1e293b;">Beste <strong>${safeName}</strong>,</p>
+              <p class="muted-text" style="margin:0 0 24px 0;font-size:13px;color:#64748b;line-height:1.7;">Super dat je meedoet! Je inschrijving is officieel goedgekeurd en bevestigd. Hieronder vind je alle details voor jouw dag.</p>
+
+              ${routeBlock}
+              ${vrijwilligerNote}
+            </td>
+          </tr>
+
+          <!-- PRAKTISCHE INFO -->
+          <tr>
+            <td class="email-card" style="background-color:#ffffff;padding:0 28px 24px 28px;">
+              <p style="margin:0 0 14px 0;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:20px;" class="muted-text">Praktische informatie</p>
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td class="info-row-border" style="padding:9px 12px 9px 0;border-bottom:1px solid #f1f5f9;width:38%;vertical-align:top;">
+                    <span class="info-label" style="font-size:11px;font-weight:700;color:#64748b;">&#127968; Co&ouml;rdinatiepunt</span>
+                  </td>
+                  <td class="info-row-border" style="padding:9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;">
+                    <span class="info-value" style="font-size:12px;color:#374151;">Grote Kerk, Loolaan 16 &mdash; Apeldoorn</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info-row-border" style="padding:9px 12px 9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;">
+                    <span class="info-label" style="font-size:11px;font-weight:700;color:#64748b;">&#127937; Finish</span>
+                  </td>
+                  <td class="info-row-border" style="padding:9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;">
+                    <span class="info-value" style="font-size:12px;color:#374151;">Grote Kerk &middot; 16:10&ndash;16:30</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info-row-border" style="padding:9px 12px 9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;">
+                    <span class="info-label" style="font-size:11px;font-weight:700;color:#64748b;">&#127828; Eten &amp; drinken</span>
+                  </td>
+                  <td class="info-row-border" style="padding:9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;">
+                    <span class="info-value" style="font-size:12px;color:#374151;">Lunchpakket inbegrepen &middot; fruit &amp; drinken onderweg</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:9px 12px 9px 0;vertical-align:top;">
+                    <span class="info-label" style="font-size:11px;font-weight:700;color:#64748b;">&#129657; EHBO</span>
+                  </td>
+                  <td style="padding:9px 0;vertical-align:top;">
+                    <span class="info-value" style="font-size:12px;color:#374151;">EHBO&rsquo;ers &amp; begeleiders gehele dag aanwezig</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- \u2550\u2550 ACCOUNT BENEFITS BLOCK (guest-only) \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
+          <tr>
+            <td class="email-card" style="background-color:#ffffff;padding:0 28px 24px 28px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td class="account-card" style="background:linear-gradient(135deg,#fff7ed 0%,#fffbf5 100%);border:1.5px solid #fed7aa;border-radius:12px;padding:20px 22px;">
+                    <p style="margin:0 0 4px 0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#ea580c;">&#127775; Exclusief voor accounthouders</p>
+                    <p style="margin:0 0 14px 0;font-size:15px;font-weight:700;color:#1e293b;line-height:1.3;">Haal meer uit jouw deelname</p>
+                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td style="padding:0 0 8px 0;">
+                          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                              <td style="width:24px;vertical-align:top;padding-top:1px;">
+                                <div style="width:20px;height:20px;background:#f97316;border-radius:50%;text-align:center;line-height:20px;font-size:11px;color:#fff;font-weight:700;">1</div>
+                              </td>
+                              <td style="padding-left:10px;vertical-align:top;">
+                                <p style="margin:0;font-size:12px;color:#374151;line-height:1.5;"><strong style="color:#1e293b;">Inschrijfhistorie bewaren</strong> &mdash; Al je deelnames op &eacute;&eacute;n plek, elke editie.</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:0 0 8px 0;">
+                          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                              <td style="width:24px;vertical-align:top;padding-top:1px;">
+                                <div style="width:20px;height:20px;background:#f97316;border-radius:50%;text-align:center;line-height:20px;font-size:11px;color:#fff;font-weight:700;">2</div>
+                              </td>
+                              <td style="padding-left:10px;vertical-align:top;">
+                                <p style="margin:0;font-size:12px;color:#374151;line-height:1.5;"><strong style="color:#1e293b;">Prioritaire inschrijving</strong> &mdash; Schrijf je volgend jaar eerder in dan gastdeelnemers.</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:0 0 8px 0;">
+                          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                              <td style="width:24px;vertical-align:top;padding-top:1px;">
+                                <div style="width:20px;height:20px;background:#f97316;border-radius:50%;text-align:center;line-height:20px;font-size:11px;color:#fff;font-weight:700;">3</div>
+                              </td>
+                              <td style="padding-left:10px;vertical-align:top;">
+                                <p style="margin:0;font-size:12px;color:#374151;line-height:1.5;"><strong style="color:#1e293b;">Jouw foto&rsquo;s terugvinden</strong> &mdash; Eventfoto&rsquo;s worden gekoppeld aan jouw profiel.</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                              <td style="width:24px;vertical-align:top;padding-top:1px;">
+                                <div style="width:20px;height:20px;background:#f97316;border-radius:50%;text-align:center;line-height:20px;font-size:11px;color:#fff;font-weight:700;">4</div>
+                              </td>
+                              <td style="padding-left:10px;vertical-align:top;">
+                                <p style="margin:0;font-size:12px;color:#374151;line-height:1.5;"><strong style="color:#1e293b;">Persoonlijk dashboard</strong> &mdash; Inschrijving, vrijwilligerstaken en donaties &eacute;&eacute;n overzicht.</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin:16px 0 0 0;font-size:11px;color:#92400e;line-height:1.5;">&#127381; Gratis &amp; binnen 60 seconden aangemaakt.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA (guest variant) -->
+          <tr>
+            <td class="email-card" style="background-color:#ffffff;padding:8px 28px 32px 28px;text-align:center;">
+              <!--[if mso]>
+              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
+                href="https://dekoninklijkeloop.nl/auth/register"
+                style="height:44px;v-text-anchor:middle;width:240px;" arcsize="20%" strokecolor="#ea580c" fillcolor="#f97316">
+                <w:anchorlock/>
+                <center style="color:#ffffff;font-family:sans-serif;font-size:13px;font-weight:700;">Maak een gratis account aan</center>
+              </v:roundrect>
+              <![endif]-->
+              <!--[if !mso]><!-->
+              <a href="https://dekoninklijkeloop.nl/auth/register"
+                 style="display:inline-block;background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);color:#ffffff;font-weight:700;font-size:13px;text-decoration:none;padding:13px 28px;border-radius:8px;letter-spacing:0.4px;box-shadow:0 4px 14px rgba(249,115,22,0.35);margin:0 6px 8px 6px;">
+                Maak een gratis account aan &rarr;
+              </a>
+              <a href="https://dekoninklijkeloop.nl/programma"
+                 style="display:inline-block;background:#ffffff;color:#f97316;font-weight:700;font-size:13px;text-decoration:none;padding:12px 28px;border-radius:8px;letter-spacing:0.4px;border:1.5px solid #f97316;margin:0 6px 8px 6px;">
+                Bekijk het programma &rarr;
+              </a>
+              <!--<![endif]-->
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td class="footer-bg" style="background-color:#f8fafc;border-top:1px solid #e2e8f0;border-radius:0 0 16px 16px;padding:20px 28px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:14px;">
+                <tr>
+                  <td>
+                    <a href="https://www.instagram.com/koninklijkeloop/" style="color:#64748b;text-decoration:none;font-size:11px;margin-right:14px;">Instagram</a>
+                    <a href="https://www.facebook.com/p/De-Koninklijke-Loop-61556315443279/" style="color:#64748b;text-decoration:none;font-size:11px;margin-right:14px;">Facebook</a>
+                    <a href="https://www.linkedin.com/company/de-koninklijke-loop/" style="color:#64748b;text-decoration:none;font-size:11px;">LinkedIn</a>
+                  </td>
+                </tr>
+              </table>
+              <p class="footer-text" style="margin:0 0 6px 0;font-size:11px;color:#64748b;line-height:1.6;">
+                Vragen? Mail ons via <a href="mailto:info@dekoninklijkeloop.nl" class="footer-link" style="color:#f97316;text-decoration:none;font-weight:600;">info@dekoninklijkeloop.nl</a>
+              </p>
+              <p class="footer-text" style="margin:0;font-size:10px;color:#94a3b8;">
+                Registratie&shy;nummer: <code style="font-family:monospace;color:#64748b;font-size:10px;">${safeRegistrationId}</code>
+                &nbsp;&middot;&nbsp;
+                <a href="https://dekoninklijkeloop.nl" class="footer-link" style="color:#94a3b8;text-decoration:none;">dekoninklijkeloop.nl</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`;
+}
+
 
 /** Build a plain-text fallback for spam-filter compliance and accessibility. */
 function buildPlainText(params: {
@@ -433,7 +696,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   // Safe to cast — validatePayload guarantees required fields are present
-  const { name, email, role, distance, shuttleBus, registrationId } = body as ConfirmationPayload;
+  const { name, email, role, distance, shuttleBus, registrationId, userType } = body as ConfirmationPayload;
 
   // 5. Resolve route safely (no unsafe cast)
   const route = resolveRoute(distance);
@@ -464,10 +727,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         </tr>
       </table>` : "";
 
-  const htmlBody = buildHtmlEmail({ safeName, safeRegistrationId, routeBlock, vrijwilligerNote });
+  // 6b. Choose template based on userType (guest = stimulate account creation)
+  const isGuest = userType !== "authenticated";
+  const htmlBody = isGuest
+    ? buildGuestEmail({ safeName, safeRegistrationId, routeBlock, vrijwilligerNote })
+    : buildHtmlEmail({ safeName, safeRegistrationId, routeBlock, vrijwilligerNote });
   const textBody = buildPlainText({ name, roleLabel, registrationId, route, usesShuttle, isVrijwilliger });
 
-  const subject = `Bevestiging inschrijving — De Koninklijke Loop 2026`;
+  const subject = isGuest
+    ? `Bevestiging inschrijving — De Koninklijke Loop 2026`
+    : `Bevestiging inschrijving — De Koninklijke Loop 2026`;
 
   // 7. Dispatch via Go backend
   try {
