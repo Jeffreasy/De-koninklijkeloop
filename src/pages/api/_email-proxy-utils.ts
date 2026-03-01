@@ -40,6 +40,27 @@ export function getAuthContext(cookies: CookieStore): AuthResult | null {
     return { token, tenantID: effectiveTenantID, headers };
 }
 
+/**
+ * Decode the role claim from a JWT without verifying the signature.
+ * Verification is handled by the Go backend on every proxied request.
+ * Returns null if the token is malformed or the claim is absent.
+ */
+export function getRoleFromToken(token: string): string | null {
+    try {
+        const payloadB64 = token.split('.')[1];
+        if (!payloadB64) return null;
+        // atob is available in Node 16+ (via global) and all modern runtimes
+        const json = atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'));
+        const payload = JSON.parse(json) as Record<string, unknown>;
+        const role = payload['role'] ?? payload['roles'];
+        if (typeof role === 'string') return role.toLowerCase();
+        if (Array.isArray(role) && typeof role[0] === 'string') return (role[0] as string).toLowerCase();
+        return null;
+    } catch {
+        return null;
+    }
+}
+
 /** Get the base API URL from environment or fallback */
 export function getApiUrl(): string {
     return import.meta.env.PUBLIC_API_URL || API_URL_DEFAULT;
