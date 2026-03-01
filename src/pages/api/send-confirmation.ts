@@ -362,10 +362,11 @@ function buildHtmlEmail(params: {
 function buildGuestEmail(params: {
   safeName: string;
   safeRegistrationId: string;
+  safeEmail: string;
   routeBlock: string;
   vrijwilligerNote: string;
 }): string {
-  const { safeName, safeRegistrationId, routeBlock, vrijwilligerNote } = params;
+  const { safeName, safeRegistrationId, safeEmail, routeBlock, vrijwilligerNote } = params;
 
   return `<!DOCTYPE html>
 <html lang="nl" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -560,14 +561,14 @@ function buildGuestEmail(params: {
             <td class="email-card" style="background-color:#ffffff;padding:8px 28px 32px 28px;text-align:center;">
               <!--[if mso]>
               <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
-                href="https://dekoninklijkeloop.nl/auth/register"
+                href="https://dekoninklijkeloop.nl/auth/register?mode=claim&email=${safeEmail}"
                 style="height:44px;v-text-anchor:middle;width:240px;" arcsize="20%" strokecolor="#ea580c" fillcolor="#f97316">
                 <w:anchorlock/>
                 <center style="color:#ffffff;font-family:sans-serif;font-size:13px;font-weight:700;">Maak een gratis account aan</center>
               </v:roundrect>
               <![endif]-->
               <!--[if !mso]><!-->
-              <a href="https://dekoninklijkeloop.nl/auth/register"
+              <a href="https://dekoninklijkeloop.nl/auth/register?mode=claim&email=${safeEmail}"
                  style="display:inline-block;background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);color:#ffffff;font-weight:700;font-size:13px;text-decoration:none;padding:13px 28px;border-radius:8px;letter-spacing:0.4px;box-shadow:0 4px 14px rgba(249,115,22,0.35);margin:0 6px 8px 6px;">
                 Maak een gratis account aan &rarr;
               </a>
@@ -728,9 +729,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       </table>` : "";
 
   // 6b. Choose template based on userType (guest = stimulate account creation)
+  const safeEmail = escapeHtml(encodeURIComponent(email));
   const isGuest = userType !== "authenticated";
   const htmlBody = isGuest
-    ? buildGuestEmail({ safeName, safeRegistrationId, routeBlock, vrijwilligerNote })
+    ? buildGuestEmail({ safeName, safeRegistrationId, safeEmail, routeBlock, vrijwilligerNote })
     : buildHtmlEmail({ safeName, safeRegistrationId, routeBlock, vrijwilligerNote });
   const textBody = buildPlainText({ name, roleLabel, registrationId, route, usesShuttle, isVrijwilliger });
 

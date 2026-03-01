@@ -16,6 +16,7 @@ import type * as auth from "../auth.js";
 import type * as authHelpers from "../authHelpers.js";
 import type * as blog from "../blog.js";
 import type * as chat from "../chat.js";
+import type * as claimGuest from "../claimGuest.js";
 import type * as contact from "../contact.js";
 import type * as crons from "../crons.js";
 import type * as donations from "../donations.js";
@@ -56,6 +57,7 @@ declare const fullApi: ApiFromModules<{
   authHelpers: typeof authHelpers;
   blog: typeof blog;
   chat: typeof chat;
+  claimGuest: typeof claimGuest;
   contact: typeof contact;
   crons: typeof crons;
   donations: typeof donations;
