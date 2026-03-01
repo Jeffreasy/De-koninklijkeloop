@@ -288,27 +288,14 @@ function buildHtmlEmail(params: {
           <!-- ══ CTA ════════════════════════════════════════════════════════ -->
           <tr>
             <td class="email-card" style="background-color:#ffffff;padding:8px 28px 32px 28px;text-align:center;">
-
-              <!-- Outlook VML button fallback (primary only) -->
-              <!--[if mso]>
-              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
-                href="https://dekoninklijkeloop.nl/programma"
-                style="height:44px;v-text-anchor:middle;width:220px;" arcsize="20%" strokecolor="#ea580c" fillcolor="#f97316">
-                <w:anchorlock/>
-                <center style="color:#ffffff;font-family:sans-serif;font-size:13px;font-weight:700;">Bekijk het programma &rarr;</center>
-              </v:roundrect>
-              <![endif]-->
-              <!--[if !mso]><!-->
-                <a href="https://dekoninklijkeloop.nl/programma"
-                 style="display:inline-block;background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);color:#ffffff;font-weight:700;font-size:13px;text-decoration:none;padding:13px 28px;border-radius:8px;letter-spacing:0.4px;box-shadow:0 4px 14px rgba(249,115,22,0.35);margin:0 6px 8px 6px;">
+              <a href="https://dekoninklijkeloop.nl/programma"
+                 style="display:inline-block;background:#f97316;color:#ffffff;font-weight:700;font-size:13px;font-family:Arial,sans-serif;text-decoration:none;padding:13px 28px;border-radius:8px;letter-spacing:0.4px;margin:0 6px 8px 6px;">
                 Bekijk het programma &rarr;
               </a>
               <a href="https://dekoninklijkeloop.nl/routes"
-                 style="display:inline-block;background:#ffffff;color:#f97316;font-weight:700;font-size:13px;text-decoration:none;padding:12px 28px;border-radius:8px;letter-spacing:0.4px;border:1.5px solid #f97316;margin:0 6px 8px 6px;">
+                 style="display:inline-block;background:#ffffff;color:#f97316;font-weight:700;font-size:13px;font-family:Arial,sans-serif;text-decoration:none;padding:12px 28px;border-radius:8px;letter-spacing:0.4px;border:2px solid #f97316;margin:0 6px 8px 6px;">
                 Jouw route bekijken &rarr;
               </a>
-              <!--<![endif]-->
-
             </td>
           </tr>
 
@@ -559,24 +546,14 @@ function buildGuestEmail(params: {
           <!-- CTA (guest variant) -->
           <tr>
             <td class="email-card" style="background-color:#ffffff;padding:8px 28px 32px 28px;text-align:center;">
-              <!--[if mso]>
-              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
-                href="https://dekoninklijkeloop.nl/auth/register?mode=claim&email=${safeEmail}"
-                style="height:44px;v-text-anchor:middle;width:240px;" arcsize="20%" strokecolor="#ea580c" fillcolor="#f97316">
-                <w:anchorlock/>
-                <center style="color:#ffffff;font-family:sans-serif;font-size:13px;font-weight:700;">Maak een gratis account aan</center>
-              </v:roundrect>
-              <![endif]-->
-              <!--[if !mso]><!-->
-              <a href="https://dekoninklijkeloop.nl/auth/register?mode=claim&email=${safeEmail}"
-                 style="display:inline-block;background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);color:#ffffff;font-weight:700;font-size:13px;text-decoration:none;padding:13px 28px;border-radius:8px;letter-spacing:0.4px;box-shadow:0 4px 14px rgba(249,115,22,0.35);margin:0 6px 8px 6px;">
+              <a href="https://dekoninklijkeloop.nl/auth/register?mode=claim&amp;email=${safeEmail}"
+                 style="display:inline-block;background:#f97316;color:#ffffff;font-weight:700;font-size:13px;font-family:Arial,sans-serif;text-decoration:none;padding:13px 28px;border-radius:8px;letter-spacing:0.4px;margin:0 6px 8px 6px;">
                 Maak een gratis account aan &rarr;
               </a>
               <a href="https://dekoninklijkeloop.nl/programma"
-                 style="display:inline-block;background:#ffffff;color:#f97316;font-weight:700;font-size:13px;text-decoration:none;padding:12px 28px;border-radius:8px;letter-spacing:0.4px;border:1.5px solid #f97316;margin:0 6px 8px 6px;">
+                 style="display:inline-block;background:#ffffff;color:#f97316;font-weight:700;font-size:13px;font-family:Arial,sans-serif;text-decoration:none;padding:12px 28px;border-radius:8px;letter-spacing:0.4px;border:2px solid #f97316;margin:0 6px 8px 6px;">
                 Bekijk het programma &rarr;
               </a>
-              <!--<![endif]-->
             </td>
           </tr>
 
