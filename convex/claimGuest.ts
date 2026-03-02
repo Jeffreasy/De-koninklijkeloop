@@ -23,6 +23,7 @@ export const claimGuestRegistration = action({
     args: {
         email: v.string(),
         password: v.string(),
+        fullName: v.optional(v.string()),
     },
     handler: async (ctx, args): Promise<{ registrationId: string; authUserId: string }> => {
         // 1. Promote ghost user → set password in Go backend
@@ -35,6 +36,7 @@ export const claimGuestRegistration = action({
             body: JSON.stringify({
                 email: args.email,
                 password: args.password,
+                full_name: args.fullName || args.email.split("@")[0],
             }),
         });
 
@@ -60,10 +62,19 @@ export const claimGuestRegistration = action({
         let authUserId: string;
         try {
             const authData = await authRes.json();
-            const rawUser = authData.User || authData.user;
-            const id = rawUser?.ID || rawUser?.id;
-            if (!id) throw new Error("Auth response missing user ID");
-            authUserId = id;
+            // Go backend may return: {User:{ID}}, {user:{id}}, {id}, {user_id}, or {data:{id}}
+            const rawUser = authData.User || authData.user || authData.data || authData;
+            const id =
+                rawUser?.ID ||
+                rawUser?.id ||
+                authData.id ||
+                authData.user_id ||
+                authData.userId;
+            if (!id) {
+                console.error("[ClaimGuest] Full auth response:", JSON.stringify(authData));
+                throw new Error("Auth response missing user ID");
+            }
+            authUserId = String(id);
         } catch (e) {
             console.error("[ClaimGuest] Could not parse auth response:", e);
             throw new Error("Onverwachte responsvorm van de auth server. Meld dit aan de beheerder.");

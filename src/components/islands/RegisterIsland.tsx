@@ -13,6 +13,7 @@ const convexClient = new ConvexReactClient(convexUrl);
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
 const claimSchema = z.object({
+    name: z.string().min(2, "Vul je naam in").optional().or(z.literal("")),
     email: z.string().email("Voer een geldig e-mailadres in"),
     password: z.string().min(8, "Wachtwoord moet minimaal 8 tekens zijn"),
     confirmPassword: z.string(),
@@ -64,7 +65,11 @@ function RegisterIslandInner() {
         setErrorMessage("");
 
         try {
-            await claimGuest({ email: data.email, password: data.password });
+            await claimGuest({
+                email: data.email,
+                password: data.password,
+                fullName: data.name || undefined,
+            });
             setStatus("success");
         } catch (e: any) {
             setErrorMessage(e.message || "Er ging iets mis. Probeer het later opnieuw.");
@@ -179,6 +184,24 @@ function RegisterIslandInner() {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                    {/* Name — only shown in claim mode */}
+                    {mode === "claim" && (
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-medium text-text-secondary ml-1">
+                                Jouw naam
+                            </label>
+                            <input
+                                type="text"
+                                {...register("name")}
+                                className="w-full bg-glass-bg border border-glass-border rounded-xl px-4 py-3 text-base text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 transition-all"
+                                placeholder="Voornaam Achternaam"
+                            />
+                            {errors.name && (
+                                <p className="text-red-400 text-xs ml-1">{errors.name.message}</p>
+                            )}
+                        </div>
+                    )}
+
                     {/* Email */}
                     <div className="space-y-1.5">
                         <label className="text-sm font-medium text-text-secondary ml-1">
