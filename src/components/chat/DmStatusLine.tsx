@@ -31,9 +31,11 @@ export function DmStatusLine({ userId, teamMembers, currentUser }: DmStatusLineP
     }
 
     const lastActive = (member as any).last_active;
+    // Guard against Go zero-time ("0001-01-01T00:00:00Z") — treat as no data
+    const hasLastSeen = lastActive && new Date(lastActive).getFullYear() >= 2000;
     return (
         <p className="text-xs text-text-muted font-medium">
-            {lastActive ? `Laatst gezien ${formatLastSeen(lastActive)}` : 'Offline'}
+            {hasLastSeen ? `Laatste gezien ${formatLastSeen(lastActive)}` : 'Nooit actief geweest'}
         </p>
     );
 }
