@@ -98,6 +98,13 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
         onChange(recipients.filter(r => r.email.toLowerCase() !== email.toLowerCase()));
     }, [recipients, onChange]);
 
+    const confirmPendingInput = useCallback(() => {
+        const trimmed = search.trim();
+        if (trimmed.includes('@') && trimmed.includes('.')) {
+            addRecipient({ email: trimmed, isManual: true });
+        }
+    }, [search, addRecipient]);
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -105,6 +112,12 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
                 const c = availableContacts[activeIndex];
                 addRecipient({ email: c.email, naam: c.naam, organizationNaam: c.organizationNaam, organizationSector: c.organizationSector });
             } else if (search.includes('@') && search.includes('.')) {
+                addRecipient({ email: search.trim(), isManual: true });
+            }
+        }
+        if (e.key === 'Tab') {
+            if (search.includes('@') && search.includes('.')) {
+                e.preventDefault();
                 addRecipient({ email: search.trim(), isManual: true });
             }
         }
@@ -124,6 +137,11 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
             setShowGroupSelector(false);
             setActiveIndex(-1);
         }
+    };
+
+    const handleBlur = () => {
+        // Small delay so click on dropdown items still fires first
+        setTimeout(() => confirmPendingInput(), 150);
     };
 
     // Add entire group
@@ -156,6 +174,9 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
         }
     };
 
+    // Whether the current search input looks like a valid email (pending confirmation)
+    const isPendingEmail = search.includes('@') && search.includes('.');
+
     return (
         <div ref={wrapperRef} className="relative flex-1">
             {/* Chip container + input */}
@@ -163,7 +184,7 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
                 className="flex flex-wrap items-center gap-1.5 min-h-[36px] cursor-text"
                 onClick={() => inputRef.current?.focus()}
             >
-                {/* Recipient chips */}
+                {/* Confirmed recipient chips */}
                 {recipients.map(r => (
                     <span
                         key={r.email}
@@ -186,7 +207,18 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
                     </span>
                 ))}
 
-                {/* Search input */}
+                {/* Pending chip — shown while a valid email is typed but not yet confirmed */}
+                {isPendingEmail && (
+                    <span
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border border-dashed border-brand-orange/50 text-brand-orange/70 bg-brand-orange/5"
+                        title="Druk Enter of Tab om te bevestigen"
+                    >
+                        <span className="max-w-[160px] truncate">{search.trim()}</span>
+                        <span className="text-[10px] opacity-60 ml-0.5">↵</span>
+                    </span>
+                )}
+
+                {/* Search input — hidden when pending chip is shown to avoid duplication */}
                 <input
                     ref={inputRef}
                     id={id}
@@ -195,7 +227,8 @@ export default function ContactPicker({ recipients, onChange, disabled, id }: Co
                     onChange={(e) => { setSearch(e.target.value); setShowDropdown(true); }}
                     onFocus={() => { if (search.length >= 2) setShowDropdown(true); }}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 min-w-[120px] bg-transparent text-sm text-text-primary placeholder-text-muted focus:outline-none py-1"
+                    onBlur={handleBlur}
+                    className={`bg-transparent text-sm text-text-primary placeholder-text-muted focus:outline-none py-1 ${isPendingEmail ? 'w-0 opacity-0 min-w-0 absolute' : 'flex-1 min-w-[120px]'}`}
                     placeholder={recipients.length === 0 ? 'Zoek contact of typ email...' : 'Voeg toe...'}
                     disabled={disabled}
                     autoComplete="off"
