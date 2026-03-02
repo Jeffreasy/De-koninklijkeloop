@@ -4,16 +4,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const { request, cookies, redirect, locals } = context;
     const url = new URL(request.url);
 
-    // Skip middleware for static assets, API endpoints, and prerendered pages
+    // Skip middleware for static assets, API endpoints, prerendered pages, and the logout page
+    // /logout handles its own cookie-clearing logic — no need to validate token here
     if (
         url.pathname.startsWith("/_astro") ||
         url.pathname.startsWith("/_vercel") ||
         url.pathname.startsWith("/api/") ||
+        url.pathname === "/logout" ||
         url.pathname.includes(".") ||
         context.isPrerendered
     ) {
         return next();
     }
+
 
     // Extract auth token
     const token = cookies.get("dkl_auth_token")?.value ||

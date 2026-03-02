@@ -21,7 +21,9 @@ export function setAuth(token: string | null, user: User | null) {
 export function logout() {
     $accessToken.set(null);
     $user.set(null);
-    // Redirect to professional logout transition page
-    // The /logout page calls /api/auth/logout to clear the HttpOnly cookie
-    window.location.href = "/logout";
+    // Use replace() instead of href:
+    // 1. Bypasses Astro ClientRouter View Transitions (no flash)
+    // 2. Removes /admin/* from history so back-button can't return there
+    window.location.replace("/logout");
 }
+
