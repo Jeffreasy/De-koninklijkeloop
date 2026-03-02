@@ -26,7 +26,7 @@ type ClaimForm = z.infer<typeof claimSchema>;
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-type Status = "idle" | "submitting" | "success" | "error";
+type Status = "idle" | "submitting" | "success" | "resetSent" | "error";
 
 function RegisterIslandInner() {
     const [mode, setMode] = useState<"claim" | "register">("register");
@@ -65,17 +65,63 @@ function RegisterIslandInner() {
         setErrorMessage("");
 
         try {
-            await claimGuest({
+            const result = await claimGuest({
                 email: data.email,
                 password: data.password,
                 fullName: data.name || undefined,
             });
-            setStatus("success");
+            if (result?.resetSent) {
+                setStatus("resetSent");
+            } else {
+                setStatus("success");
+            }
         } catch (e: any) {
             setErrorMessage(e.message || "Er ging iets mis. Probeer het later opnieuw.");
             setStatus("error");
         }
     };
+
+    // ── Reset sent state ────────────────────────────────────────────────────────
+    if (status === "resetSent") {
+        return (
+            <div className="w-full max-w-md mx-auto">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="glass-card p-8 rounded-2xl border border-glass-border shadow-2xl bg-surface/50 backdrop-blur-md text-center"
+                >
+                    <div className="w-20 h-20 bg-brand-orange/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg className="w-10 h-10 text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-2xl font-display font-bold text-text-primary mb-2">Controleer je e-mail</h2>
+                    <p className="text-text-muted mb-2">
+                        Je hebt al een account met dit e-mailadres.
+                    </p>
+                    <p className="text-text-muted text-sm mb-8">
+                        We hebben je een <strong className="text-text-primary">wachtwoord-reset link</strong> gestuurd.
+                        Klik op de link in de e-mail om een wachtwoord in te stellen en in te loggen.
+                        De link is <strong className="text-text-primary">15 minuten</strong> geldig.
+                    </p>
+                    <div className="space-y-3">
+                        <a
+                            href="/login"
+                            className="block w-full py-3.5 rounded-xl bg-linear-to-r from-brand-orange to-red-500 text-white font-bold text-center shadow-lg shadow-brand-orange/20 hover:shadow-brand-orange/40 hover:-translate-y-0.5 transition-all"
+                        >
+                            Ga naar inloggen &rarr;
+                        </a>
+                        <a
+                            href="/"
+                            className="block w-full py-3 rounded-xl border border-glass-border text-text-muted text-sm text-center hover:bg-glass-surface transition-colors"
+                        >
+                            Terug naar home
+                        </a>
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
 
     // ── Success state ──────────────────────────────────────────────────────────
     if (status === "success") {

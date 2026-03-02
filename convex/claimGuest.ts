@@ -7,17 +7,15 @@ import { TENANT_ID, AUTH_API_URL } from "./authHelpers";
  * ClaimGuest Action
  *
  * Converts a guest registration into a fully authenticated account.
- * The guest already has a ghost user in the Go auth backend (password_hash = NULL).
- * This action sets a password (promoting the ghost) and links the Convex registration.
  *
  * Flow:
- *  1. POST /auth/register → Go auto-detects ghost user → sets password → same user_id preserved
+ *  1. POST /auth/register → creates account in Go backend
  *  2. promoteRegistration() → Convex patches userType: "guest" → "authenticated"
  *
- * Edge cases handled:
- *  - Email not a ghost (already has password) → 409 from Go → clear error to user
- *  - Email not in Convex at all → promoteRegistration throws
- *  - Network failure at Go → throw (guest stays guest, user can retry)
+ * Edge cases:
+ *  - 409: Account already exists → auto-trigger password reset (15 min token)
+ *  - 400: Validation failure (e.g. password too short)
+ *  - 404: Email not found in auth system
  */
 export const claimGuestRegistration = action({
     args: {
@@ -25,8 +23,8 @@ export const claimGuestRegistration = action({
         password: v.string(),
         fullName: v.optional(v.string()),
     },
-    handler: async (ctx, args): Promise<{ registrationId: string; authUserId: string }> => {
-        // 1. Promote ghost user → set password in Go backend
+    handler: async (ctx, args): Promise<{ registrationId: string; authUserId: string; resetSent?: boolean }> => {
+        // 1. Register in Go backend
         const authRes = await fetch(`${AUTH_API_URL}/auth/register`, {
             method: "POST",
             headers: {
@@ -45,11 +43,24 @@ export const claimGuestRegistration = action({
             console.error(`[ClaimGuest] Auth API failed: ${authRes.status} - ${errorText}`);
 
             if (authRes.status === 409) {
-                // Ghost already promoted OR full account exists
-                throw new Error(
-                    "Je hebt al een volledig account met dit e-mailadres. Log in via de normale weg."
-                );
+                // Account already exists — send a password reset email instead
+                console.log(`[ClaimGuest] 409 for ${args.email} — triggering password reset`);
+                try {
+                    await fetch(`${AUTH_API_URL}/auth/password/forgot`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Tenant-ID": TENANT_ID,
+                        },
+                        body: JSON.stringify({ email: args.email }),
+                    });
+                } catch (resetErr) {
+                    console.error("[ClaimGuest] Failed to trigger password reset:", resetErr);
+                }
+                // Return sentinel so UI can show "check your email for reset link"
+                return { registrationId: "", authUserId: "", resetSent: true };
             }
+
             if (authRes.status === 404) {
                 throw new Error(
                     "Geen gastregistratie gevonden voor dit e-mailadres. Controleer het adres en probeer opnieuw."
@@ -91,3 +102,6 @@ export const claimGuestRegistration = action({
         return { registrationId: registrationId.toString(), authUserId };
     },
 });
+
+
+
