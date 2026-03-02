@@ -84,7 +84,7 @@ export function ConversationList({
                                 key={user.user_id}
                                 user={user}
                                 unreadCount={unreadStats?.counts?.[user.user_id] || 0}
-                                onClick={() => onOpenDm({ id: user.user_id, name: user.name || 'Gebruiker' })}
+                                onClick={() => onOpenDm({ id: user.email || user.user_id, name: user.name || 'Gebruiker' })}
                                 isOnline
                             />
                         ))}
@@ -104,7 +104,7 @@ export function ConversationList({
                                 key={user.user_id}
                                 user={user}
                                 unreadCount={unreadStats?.counts?.[user.user_id] || 0}
-                                onClick={() => onOpenDm({ id: user.user_id, name: user.name || 'Gebruiker' })}
+                                onClick={() => onOpenDm({ id: user.email || user.user_id, name: user.name || 'Gebruiker' })}
                                 isOnline={false}
                             />
                         ))}
@@ -189,7 +189,8 @@ const UserListItem = memo(function UserListItem({ user, unreadCount, onClick, is
                         const ts = parseLastActive(user.last_active);
                         return ts
                             ? <>Laatst gezien {formatLastSeen(ts)}</>
-                            : <>Nooit actief geweest</>;
+                            // Redis TTL expires → no historical last_active stored → just show Offline
+                            : <>Offline</>;
                     })()}
                 </div>
             </div>

@@ -12,9 +12,10 @@ export interface ChatWidgetProps {
 }
 
 export interface TeamMember {
-    user_id: string; // From Go: user_id
+    user_id: string; // From Go: UUID
+    email?: string;  // From Go: email address
     role?: string;   // From Go: role
-    last_active: string; // From Go: last_active (Time)
+    last_active: string; // From Go: last_active (Time, zero if offline)
 
     // Properties filled by Context or Frontend fallback if needed
     name?: string;
