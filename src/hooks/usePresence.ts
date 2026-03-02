@@ -1,59 +1,62 @@
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { apiRequest } from '../lib/api';
 
 /**
  * usePresence Hook
- * Sends a heartbeat every 30s to keep the user "Online".
- * Pass null for user to disable the heartbeat entirely.
+ * Sends a heartbeat every 30s to keep the user "Online" in the Go Redis presence system.
+ * Pass null for user to disable (e.g. on public pages).
+ *
+ * The Go backend extracts UserID and Role from the JWT — we just need to POST.
+ * TTL in Redis is 60s, so 30s interval gives 30s of buffer for cold starts / network hiccups.
  */
 export function usePresence(
     user: { id: string; name: string; role?: string } | null,
-    path?: string // Note: Backend doesn't currently store path in Redis, but we keep it for signature
+    path?: string
 ) {
+    // Stable ref so the effect doesn't re-run on every render (object identity changes)
+    const userRef = useRef(user);
+    userRef.current = user;
+
     useEffect(() => {
-        if (!user) return;
+        if (!userRef.current) return;
 
         const sendHeartbeat = async () => {
             try {
-                // The Go backend extracts UserID and Role directly from the Context/JWT
-                await apiRequest('/v1/presence/heartbeat', {
-                    method: 'POST'
-                });
+                await apiRequest('/v1/presence/heartbeat', { method: 'POST' });
             } catch (error) {
-                console.warn("[Presence] Heartbeat failed:", error);
+                console.warn('[Presence] Heartbeat failed:', error);
             }
         };
 
+        // Send immediately on mount
         sendHeartbeat();
-        // Go backend expects a ping every 30s to stay within the 60s TTL window
-        const interval = setInterval(sendHeartbeat, 30000);
+
+        // Every 30s — stays within 60s Redis TTL
+        const interval = setInterval(sendHeartbeat, 30_000);
         return () => clearInterval(interval);
-    }, [user, path]);
+
+        // Note: we intentionally only depend on whether the user is null or not,
+        // not on the object itself (would cause re-runs on every render)
+    }, [user === null]); // re-run only when user goes null/non-null
 }
 
 /**
  * useTypingIndicator Hook
- * Note: Temporarily disabled (no-op) until full SSE presence triggers are built in Go.
+ * Disabled pending full SSE typing integration in Go backend.
  */
-export function useTypingIndicator(currentUser: string) {
+export function useTypingIndicator(_currentUser: string) {
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const startTyping = useCallback((typingTo: string) => {
-        // Disabled for now, as typing status hasn't been migrated to Redis/SSE yet
-        // apiRequest('/v1/messages/typing', { method: 'POST', body: { typingTo } }).catch(() => {});
+    const startTyping = useCallback((_typingTo: string) => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(() => {
-            // apiRequest('/v1/messages/typing', { method: 'DELETE' }).catch(() => {});
-        }, 3000);
-    }, [currentUser]);
+        timeoutRef.current = setTimeout(() => { }, 3000);
+    }, []);
 
     const stopTyping = useCallback(() => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        // apiRequest('/v1/messages/typing', { method: 'DELETE' }).catch(() => {});
-    }, [currentUser]);
+    }, []);
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             if (timeoutRef.current) clearTimeout(timeoutRef.current);

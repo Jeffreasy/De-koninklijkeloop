@@ -3,13 +3,15 @@ import { api } from '../../../convex/_generated/api';
 import type { TeamMember } from './types';
 
 interface DmStatusLineProps {
-    userId: string;
+    userId: string;   // This is an email address (from the chat conversations)
     teamMembers: TeamMember[];
     currentUser: string;
 }
 
 export function DmStatusLine({ userId, teamMembers, currentUser }: DmStatusLineProps) {
-    const member = teamMembers.find(m => m.user_id === userId);
+    // Go API returns user_id (UUID) + email separately.
+    // userId here is an email — match on email field.
+    const member = teamMembers.find(m => (m as any).email === userId || m.user_id === userId);
     const typingUsers = useQuery(api.chat.getTypingStatus, { user: currentUser }) || [];
     const isTyping = typingUsers.some(t => t.user === userId);
 
@@ -28,28 +30,35 @@ export function DmStatusLine({ userId, teamMembers, currentUser }: DmStatusLineP
         );
     }
 
+    const lastActive = (member as any).last_active;
     return (
         <p className="text-xs text-text-muted font-medium">
-            Laatst gezien {formatLastSeen(member.last_active)}
+            {lastActive ? `Laatst gezien ${formatLastSeen(lastActive)}` : 'Offline'}
         </p>
     );
 }
 
-function formatLastSeen(timestamp: string): string {
+function formatLastSeen(timestamp: string | number): string {
+    if (!timestamp) return 'onbekend';
+
+    const date = typeof timestamp === 'number'
+        ? new Date(timestamp)
+        : new Date(timestamp);
+
+    // Guard against zero-value Go time (0001-01-01)
+    if (isNaN(date.getTime()) || date.getFullYear() < 2000) return 'onbekend';
+
     const now = Date.now();
-    const diff = now - new Date(timestamp).getTime();
+    const diff = now - date.getTime();
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return "zojuist";
+    if (minutes < 1) return 'zojuist';
     if (minutes < 60) return `${minutes} min geleden`;
-    if (hours < 24) {
-        const date = new Date(timestamp);
-        return `om ${date.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}`;
-    }
-    if (days === 1) return "gisteren";
+    if (hours < 24) return `om ${date.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}`;
+    if (days === 1) return 'gisteren';
     if (days < 7) return `${days} dagen geleden`;
 
-    return new Date(timestamp).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
+    return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
 }

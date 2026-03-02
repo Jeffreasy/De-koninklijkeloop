@@ -20,11 +20,13 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
     const [activeGroup, setActiveGroup] = useState<GroupConversation | null>(null);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
-    // Presence — ONLY when widget is open (prevents heartbeat→reactivity spam)
+    // Presence — always active so the user appears online on any admin page,
+    // not just when the chat widget is open.
     usePresence(
-        isOpen ? { id: currentUser.email, name: currentUser.name || currentUser.email || "Gebruiker", role: currentUser.role } : null,
-        isOpen ? "chat-widget" : undefined
+        { id: currentUser.email, name: currentUser.name || currentUser.email || "Gebruiker", role: currentUser.role },
+        "admin"
     );
+
 
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
     const [unreadStats, setUnreadStats] = useState<UnreadStats>({ counts: {}, total: 0 });
@@ -35,11 +37,20 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
     useEffect(() => {
         if (!isOpen) return;
 
+        const fetchMembers = async () => {
+            try {
+                const res = await apiRequest('/v1/presence/members');
+                if (Array.isArray(res)) setTeamMembers(res);
+            } catch (e) {
+                console.warn("[ChatWidget] Failed to fetch members", e);
+            }
+        };
+
         // Initial Fetch
         const fetchInitialData = async () => {
             try {
                 const [membersRes, unreadRes, convosRes] = await Promise.all([
-                    apiRequest('/v1/presence/members'), // All members with isOnline status
+                    apiRequest('/v1/presence/members'),
                     apiRequest('/v1/messages/unread'),
                     apiRequest('/v1/messages/conversations')
                 ]);
@@ -54,6 +65,10 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
         };
         fetchInitialData();
 
+        // Poll presence every 60s (Redis TTL = 60s, heartbeat every 30s).
+        // Catches users going offline between SSE PRESENCE_UPDATE events.
+        const presenceInterval = setInterval(fetchMembers, 60_000);
+
         // Setup Server-Sent Events Subscription
         const eventSource = new EventSource('/api/v1/messages/stream', {
             withCredentials: true
@@ -65,12 +80,9 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
             try {
                 const data = JSON.parse(event.data);
                 if (data.type === "NEW_MESSAGE") {
-                    // Refresh unread and conversations on new message
                     fetchInitialData();
                 } else if (data.type === "PRESENCE_UPDATE") {
-                    apiRequest('/v1/presence/members').then(res => {
-                        if (Array.isArray(res)) setTeamMembers(res);
-                    });
+                    fetchMembers();
                 }
             } catch (e) {
                 console.warn("[SSE] Parse error", e);
@@ -83,9 +95,11 @@ export function ChatWidgetContent({ currentUser }: ChatWidgetContentProps) {
 
         return () => {
             eventSource.close();
+            clearInterval(presenceInterval);
         };
 
     }, [isOpen]);
+
 
     const otherOnlineUsers = teamMembers.filter(u => (u as any).isOnline === true);
     const offlineUsers = teamMembers.filter(u => (u as any).isOnline === false || (u as any).isOnline === undefined);
