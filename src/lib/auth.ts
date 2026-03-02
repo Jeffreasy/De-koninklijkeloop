@@ -19,12 +19,18 @@ export function setAuth(token: string | null, user: User | null) {
 }
 
 export function logout() {
-    // CRITICAL: Navigate FIRST, then clear state.
-    // If we clear state first ($user.set(null)), React islands that guard
-    // on user state immediately re-render their "Toegang Beveiligd" screen
-    // BEFORE window.location.replace fires — causing the flash.
-    // By navigating first, the page unloads before any re-render happens.
-    window.location.replace("/logout");
+    // Use a hidden anchor with data-astro-reload to force a FULL page load.
+    // window.location.replace() calls history.replaceState() internally, which
+    // Astro's ClientRouter patches — causing the View Transition to fire and
+    // morphing the admin sidebar into the logout page (the flash).
+    // data-astro-reload is Astro's official opt-out from ClientRouter interception.
+    const a = document.createElement("a");
+    a.href = "/logout";
+    a.setAttribute("data-astro-reload", "");
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    // State cleared after navigation is initiated (prevents React island re-render)
     $accessToken.set(null);
     $user.set(null);
 }
