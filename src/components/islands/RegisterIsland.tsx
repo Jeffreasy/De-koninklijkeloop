@@ -15,7 +15,7 @@ const convexClient = new ConvexReactClient(convexUrl);
 const claimSchema = z.object({
     name: z.string().min(2, "Vul je naam in").optional().or(z.literal("")),
     email: z.string().email("Voer een geldig e-mailadres in"),
-    password: z.string().min(8, "Wachtwoord moet minimaal 8 tekens zijn"),
+    password: z.string().min(12, "Wachtwoord moet minimaal 12 tekens zijn"),
     confirmPassword: z.string(),
 }).refine((d) => d.password === d.confirmPassword, {
     message: "Wachtwoorden komen niet overeen",
@@ -237,7 +237,7 @@ function RegisterIslandInner() {
                             type="password"
                             {...register("password")}
                             className="w-full bg-glass-bg border border-glass-border rounded-xl px-4 py-3 text-base text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 transition-all"
-                            placeholder="Minimaal 8 tekens"
+                            placeholder="Minimaal 12 tekens"
                         />
                         {errors.password && (
                             <p className="text-red-400 text-xs ml-1">{errors.password.message}</p>
