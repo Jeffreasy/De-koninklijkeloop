@@ -3,8 +3,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAction } from "convex/react";
+import { useAction, ConvexProvider, ConvexReactClient } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+
+const convexUrl = import.meta.env.PUBLIC_CONVEX_URL as string;
+const convexClient = new ConvexReactClient(convexUrl);
+
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -23,7 +27,7 @@ type ClaimForm = z.infer<typeof claimSchema>;
 
 type Status = "idle" | "submitting" | "success" | "error";
 
-export default function RegisterIsland() {
+function RegisterIslandInner() {
     const [mode, setMode] = useState<"claim" | "register">("register");
     const [prefillEmail, setPrefillEmail] = useState("");
     const [status, setStatus] = useState<Status>("idle");
@@ -267,5 +271,13 @@ export default function RegisterIsland() {
                 </div>
             </motion.div>
         </div>
+    );
+}
+
+export default function RegisterIsland() {
+    return (
+        <ConvexProvider client={convexClient}>
+            <RegisterIslandInner />
+        </ConvexProvider>
     );
 }
