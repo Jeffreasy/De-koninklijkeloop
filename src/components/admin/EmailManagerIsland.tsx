@@ -228,9 +228,9 @@ export default function EmailManagerIsland() {
     };
 
     return (
-        <div className="email-manager grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[600px]">
+        <div className="email-manager flex flex-col lg:flex-row gap-6 min-h-[600px]">
             {/* Left Sidebar - Account Selector & Stats */}
-            <div className="lg:col-span-1">
+            <div className="lg:w-64 xl:w-72 shrink-0">
                 <div className="glass-card p-6 space-y-6">
                     {/* Account Selector */}
                     <div>
@@ -312,11 +312,19 @@ export default function EmailManagerIsland() {
                 </div>
             </div>
 
-            {/* Middle Panel - Email List (hidden when detail is shown on large screens) */}
-            <div className={`lg:col-span-2 ${selectedEmail ? 'hidden lg:hidden' : ''}`}>
-                <div className="glass-card overflow-hidden">
+            {/* Right area: email list + optional detail, side by side */}
+            <div className="flex-1 flex flex-col lg:flex-row gap-4 min-w-0">
+
+                {/* Email List — always visible on desktop, hidden on mobile when detail is open */}
+                <div className={`
+                    glass-card overflow-hidden flex flex-col
+                    ${selectedEmail
+                        ? 'hidden lg:flex lg:w-72 xl:w-80 shrink-0'
+                        : 'flex-1'
+                    }
+                `}>
                     {/* Header */}
-                    <div className="px-6 py-4 border-b border-glass-border bg-white/5">
+                    <div className="px-6 py-4 border-b border-glass-border bg-white/5 shrink-0">
                         <div className="flex items-center justify-between mb-2">
                             <div>
                                 <h2 className="text-base md:text-lg font-display font-bold text-text-primary">
@@ -352,7 +360,7 @@ export default function EmailManagerIsland() {
                     </div>
 
                     {/* Email List */}
-                    <div className="divide-y divide-glass-border max-h-[500px] overflow-y-auto">
+                    <div className="divide-y divide-glass-border overflow-y-auto flex-1 max-h-[600px] lg:max-h-none">
                         {loading && (
                             <div role="status" aria-live="polite">
                                 <span className="sr-only">Email inbox wordt geladen...</span>
@@ -441,22 +449,31 @@ export default function EmailManagerIsland() {
                         )}
                     </div>
                 </div>
+
+                {/* Email Detail — fills remaining space next to email list */}
+                {selectedEmail && (
+                    <div className="flex-1 min-w-0 flex flex-col">
+                        {/* Mobile back button */}
+                        <button
+                            onClick={() => setSelectedEmail(null)}
+                            className="lg:hidden flex items-center gap-2 px-3 py-2 mb-3 text-sm text-text-muted hover:text-brand-orange transition-colors cursor-pointer rounded-xl hover:bg-brand-orange/10 self-start"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Terug naar inbox
+                        </button>
+                        <EmailDetailPanel
+                            email={selectedEmail}
+                            onClose={() => setSelectedEmail(null)}
+                            onReply={(fullEmail) => { setReplyToFullEmail(fullEmail); setShowReplyModal(true); }}
+                            onMarkUnread={() => handleMarkUnread(selectedEmail.id)}
+                            onToggleStar={() => handleToggleStar(selectedEmail.id, selectedEmail.is_starred)}
+                            onArchive={() => handleArchive(selectedEmail.id)}
+                        />
+                    </div>
+                )}
             </div>
-
-            {/* Right Panel - Email Detail (if selected) */}
-            {selectedEmail && (
-                <div className="lg:col-span-2">
-                    <EmailDetailPanel
-                        email={selectedEmail}
-                        onClose={() => setSelectedEmail(null)}
-                        onReply={(fullEmail) => { setReplyToFullEmail(fullEmail); setShowReplyModal(true); }}
-                        onMarkUnread={() => handleMarkUnread(selectedEmail.id)}
-                        onToggleStar={() => handleToggleStar(selectedEmail.id, selectedEmail.is_starred)}
-                        onArchive={() => handleArchive(selectedEmail.id)}
-                    />
-                </div>
-            )}
-
             {/* Reply Modal (unified ComposeModal in reply mode) */}
             {showReplyModal && replyToFullEmail && (
                 <ConvexClientProvider>

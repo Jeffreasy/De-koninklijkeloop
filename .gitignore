@@ -29,3 +29,8 @@ pnpm-debug.log*
 .env.local
 .agent/Emailinformatie/Main communicatie Versie 4.pdf
 .agent/Emailinformatie/extracted.txt
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
