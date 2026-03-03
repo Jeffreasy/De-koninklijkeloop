@@ -151,6 +151,10 @@ const { title } = Astro.props;
           client:idle
           currentUser={{
             ...Astro.locals.user,
+            name:
+              Astro.locals.user?.name ||
+              Astro.locals.user?.full_name ||
+              "Gebruiker",
             role: Astro.locals.user?.role || "editor",
           }}
           convexUrl={import.meta.env.PUBLIC_CONVEX_URL}
