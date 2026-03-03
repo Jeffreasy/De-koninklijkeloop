@@ -15,13 +15,15 @@ interface MediaLightboxModalProps {
     initialIndex: number;
     isOpen: boolean;
     onClose: () => void;
+    galleryId: string;
 }
 
 export default function MediaLightboxModal({
     items,
     initialIndex,
     isOpen: propIsOpen,
-    onClose: propOnClose
+    onClose: propOnClose,
+    galleryId
 }: MediaLightboxModalProps) {
     // Internal state management for lightbox (controlled by events)
     const [isOpen, setIsOpen] = useState(propIsOpen);
@@ -35,13 +37,13 @@ export default function MediaLightboxModal({
     const imageRef = useRef<HTMLDivElement>(null);
     const currentItem = items[currentIndex] || items[0];
 
-    // Listen to global lightbox events from Astro
+    // Listen to scoped lightbox events — unique per gallery to prevent multi-instance conflicts
     useEffect(() => {
+        const eventName = `lightbox-state-change-${galleryId}`;
         const handleLightboxChange = (e: CustomEvent<{ index: number; isOpen: boolean }>) => {
             if (import.meta.env.DEV) {
-                console.log('Lightbox event:', e.detail);
-                console.log('Current items:', items);
-                console.log('Item to show:', items[e.detail.index]);
+                console.log(`[Lightbox ${galleryId}] event:`, e.detail);
+                console.log(`[Lightbox ${galleryId}] item to show:`, items[e.detail.index]);
             }
 
             setCurrentIndex(e.detail.index);
@@ -51,11 +53,11 @@ export default function MediaLightboxModal({
             }
         };
 
-        window.addEventListener('lightbox-state-change', handleLightboxChange as EventListener);
+        window.addEventListener(eventName, handleLightboxChange as EventListener);
         return () => {
-            window.removeEventListener('lightbox-state-change', handleLightboxChange as EventListener);
+            window.removeEventListener(eventName, handleLightboxChange as EventListener);
         };
-    }, [items]);
+    }, [items, galleryId]);
 
     // Close handler
     const handleClose = () => {

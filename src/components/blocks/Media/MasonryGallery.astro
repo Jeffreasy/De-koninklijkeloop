@@ -151,6 +151,7 @@ const mediaItems: MediaItem[] = images.map((img) => ({
                 initialIndex={0}
                 isOpen={false}
                 onClose={() => {}}
+                galleryId={galleryId}
             />
         )
     }
@@ -217,17 +218,18 @@ const mediaItems: MediaItem[] = images.map((img) => ({
             });
         }
 
-        // Lightbox click handlers
+        // Lightbox click handlers — scoped to this gallery's id to prevent multi-instance conflicts
         const clickableItems = root.querySelectorAll(
             ".gallery-item[data-lightbox-index]",
         );
+        const scopedEventName = `lightbox-state-change-${galleryId}`;
         clickableItems.forEach((item) => {
             item.addEventListener("click", () => {
                 const index = parseInt(
                     (item as HTMLElement).dataset.lightboxIndex || "0",
                 );
                 window.dispatchEvent(
-                    new CustomEvent("lightbox-state-change", {
+                    new CustomEvent(scopedEventName, {
                         detail: { index, isOpen: true },
                     }),
                 );
