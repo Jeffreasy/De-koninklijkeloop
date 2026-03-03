@@ -22,9 +22,10 @@
 
 - 📝 **Online inschrijvingen** voor deelnemers, begeleiders en vrijwilligers
 - 💰 **Donatiebeheer** via GoFundMe-integratie
-- 🖼️ **Mediabeheer** voor foto's en video's van het evenement
+- 🖼️ **Mediabeheer** voor foto's (ImageKit CDN) en video's (Streamable)
 - 📣 **Social media** en PR-communicatie
 - 📊 **Real-time administratie** voor het organisatieteam
+- 💬 **Interne teamsamenwerking** via chat, notulen en vrijwilligerstaakbeheer
 
 **Evenementdatum:** zaterdag 16 mei 2026
 **Locatie:** Apeldoorn
@@ -39,17 +40,19 @@ De publieke website is toegankelijk voor iedereen zonder inloggen:
 
 | Pagina | URL | Beschrijving |
 |---|---|---|
-| **Homepage** | `/` | Introductie, video en registratieknop |
-| **Over Ons** | `/about` | Achtergrond van het evenement |
+| **Homepage** | `/` | Introductie, videoshowcase en registratieknop |
+| **Over Ons** | `/about` | Achtergrond van het evenement en het team |
+| **DKL Info** | `/dkl` | Informatie over De Koninklijke Loop |
 | **Programma** | `/programma` | Tijdlijn en schema van de evenementsdag |
-| **Routekaart** | `/routes` | Interactieve kaart met alle looproutes |
-| **Media** | `/media` | Fotogalerij en video's van vorige edities |
-| **Goede Doel** | `/charity` | Informatie over de inzamelingsactie |
+| **Routekaart** | `/routes` | Interactieve Leaflet kaart met alle looproutes (2.5/6/10/15km) |
+| **Media** | `/media` | Fotogalerij (ImageKit) en video's (Streamable) van vorige edities |
+| **Goede Doel** | `/charity` | Informatie over de inzamelingsactie + GoFundMe widget |
 | **Blog** | `/blog` | Nieuws en updates over het evenement |
 | **FAQ** | `/faq` | Veelgestelde vragen |
-| **Contact** | `/contact` | Contactformulier |
+| **Contact** | `/contact` | Contactformulier en contactinformatie |
 | **Voorwaarden** | `/voorwaarden` | Deelnamevoorwaarden en privacybeleid |
-| **Inschrijven** | `/register` | Online inschrijfformulier |
+| **Inschrijven** | `/register` | Online inschrijfformulier (gast of account) |
+| **Succes** | `/registratie-succes` | Bevestiging na succesvolle inschrijving |
 
 ---
 
@@ -69,22 +72,24 @@ Het platform werkt met een rollenstructuur. Elke gebruiker heeft één rol die b
 
 #### 👑 Administrator
 Heeft toegang tot **alle** modules inclusief:
-- Systeem- en e-mailinstellingen
-- Blog beheren
-- X (Twitter) campagnes
-- Gebruikersbeheer
+- Systeem- en evenementinstellingen (`/admin/settings`)
+- Blog beheren (`/admin/blog`)
+- X (Twitter) campagnes (`/admin/x-poster`)
 - Feedback-tickets verwerken
+- Alle Editor-functies
 
 #### ✏️ Editor
-Heeft toegang tot de meeste dagelijkse modules:
+Heeft toegang tot de dagelijkse admin-modules:
+- Dashboard en Analytics
 - Inschrijvingen bekijken en bevestigingen sturen
 - E-mailboxen beheren
-- Media uploaden
+- Media uploaden en modereren
 - Social media posts plannen
 - PR-contacten en communicatie beheren
-- Team notulen en vrijwilligerstaken
+- Team notulen, dagplanning en vrijwilligerstaken
+- Donatie-overzicht bekijken
 
-> 📄 Zie **[EDITOR_HANDLEIDING.md](./EDITOR_HANDLEIDING.md)** voor de volledige Nederlandstalige handleiding voor Ron.
+> 📄 Zie **[EDITOR_HANDLEIDING.md](./EDITOR_HANDLEIDING.md)** voor de volledige Nederlandstalige handleiding voor het editorteam.
 
 #### 🧑 Deelnemer / Begeleider / Vrijwilliger
 Heeft alleen toegang tot het persoonlijke deelnemersdashboard (`/dashboard`):
@@ -102,11 +107,12 @@ Het admin-paneel is bereikbaar via `/admin/dashboard` voor Administrators en Edi
 - **Live inschrijvingstabel** met filter op editie (2025 / 2026)
 - **KPI-kaarten:** totaal deelnemers, nieuw vandaag, rolverdeling
 - **Live activiteitsfeed:** meest recente aanmeldingen in realtime
-- **Afstand populariteit:** verdeling per route
+- **Afstand populariteit:** verdeling per route (2.5/6/10/15km)
+- **Revenue tracking:** geschatte opbrengst op basis van betaalde inschrijvingen
 
 ### 📈 Analytics
 - **Websitestatistieken** van dekoninklijkeloop.nl
-- KPI-kaarten: bezoekers, sessieduur, bouncepercentage
+- KPI-kaarten: bezoekers, unieke sessies, gemiddelde sessieduur, bouncepercentage
 - Grafiek met bezoekerstrend over tijd
 - Populairste pagina's, apparaattypen, verwijzende websites
 - Periode-filter: 7 · 30 · 90 dagen
@@ -115,58 +121,76 @@ Het admin-paneel is bereikbaar via `/admin/dashboard` voor Administrators en Edi
 ### 👥 Inschrijvingen
 - Volledig CRM voor alle aanmeldingen per editie
 - Filteren op naam, e-mail, rol, type (account of gast)
-- Detailmodal: volledige deelnemersinformatie inclusief noodcontact en waiverstatus
+- Detailmodal: volledige deelnemersinformatie inclusief noodcontact, t-shirtmaat en waiverstatus
 - Bevestigingsmail versturen per deelnemer
-- Bulkbewerking mogelijk (o.a. markeren als betaald)
+- Bulkbewerking: markeren als betaald, editie wijzigen
+- Bijhouden wanneer bevestiging verstuurd is (en door wie)
 
 ### 💰 Donaties
 - Live donatie-widget (GoFundMe-integratie)
-- Doelstelling en huidige stand
-- Beheerpaneel voor campagne-instellingen per editie
+- Doelstelling en huidige stand per campagne
+- Beheerpaneel voor campagne-instellingen per jaar (2025/2026)
 
 ### ✉️ Email
-- Twee mailboxen: `info@` en `inschrijving@dekoninklijkeloop.nl`
-- Overzicht van ongelezen berichten per mailbox
-- E-mails lezen, beantwoorden, archiveren en markeren
+- Twee mailboxen: `info@dekoninklijkeloop.nl` en `inschrijving@dekoninklijkeloop.nl`
+- Inbox en archiefweergave per mailbox
+- E-mails lezen, beantwoorden, archiveren en als gelezen/ongelezen markeren
 - Nieuwe e-mails opstellen
 - Automatische verversing elke 60 seconden
+- Persoonlijke DKL-mailboxen via [Hostnet Webmail](https://appsuite.hostnet.nl/appsuite/ui)
 
 ### 🖼️ Media
-- Galerij van alle foto's (via ImageKit CDN)
+- Overzicht van alle foto's (via ImageKit CDN)
 - Filteren op map en jaar (2024 / 2025)
-- Bestanden uploaden via Cloudinary Upload Widget
+- Bestanden uploaden via ImageKit Upload (server-side signed request)
 - Metadata bewerken: alt-tekst en tags
-- Moderatiestatus: pending · approved · rejected · archived
+- Moderatiestatus: **pending** · **approved** · **rejected** · **archived**
 
 ### 📣 Social Media
 - Posts aanmaken met tekst, afbeeldingen of video's
-- Carousel-posts met meerdere media
-- Inplannen voor publicatie
+- Carousel-posts met meerdere media-items (foto's en/of video)
+- Inplannen voor publicatie (datum/tijd)
 - Overzicht van alle posts per jaar
-- Emoji-reacties van bezoekers worden bijgehouden
+- Emoji-reacties van websitebezoekers worden bijgehouden per post
 
 ### 📢 Communicatie (PR-module)
-- **Organisatiedatabase:** ziekenhuizen, GGZ, revalidatie, gehandicaptenzorg etc.
+- **Organisatiedatabase:** ziekenhuizen, GGZ, revalidatie, gehandicaptenzorg (sector + regio filter)
 - **Contactendatabase:** individuele contactpersonen per organisatie
-- **BCC-generator:** kopieer gefilterde e-maillijsten naar klembord
-- **Verzendhistorie:** log van alle PR-uitingen
+- **BCC-generator:** kopieer gefilterde e-maillijsten naar klembord voor externe mailing
+- **Verzendhistorie:** log van alle PR-uitingen met timestamp en ontvangersaantal
 
 ### 👫 Team
 - **Notulen & vergaderstukken** — aanmaken, bewerken, opslaan als concept of definitief
-- **Evenementprogramma** — chronologisch schema met tijdslots per route
+- **Evenementprogramma** — chronologisch schema met tijdslots en routekoppeling
 - **Vrijwilligerstaken** — toewijzen aan vrijwilligers, statussen bijhouden (Toegewezen / Bevestigd / Afgerond)
 
+### 💬 Interne Chat (zijbalk)
+- **1-op-1 directe berichten** tussen teamleden
+- **Groepsgesprekken** voor teamcoördinatie
+- **Realtime aanwezigheid** (groene stip = online, heartbeat elke 60s)
+- Emoji-reacties op berichten
+
 ### 📰 Blog *(Administrator only)*
-- Blog posts aanmaken en bewerken met rich-text editor (TipTap)
-- Statussen: concept · review · gepubliceerd · ingepland · gearchiveerd
+- Blog posts aanmaken en bewerken met rich-text editor (TipTap v3)
+- Statussen: **concept** · **review** · **gepubliceerd** · **ingepland** · **gearchiveerd**
 - Categorieën en tags
-- Reacties modereren
+- SEO-velden (titel, beschrijving)
+- Reacties modereren (goedkeuren / afwijzen)
 
 ### ⚙️ Instellingen *(Administrator only)*
 - Evenementinformatie (naam, datum, locatie, beschikbare afstanden)
-- Inschrijvingen openen/sluiten
+- Inschrijvingen openen/sluiten (toggle)
 - E-mailinstellingen en SMTP-configuratie
-- **Feedback-tickets** van gebruikers beheren
+- IMAP-configuratie per mailbox
+- **Feedback-tickets** van gebruikers beheren (open/in behandeling/gesloten)
+
+### 📊 Systeemstatus
+- Overzicht van de gezondheid van externe services (Auth, Convex, ImageKit, Go backend)
+- Zichtbaar voor admin en editor
+
+### 🐦 X Poster *(Administrator only)*
+- X (Twitter) campagnes beheren
+- Posts plannen en publiceren via de X API
 
 ---
 
@@ -174,10 +198,17 @@ Het admin-paneel is bereikbaar via `/admin/dashboard` voor Administrators en Edi
 
 ### Inschrijfproces
 1. Bezoeker gaat naar `/register`
-2. Kiest rol: deelnemer, begeleider of vrijwilliger
-3. Vult persoonlijke gegevens, noodcontact en voorkeuren in
-4. Accepteert deelnamevoorwaarden en mediabeleid
-5. Ontvangt een automatische bevestigingsmail
+2. Kiest rol: **deelnemer**, **begeleider** of **vrijwilliger**
+3. Vult persoonlijke gegevens, noodcontact en voorkeuren in (pendelbus, rolstoelgebruik, etc.)
+4. Kiest optioneel voor een account (standaard: gastregistratie zonder wachtwoord)
+5. Accepteert deelnamevoorwaarden en mediabeleid
+6. Ontvangt een automatische bevestigingsmail
+
+### Registratietypes
+| Type | Omschrijving |
+|---|---|
+| **Gast** | Ingeschreven zonder account (standaard, laagste drempel) |
+| **Account** | Ingelogde gebruiker met een LaventeCare-account + deelnemersdashboard |
 
 ### Deelnemersdashboard (`/dashboard`)
 Na inloggen kunnen deelnemers:
@@ -185,21 +216,16 @@ Na inloggen kunnen deelnemers:
 - Profielgegevens aanpassen
 - Uitloggen
 
-### Accounttypes
-| Type | Omschrijving |
-|---|---|
-| **Account** | Ingelogde gebruiker met een LaventeCare-account |
-| **Gast** | Ingeschreven zonder account (eenmalige registratie) |
-
 ---
 
 ## Beveiliging
 
-- **Zero-Trust authenticatie:** elke request wordt gevalideerd via de LaventeCare auth-backend
+- **Zero-Trust authenticatie:** elke request wordt gevalideerd via de LaventeCare auth-backend (`/auth/me`)
 - **RBAC (rolgebaseerde toegangscontrole):** middleware blokkeert ongeautoriseerde toegang op pagina-niveau
 - **HttpOnly cookies:** sessietokens zijn niet toegankelijk via JavaScript
-- **Content Security Policy (CSP):** strikte headers blokkeren ongewenste scripts en requests
-- **Beveiligde headers:** X-Frame-Options, X-Content-Type-Options actief op elke response
+- **Content Security Policy (CSP):** strikte headers blokkeren ongewenste scripts en requests (ImageKit, Convex, Streamable, Komoot, GoFundMe, Vercel)
+- **X-Frame-Options:** DENY op productie, SAMEORIGIN in development
+- **X-Content-Type-Options:** nosniff op alle responses
 
 ---
 
