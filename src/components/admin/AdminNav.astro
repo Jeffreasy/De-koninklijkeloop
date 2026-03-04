@@ -282,7 +282,7 @@ const firstName = userName.split(" ")[0];
 
     <!-- Close Button -->
     <button
-      id="mobile-drawer-close"
+      id="admin-mobile-close"
       class="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-glass-bg/50 transition-all duration-200"
       aria-label="Sluit menu"
     >
@@ -303,7 +303,7 @@ const firstName = userName.split(" ")[0];
         <a
           href={item.href}
           class:list={[
-            "group flex items-center gap-3 px-3.5 py-3 rounded-xl text-[13px] font-medium transition-all duration-200 relative overflow-hidden",
+            "admin-nav-link group flex items-center gap-3 px-3.5 py-3 rounded-xl text-[13px] font-medium transition-all duration-200 relative overflow-hidden",
             isActive(item.href)
               ? "bg-linear-to-r from-brand-orange/15 to-brand-orange/5 text-brand-orange shadow-sm border-l-[3px] border-brand-orange"
               : "text-text-muted hover:text-text-primary hover:bg-glass-bg/40 hover:shadow-sm border-l-[3px] border-transparent hover:border-glass-border",
@@ -333,7 +333,7 @@ const firstName = userName.split(" ")[0];
     <a
       href="/admin/profiel"
       class:list={[
-        "block rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer",
+        "admin-nav-link block rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer",
         isActive("/admin/profiel")
           ? "ring-1 ring-brand-orange/40 shadow-lg shadow-brand-orange/10"
           : "hover:shadow-lg hover:shadow-black/20",
@@ -462,10 +462,15 @@ const firstName = userName.split(" ")[0];
       });
     }
 
-    // Run on load
-    initAdminMobileMenu();
+    // Wait for full DOM before attaching listeners (hamburger is in AdminHeader, parsed after this script)
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initAdminMobileMenu);
+    } else {
+      // DOM already ready (e.g. after view transition)
+      initAdminMobileMenu();
+    }
 
-    // Run on Astro View Transitions
+    // Re-run on every Astro View Transition page swap
     document.addEventListener("astro:page-load", initAdminMobileMenu);
   })();
 </script>
