@@ -9,6 +9,7 @@ interface MailConfig {
     from_email: string;
     from_name: string;
     encryption: 'none' | 'ssl' | 'tls';
+    admin_email: string; // Optional separate address for admin notifications
 }
 
 // BFF proxy URL — uses HttpOnly cookies (no Bearer token exposed to JS)
@@ -23,6 +24,7 @@ export default function MailConfigIsland() {
         from_email: '',
         from_name: '',
         encryption: 'tls',
+        admin_email: '',
     });
     const [isConfigured, setIsConfigured] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -53,9 +55,8 @@ export default function MailConfigIsland() {
                             password: '',
                             from_email: match ? match[2].trim() : fromRaw.trim(),
                             from_name: match ? match[1].trim() : '',
-                            // Backend 'tls' = SSL/Implicit → frontend 'ssl'
-                            // Backend 'starttls' = STARTTLS → frontend 'tls'
                             encryption: bc.tls_mode === 'tls' ? 'ssl' : 'tls',
+                            admin_email: bc.admin_email || '',
                         });
                     }
                 } else if (response.status === 401) {
@@ -96,6 +97,8 @@ export default function MailConfigIsland() {
             };
             // Only include password if the user typed a new one
             if (config.password) payload.password = config.password;
+            // Only include admin_email if filled in
+            if (config.admin_email?.trim()) payload.admin_email = config.admin_email.trim();
 
             const response = await fetch(API, {
                 method: 'POST',
@@ -133,7 +136,7 @@ export default function MailConfigIsland() {
             if (!response.ok) throw new Error(`Fout bij verwijderen (${response.status})`);
             setIsConfigured(false);
             setShowDeleteConfirm(false);
-            setConfig({ host: '', port: 587, username: '', password: '', from_email: '', from_name: '', encryption: 'tls' });
+            setConfig({ host: '', port: 587, username: '', password: '', from_email: '', from_name: '', encryption: 'tls', admin_email: '' });
             setStatus({ type: 'success', message: 'SMTP configuratie verwijderd. Systeem SMTP wordt gebruikt als fallback.' });
         } catch (error) {
             setStatus({
@@ -314,7 +317,33 @@ export default function MailConfigIsland() {
                 </div>
             </div>
 
-            {/* Delete Confirm */}
+            {/* Admin Notification Email */}
+            <div className="premium-glass rounded-2xl md:rounded-3xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+                        <Mail className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-semibold text-text-primary">Inschrijvings-notificaties</h2>
+                        <p className="text-sm text-text-muted">Aparte ontvanger voor nieuwe inschrijvingen</p>
+                    </div>
+                </div>
+                <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                    <input
+                        id="admin-email"
+                        type="email"
+                        value={config.admin_email}
+                        onChange={e => setConfig({ ...config, admin_email: e.target.value })}
+                        className="w-full pl-10 pr-4 py-2 bg-glass-bg/50 border border-glass-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-orange/50"
+                        placeholder="inschrijving@dekoninklijkeloop.nl"
+                    />
+                </div>
+                <p className="text-xs text-text-muted mt-2">
+                    Alleen voor inschrijvingsnotificaties. Contactformulieren gaan altijd naar het afzenderadres (info@).
+                    Laat leeg om ook inschrijvingen naar het afzenderadres te sturen.
+                </p>
+            </div>
             {showDeleteConfirm && (
                 <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 flex flex-col sm:flex-row items-start sm:items-center gap-3">
                     <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
