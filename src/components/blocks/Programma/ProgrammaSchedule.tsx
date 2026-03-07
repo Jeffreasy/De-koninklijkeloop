@@ -296,9 +296,9 @@ function ProgrammaContent() {
 
                         const terrainLabels: Record<string, string[]> = {
                             '2.5km': ['Verhard', 'Toegankelijk', 'Rolstoelvriendelijk'],
-                            '6km': ['Bospaden', 'Licht heuvelachtig', 'Gezinsvriendelijk'],
-                            '10km': ['Bospaden', 'Onverhard', 'Heuvelachtig'],
-                            '15km': ['Bospaden', 'Onverhard', 'Sportief'],
+                            '6km': ['Bospaden', 'Licht heuvelachtig', 'Rolstoelvriendelijk'],
+                            '10km': ['Bospaden', 'Uitdagend', 'Rolstoelvriendelijk'],
+                            '15km': ['Bospaden', 'Sportief', 'Rolstoelvriendelijk'],
                         };
                         const labels = terrainLabels[route.id] || ['Natuur'];
 

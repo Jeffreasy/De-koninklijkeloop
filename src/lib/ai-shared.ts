@@ -91,10 +91,11 @@ export function buildEventContext(data: EventData): string {
 KERNIDENTITEIT:
 De Koninklijke Loop is een inclusief wandelevenement en sponsorloop in ${data.location_city.toUpperCase()}.
 Het is GEEN hardloopwedstrijd. Het is een wandelevenement waar inclusiviteit,
-verbinding en rolstoelvriendelijkheid centraal staan.
+verbinding en toegankelijkheid centraal staan.
 
 Op ${data.event_date_display} (3e editie) brengt De Koninklijke Loop verleden, heden en toekomst samen.
-Deelnemers wandelen over de Koninklijke Weg — een rolstoelvriendelijke route bedacht
+Deelnemers wandelen over de Koninklijke Weg — alle vier routes (2,5 tot 15 km) zijn volledig rolstoelvriendelijk.
+De weg werd bedacht
 door oud-wethouder Aalt van de Glind (rond 2006-2010, hij overleed in 2018) — richting
 de finish bij ${data.finish_location}.
 

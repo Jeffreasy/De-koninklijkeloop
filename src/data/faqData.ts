@@ -19,12 +19,12 @@ export const faqData: FAQCategory[] = [
         questions: [
             {
                 question: "Wat maakt De Koninklijke Loop zo bijzonder?",
-                answer: "De Koninklijke Loop is een sponsorloop mede georganiseerd door mensen met een beperking voor mensen met een beperking. We lopen de route over de Koninklijke weg, een rolstoelvriendelijke wandelroute.",
+                answer: "De Koninklijke Loop is een sponsorloop mede georganiseerd door mensen met een beperking voor mensen met een beperking. We lopen de route over de Koninklijke Weg, een volledig rolstoelvriendelijke wandelroute. Alle vier afstanden (2,5, 6, 10 en 15 km) zijn toegankelijk voor rolstoelgebruikers.",
                 icon: "🏃"
             },
             {
                 question: "Waar vindt de Koninklijke Loop plaats?",
-                answer: "De Koninklijke Loop vindt plaats op de Koninklijke Weg, een rolstoelvriendelijke route. We lopen verschillende afstanden tussen Assel en Paleis het Loo, Apeldoorn. De deelnemers worden vanaf de Grote Kerk in Apeldoorn naar de startpunten van de verschillende afstanden gebracht. Vanuit hier wandelen de deelnemers naar de finish, de Grote Kerk, waar de feestelijke inhuldiging plaatsvindt.",
+                answer: "De Koninklijke Loop vindt plaats op de Koninklijke Weg, een volledig rolstoelvriendelijke route. We lopen verschillende afstanden (2,5, 6, 10 en 15 km) en alle routes zijn toegankelijk voor rolstoelgebruikers. Deelnemers worden vanaf de Grote Kerk in Apeldoorn met pendelbussen (incl. rolstoelbus) naar de startpunten gebracht. Vanuit hier wandelen de deelnemers naar de finish bij de Grote Kerk, waar de feestelijke inhuldiging plaatsvindt.",
                 icon: "📍"
             },
             {
@@ -88,22 +88,22 @@ export const faqData: FAQCategory[] = [
             },
             {
                 question: "Is de 2,5 km iets voor mij?",
-                answer: "Tijdens de 2,5 km afstand lopen we vanaf Berg en Bos in Apeldoorn door de groene buitenwijken rond Paleis het Loo naar de finish. Hier wandel je over vlak terrein en deze afstand is geschikt voor de onervaren wandelaar.",
+                answer: "Tijdens de 2,5 km lopen we vanuit Berg en Bos in Apeldoorn door de groene buitenwijken rond Paleis Het Loo naar de finish. De route is volledig verhard, rolstoelvriendelijk en geschikt voor de onervaren wandelaar.",
                 icon: "🌱"
             },
             {
                 question: "Hoe pittig is de 6 km?",
-                answer: "In Hoog Soeren start de loop van de 6 kilometer. Hier ga je over heuvelachtig landschap, deze afstand is geschikt voor de licht getrainde wandelaar.",
+                answer: "De 6 km start in Hoog Soeren en gaat door licht heuvelachtig landschap. Deze rolstoelvriendelijke route is geschikt voor de actieve gezinswandelaar.",
                 icon: "⛰"
             },
             {
                 question: "Ben ik klaar voor de 10 km?",
-                answer: "Bij halte Assel is het beginpunt van de 10 kilometerloop. Over de prachtige Asselse hei lopen we dan verder naar Hoog Soeren en Apeldoorn. Voor de 10 km moet je een redelijk goed getrainde wandelaar zijn en ga je door heuvelachtig gebied.",
+                answer: "Bij halte Assel is het beginpunt van de 10 km. Over de Asselse heide lopen we naar Hoog Soeren en Apeldoorn. Een rolstoelvriendelijke route voor de getrainde wandelaar.",
                 icon: "🌄"
             },
             {
                 question: "Wie durft de 15 km aan?",
-                answer: "Bij het oude kerkje in het hartje Kootwijk start de 15 km van de Koninklijk Loop. De 15 km is geschikt voor getrainde lopers, want je gaat over heuvelachtig terrein lopen.",
+                answer: "Bij het oude kerkje in Kootwijk start de 15 km van de Koninklijke Loop. De volledige Koninklijke Weg — rolstoelvriendelijk en geschikt voor de sportieve, getrainde wandelaar.",
                 icon: "🏃🏻♂️"
             }
         ]

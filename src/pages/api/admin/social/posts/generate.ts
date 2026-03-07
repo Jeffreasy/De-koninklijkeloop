@@ -62,11 +62,11 @@ function buildEventContext(data: EventData): string {
     KERNIDENTITEIT:
 De Koninklijke Loop is een inclusief wandelevenement en sponsorloop in ${data.location_city.toUpperCase()}.
 Het is GEEN hardloopwedstrijd.Het is een wandelevenement waar inclusiviteit,
-    verbinding en rolstoelvriendelijkheid centraal staan.
+    verbinding en toegankelijkheid centraal staan.
 
 Op ${data.event_date_display} (3e editie) brengt De Koninklijke Loop verleden, heden en toekomst samen.
-Deelnemers wandelen over de Koninklijke Weg — een rolstoelvriendelijke route bedacht
-door oud - wethouder Aalt van de Glind(rond 2006 - 2010, hij overleed in 2018) — richting
+Deelnemers wandelen over de Koninklijke Weg — alle vier routes (2,5 tot 15 km) zijn volledig rolstoelvriendelijk.
+De weg werd bedacht door oud-wethouder Aalt van de Glind (rond 2006-2010, hij overleed in 2018) — richting
 de finish bij ${data.finish_location}.
 
 HET VERHAAL(KERN — altijd gebruiken):
@@ -106,7 +106,7 @@ Kernwaarden:
     - Sociale verbinding: sport als middel tegen eenzaamheid, niemand loopt alleen
         - Koninklijke allure: feestelijke ambiance bij start en finish met muziek, sfeer en applaus
             - Vitale leefstijl: bewegen in het groen van de Veluwe voor jong en oud
-                - Rolstoelvriendelijk: de Koninklijke Weg is voor iedereen toegankelijk
+                - Rolstoelvriendelijk: alle vier routes (2,5–15 km) zijn volledig toegankelijk voor rolstoelgebruikers
 
 Slogan: "De sponsorloop van mensen met een beperking voor een goed doel. Samen maken we het verschil."
 
