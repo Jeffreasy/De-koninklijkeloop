@@ -25,28 +25,28 @@ export const routes: RouteMetadata[] = [
         name: "2.5 KM Roll & Stroll",
         distance: "2.5 KM",
         color: "#10b981",
-        description: "Een volledig verharde, toegankelijke route. Perfect voor rolstoelgebruikers en gezinnen.",
+        description: "Een volledig verharde en rolstoelvriendelijke route. Perfect voor rolstoelgebruikers, gezinnen en iedereen die van een toegankelijke wandeling geniet.",
     },
     {
         id: "6km",
         name: "6 KM Gezinsroute",
         distance: "6 KM",
         color: "#3b82f6",
-        description: "Een mooie wandeling door de directe natuur, ideaal voor een sportieve middag met het gezin.",
+        description: "Een rolstoelvriendelijke wandeling door de directe natuur, ideaal voor een sportieve middag met het gezin. Volledig toegankelijk parcours.",
     },
     {
         id: "10km",
         name: "10 KM Vorstelijke Verkenning",
         distance: "10 KM",
         color: "#eab308",
-        description: "Verken de bossen rondom het paleis en de prachtige lanen van Apeldoorn.",
+        description: "Verken de bossen rondom het paleis en de prachtige lanen van Apeldoorn. Een rolstoelvriendelijke route voor de actieve wandelaar.",
     },
     {
         id: "15km",
         name: "15 KM Paleistuinen & Parken",
         distance: "15.6 KM",
         color: "#EF4444",
-        description: "Onze langste route van Kootwijk naar Apeldoorn voor de echte doorzetters.",
+        description: "De volledige Koninklijke Weg van Kootwijk naar Apeldoorn — rolstoelvriendelijk en voor de echte doorzetters.",
     },
 ];
 

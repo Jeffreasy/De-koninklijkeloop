@@ -327,7 +327,7 @@ function ProgrammaContent() {
                                         backgroundSize: '24px 24px',
                                     }} />
                                     {/* Gradient overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-glass-bg/60 pointer-events-none" />
+                                    <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-glass-bg/60 pointer-events-none" />
                                     {/* Route SVG */}
                                     <svg viewBox="0 0 200 120" className="relative w-full h-full p-3 z-10" fill="none" preserveAspectRatio="xMidYMid meet">
                                         {svgPath && (
@@ -498,8 +498,8 @@ function ProgrammaContent() {
                                                 </div>
                                             </div>
 
-                                            {/* Fix #6: w-18 is non-standard — use w-[4.5rem] so the card clears the node */}
-                                            <div className="w-[4.5rem] shrink-0 md:hidden" />
+                                            {/* Spacer so the card clears the timeline node on mobile */}
+                                            <div className="w-18 shrink-0 md:hidden" />
                                             <div className={`hidden md:block md:w-[calc(50%-1.5rem)] ${isLeft ? 'order-last' : ''}`} />
 
                                             {/* Card */}

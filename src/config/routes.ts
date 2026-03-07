@@ -30,7 +30,7 @@ export const ROUTE_INFO: Record<RouteKey, RouteInfo> = {
         busVertrek: "10:45",
         startTijd: "11:15",
         startLocatie: "Kootwijk — De Brink",
-        startAdres: "Dorpscentrum Kootwijk, nabij kerk en 't Hilletje",
+        startAdres: "Dorpscentrum Kootwijk, nabij kerk en 't Hilletje (rolstoelvriendelijk toegankelijk)",
         // TODO: Verify and replace with real Google Maps short link
         mapsLink: "https://maps.app.goo.gl/kootwijk-de-brink",
         kleur: "#EF4444",
@@ -44,7 +44,7 @@ export const ROUTE_INFO: Record<RouteKey, RouteInfo> = {
         busVertrek: "12:30",
         startTijd: "13:00",
         startLocatie: "Assel — Halte Assel",
-        startAdres: "Pomphulweg / Asselseweg, Assel (bij Eethuis Halte Assel)",
+        startAdres: "Pomphulweg / Asselseweg, Assel (bij Eethuis Halte Assel) — rolstoelvriendelijk toegankelijk",
         // TODO: Verify and replace with real Google Maps short link
         mapsLink: "https://maps.app.goo.gl/assel-halte",
         kleur: "#eab308",
@@ -58,7 +58,7 @@ export const ROUTE_INFO: Record<RouteKey, RouteInfo> = {
         busVertrek: "13:45",
         startTijd: "14:15",
         startLocatie: "Hoog Soeren — Dorpscentrum",
-        startAdres: "Hoog Soeren 15, nabij Hotel Hoog Soeren en Berg & Dal",
+        startAdres: "Hoog Soeren 15, nabij Hotel Hoog Soeren en Berg & Dal — rolstoelvriendelijk toegankelijk",
         // TODO: Verify and replace with real Google Maps short link
         mapsLink: "https://maps.app.goo.gl/hoog-soeren",
         kleur: "#3b82f6",
