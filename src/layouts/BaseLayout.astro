@@ -172,6 +172,13 @@ import FloatingToolbox from "../components/dashboard/FloatingToolbox";
         <slot name="head" />
     </head>
     <body class="text-text-body antialiased selection:bg-brand-primary/20">
+        <!-- Background ambient glows: fixed to viewport so they never scroll off on mobile -->
+        <div aria-hidden="true" class="glow-container">
+            <!-- Top-center: blue radial glow -->
+            <div class="glow glow-blue"></div>
+            <!-- Bottom-right: orange radial glow -->
+            <div class="glow glow-orange"></div>
+        </div>
         <slot />
         <script is:inline define:vars={{ user: Astro.locals.user }}>
             window.DKL_INITIAL_USER = user;

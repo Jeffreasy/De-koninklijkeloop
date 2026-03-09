@@ -219,46 +219,61 @@ iconify-icon {
     line-height: 1.15;
   }
 
-  /* Dark Mode: Royal Path Pattern (Clean Ambient) */
+  /* Background color only — glows are rendered as fixed <div> elements in BaseLayout.astro */
   body {
     background-color: var(--bg-body);
-    background-image:
-      /* Radial Path Highlight */
-      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--color-action-blue), transparent 75%) 0%, transparent 60%),
-      radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--color-brand-orange), transparent 80%) 0%, transparent 40%);
-    background-size: 100% 100%, 100% 100%;
-    background-attachment: fixed;
-  }
-
-  /* Light Mode: Royal Path Pattern (Clean Ambient) */
-  html[data-theme="light"] body {
-    background-color: var(--bg-body);
-    background-image:
-      /* Radial Path Highlight */
-      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--color-action-blue), transparent 78%) 0%, transparent 70%),
-      radial-gradient(circle at 90% 90%, color-mix(in srgb, var(--color-brand-orange), transparent 55%) 0%, transparent 50%);
-    background-size: 100% 100%, 100% 100%;
-    background-attachment: fixed;
-  }
-
-  /* Mobile: disable fixed attachment (causes jank on iOS/Android) */
-  /* Use viewport-relative sizing so gradient doesn't stretch to full document height */
-  @media (max-width: 768px) {
-    body {
-      background-attachment: scroll;
-      background-size: 100vw 100vh;
-      background-repeat: no-repeat;
-    }
-
-    html[data-theme="light"] body {
-      background-attachment: scroll;
-      background-size: 100vw 100vh;
-      background-repeat: no-repeat;
-    }
   }
 }
 
-/* --- 5. Social Modal Custom Scrollbar --- */
+/* --- 5. Ambient Glow Layers (Fixed Viewport Divs) --- */
+/* These replace the former body background-image glows.         */
+/* Fixed positioning ensures they never scroll on mobile (iOS/Android). */
+
+.glow-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -10;
+  overflow: hidden;
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+}
+
+/* Top-center: blue path highlight */
+.glow-blue {
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70vw;
+  height: 60vh;
+  background: color-mix(in srgb, var(--color-action-blue), transparent 75%);
+}
+
+/* Bottom-right: orange warm glow */
+.glow-orange {
+  bottom: -15%;
+  right: -10%;
+  width: 55vw;
+  height: 55vh;
+  background: color-mix(in srgb, var(--color-brand-orange), transparent 80%);
+}
+
+/* Light mode: iets subtieler */
+html[data-theme="light"] .glow-blue {
+  background: color-mix(in srgb, var(--color-action-blue), transparent 78%);
+}
+
+html[data-theme="light"] .glow-orange {
+  background: color-mix(in srgb, var(--color-brand-orange), transparent 55%);
+  width: 50vw;
+  height: 50vh;
+}
+
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
