@@ -10,6 +10,19 @@ type ParticipantRole = "deelnemer" | "begeleider" | "vrijwilliger";
 type ParticipantStatus = "pending" | "paid" | "cancelled";
 type RouteDistance = "2.5" | "6" | "10" | "15";
 
+interface GroupMember {
+    name: string;
+    distance?: string;
+    wheelchairUser?: boolean;
+    shuttleBus?: string;
+    supportNeeded?: string;
+    iceName?: string;
+    icePhone?: string;
+    livesInFacility?: boolean;
+    participantType?: string;
+    agreedToMedia?: boolean;
+}
+
 interface Registration {
     _id: string;
     name: string;
@@ -31,6 +44,8 @@ interface Registration {
     participantType?: "doelgroep" | "verwant" | "anders";
     createdAt: number;
     notes?: string;
+    /** Embedded groepsleden (begeleider groepsregistratie) */
+    groupMembers?: GroupMember[];
 }
 
 interface Props {
@@ -406,8 +421,8 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                         </div>
                     )}
 
-                    {/* Deelnemer Gegevens (Begeleider) */}
-                    {formData.role === 'begeleider' && (
+                    {/* Deelnemer Gegevens (Begeleider 1-op-1) */}
+                    {formData.role === 'begeleider' && !registration.groupMembers?.length && (
                         <div className="space-y-4 pt-2 border-t border-glass-border/50">
                             <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
                                 <User className="w-3.5 h-3.5" />
@@ -441,6 +456,36 @@ export default function ParticipantDetailModal({ registration, onClose, onUpdate
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    )}
+
+                    {/* Groepsregistratie viewer (read-only) */}
+                    {registration.groupMembers && registration.groupMembers.length > 0 && (
+                        <div className="space-y-3 pt-2 border-t border-glass-border/50">
+                            <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <HeartHandshake className="w-3.5 h-3.5 text-blue-500" />
+                                Groepsregistratie — {registration.groupMembers.length} deelnemers
+                            </h3>
+                            <div className="space-y-2">
+                                {registration.groupMembers.map((member, i) => (
+                                    <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-blue-500/5 border border-blue-500/15">
+                                        <span className="w-6 h-6 rounded-full bg-blue-500/10 text-blue-600 text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-semibold text-text-primary truncate">{member.name}</p>
+                                            <p className="text-xs text-text-muted">{member.distance ? `${member.distance} km` : 'Afstand onbekend'}</p>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 shrink-0">
+                                            {member.wheelchairUser && (
+                                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 border border-indigo-500/20">♿ Rolstoel</span>
+                                            )}
+                                            {member.shuttleBus === 'pendelbus' && (
+                                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-600 border border-cyan-500/20">🚌 Bus</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-[11px] text-text-muted italic px-1">Groepsleden zijn gekoppeld aan de groepsregistratie en kunnen niet afzonderlijk worden verwijderd.</p>
                         </div>
                     )}
 

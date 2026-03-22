@@ -46,9 +46,26 @@ export default defineSchema({
         )),
         authUserId: v.optional(v.string()), // Linked Auth ID (only for authenticated)
 
-        // Begeleider Companion Linking
+        // Begeleider Companion Linking (single companion — legacy)
         companionName: v.optional(v.string()),   // Who are they accompanying?
         companionEmail: v.optional(v.string()),  // Links to another registration
+
+        // Groepsregistratie: begeleider meldt meerdere cliënten aan onder één email
+        // Elke entry = één deelnemer zonder eigen email (telt wel mee in capaciteit)
+        groupMembers: v.optional(v.array(v.object({
+            name: v.string(),
+            distance: v.optional(v.union(v.literal("2.5"), v.literal("6"), v.literal("10"), v.literal("15"))),
+            wheelchairUser: v.optional(v.boolean()),
+            shuttleBus: v.optional(v.union(v.literal("pendelbus"), v.literal("eigen-vervoer"))),
+            supportNeeded: v.optional(v.union(v.literal("ja"), v.literal("nee"), v.literal("anders"))),
+            supportDescription: v.optional(v.string()),
+            livesInFacility: v.optional(v.boolean()),
+            participantType: v.optional(v.union(v.literal("doelgroep"), v.literal("verwant"), v.literal("anders"))),
+            agreedToMedia: v.optional(v.boolean()),
+            // ICE override: als leeg, gebruikt de begeleider zijn eigen ICE contact
+            iceName: v.optional(v.string()),
+            icePhone: v.optional(v.string()),
+        }))),
 
         // Admin Notes
         notes: v.optional(v.string()),

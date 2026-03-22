@@ -21,6 +21,16 @@ type ParticipantRole = "deelnemer" | "begeleider" | "vrijwilliger";
 type ParticipantStatus = "pending" | "paid" | "cancelled";
 type RouteDistance = "2.5" | "6" | "10" | "15";
 
+interface GroupMember {
+    name: string;
+    distance?: string;
+    wheelchairUser?: boolean;
+    shuttleBus?: string;
+    supportNeeded?: string;
+    livesInFacility?: boolean;
+    participantType?: string;
+}
+
 interface Registration {
     _id: string;
     name: string;
@@ -43,6 +53,8 @@ interface Registration {
     edition?: string;
     companionName?: string;
     companionEmail?: string;
+    /** Embedded groepsleden (begeleider groepsregistratie) */
+    groupMembers?: GroupMember[];
     // Confirmation email tracking
     confirmationSentAt?: number;
     confirmationSentBy?: string;
@@ -88,6 +100,9 @@ export default function ParticipantsTable() {
                     distance: reg.distance,
                     shuttleBus: reg.shuttleBus,
                     registrationId: reg._id,
+                    userType: reg.userType,
+                    // Include group members so they appear in the confirmation email
+                    groupMembers: reg.groupMembers,
                 }),
             });
 
@@ -165,14 +180,15 @@ export default function ParticipantsTable() {
         if (!registrations) return [];
 
         let result = registrations.filter((reg) => {
-            // Text Search (incl. city)
+            // Text Search (incl. city and group members)
             if (searchQuery) {
                 const query = searchQuery.toLowerCase();
                 const matchesName = reg.name.toLowerCase().includes(query);
                 const matchesEmail = reg.email.toLowerCase().includes(query);
                 const matchesID = reg._id.toLowerCase().includes(query);
                 const matchesCity = reg.city?.toLowerCase().includes(query);
-                if (!matchesName && !matchesEmail && !matchesID && !matchesCity) return false;
+                const matchesGroupMember = reg.groupMembers?.some(m => m.name.toLowerCase().includes(query));
+                if (!matchesName && !matchesEmail && !matchesID && !matchesCity && !matchesGroupMember) return false;
             }
 
             // Edition Filter (Treat undefined as "2026")
@@ -299,28 +315,58 @@ export default function ParticipantsTable() {
         const participantLabel = (s?: string) =>
             s === "doelgroep" ? "Doelgroep" : s === "verwant" ? "Verwant" : "Anders";
 
-        const headers = ["Naam", "Email", "Rol", "Afstand", "Status", "Ondersteuning", "Toelichting", "Plaatsnaam", "Rolstoel", "Vervoer", "Instelling", "Doelgroep", "Type", "Aangemaakt", "Noodcontact Naam", "Noodcontact Telefoon", "Gekoppelde Deelnemer (Naam)", "Gekoppelde Deelnemer (Email)"];
+        const headers = ["Naam", "Email", "Rol", "Afstand", "Status", "Ondersteuning", "Toelichting", "Plaatsnaam", "Rolstoel", "Vervoer", "Instelling", "Doelgroep", "Type", "Aangemaakt", "Noodcontact Naam", "Noodcontact Telefoon", "Gekoppelde Deelnemer (Naam)", "Gekoppelde Deelnemer (Email)", "Groepsleden"];
 
-        const rows = processedRegistrations.map(r => [
-            r.name,
-            r.email,
-            roleLabel(r.role),
-            r.distance ? `${r.distance} km` : "",
-            statusLabel(r.status),
-            supportLabel(r.supportNeeded),
-            r.supportDescription || "",
-            r.city || "",
-            r.wheelchairUser ? "Ja" : "Nee",
-            shuttleLabel(r.shuttleBus),
-            r.livesInFacility ? "Ja" : "Nee",
-            participantLabel(r.participantType),
-            typeLabel(r.userType),
-            formatDate(r.createdAt),
-            r.iceName || "",
-            r.icePhone || "",
-            r.companionName || "",
-            r.companionEmail || "",
-        ]);
+        const rows: any[][] = [];
+        for (const r of processedRegistrations) {
+            rows.push([
+                r.name,
+                r.email,
+                roleLabel(r.role),
+                r.distance ? `${r.distance} km` : "",
+                statusLabel(r.status),
+                supportLabel(r.supportNeeded),
+                r.supportDescription || "",
+                r.city || "",
+                r.wheelchairUser ? "Ja" : "Nee",
+                shuttleLabel(r.shuttleBus),
+                r.livesInFacility ? "Ja" : "Nee",
+                participantLabel(r.participantType),
+                typeLabel(r.userType),
+                formatDate(r.createdAt),
+                r.iceName || "",
+                r.icePhone || "",
+                r.companionName || "",
+                r.companionEmail || "",
+                r.groupMembers?.length ? `${r.groupMembers.length} personen` : "",
+            ]);
+            // Extra rijen per groepslid
+            if (r.groupMembers && r.groupMembers.length > 0) {
+                for (const m of r.groupMembers) {
+                    rows.push([
+                        `  ↳ ${m.name}`,
+                        r.email,
+                        "Groepslid (begeleider)",
+                        m.distance ? `${m.distance} km` : "",
+                        statusLabel(r.status),
+                        "",
+                        "",
+                        "",
+                        m.wheelchairUser ? "Ja" : "Nee",
+                        shuttleLabel(m.shuttleBus),
+                        m.livesInFacility ? "Ja" : "Nee",
+                        participantLabel(m.participantType),
+                        typeLabel(r.userType),
+                        formatDate(r.createdAt),
+                        "",
+                        "",
+                        r.name,
+                        "",
+                        "",
+                    ]);
+                }
+            }
+        }
 
         // Summary row
         const totalDeelnemers = processedRegistrations.filter(r => r.role === "deelnemer").length;
@@ -382,15 +428,18 @@ export default function ParticipantsTable() {
         return editionRegistrations.reduce((acc, r) => {
             acc.total++;
             if (r.role === "deelnemer") acc.deelnemers++;
-            else if (r.role === "begeleider") acc.begeleiders++;
-            else if (r.role === "vrijwilliger") acc.vrijwilligers++;
+            else if (r.role === "begeleider") {
+                acc.begeleiders++;
+                // Groepsleden tellen als echte deelnemers
+                acc.groupMembers += r.groupMembers?.length ?? 0;
+            } else if (r.role === "vrijwilliger") acc.vrijwilligers++;
             if (r.userType === "authenticated") acc.authenticated++;
             else if (r.userType === "guest") acc.guests++;
             if (r.wheelchairUser) acc.wheelchair++;
             if (r.shuttleBus === "pendelbus") acc.shuttleBus++;
             if (r.livesInFacility) acc.facility++;
             return acc;
-        }, { total: 0, deelnemers: 0, begeleiders: 0, vrijwilligers: 0, authenticated: 0, guests: 0, wheelchair: 0, shuttleBus: 0, facility: 0 });
+        }, { total: 0, deelnemers: 0, begeleiders: 0, vrijwilligers: 0, authenticated: 0, guests: 0, wheelchair: 0, shuttleBus: 0, facility: 0, groupMembers: 0 });
     }, [registrations, editionFilter]);
 
 
@@ -794,6 +843,11 @@ export default function ParticipantsTable() {
                                                                     <span className={`capitalize px-2 py-0.5 rounded-md bg-glass-surface/50 ${reg.role === "deelnemer" ? "text-brand-orange bg-brand-orange/5" :
                                                                         reg.role === "begeleider" ? "text-blue-600 bg-blue-500/5" : "text-green-600 bg-green-500/5"
                                                                         }`}>{reg.role}</span>
+                                                                    {reg.role === "begeleider" && reg.groupMembers && reg.groupMembers.length > 0 && (
+                                                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/20 font-bold" title={`Groepsregistratie: ${reg.groupMembers.length} deelnemers`}>
+                                                                            👥 {reg.groupMembers.length} leden
+                                                                        </span>
+                                                                    )}
                                                                     <span className="font-mono opacity-40">#{reg._id.slice(-6)}</span>
                                                                 </div>
                                                             </div>

@@ -3,6 +3,21 @@ import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { verifyAuth } from "./authHelpers";
 
+// Shared group member validator (mirrors internal.ts)
+const groupMemberValidator = v.object({
+    name: v.string(),
+    distance: v.optional(v.union(v.literal("2.5"), v.literal("6"), v.literal("10"), v.literal("15"))),
+    wheelchairUser: v.optional(v.boolean()),
+    shuttleBus: v.optional(v.union(v.literal("pendelbus"), v.literal("eigen-vervoer"))),
+    supportNeeded: v.optional(v.union(v.literal("ja"), v.literal("nee"), v.literal("anders"))),
+    supportDescription: v.optional(v.string()),
+    livesInFacility: v.optional(v.boolean()),
+    participantType: v.optional(v.union(v.literal("doelgroep"), v.literal("verwant"), v.literal("anders"))),
+    agreedToMedia: v.optional(v.boolean()),
+    iceName: v.optional(v.string()),
+    icePhone: v.optional(v.string()),
+});
+
 export const getRegistrations = action({
     args: { token: v.string() },
     handler: async (ctx, args): Promise<any> => {
@@ -33,9 +48,11 @@ export const updateRegistration = action({
         shuttleBus: v.optional(v.union(v.literal("pendelbus"), v.literal("eigen-vervoer"))),
         livesInFacility: v.optional(v.boolean()),
         participantType: v.optional(v.union(v.literal("doelgroep"), v.literal("verwant"), v.literal("anders"))),
-        // Begeleider companion linking
+        // Begeleider companion linking (1-op-1)
         companionName: v.optional(v.string()),
         companionEmail: v.optional(v.string()),
+        // Groepsregistratie: embedded deelnemers array
+        groupMembers: v.optional(v.array(groupMemberValidator)),
     },
     handler: async (ctx, args) => {
         await verifyAuth(args.token, { requiredRoles: ["admin", "editor"] });
@@ -59,6 +76,7 @@ export const updateRegistration = action({
             participantType: args.participantType,
             companionName: args.companionName,
             companionEmail: args.companionEmail,
+            groupMembers: args.groupMembers,
         });
     },
 });

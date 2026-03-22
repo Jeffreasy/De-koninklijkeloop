@@ -3,6 +3,21 @@ import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { TENANT_ID, AUTH_API_URL } from "./authHelpers";
 
+// Shared group member validator (mirrors internal.ts)
+const groupMemberValidator = v.object({
+    name: v.string(),
+    distance: v.optional(v.union(v.literal("2.5"), v.literal("6"), v.literal("10"), v.literal("15"))),
+    wheelchairUser: v.optional(v.boolean()),
+    shuttleBus: v.optional(v.union(v.literal("pendelbus"), v.literal("eigen-vervoer"))),
+    supportNeeded: v.optional(v.union(v.literal("ja"), v.literal("nee"), v.literal("anders"))),
+    supportDescription: v.optional(v.string()),
+    livesInFacility: v.optional(v.boolean()),
+    participantType: v.optional(v.union(v.literal("doelgroep"), v.literal("verwant"), v.literal("anders"))),
+    agreedToMedia: v.optional(v.boolean()),
+    iceName: v.optional(v.string()),
+    icePhone: v.optional(v.string()),
+});
+
 export const registerParticipant = action({
     args: {
         name: v.string(),
@@ -23,11 +38,11 @@ export const registerParticipant = action({
         icePhone: v.string(),
         agreedToTerms: v.boolean(),
         agreedToMedia: v.boolean(),
+        // Groepsregistratie: begeleider meldt meerdere cliënten aan (zonder eigen email)
+        groupMembers: v.optional(v.array(groupMemberValidator)),
     },
     handler: async (ctx, args): Promise<string> => {
         // 1. Create User in Auth System (or auto-promote ghost user)
-        // The Go backend auto-detects ghost users (password_hash IS NULL)
-        // and promotes them by setting the password — same user_id preserved.
         const authRes = await fetch(`${AUTH_API_URL}/auth/register`, {
             method: "POST",
             headers: {
@@ -36,7 +51,8 @@ export const registerParticipant = action({
             },
             body: JSON.stringify({
                 email: args.email,
-                password: args.password
+                password: args.password,
+                full_name: args.name,  // Fix B-01: full_name was previously missing
             })
         });
 
@@ -63,9 +79,7 @@ export const registerParticipant = action({
             console.warn("[Register] Could not parse Auth response JSON, proceeding without linking ID.", e);
         }
 
-        // 3. Store/Update Registration in Convex
-        // Try creating a new registration first. If the email already exists
-        // (guest registered earlier), promote the existing guest record instead.
+        // 3. Store/Update Registration in Convex (including any group members)
         const { password, ...registrationData } = args;
 
         let registrationId: string;
@@ -84,7 +98,7 @@ export const registerParticipant = action({
                 });
                 console.log(`[Register] Ghost user promoted in Convex: ${registrationId}`);
             } else {
-                throw e; // Re-throw unexpected errors
+                throw e;
             }
         }
 

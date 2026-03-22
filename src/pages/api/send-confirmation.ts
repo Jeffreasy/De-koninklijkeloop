@@ -17,6 +17,13 @@ interface ConfirmationPayload {
   registrationId: string;
   /** From Convex registrations.userType — determines which email template is used. */
   userType?: "authenticated" | "guest";
+  /** Embedded group members for groepsregistratie (begeleider only). */
+  groupMembers?: Array<{
+    name: string;
+    distance?: string;
+    wheelchairUser?: boolean;
+    shuttleBus?: string;
+  }>;
 }
 
 interface ValidationError {
@@ -53,6 +60,28 @@ function minify(html: string): string {
   return html.replace(/\s*\n\s*/g, "").replace(/\s{2,}/g, " ").trim();
 }
 
+function buildGroupMembersBlock(groupMembers: ConfirmationPayload["groupMembers"]): string {
+  if (!groupMembers || groupMembers.length === 0) return "";
+
+  const rows = groupMembers.map((m, i) => {
+    const dist = m.distance ? `${m.distance} km` : "&mdash;";
+    const wc = m.wheelchairUser ? ` <span style="display:inline-block;background:#eef2ff;color:#4338ca;font-size:9px;padding:1px 6px;border-radius:10px;">&#9855; Rolstoel</span>` : "";
+    const shuttle = m.shuttleBus === "pendelbus" ? ` <span style="display:inline-block;background:#ecfeff;color:#0e7490;font-size:9px;padding:1px 6px;border-radius:10px;">&#128652; Bus</span>` : "";
+    return `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:7px 0;font-size:12px;color:#374151;width:32px;font-weight:700;">${i + 1}.</td><td style="padding:7px 0;font-size:12px;color:#111827;font-weight:600;">${escapeHtml(m.name)}</td><td style="padding:7px 0;font-size:12px;color:#6b7280;text-align:right;">${dist}${wc}${shuttle}</td></tr>`;
+  }).join("");
+
+  return minify(`
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+      <tr><td style="padding:0 0 12px 0;">
+        <p style="margin:0 0 6px 0;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#94a3b8;">&#128101; Aangemelde deelnemers (${groupMembers.length})</p>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:0 12px;">
+          <tbody style="display:table;width:100%;">${rows}</tbody>
+        </table>
+      </td></tr>
+    </table>
+  `);
+}
+
 /** Build the route-specific schedule block — minified for Go backend Markdown parser compatibility. */
 function buildRouteBlock(
   route: ReturnType<typeof resolveRoute>,
@@ -80,8 +109,9 @@ function buildHtmlEmail(params: {
   safeRegistrationId: string;
   routeBlock: string;
   vrijwilligerNote: string;
+  groupMembersBlock: string;
 }): string {
-  const { safeName, safeRegistrationId, routeBlock, vrijwilligerNote } = params;
+  const { safeName, safeRegistrationId, routeBlock, vrijwilligerNote, groupMembersBlock } = params;
 
   const infoTable = minify(`<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr><td style="padding:9px 12px 9px 0;border-bottom:1px solid #f1f5f9;width:38%;vertical-align:top;"><span style="font-size:11px;font-weight:700;color:#64748b;">&#127968; Co&ouml;rdinatiepunt</span></td><td style="padding:9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;"><span style="font-size:12px;color:#374151;">Grote Kerk, Loolaan 16 &mdash; Apeldoorn</span></td></tr><tr><td style="padding:9px 12px 9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;"><span style="font-size:11px;font-weight:700;color:#64748b;">&#127937; Finish</span></td><td style="padding:9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;"><span style="font-size:12px;color:#374151;">Grote Kerk &middot; 16:10&ndash;16:30</span></td></tr><tr><td style="padding:9px 12px 9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;"><span style="font-size:11px;font-weight:700;color:#64748b;">&#127828; Eten &amp; drinken</span></td><td style="padding:9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;"><span style="font-size:12px;color:#374151;">Lunchpakket inbegrepen &middot; fruit &amp; drinken onderweg</span></td></tr><tr><td style="padding:9px 12px 9px 0;vertical-align:top;"><span style="font-size:11px;font-weight:700;color:#64748b;">&#129657; EHBO</span></td><td style="padding:9px 0;vertical-align:top;"><span style="font-size:12px;color:#374151;">EHBO&rsquo;ers &amp; begeleiders gehele dag aanwezig</span></td></tr></table>`);
 
@@ -92,6 +122,7 @@ function buildHtmlEmail(params: {
     `<p style="margin:0 0 24px 0;font-size:13px;color:#64748b;line-height:1.7;">Super dat je meedoet! Je inschrijving is officieel goedgekeurd en bevestigd. Hieronder vind je alle details voor jouw dag.</p>`,
     routeBlock,
     vrijwilligerNote,
+    groupMembersBlock,
     `<p style="margin:0 0 14px 0;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:20px;">Praktische informatie</p>`,
     infoTable,
     ctaButtons,
@@ -111,8 +142,9 @@ function buildGuestEmail(params: {
   safeEmail: string;
   routeBlock: string;
   vrijwilligerNote: string;
+  groupMembersBlock: string;
 }): string {
-  const { safeName, safeRegistrationId, safeEmail, routeBlock, vrijwilligerNote } = params;
+  const { safeName, safeRegistrationId, safeEmail, routeBlock, vrijwilligerNote, groupMembersBlock } = params;
 
   const infoTable = minify(`<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr><td style="padding:9px 12px 9px 0;border-bottom:1px solid #f1f5f9;width:38%;vertical-align:top;"><span style="font-size:11px;font-weight:700;color:#64748b;">&#127968; Co&ouml;rdinatiepunt</span></td><td style="padding:9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;"><span style="font-size:12px;color:#374151;">Grote Kerk, Loolaan 16 &mdash; Apeldoorn</span></td></tr><tr><td style="padding:9px 12px 9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;"><span style="font-size:11px;font-weight:700;color:#64748b;">&#127937; Finish</span></td><td style="padding:9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;"><span style="font-size:12px;color:#374151;">Grote Kerk &middot; 16:10&ndash;16:30</span></td></tr><tr><td style="padding:9px 12px 9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;"><span style="font-size:11px;font-weight:700;color:#64748b;">&#127828; Eten &amp; drinken</span></td><td style="padding:9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;"><span style="font-size:12px;color:#374151;">Lunchpakket inbegrepen &middot; fruit &amp; drinken onderweg</span></td></tr><tr><td style="padding:9px 12px 9px 0;vertical-align:top;"><span style="font-size:11px;font-weight:700;color:#64748b;">&#129657; EHBO</span></td><td style="padding:9px 0;vertical-align:top;"><span style="font-size:12px;color:#374151;">EHBO&rsquo;ers &amp; begeleiders gehele dag aanwezig</span></td></tr></table>`);
 
@@ -125,6 +157,7 @@ function buildGuestEmail(params: {
     `<p style="margin:0 0 24px 0;font-size:13px;color:#64748b;line-height:1.7;">Super dat je meedoet! Je inschrijving is officieel goedgekeurd en bevestigd. Hieronder vind je alle details voor jouw dag.</p>`,
     routeBlock,
     vrijwilligerNote,
+    groupMembersBlock,
     `<p style="margin:0 0 14px 0;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:20px;">Praktische informatie</p>`,
     infoTable,
     accountBenefits,
@@ -217,7 +250,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   // Safe to cast — validatePayload guarantees required fields are present
-  const { name, email, role, distance, shuttleBus, registrationId, userType } = body as ConfirmationPayload;
+  const { name, email, role, distance, shuttleBus, registrationId, userType, groupMembers } = body as ConfirmationPayload;
 
   // 5. Resolve route safely (no unsafe cast)
   const route = resolveRoute(distance);
@@ -234,6 +267,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const safeRegistrationId = escapeHtml(registrationId);
 
   const routeBlock = buildRouteBlock(route, usesShuttle, roleLabel);
+  const groupMembersBlock = buildGroupMembersBlock(groupMembers);
 
   const vrijwilligerNote = isVrijwilliger
     ? minify(`<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;"><tr><td style="padding:0 0 12px 0;"><table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;"><tr><td style="padding:10px 14px;"><p style="margin:0;font-size:12px;color:#166534;line-height:1.5;"><strong>Vrijwilliger</strong> &mdash; Je ontvangt binnenkort aparte instructies. Vragen? <a href="mailto:info@dekoninklijkeloop.nl" style="color:#16a34a;font-weight:600;text-decoration:none;">info@dekoninklijkeloop.nl</a></p></td></tr></table></td></tr></table>`)
@@ -243,8 +277,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const safeEmail = escapeHtml(encodeURIComponent(email));
   const isGuest = userType !== "authenticated";
   const htmlBody = isGuest
-    ? buildGuestEmail({ safeName, safeRegistrationId, safeEmail, routeBlock, vrijwilligerNote })
-    : buildHtmlEmail({ safeName, safeRegistrationId, routeBlock, vrijwilligerNote });
+    ? buildGuestEmail({ safeName, safeRegistrationId, safeEmail, routeBlock, vrijwilligerNote, groupMembersBlock })
+    : buildHtmlEmail({ safeName, safeRegistrationId, routeBlock, vrijwilligerNote, groupMembersBlock });
   const textBody = buildPlainText({ name, roleLabel, registrationId, route, usesShuttle, isVrijwilliger });
 
   const subject = isGuest

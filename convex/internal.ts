@@ -11,6 +11,21 @@ export const listRegistrations = internalQuery({
     },
 });
 
+// Shared validator object for a single group member (no email required)
+const groupMemberValidator = v.object({
+    name: v.string(),
+    distance: v.optional(v.union(v.literal("2.5"), v.literal("6"), v.literal("10"), v.literal("15"))),
+    wheelchairUser: v.optional(v.boolean()),
+    shuttleBus: v.optional(v.union(v.literal("pendelbus"), v.literal("eigen-vervoer"))),
+    supportNeeded: v.optional(v.union(v.literal("ja"), v.literal("nee"), v.literal("anders"))),
+    supportDescription: v.optional(v.string()),
+    livesInFacility: v.optional(v.boolean()),
+    participantType: v.optional(v.union(v.literal("doelgroep"), v.literal("verwant"), v.literal("anders"))),
+    agreedToMedia: v.optional(v.boolean()),
+    iceName: v.optional(v.string()),
+    icePhone: v.optional(v.string()),
+});
+
 // Internal mutation to create a registration record
 // Only callable by internal actions (like registerParticipant)
 export const createRegistration = internalMutation({
@@ -33,9 +48,11 @@ export const createRegistration = internalMutation({
         userType: v.union(v.literal("authenticated"), v.literal("guest")),
         authUserId: v.optional(v.string()), // Link to Auth System ID (only for authenticated)
         edition: v.optional(v.string()), // Current edition (e.g. "2026")
-        // Begeleider companion linking
+        // Begeleider companion linking (single, legacy)
         companionName: v.optional(v.string()),
         companionEmail: v.optional(v.string()),
+        // Groepsregistratie: meerdere deelnemers onder één begeleider email
+        groupMembers: v.optional(v.array(groupMemberValidator)),
     },
     handler: async (ctx, args) => {
         const currentEdition = args.edition || "2026";
@@ -58,6 +75,7 @@ export const createRegistration = internalMutation({
         });
     },
 });
+
 
 // Internal mutation to promote a guest registration to authenticated
 // Called when a ghost user creates an account (sets password)
@@ -129,6 +147,8 @@ export const updateRegistration = internalMutation({
         // Begeleider companion linking
         companionName: v.optional(v.string()),
         companionEmail: v.optional(v.string()),
+        // Groepsregistratie: embedded deelnemers array (admin kan updaten)
+        groupMembers: v.optional(v.array(groupMemberValidator)),
         // Confirmation email tracking
         confirmationSentAt: v.optional(v.number()),
         confirmationSentBy: v.optional(v.string()),
