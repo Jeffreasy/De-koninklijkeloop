@@ -16,6 +16,8 @@ interface Registration {
     shuttleBus?: string; // "pendelbus" | "eigen-vervoer"
     livesInFacility?: boolean;
     participantType?: string; // "doelgroep" | "verwant" | "anders"
+    /** Embedded groepsleden (begeleider groepsregistratie) */
+    groupMembers?: { name: string; distance?: string; wheelchairUser?: boolean }[];
 }
 
 interface DashboardStats {
@@ -99,14 +101,29 @@ export function useDashboardStats(registrations: Registration[] | undefined): Da
             const type = reg.userType === "authenticated" ? "authenticated" : "guest";
             userTypeMap[type]++;
 
-            // Count Roles
-            if (roleMap[reg.role] !== undefined) {
-                roleMap[reg.role]++;
+            // Count Roles — begeleider telt als groepsleden, deelnemer telt zichzelf
+            if (reg.role === "begeleider") {
+                roleMap["begeleider"]++;
+                // Groepsleden zijn de werkelijke deelnemers onder deze begeleider
+                const memberCount = reg.groupMembers?.length ?? 0;
+                roleMap["deelnemer"] = (roleMap["deelnemer"] || 0) + memberCount;
+            } else if (reg.role === "deelnemer") {
+                roleMap["deelnemer"]++;
+                // Individuele deelnemer telt eigen afstand
+                if (reg.distance && distMap[reg.distance] !== undefined) {
+                    distMap[reg.distance]++;
+                }
+            } else if (reg.role === "vrijwilliger") {
+                roleMap["vrijwilliger"]++;
             }
 
-            // Count Distances (only for walkers)
-            if (reg.role === "deelnemer" && reg.distance && distMap[reg.distance] !== undefined) {
-                distMap[reg.distance]++;
+            // Groepsleden afstanden ook meewegen in distMap
+            if (reg.role === "begeleider" && reg.groupMembers) {
+                for (const m of reg.groupMembers) {
+                    if (m.distance && distMap[m.distance] !== undefined) {
+                        distMap[m.distance]++;
+                    }
+                }
             }
 
             // Revenue Calculation (Kept as secondary metric)
@@ -140,9 +157,17 @@ export function useDashboardStats(registrations: Registration[] | undefined): Da
             .sort((a, b) => b.createdAt - a.createdAt)
             .slice(0, 5);
 
+        // Totaal werkelijke deelnemers:
+        // deelnemer = +1, begeleider = +groepsleden.length, vrijwilliger = +0
+        const totalParticipants = registrations.reduce((sum, reg) => {
+            if (reg.role === "deelnemer") return sum + 1;
+            if (reg.role === "begeleider") return sum + (reg.groupMembers?.length ?? 0);
+            return sum; // vrijwilliger telt niet mee
+        }, 0);
+
         return {
             totalRevenue: revenue,
-            totalParticipants: registrations.length,
+            totalParticipants,
             uniqueReach: uniqueEmails.size,
             newToday: newTodayCount,
             participantsByDistance: distMap,

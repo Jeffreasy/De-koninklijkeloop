@@ -426,13 +426,19 @@ export default function ParticipantsTable() {
         const editionRegistrations = registrations.filter(r => (r.edition || "2026") === editionFilter);
 
         return editionRegistrations.reduce((acc, r) => {
-            acc.total++;
-            if (r.role === "deelnemer") acc.deelnemers++;
-            else if (r.role === "begeleider") {
+            // Werkelijke deelnemer telling: deelnemer=+1, begeleider=+groepsleden, vrijw=+0
+            if (r.role === "deelnemer") {
+                acc.total++;
+                acc.deelnemers++;
+            } else if (r.role === "begeleider") {
+                const memberCount = r.groupMembers?.length ?? 0;
+                acc.total += memberCount;       // begeleider zelf telt niet mee als deelnemer
+                acc.deelnemers += memberCount;  // groepsleden zijn de echte deelnemers
                 acc.begeleiders++;
-                // Groepsleden tellen als echte deelnemers
-                acc.groupMembers += r.groupMembers?.length ?? 0;
-            } else if (r.role === "vrijwilliger") acc.vrijwilligers++;
+            } else if (r.role === "vrijwilliger") {
+                acc.vrijwilligers++;
+                // vrijwilliger telt niet mee in totaal deelnemers
+            }
             if (r.userType === "authenticated") acc.authenticated++;
             else if (r.userType === "guest") acc.guests++;
             if (r.wheelchairUser) acc.wheelchair++;
@@ -441,6 +447,7 @@ export default function ParticipantsTable() {
             return acc;
         }, { total: 0, deelnemers: 0, begeleiders: 0, vrijwilligers: 0, authenticated: 0, guests: 0, wheelchair: 0, shuttleBus: 0, facility: 0, groupMembers: 0 });
     }, [registrations, editionFilter]);
+
 
 
     if (!registrations) {
