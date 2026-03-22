@@ -54,8 +54,7 @@ export const getDashboardData = action({
                 user: { email: authUser.email, id: authUser.id },
                 registration,
                 linkedDeelnemer,
-                // For group registrations: pass embedded groupMembers directly (no extra query needed)
-                groupMembers: registration?.groupMembers ?? [],
+                // groupMembers accessible via registration.groupMembers (embedded in schema)
                 volunteerTasks
             };
         } catch (e: any) {
