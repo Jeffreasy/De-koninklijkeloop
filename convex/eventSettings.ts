@@ -23,9 +23,19 @@ export const getLiveParticipantCount = query({
     args: {},
     handler: async (ctx) => {
         const registrations = await ctx.db.query("registrations").collect();
-        return registrations.filter(
+        const active = registrations.filter(
             r => r.status !== "cancelled" && r.edition !== "2025"
-        ).length;
+        );
+        // Counting rules (same as syncParticipantCount):
+        //   deelnemer   → +1
+        //   begeleider  → +groupMembers.length (begeleider zelf telt NIET)
+        //   vrijwilliger → 0
+        let count = 0;
+        for (const reg of active) {
+            if (reg.role === "deelnemer") count += 1;
+            else if (reg.role === "begeleider") count += (reg.groupMembers?.length ?? 0);
+        }
+        return count;
     },
 });
 
@@ -138,17 +148,26 @@ export const updateParticipantCount = internalMutation({
             return;
         }
 
-        // Count active registrations (not cancelled, excluding 2025 archive)
         const registrations = await ctx.db.query("registrations").collect();
-        const count = registrations.filter(
+        const active = registrations.filter(
             r => r.status !== "cancelled" && r.edition !== "2025"
-        ).length;
+        );
+
+        // Counting rules (same as syncParticipantCount):
+        //   deelnemer   → +1
+        //   begeleider  → +groupMembers.length (begeleider zelf telt NIET)
+        //   vrijwilliger → 0
+        let count = 0;
+        for (const reg of active) {
+            if (reg.role === "deelnemer") count += 1;
+            else if (reg.role === "begeleider") count += (reg.groupMembers?.length ?? 0);
+        }
 
         await ctx.db.patch(settings._id, {
             current_participants: count,
             updated_at: Date.now(),
         });
 
-        console.log(`Updated participant count: ${count}`);
+        console.log(`Updated participant count: ${count} (incl. group members)`);
     },
 });
