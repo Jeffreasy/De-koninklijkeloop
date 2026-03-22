@@ -11,6 +11,15 @@ export const listRegistrations = internalQuery({
     },
 });
 
+// Internal query to fetch a single registration by ID (used for cleanup before delete)
+export const getRegistrationById = internalQuery({
+    args: { id: v.id("registrations") },
+    handler: async (ctx, args) => {
+        return await ctx.db.get(args.id);
+    },
+});
+
+
 // Shared validator object for a single group member (no email required)
 const groupMemberValidator = v.object({
     name: v.string(),

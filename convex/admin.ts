@@ -1,7 +1,8 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
-import { verifyAuth } from "./authHelpers";
+import { verifyAuth, AUTH_API_URL, TENANT_ID } from "./authHelpers";
+
 
 // Shared group member validator (mirrors internal.ts)
 const groupMemberValidator = v.object({
@@ -90,9 +91,40 @@ export const deleteRegistration = action({
     handler: async (ctx, args) => {
         await verifyAuth(args.token, { requiredRoles: ["admin", "editor"] });
 
+        // 1. Fetch authUserId before deleting (ghost user cleanup)
+        const registration = await ctx.runQuery(internal.internal.getRegistrationById, { id: args.id });
+
+        // 2. Clean up linked PostgreSQL ghost user (fire-and-forget — never blocks delete)
+        if (registration?.authUserId) {
+            const serviceKey = process.env.INTERNAL_SERVICE_KEY;
+            if (serviceKey) {
+                try {
+                    const res = await fetch(`${AUTH_API_URL}/guest/${registration.authUserId}`, {
+                        method: "DELETE",
+                        headers: {
+                            "X-Tenant-ID": TENANT_ID,
+                            "X-Service-Key": serviceKey,
+                        },
+                    });
+                    if (!res.ok && res.status !== 200) {
+                        console.warn(`[deleteRegistration] Ghost user cleanup returned ${res.status} for authUserId=${registration.authUserId}`);
+                    } else {
+                        console.log(`[deleteRegistration] Ghost user ${registration.authUserId} removed from PostgreSQL`);
+                    }
+                } catch (e) {
+                    // Network error — log and continue, don't block the Convex delete
+                    console.warn("[deleteRegistration] Ghost user cleanup failed (network):", e);
+                }
+            } else {
+                console.warn("[deleteRegistration] INTERNAL_SERVICE_KEY not set — skipping ghost user cleanup");
+            }
+        }
+
+        // 3. Delete from Convex (always happens, even if Go cleanup failed)
         await ctx.runMutation(internal.internal.deleteRegistration, { id: args.id });
     },
 });
+
 
 /**
  * Mark a registration as having received a confirmation email.
