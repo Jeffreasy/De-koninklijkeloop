@@ -88,7 +88,7 @@ export const deleteRegistration = action({
         id: v.id("registrations"),
     },
     handler: async (ctx, args) => {
-        await verifyAuth(args.token, { requiredRoles: ["admin"] });
+        await verifyAuth(args.token, { requiredRoles: ["admin", "editor"] });
 
         await ctx.runMutation(internal.internal.deleteRegistration, { id: args.id });
     },
